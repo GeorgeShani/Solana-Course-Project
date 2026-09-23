@@ -1,0 +1,22 @@
+node_modules/
+dist/
+
+# Solana / Anchor
+target/
+.anchor/
+test-ledger/
+.surfpool/
+**/*.rs.bk
+
+# Secrets and env
+.env
+.env.*
+!.env.example
+*-keypair.json
+id.json
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
