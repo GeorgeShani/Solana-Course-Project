@@ -1,0 +1,19 @@
+{
+  "name": "solana-legacy-vault",
+  "private": true,
+  "workspaces": ["app", "server"],
+  "scripts": {
+    "dev:app": "bun run --cwd app dev",
+    "dev:server": "bun run --cwd server dev",
+    "build:app": "bun run --cwd app build",
+    "sync-idl": "bun run scripts/sync-idl.ts",
+    "program:build": "bun run scripts/anchor.ts build",
+    "program:test": "bun run scripts/anchor.ts test",
+    "program:deploy": "bun run scripts/anchor.ts deploy",
+    "typecheck:scripts": "tsc -p tsconfig.json"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "~6.0.2"
+  }
+}

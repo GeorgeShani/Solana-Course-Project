@@ -1,0 +1,14 @@
+{
+  // Type-checks the root helper scripts only. app/ and server/ have their own tsconfigs.
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "Preserve",
+    "moduleResolution": "bundler",
+    "types": ["bun"],
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "verbatimModuleSyntax": true
+  },
+  "include": ["scripts"]
+}
