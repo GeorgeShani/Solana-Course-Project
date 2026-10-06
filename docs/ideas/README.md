@@ -4,7 +4,6 @@ One folder per candidate idea. Keep ideas here until one is chosen; then promote
 
 | Idea | Status | Notes |
 |---|---|---|
-| [legacy-vault](legacy-vault) | Candidate | Emergency / digital-inheritance vault. Has a [product plan](legacy-vault/product-plan.md) and an [idea validation](legacy-vault/idea-validation.md). |
 
 ## Adding an idea
 
