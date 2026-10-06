@@ -1,0 +1,17 @@
+# One origin for the whole stack. DOMAIN comes from .env (compose.yaml).
+# With DOMAIN=localhost Caddy serves a locally trusted certificate; with a real
+# domain it obtains and renews a Let's Encrypt certificate automatically.
+{$DOMAIN} {
+	encode zstd gzip
+
+	# /api/* goes to the Hono server with the /api prefix removed,
+	# so /api/health reaches GET /health.
+	handle_path /api/* {
+		reverse_proxy server:3001
+	}
+
+	# Everything else is the server-rendered app.
+	handle {
+		reverse_proxy app:3000
+	}
+}

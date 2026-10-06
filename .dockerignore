@@ -1,0 +1,17 @@
+.git
+.gitignore
+.env
+.env.*
+!.env.example
+**/node_modules
+**/dist
+**/.tanstack
+**/.nitro
+**/.output
+program
+docs
+scripts
+**/*.md
+Dockerfile.*
+compose.yaml
+Caddyfile
