@@ -1,0 +1,45 @@
+# Whole stack on one origin: Caddy -> app (SSR) and server (Hono, under /api).
+#
+#   cp .env.example .env     # then edit
+#   docker compose up -d --build
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.app
+      args:
+        VITE_RPC_URL: ${VITE_RPC_URL:?set VITE_RPC_URL in .env}
+        VITE_API_URL: /api
+    restart: unless-stopped
+    expose:
+      - "3000"
+
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    restart: unless-stopped
+    expose:
+      - "3001"
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMAIN: ${DOMAIN:?set DOMAIN in .env}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      app:
+        condition: service_healthy
+      server:
+        condition: service_healthy
+
+volumes:
+  caddy_data:
+  caddy_config:

@@ -88,6 +88,10 @@ To use the app against a local chain, start a validator inside WSL (`solana-test
 | `program:test` | `anchor test` (via WSL on Windows). |
 | `program:deploy` | `anchor deploy` (via WSL on Windows). |
 
+## Deployment
+
+The whole stack runs with Docker Compose behind a Caddy reverse proxy: `cp .env.example .env`, then `docker compose up -d --build`. See [DEPLOYMENT.md](DEPLOYMENT.md).
+
 ## Next steps
 
 1. Pick an idea from [docs/ideas](docs/ideas/README.md) (or add one) and validate it.
