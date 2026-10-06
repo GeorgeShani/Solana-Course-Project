@@ -68,6 +68,10 @@ Routes render on the server by default. Chain reads belong in route loaders or s
 
 `routeTree.gen.ts` is generated on `vite dev` / `vite build`, so run one of those before type-checking from a fresh clone.
 
+## Docker
+
+[`Dockerfile`](Dockerfile) builds the production image. Build it from the repo root (the workspace lockfile lives there): `docker build -f app/Dockerfile .`. See [../DEPLOYMENT.md](../DEPLOYMENT.md).
+
 ## Notes
 
 - **Cluster.** `VITE_RPC_URL` is inlined at build time, so changing it needs a rebuild.

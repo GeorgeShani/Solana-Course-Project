@@ -6,7 +6,7 @@ services:
   app:
     build:
       context: .
-      dockerfile: Dockerfile.app
+      dockerfile: app/Dockerfile
       args:
         VITE_RPC_URL: ${VITE_RPC_URL:?set VITE_RPC_URL in .env}
         VITE_API_URL: /api
@@ -17,7 +17,7 @@ services:
   server:
     build:
       context: .
-      dockerfile: Dockerfile.server
+      dockerfile: server/Dockerfile
     restart: unless-stopped
     expose:
       - "3001"

@@ -38,14 +38,14 @@ Serving everything from one origin means the browser never makes a cross-origin 
 
 | File | Purpose |
 |---|---|
-| [`Dockerfile.app`](Dockerfile.app) | SSR web app: builds with Vite, runs `app/serve.ts` on Bun (port 3000) |
-| [`Dockerfile.server`](Dockerfile.server) | Hono support server on Bun (port 3001) |
+| [`app/Dockerfile`](app/Dockerfile) | SSR web app: builds with Vite, runs `app/serve.ts` on Bun (port 3000) |
+| [`server/Dockerfile`](server/Dockerfile) | Hono support server on Bun (port 3001) |
 | [`Caddyfile`](Caddyfile) | Reverse proxy: `/api/*` to `server` (prefix stripped), everything else to `app` |
 | [`compose.yaml`](compose.yaml) | Runs `app`, `server` and `caddy`; only Caddy publishes ports (80, 443) |
 | [`.env.example`](.env.example) | `DOMAIN` and `VITE_RPC_URL`; copy to `.env` |
 | [`.dockerignore`](.dockerignore) | Keeps `program/`, `docs/`, `node_modules`, `dist` and secrets out of the build context |
 
-Both images build from the repo root, so the Bun workspace files are visible. Each installs only its own workspace (`bun install --filter app` or `--filter server`).
+Each Dockerfile sits next to the code it builds, but both images are built with the **repo root as the build context** (`context: .` in `compose.yaml`, `docker build -f app/Dockerfile .`). The root holds the single Bun workspace lockfile (`bun.lock`), so a per-folder context would not see it. Each installs only its own workspace (`bun install --filter app` or `--filter server`).
 
 ## Things to know
 

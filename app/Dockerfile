@@ -1,7 +1,10 @@
 # syntax=docker/dockerfile:1
-# SSR web app (TanStack Start). Build context is the repo root.
+# SSR web app (TanStack Start).
 #
-#   docker build -f Dockerfile.app \
+# The build context is the REPO ROOT, not app/: the Bun workspace lockfile
+# (bun.lock) lives there. Run from the root:
+#
+#   docker build -f app/Dockerfile \
 #     --build-arg VITE_RPC_URL=https://api.devnet.solana.com -t app .
 
 FROM oven/bun:1 AS build

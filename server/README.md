@@ -41,3 +41,7 @@ Check it:
 ```bash
 curl localhost:3001/health
 ```
+
+## Docker
+
+[`Dockerfile`](Dockerfile) builds the production image. Build it from the repo root (the workspace lockfile lives there): `docker build -f server/Dockerfile .`. See [../DEPLOYMENT.md](../DEPLOYMENT.md).

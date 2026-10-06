@@ -12,6 +12,6 @@ program
 docs
 scripts
 **/*.md
-Dockerfile.*
+**/Dockerfile
 compose.yaml
 Caddyfile

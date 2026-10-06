@@ -1,7 +1,10 @@
 # syntax=docker/dockerfile:1
-# Hono support server. Build context is the repo root.
+# Hono support server.
 #
-#   docker build -f Dockerfile.server -t server .
+# The build context is the REPO ROOT, not server/: the Bun workspace lockfile
+# (bun.lock) lives there. Run from the root:
+#
+#   docker build -f server/Dockerfile -t server .
 
 FROM oven/bun:1-slim
 WORKDIR /repo
