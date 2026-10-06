@@ -1,6 +1,6 @@
 # Solana Course Project
 
-A Solana project with a React frontend, a Rust + Anchor on-chain program, and an optional Hono/Bun support server.
+A Solana project with a server-rendered React frontend (TanStack Start), a Rust + Anchor on-chain program, and an optional Hono/Bun support server.
 
 Status: **project skeleton only, idea still open.** The program contains Anchor's template counter, and the app is a wallet smoke test. Candidate ideas live in [docs/ideas](docs/ideas/README.md); none is built yet.
 
@@ -8,7 +8,7 @@ Status: **project skeleton only, idea still open.** The program contains Anchor'
 
 ```
 .
-├── app/       React + Vite + TypeScript frontend (bun)
+├── app/       React + TanStack Start (SSR) + TypeScript frontend (bun)
 ├── program/   Rust + Anchor Solana program: the source of truth for rules and assets
 ├── server/    Optional Hono + Bun support backend (reminders, indexing). Never custody.
 ├── docs/      Candidate project ideas (docs/ideas/)
@@ -81,9 +81,9 @@ To use the app against a local chain, start a validator inside WSL (`solana-test
 
 | Script | What it does |
 |---|---|
-| `dev:app` | Start the Vite dev server. |
+| `dev:app` | Start the Vite dev server (SSR). |
 | `dev:server` | Start the Hono server with hot reload. |
-| `build:app` | Type-check and build the frontend. |
+| `build:app` | Build the frontend (client + SSR bundle) and type-check. |
 | `sync-idl` | Copy the program's IDL and TS types from `program/target` into `app/src/idl`. |
 | `program:build` | `anchor build` (via WSL on Windows). |
 | `program:test` | `anchor test` (via WSL on Windows). |
