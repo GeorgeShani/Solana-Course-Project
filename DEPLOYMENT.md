@@ -19,9 +19,9 @@ Why a VPS with Compose: the repo is already two Bun processes, the compose file 
 ```
                    ┌────────────────────── one domain ──────────────────────┐
  browser ──HTTPS──>│ caddy                                                  │
-                   │   /api/*  ──strip /api──> server  (Hono, :3001)         │
-                   │   /*      ───────────────> app     (SSR, Bun, :3000)    │
-                   └─────────────────────────────────────────────────────────┘
+                   │   /api/*  ──strip /api──> server  (Hono, :3001)        │
+                   │   /*      ───────────────> app    (SSR, Bun, :3000)    │
+                   └────────────────────────────────────────────────────────┘
  browser ──────────────────────────────> Solana RPC (public, from the client)
 ```
 
