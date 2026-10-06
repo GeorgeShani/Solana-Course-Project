@@ -6,7 +6,12 @@
 import { join } from 'node:path'
 
 const clientDir = join(import.meta.dir, 'dist', 'client')
-const { default: server } = await import('./dist/server/server.js')
+// The SSR bundle only exists after `bun run build`, so it is imported by a
+// non-literal path (not type-checked) and given the shape we use.
+const serverEntry = './dist/server/server.js'
+const { default: server } = (await import(serverEntry)) as {
+  default: { fetch(request: Request): Response | Promise<Response> }
+}
 
 const port = Number(process.env.PORT ?? 3000)
 
