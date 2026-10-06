@@ -11,10 +11,6 @@
   },
   "dependencies": {
     "@anchor-lang/core": "^1.2.0",
-    "@solana/wallet-adapter-base": "^0.9.28",
-    "@solana/wallet-adapter-react": "^0.15.40",
-    "@solana/wallet-adapter-react-ui": "^0.9.40",
-    "@solana/wallet-adapter-wallets": "^0.19.39",
     "@solana/web3.js": "^1.99.0",
     "@tanstack/react-router": "^1.170.41",
     "@tanstack/react-start": "^1.168.60",

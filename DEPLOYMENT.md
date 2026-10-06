@@ -183,16 +183,16 @@ For hands-off updates, add a GitHub Actions workflow that builds the images, pus
 
 The program is deployed independently of the containers:
 
-1. Set `cluster = "devnet"` in `program/Anchor.toml` and fund the deploy wallet (`solana airdrop 2`).
+1. Set `cluster = "devnet"` in `program/Anchor.toml` and fund the deploy keypair (`solana airdrop 2`).
 2. `bun run program:build`, then `bun run program:deploy`.
 3. `bun run sync-idl` so the app's IDL matches, then rebuild the app image.
-4. For mainnet, deploy from a dedicated wallet, and back up `program/target/deploy/<name>-keypair.json`: losing it means you can no longer upgrade the program. Consider transferring the upgrade authority to a multisig.
+4. For mainnet, deploy from a dedicated keypair, and back up `program/target/deploy/<name>-keypair.json`: losing it means you can no longer upgrade the program. Consider transferring the upgrade authority to a multisig.
 
 The app's `VITE_RPC_URL` must point at the same cluster the program is deployed to.
 
 ## Alternative: a single container
 
-If you want literally one process, mount the Hono routes inside the TanStack Start app through a catch-all server route (`/api/$` delegating to `app.fetch`). That removes the second image and Caddy's path routing, at the cost of coupling the support server's lifecycle to the web app. This repo keeps them separate on purpose: the server must stay optional and never hold keys, and the app should keep working if it is down. Only switch if operating two services becomes a burden.
+If you want literally one process, mount the Hono routes inside the TanStack Start app through a catch-all server route (`/api/$` delegating to `app.fetch`). That removes the second image and Caddy's path routing, at the cost of coupling the support server's lifecycle to the web app. This repo keeps them separate on purpose: the server must stay optional, and the app should keep working if it is down. Only switch if operating two services becomes a burden.
 
 ## Open items
 

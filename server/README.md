@@ -6,7 +6,7 @@ Optional support backend for the project, built with [Hono](https://hono.dev) on
 
 Reminders, notifications, indexing, and caching. Nothing more.
 
-This server **never holds keys, never signs, and never moves assets**. The Solana program is the only authority over rules and funds. If this server is offline, the app still works against the chain.
+The Solana program is the source of truth. This server only helps (it is not an authority), and if it is offline the app still works against the chain.
 
 ## Endpoints
 

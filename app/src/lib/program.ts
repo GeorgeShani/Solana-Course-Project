@@ -1,18 +1,20 @@
-import { AnchorProvider, Program } from '@anchor-lang/core'
-import type { AnchorWallet } from '@solana/wallet-adapter-react'
-import { Connection, PublicKey } from '@solana/web3.js'
+import { Program } from '@anchor-lang/core'
+import { PublicKey } from '@solana/web3.js'
 import idl from '../idl/course_program.json'
 import type { CourseProgram } from '../idl/course_program'
+import { getConnection } from './solana'
 
-/** Build a typed client for the `course_program` program, signing via the wallet. */
-export function getProgram(connection: Connection, wallet: AnchorWallet) {
-  const provider = new AnchorProvider(connection, wallet, {
-    commitment: 'confirmed',
+/**
+ * Typed read-only client for the `course_program` program: it can fetch
+ * accounts and decode them, using the generated IDL.
+ */
+export function getProgram() {
+  return new Program<CourseProgram>(idl as CourseProgram, {
+    connection: getConnection(),
   })
-  return new Program<CourseProgram>(idl as CourseProgram, provider)
 }
 
-/** The smoke-test counter is a singleton PDA seeded with "counter". */
+/** The template counter is a singleton PDA seeded with "counter". Example only. */
 export function getCounterPda(programId: PublicKey) {
   return PublicKey.findProgramAddressSync([Buffer.from('counter')], programId)[0]
 }
