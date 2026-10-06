@@ -7,7 +7,7 @@ resolution = true
 skip-lint = false
 
 [programs.localnet]
-legacy_vault = "81Jiqc2fvyTNrtc6dJDoBpifZS1ADo83h5VA6QL2PMnp"
+course_program = "81Jiqc2fvyTNrtc6dJDoBpifZS1ADo83h5VA6QL2PMnp"
 
 [provider]
 cluster = "localnet"

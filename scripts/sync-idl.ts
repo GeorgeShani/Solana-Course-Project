@@ -9,8 +9,8 @@ const from = join(root, 'program', 'target')
 const to = join(root, 'app', 'src', 'idl')
 
 const files = [
-  ['idl/legacy_vault.json', 'legacy_vault.json'],
-  ['types/legacy_vault.ts', 'legacy_vault.ts'],
+  ['idl/course_program.json', 'course_program.json'],
+  ['types/course_program.ts', 'course_program.ts'],
 ] as const
 
 mkdirSync(to, { recursive: true })

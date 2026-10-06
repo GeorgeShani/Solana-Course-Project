@@ -1,43 +1,43 @@
-# Solana Legacy Vault
+# Solana Course Project
 
-A Solana-based emergency and digital inheritance system. A user creates a vault, names beneficiaries and guardians, sets an inactivity rule, and checks in periodically. If check-ins stop and the guardians agree, a Solana program distributes the vault's assets according to the rules the user set in advance.
+A Solana project with a React frontend, a Rust + Anchor on-chain program, and an optional Hono/Bun support server.
 
-Built for the Colosseum Hackathon. Status: **project skeleton only**. The program still contains Anchor's template counter, and no vault logic exists yet.
+Status: **project skeleton only, idea still open.** The program contains Anchor's template counter, and the app is a wallet smoke test. Candidate ideas live in [docs/ideas](docs/ideas/README.md); none is built yet.
 
 ## Project structure
 
 ```
 .
 ├── app/       React + Vite + TypeScript frontend (bun)
-├── program/   Rust + Anchor Solana program: the source of truth for vault rules
+├── program/   Rust + Anchor Solana program: the source of truth for rules and assets
 ├── server/    Optional Hono + Bun support backend (reminders, indexing). Never custody.
-├── docs/      Product plan and idea validation
+├── docs/      Candidate project ideas (docs/ideas/)
 ├── scripts/   Cross-platform helpers: anchor.ts (runs anchor via WSL), sync-idl.ts
 └── package.json   bun workspaces (app, server) and root scripts
 ```
 
 | Folder | What it is | Docs |
 |---|---|---|
-| [`app/`](app) | The user-facing interface: wallet connection, vault creation, check-ins, recovery status. | [app/README.md](app/README.md) |
-| [`program/`](program) | The on-chain program (`legacy_vault`). Enforces ownership, timers, guardian approvals, and asset movement. | [program/README.md](program/README.md) |
-| [`server/`](server) | Optional helper for reminders and read models. Cannot sign or move funds. | [server/README.md](server/README.md) |
-| [`docs/`](docs) | [Product plan](docs/product-plan.md) and [idea validation](docs/idea-validation.md). | [docs/README.md](docs/README.md) |
+| [`app/`](app) | The user-facing interface: wallet connection and calls to the program. | [app/README.md](app/README.md) |
+| [`program/`](program) | The on-chain program (`course_program`, a placeholder name). The source of truth for rules and asset movement. | [program/README.md](program/README.md) |
+| [`server/`](server) | Optional helper for reminders, indexing, and caching. Cannot sign or move funds. | [server/README.md](server/README.md) |
+| [`docs/`](docs) | Candidate project [ideas](docs/ideas/README.md), one folder each. | [docs/README.md](docs/README.md) |
 
 `program/` is a standalone Anchor workspace and is deliberately **not** part of the bun workspaces.
 
 ## How the parts fit together
 
 ```
- user ──> app (React) ──builds tx──> wallet ──signs──> Solana RPC ──> legacy_vault program
+ user ──> app (React) ──builds tx──> wallet ──signs──> Solana RPC ──> course_program program
                 ^                                                            |
-                └──────────────── reads vault state ─────────────────────────┘
+                └──────────────── reads on-chain state ─────────────────────────┘
 
  server (Hono) ── reminders / indexing only; no keys, no signing, no custody
 ```
 
 - The **frontend** is the interface.
 - The **wallet** is the signer.
-- The **program** is the authority over rules and assets.
+- The **program** is the authority over rules and assets (once there are any).
 - The **server** is optional and can only help; the app works without it.
 
 ## Prerequisites
@@ -91,4 +91,5 @@ To use the app against a local chain, start a validator inside WSL (`solana-test
 
 ## Next steps
 
-Before building features, finish the validation tasks in [docs/idea-validation.md](docs/idea-validation.md). The first technical spike is proving that a vault PDA can move delegated SPL tokens to a beneficiary.
+1. Pick an idea from [docs/ideas](docs/ideas/README.md) (or add one) and validate it.
+2. Rename the placeholder program and replace the template counter. See "Choosing an idea" in [docs/ideas/README.md](docs/ideas/README.md).

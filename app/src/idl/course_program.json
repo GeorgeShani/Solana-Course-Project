@@ -1,13 +1,7 @@
-/**
- * Program IDL in camelCase format in order to be used in JS/TS.
- *
- * Note that this is only a type helper and is not the actual IDL. The original
- * IDL can be found at `target/idl/legacy_vault.json`.
- */
-export type LegacyVault = {
+{
   "address": "81Jiqc2fvyTNrtc6dJDoBpifZS1ADo83h5VA6QL2PMnp",
   "metadata": {
-    "name": "legacyVault",
+    "name": "course_program",
     "version": "0.1.0",
     "spec": "0.1.0",
     "description": "Created with Anchor"
@@ -92,7 +86,7 @@ export type LegacyVault = {
           }
         },
         {
-          "name": "systemProgram",
+          "name": "system_program",
           "address": "11111111111111111111111111111111"
         }
       ],
@@ -101,7 +95,7 @@ export type LegacyVault = {
   ],
   "accounts": [
     {
-      "name": "counter",
+      "name": "Counter",
       "discriminator": [
         255,
         176,
@@ -117,18 +111,18 @@ export type LegacyVault = {
   "errors": [
     {
       "code": 6000,
-      "name": "unauthorized",
+      "name": "Unauthorized",
       "msg": "Only the counter authority can update this counter"
     },
     {
       "code": 6001,
-      "name": "counterOverflow",
+      "name": "CounterOverflow",
       "msg": "Counter has reached the maximum value"
     }
   ],
   "types": [
     {
-      "name": "counter",
+      "name": "Counter",
       "type": {
         "kind": "struct",
         "fields": [
@@ -146,19 +140,19 @@ export type LegacyVault = {
   ],
   "constants": [
     {
-      "name": "counterSeed",
+      "name": "COUNTER_SEED",
       "type": "bytes",
       "value": "[99, 111, 117, 110, 116, 101, 114]"
     },
     {
-      "name": "helloWorldLamports",
+      "name": "HELLO_WORLD_LAMPORTS",
       "type": "u64",
       "value": "1"
     },
     {
-      "name": "maxCount",
+      "name": "MAX_COUNT",
       "type": "u64",
       "value": "10"
     }
   ]
-};
+}

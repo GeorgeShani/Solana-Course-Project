@@ -1,6 +1,7 @@
 # Docs
 
-| File | What it is |
+The project idea is still open, so docs are organised per idea. Nothing in the code depends on any one of them.
+
+| Path | What it is |
 |---|---|
-| [product-plan.md](product-plan.md) | The Version 1 product plan: scope, flows, architecture, specs. |
-| [idea-validation.md](idea-validation.md) | A critical review of the plan: technical risks, decisions to make, and validation tasks to finish before building. |
+| [ideas/](ideas/README.md) | Candidate project ideas, one folder each, with a template for adding more. |

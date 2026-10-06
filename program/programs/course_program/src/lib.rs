@@ -12,7 +12,7 @@ pub use state::*;
 declare_id!("81Jiqc2fvyTNrtc6dJDoBpifZS1ADo83h5VA6QL2PMnp");
 
 #[program]
-pub mod legacy_vault {
+pub mod course_program {
     use super::*;
 
     pub fn initialize(ctx: Context<Initialize>) -> Result<()> {

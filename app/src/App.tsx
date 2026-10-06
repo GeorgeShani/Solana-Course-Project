@@ -7,8 +7,7 @@ function App() {
   return (
     <Providers>
       <main>
-        <h1>Solana Legacy Vault</h1>
-        <p>What happens to my digital assets if I cannot access them anymore?</p>
+        <h1>Solana Course Project</h1>
         <WalletMultiButton />
         <SmokeTest />
       </main>

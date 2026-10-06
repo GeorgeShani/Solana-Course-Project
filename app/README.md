@@ -1,17 +1,17 @@
 # app
 
-The Solana Legacy Vault frontend: React + Vite + TypeScript, managed with bun.
+The frontend: React + Vite + TypeScript, managed with bun.
 
 ## Stack
 
 - React 19, Vite, TypeScript
 - `@solana/wallet-adapter-*` for wallet connection
 - `@solana/web3.js` for RPC
-- `@anchor-lang/core` as the typed client for the `legacy_vault` program
+- `@anchor-lang/core` as the typed client for the `course_program` program
 
 ## Current state
 
-A smoke test only. `src/SmokeTest.tsx` connects a wallet and calls the template `initialize` and `increment` instructions, then reads the counter back. It proves the full wallet → RPC → program → read path, and should be deleted once real vault instructions exist.
+A smoke test only. `src/SmokeTest.tsx` connects a wallet and calls the template `initialize` and `increment` instructions, then reads the counter back. It proves the full wallet → RPC → program → read path, and should be deleted once real instructions exist.
 
 ## Environment variables
 
@@ -21,7 +21,7 @@ Create `app/.env.local` (git-ignored) if you need to change the defaults.
 |---|---|---|
 | `VITE_RPC_URL` | `http://127.0.0.1:8899` | Solana RPC endpoint (localnet by default; use a devnet URL to test there). |
 
-The program ID comes from the IDL (`src/idl/legacy_vault.json`), so it is not configured here.
+The program ID comes from the IDL (`src/idl/course_program.json`), so it is not configured here.
 
 ## Workflow
 

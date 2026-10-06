@@ -1,5 +1,5 @@
 {
-  "name": "solana-legacy-vault",
+  "name": "solana-course-project",
   "private": true,
   "workspaces": ["app", "server"],
   "scripts": {

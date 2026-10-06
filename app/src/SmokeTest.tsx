@@ -8,7 +8,7 @@ import { getCounterPda, getProgram } from './lib/program'
 /**
  * Proves the whole path works: wallet signs -> RPC -> Anchor program -> state
  * read back. It talks to the template `initialize` / `increment` instructions
- * and is meant to be deleted once real vault instructions exist.
+ * and is meant to be deleted once real program instructions exist.
  */
 export function SmokeTest() {
   const { connection } = useConnection()

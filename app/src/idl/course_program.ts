@@ -1,7 +1,13 @@
-{
+/**
+ * Program IDL in camelCase format in order to be used in JS/TS.
+ *
+ * Note that this is only a type helper and is not the actual IDL. The original
+ * IDL can be found at `target/idl/course_program.json`.
+ */
+export type CourseProgram = {
   "address": "81Jiqc2fvyTNrtc6dJDoBpifZS1ADo83h5VA6QL2PMnp",
   "metadata": {
-    "name": "legacy_vault",
+    "name": "courseProgram",
     "version": "0.1.0",
     "spec": "0.1.0",
     "description": "Created with Anchor"
@@ -86,7 +92,7 @@
           }
         },
         {
-          "name": "system_program",
+          "name": "systemProgram",
           "address": "11111111111111111111111111111111"
         }
       ],
@@ -95,7 +101,7 @@
   ],
   "accounts": [
     {
-      "name": "Counter",
+      "name": "counter",
       "discriminator": [
         255,
         176,
@@ -111,18 +117,18 @@
   "errors": [
     {
       "code": 6000,
-      "name": "Unauthorized",
+      "name": "unauthorized",
       "msg": "Only the counter authority can update this counter"
     },
     {
       "code": 6001,
-      "name": "CounterOverflow",
+      "name": "counterOverflow",
       "msg": "Counter has reached the maximum value"
     }
   ],
   "types": [
     {
-      "name": "Counter",
+      "name": "counter",
       "type": {
         "kind": "struct",
         "fields": [
@@ -140,19 +146,19 @@
   ],
   "constants": [
     {
-      "name": "COUNTER_SEED",
+      "name": "counterSeed",
       "type": "bytes",
       "value": "[99, 111, 117, 110, 116, 101, 114]"
     },
     {
-      "name": "HELLO_WORLD_LAMPORTS",
+      "name": "helloWorldLamports",
       "type": "u64",
       "value": "1"
     },
     {
-      "name": "MAX_COUNT",
+      "name": "maxCount",
       "type": "u64",
       "value": "10"
     }
   ]
-}
+};
