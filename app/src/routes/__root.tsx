@@ -1,9 +1,4 @@
-import {
-  HeadContent,
-  Outlet,
-  Scripts,
-  createRootRoute,
-} from '@tanstack/react-router'
+import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
 import type { ReactNode } from 'react'
 import '../lib/polyfill'
 import appCss from '../App.css?url'
@@ -22,16 +17,8 @@ export const Route = createRootRoute({
       { rel: 'stylesheet', href: appCss },
     ],
   }),
-  component: RootComponent,
+  shellComponent: RootDocument,
 })
-
-function RootComponent() {
-  return (
-    <RootDocument>
-      <Outlet />
-    </RootDocument>
-  )
-}
 
 function RootDocument({ children }: { children: ReactNode }) {
   return (
