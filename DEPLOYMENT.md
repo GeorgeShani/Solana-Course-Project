@@ -52,7 +52,7 @@ Each Dockerfile sits next to the code it builds, but both images are built with 
 1. **`VITE_*` variables are baked in at build time.** `VITE_RPC_URL` and `VITE_API_URL` are inlined into the client bundle by `vite build`, so they are Docker **build args**, not runtime env vars. Changing `VITE_RPC_URL` in `.env` means `docker compose up -d --build`.
 2. **Anything in `VITE_*` is public.** Don't put a paid RPC provider key there unless it is restricted by domain; otherwise proxy RPC calls through the Hono server.
 3. **The SSR bundle is not self-contained.** `app/dist/server/server.js` imports `react`, `@tanstack/react-router`, `@solana/web3.js` and others at runtime, so the app image carries production `node_modules`, not just `dist/`.
-4. **Healthchecks.** `server` is checked on `GET /health`. `app` is checked on the static `/favicon.svg`, on purpose: checking `/` would make every probe call the Solana RPC, and a slow RPC would mark the app unhealthy. Caddy starts only once both are healthy.
+4. **Healthchecks.** `server` is checked on `GET /health`. `app` is checked on the static `/favicon.svg`, on purpose: checking `/` would make every probe call the Solana RPC, and a slow RPC would mark the app unhealthy. Caddy starts only once both are healthy, so if a healthcheck fails, nothing listens on ports 80/443 and the browser shows "connection refused". Healthchecks use `127.0.0.1`, not `localhost`: Bun listens on IPv4 only, and `localhost` may resolve to `::1` inside the container.
 5. **`program/` stays out of the images** (see `.dockerignore`). It is deployed to Solana separately, below.
 6. **Local test.** `DOMAIN=localhost` makes Caddy serve a locally issued certificate (your browser will warn unless you trust Caddy's local CA), so `docker compose up --build` is a production-like run on your machine.
 
@@ -96,3 +96,17 @@ Still to do on a machine with Docker:
 - Decide the production RPC provider and how its key is protected.
 - Decide devnet-only vs. mainnet once the idea is chosen.
 - Optional: a GitHub Actions workflow that builds the images, pushes them to GHCR, and redeploys over SSH.
+
+## Troubleshooting
+
+If the browser says "connection refused":
+
+```bash
+docker compose ps -a          # is every service running and healthy?
+docker compose logs --tail=50 # why not?
+```
+
+- `app` or `server` **unhealthy**: Caddy waits for them and never starts. Read that service's logs.
+- **Build failed**: `docker compose up --build` prints the failing step.
+- `DOMAIN`/`VITE_RPC_URL` missing: Compose stops immediately; create `.env` from `.env.example`.
+- Only Caddy publishes ports (80 and 443). `http://localhost:3000` and `:3001` are intentionally **not** reachable from the host; use `https://localhost/` and `https://localhost/api/health`.
