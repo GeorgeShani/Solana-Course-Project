@@ -105,8 +105,8 @@ const cases: unknown[] = [];
 const termsHashes: Uint8Array[] = [];
 for (const s of specs) {
   const cHash = await contentHash(s.content);
-  const prev =
-    s.prev === "zero" ? ZERO_HASH : (termsHashes[s.prev] as Uint8Array);
+  const prev = s.prev === "zero" ? ZERO_HASH : termsHashes[s.prev];
+  if (!prev) throw new Error(`Vector "${s.name}" chains on a missing version`);
   const input: TermsInput = {
     programId: PROGRAM_ID,
     ...s.terms,

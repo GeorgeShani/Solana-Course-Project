@@ -35,8 +35,8 @@ describe("validateTerms", () => {
       validateTerms({ ...ok, ...over });
       throw new Error("expected a TermsError");
     } catch (e) {
-      expect(e).toBeInstanceOf(TermsError);
-      expect((e as TermsError).field).toBe(field);
+      if (!(e instanceof TermsError)) throw e;
+      expect(e.field).toBe(field);
     }
   };
 

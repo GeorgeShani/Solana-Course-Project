@@ -81,6 +81,7 @@ export function decodeAddress(address: string): Uint8Array {
 }
 
 export async function sha256(bytes: Uint8Array): Promise<Uint8Array> {
-  const digest = await crypto.subtle.digest("SHA-256", bytes as BufferSource);
+  // Copy into a fresh ArrayBuffer-backed array: digest() only accepts views over a plain ArrayBuffer.
+  const digest = await crypto.subtle.digest("SHA-256", new Uint8Array(bytes));
   return new Uint8Array(digest);
 }

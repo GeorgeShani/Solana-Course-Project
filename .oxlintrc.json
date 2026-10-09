@@ -1,0 +1,17 @@
+{
+  "$schema": "./app/node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "oxc"],
+  "rules": {
+    "typescript/consistent-type-assertions": [
+      "error",
+      { "assertionStyle": "never" }
+    ]
+  },
+  "ignorePatterns": [
+    "**/routeTree.gen.ts",
+    "**/src/idl/**",
+    "**/node_modules/**",
+    "**/dist/**",
+    "program/target/**"
+  ]
+}
