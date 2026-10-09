@@ -12,8 +12,10 @@ WORKDIR /repo
 COPY package.json bun.lock ./
 COPY app/package.json app/
 COPY server/package.json server/
+COPY domain/package.json domain/
 RUN bun install --frozen-lockfile --filter app
 COPY app app
+COPY domain domain
 # VITE_* values are inlined into the client bundle at build time.
 ARG VITE_RPC_URL
 ARG VITE_API_URL=/api
@@ -27,6 +29,7 @@ WORKDIR /repo
 COPY package.json bun.lock ./
 COPY app/package.json app/
 COPY server/package.json server/
+COPY domain/package.json domain/
 RUN bun install --frozen-lockfile --production --filter app
 
 FROM oven/bun:1-slim AS run

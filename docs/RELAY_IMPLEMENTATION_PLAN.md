@@ -1234,17 +1234,18 @@ The work is split into small phases that can each be handed to one coding sessio
   - demo plans must use **chain time** (Clock sysvar), not wall-clock time, because the fork clock was ahead of wall-clock (Phases 3, 4 and 8);
   - the JUP/USDC transaction is 1,171 of 1,232 bytes, so tune `maxAccounts` or use a Relay lookup table for the sysvar (Phase 3).
 
-#### Phase 1: Shared domain package (≈ 4 h, can run alongside Phase 0)
+#### Phase 1: Shared domain package (≈ 4 h, can run alongside Phase 0): DONE
 - **Goal:** one source of truth for money math, hashing and entry status.
 - **Tasks:**
-  - [ ] Create the `domain/` workspace and add it to the root `workspaces`.
-  - [ ] `amounts.ts`: port from the prototype, with its tests.
-  - [ ] `price.ts`: u64 price units and effective price.
-  - [ ] `commitment.ts`: binary content and terms hashes, with reject-not-transform text validation.
-  - [ ] `entry-status.ts`.
-  - [ ] `test-vectors/plan-hash.json`.
+  - [x] Create the `domain/` workspace and add it to the root `workspaces`.
+  - [x] `amounts.ts`: port from the prototype, with its tests.
+  - [x] `price.ts`: u64 price units and effective price.
+  - [x] `commitment.ts`: binary content and terms hashes, with reject-not-transform text validation.
+  - [x] `entry-status.ts`.
+  - [x] `test-vectors/plan-hash.json`.
 - **Files:** `domain/**`, root `package.json`.
 - **Done when:** `bun test` in `domain/` is green, including the exact boundaries and the hash vectors.
+- **Result:** 39 tests pass (`bun test` in `domain/`) and `tsc` is clean. Beyond the listed files the package also has `assets.ts` (the SOL/JUP/USDC allowlist), `bytes.ts` (little-endian writers, base58, hex, SHA-256), `plan-terms.ts` (window and bound validation) and `scripts/gen-vectors.ts`. The vectors are cross-checked against an independent Node `Buffer`/`crypto` reconstruction; the Rust program must reproduce them in Phase 2. Both Dockerfiles now copy `domain/`.
 
 #### Phase 2: Program, part 1: plan commitments (≈ 4 h, depends on Phase 1)
 - **Goal:** plans and append-only versions exist onchain.

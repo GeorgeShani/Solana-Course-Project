@@ -1,0 +1,17 @@
+{
+  "name": "@relay/domain",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "bun test",
+    "typecheck": "tsc -p tsconfig.json",
+    "vectors": "bun run scripts/gen-vectors.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  }
+}
