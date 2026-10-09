@@ -12,7 +12,9 @@ ENV NODE_ENV=production PORT=3001
 COPY package.json bun.lock ./
 COPY app/package.json app/
 COPY server/package.json server/
+COPY domain/package.json domain/
 RUN bun install --frozen-lockfile --production --filter server
+COPY domain domain
 COPY server server
 WORKDIR /repo/server
 USER bun
