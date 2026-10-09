@@ -1,6 +1,6 @@
 # Solana Course Project
 
-A Solana project with a server-rendered React frontend (TanStack Start), a Rust + Anchor on-chain program, and an optional Hono/Bun support server.
+A Solana project with a server-rendered React frontend (TanStack Start), a Rust + Anchor on-chain program, and a Hono/Bun backend with Postgres.
 
 Status: **project skeleton only, idea still open.** The program contains Anchor's template counter, and the app is a placeholder page that reads the cluster state. Candidate ideas live in [docs/ideas](docs/ideas/README.md); none is built yet.
 
@@ -10,7 +10,7 @@ Status: **project skeleton only, idea still open.** The program contains Anchor'
 .
 ├── app/       React + TanStack Start (SSR) + TypeScript frontend (bun)
 ├── program/   Rust + Anchor Solana program: the source of truth for rules and assets
-├── server/    Optional Hono + Bun support backend (reminders, indexing).
+├── server/    Hono + Bun backend with Postgres: feed, plan text, advisory prices.
 ├── docs/      Candidate project ideas (docs/ideas/)
 ├── scripts/   Cross-platform helpers: anchor.ts (runs anchor via WSL), sync-idl.ts
 └── package.json   bun workspaces (app, server) and root scripts
@@ -20,7 +20,7 @@ Status: **project skeleton only, idea still open.** The program contains Anchor'
 |---|---|---|
 | [`app/`](app) | The user-facing interface, talking to the program through its generated client. | [app/README.md](app/README.md) |
 | [`program/`](program) | The on-chain program (`course_program`, a placeholder name). The source of truth for rules and asset movement. | [program/README.md](program/README.md) |
-| [`server/`](server) | Optional helper for reminders, indexing, and caching. | [server/README.md](server/README.md) |
+| [`server/`](server) | Backend: feed, plan text (checked against the onchain hash), advisory prices. | [server/README.md](server/README.md) |
 | [`docs/`](docs) | Candidate project [ideas](docs/ideas/README.md), one folder each. | [docs/README.md](docs/README.md) |
 
 `program/` is a standalone Anchor workspace and is deliberately **not** part of the bun workspaces.
@@ -32,12 +32,12 @@ Status: **project skeleton only, idea still open.** The program contains Anchor'
         ^                                 |
         └────── reads on-chain state ─────┘
 
- server (Hono) ── optional helper
+ server (Hono + Postgres) ── mirrors the chain, serves the feed
 ```
 
 - The **frontend** is the interface.
 - The **program** is the authority over rules and assets (once there are any).
-- The **server** is optional and can only help; the app works without it.
+- The **server** (Hono + Postgres) serves the feed and stores plan text. It is required for the feed, but never an authority: it only mirrors the chain and checks text against the onchain hash.
 
 The details depend on the idea, which is not chosen yet.
 
@@ -69,7 +69,8 @@ bun run program:test
 # 3. Copy the generated IDL and types into the frontend
 bun run sync-idl
 
-# 4. Run the app (and, optionally, the server)
+# 4. Run Postgres, the server and the app
+docker compose -f compose.dev.yaml up -d
 bun run dev:app       # http://localhost:5173
 bun run dev:server    # http://localhost:3001
 ```

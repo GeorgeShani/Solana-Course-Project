@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    "lib": ["ESNext"],
+    "lib": ["ESNext", "DOM"],
     "module": "Preserve",
     "moduleResolution": "bundler",
     "strict": true,
@@ -11,5 +11,5 @@
     "jsx": "react-jsx",
     "jsxImportSource": "hono/jsx"
   },
-  "include": ["src"]
+  "include": ["src", "scripts", "test"]
 }

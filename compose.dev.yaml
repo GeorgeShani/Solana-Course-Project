@@ -1,0 +1,24 @@
+# Local development database only (the app and server run on the host with bun).
+#
+#   docker compose -f compose.dev.yaml up -d
+#
+# Never use these credentials anywhere but your own machine.
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: relay
+      POSTGRES_PASSWORD: relay_local_only
+      POSTGRES_DB: relay
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - relay_dev_pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U relay -d relay"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  relay_dev_pg:

@@ -48,6 +48,8 @@ export interface EntryStatusResult {
 
 export const DEFAULT_STALE_AFTER_MS = 60_000;
 export const DEFAULT_CLOSING_SOON_MS = 600_000;
+/** A price may look slightly "from the future" because two clocks are read a few ms apart. */
+export const FUTURE_SKEW_MS = 5_000;
 
 export function entryStatus(input: EntryStatusInput): EntryStatusResult {
   const { plan, price, nowMs } = input;
@@ -69,8 +71,9 @@ export function entryStatus(input: EntryStatusInput): EntryStatusResult {
   if (plan.status === "closed") return result("closed");
   if (expired) return result("expired");
   if (!price) return result("price_unavailable");
-  // A price from the future can't be trusted at all.
-  if (price.observedAtMs > nowMs) return result("price_unavailable");
+  // A price clearly from the future can't be trusted at all (small skew between clocks is fine).
+  if (price.observedAtMs > nowMs + FUTURE_SKEW_MS)
+    return result("price_unavailable");
   if (nowMs - price.observedAtMs > staleAfterMs) return result("price_stale"); // exactly stale-after is still fresh
   return result(pricePosition(price.units, plan.entryLow, plan.entryHigh));
 }
