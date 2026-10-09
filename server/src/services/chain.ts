@@ -1,7 +1,9 @@
 import {
   address,
   createSolanaRpc,
+  getBase58Encoder,
   getBase64Encoder,
+  getBase64EncodedWireTransaction,
   getI64Codec,
   type Address,
 } from "@solana/kit";
@@ -9,14 +11,21 @@ import {
   ACCOUNT_SIZES,
   CLOCK_SYSVAR_ADDRESS,
   RELAY_PROGRAM_ADDRESS,
+  decodeFollowReceipt,
   decodePlan,
   decodePlanVersion,
   getVersionAddress,
 } from "@relay/domain/solana";
 import type { Cluster } from "../env";
-import type { ChainReader } from "./types";
+import type {
+  ChainInstruction,
+  ChainReader,
+  ChainTransaction,
+  SimulationResult,
+} from "./types";
 
 const base64 = getBase64Encoder();
+const base58 = getBase58Encoder();
 
 export function createChain(rpcUrl: string, cluster: Cluster): ChainReader {
   const rpc = createSolanaRpc(rpcUrl);
@@ -91,6 +100,74 @@ export function createChain(rpcUrl: string, cluster: Cluster): ChainReader {
           Uint8Array.from(base64.encode(a.account.data[0])),
         ),
       }));
+    },
+    async getLatestBlockhash() {
+      const { value } = await rpc
+        .getLatestBlockhash({ commitment: "confirmed" })
+        .send();
+      return value;
+    },
+    async simulate(transaction): Promise<SimulationResult> {
+      const { value } = await rpc
+        .simulateTransaction(getBase64EncodedWireTransaction(transaction), {
+          encoding: "base64",
+          sigVerify: false,
+          replaceRecentBlockhash: true,
+          commitment: "confirmed",
+        })
+        .send();
+      return {
+        ok: value.err === null,
+        unitsConsumed:
+          value.unitsConsumed === undefined
+            ? null
+            : Number(value.unitsConsumed),
+        logs: value.logs ?? [],
+        error: value.err,
+      };
+    },
+    async getTransaction(signature): Promise<ChainTransaction | null> {
+      const tx = await rpc
+        .getTransaction(signature, {
+          encoding: "json",
+          maxSupportedTransactionVersion: 0,
+          commitment: "confirmed",
+        })
+        .send();
+      if (!tx?.meta) return null;
+      // Instruction account indexes cover the static keys, then loaded lookup-table addresses.
+      const keys: Address[] = [
+        ...tx.transaction.message.accountKeys,
+        ...(tx.meta.loadedAddresses?.writable ?? []),
+        ...(tx.meta.loadedAddresses?.readonly ?? []),
+      ];
+      const key = (index: number): Address => {
+        const found = keys[index];
+        if (!found)
+          throw new Error(
+            `Instruction references account ${index} that is not in the transaction`,
+          );
+        return found;
+      };
+      const instructions: ChainInstruction[] =
+        tx.transaction.message.instructions.map((ix) => ({
+          programId: key(ix.programIdIndex),
+          accounts: ix.accounts.map(key),
+          data: Uint8Array.from(base58.encode(ix.data)),
+        }));
+      return {
+        signature,
+        slot: tx.slot,
+        blockTime: tx.blockTime === null ? null : Number(tx.blockTime),
+        feeLamports: tx.meta.fee,
+        error: tx.meta.err,
+        logs: [...(tx.meta.logMessages ?? [])],
+        instructions,
+      };
+    },
+    async getFollowReceipt(receiptPda) {
+      const data = await fetchOwned(address(receiptPda));
+      return data ? decodeFollowReceipt(data) : null;
     },
   };
 }

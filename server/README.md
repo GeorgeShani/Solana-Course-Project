@@ -18,6 +18,9 @@ Reached publicly under `/api` (Caddy and the Vite dev proxy strip the prefix).
 | `GET` | `/plans/:planPda` | One plan with every version, its text (or `null` when unverified) and its hash chain. |
 | `POST` | `/plans/:planPda/confirm` | Stores a version's text if it matches the onchain `content_hash`. Idempotent. |
 | `GET` | `/prices` | Advisory reference prices and their age. |
+| `POST` | `/follow/quote` | `{ planPda, version, follower, quoteAmount }`. Fetches a fresh Jupiter route, composes the follow transaction with the same code the client runs, refuses prices outside the plan's range, simulates it, and returns a plain-language summary plus the exact inputs the client needs to rebuild and sign it. Nothing is signed or sent. |
+| `POST` | `/follow/verify` | `{ signature }` only. Re-reads the transaction and the receipt account from the chain and records the execution as `recorded` or `failed` (with the reason). Idempotent; a recorded execution is never downgraded. |
+| `GET` | `/me/executions?follower=` | A wallet's verified executions, newest first. |
 
 Every state-changing request must come from the configured `APP_ORIGIN` (or be `Sec-Fetch-Site: same-origin`) with `Content-Type: application/json`. Bodies are limited to 16 KB and requests are rate limited per client (the right-most `X-Forwarded-For` entry, which the proxy appends).
 
@@ -46,6 +49,13 @@ bun run --cwd server seed                     # optional: real onchain demo plan
 bun run --cwd server test                     # needs the dev Postgres and a relay_test database
 ```
 
+On a Surfpool fork the server must be started with the venue allowlist, or Jupiter may pick a private AMM (such as GoonFi) that cannot execute on stale fork state:
+
+```bash
+SOLANA_CLUSTER=localnet JUPITER_DEXES="Orca V2,Raydium CLMM,Meteora DLMM,Raydium" bun run dev:server
+bun run --cwd server scripts/follow-via-api.ts   # a follower end to end through the API, plus a recorded failure
+```
+
 The tests use `postgres://relay:relay_local_only@127.0.0.1:5432/relay_test` (override with `TEST_DATABASE_URL`); create it once with `docker exec <postgres container> psql -U relay -d relay -c "create database relay_test"`.
 
 ## Layout
@@ -57,9 +67,10 @@ src/
 ├── env.ts           typed environment
 ├── db.ts            Bun.sql client and migration runner
 ├── middleware.ts    origin guard, rate limiter, ApiError
-└── services/        chain reader (Kit), plans, prices, feed ranking
+└── services/        chain reader (Kit), plans, follow (quote/verify), jupiter client, prices, feed ranking
 migrations/          SQL files applied in order
 scripts/seed-demo.ts real onchain plans with labelled demo creators
+scripts/follow-via-api.ts a follower end to end through the HTTP API
 test/                API tests (Postgres + an in-memory chain built with the real encoders)
 ```
 

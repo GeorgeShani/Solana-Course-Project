@@ -1314,15 +1314,21 @@ The work is split into small phases that can each be handed to one coding sessio
   - `domain/src/solana/send.ts` holds the shared send-and-confirm helpers used by scripts.
   - The `test/` folders are now part of the tsconfigs, so tests are type-checked too.
 
-#### Phase 5: Backend follow flow (≈ 4 h, depends on Phases 3 and 4)
+#### Phase 5: Backend follow flow (≈ 4 h, depends on Phases 3 and 4): DONE
 - **Goal:** the server can quote a follow and verify the result.
 - **Tasks:**
-  - [ ] `POST /follow/quote`: `/build`, fail-closed checks, `composeFollowTx`, simulate, set the CU limit, then return the summary and compose inputs.
-  - [ ] `POST /follow/verify`: owner, discriminator and status checks; failed transactions recorded as failed.
-  - [ ] `GET /me/executions`.
-  - [ ] Rate limits.
+  - [x] `POST /follow/quote`: `/build`, fail-closed checks, `composeFollowTx`, simulate, set the CU limit, then return the summary and compose inputs.
+  - [x] `POST /follow/verify`: owner, discriminator and status checks; failed transactions recorded as failed.
+  - [x] `GET /me/executions`.
+  - [x] Rate limits.
 - **Files:** `server/src/routes/follow.ts`, `server/src/services/{jupiter,receipts}.ts`.
 - **Done when:** a script quotes, signs with a burner, sends, verifies and sees the `executions` row. A failed transaction produces a `failed` row.
+- **Result:** 65 server tests pass in total (23 new for the follow flow). Verified live on the fork with `bun run --cwd server scripts/follow-via-api.ts`: a quote on a real Meteora route, a transaction the client rebuilt from the returned inputs and signed itself (857 of 1232 bytes), `POST /follow/verify` recording it as `recorded` with amounts read from the receipt account, the execution in `/me/executions`, and a deliberately doomed follow against an expired plan recorded as `failed` (`PlanExpired`) with no receipt.
+- **Notes for later phases:**
+  - On a fork the server needs `JUPITER_DEXES`; without it Jupiter can pick a private AMM (GoonFi) that fails the simulation, and the quote correctly answers `swap_would_fail` with nothing to sign.
+  - The server refuses to hand out a transaction that fails simulation, that is above or below the plan's range at the quoted route, or whose route contains anything beyond the expected shape.
+  - The "off-market fill" flag from section S is still to do (Phase 8 / analytics); `executions` already stores the effective price it needs.
+  - Fees in the summary are estimates (network fee, priority fee, receipt rent). Token-account rent for a first-time buyer is not included yet.
 
 #### Phase 6: Frontend foundation and feed (≈ 10 h, depends on Phase 4)
 - **Goal:** the visual identity and a browsable feed.
