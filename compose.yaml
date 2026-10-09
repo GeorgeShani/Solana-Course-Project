@@ -14,11 +14,36 @@ services:
     expose:
       - "3000"
 
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: relay
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: relay
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U relay -d relay"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
   server:
     build:
       context: .
       dockerfile: server/Dockerfile
     restart: unless-stopped
+    environment:
+      # Must equal the browser origin exactly: the server rejects writes from any other origin.
+      APP_ORIGIN: https://${DOMAIN}
+      DATABASE_URL: postgres://relay:${POSTGRES_PASSWORD}@postgres:5432/relay
+      SOLANA_RPC_URL: ${SOLANA_RPC_URL:-${VITE_RPC_URL}}
+      SOLANA_CLUSTER: ${SOLANA_CLUSTER:-devnet}
+      JUPITER_API_KEY: ${JUPITER_API_KEY:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
     expose:
       - "3001"
 
@@ -41,5 +66,6 @@ services:
         condition: service_healthy
 
 volumes:
+  pg_data:
   caddy_data:
   caddy_config:

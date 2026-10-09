@@ -124,20 +124,22 @@ describe("content hash", () => {
       b.writeBigUInt64LE(n);
       return b;
     };
-    const expected = Buffer.concat([
-      Buffer.from("relay:plan-content:v1", "ascii"),
-      u32(r.length),
-      r,
-      u32(e.length),
-      e,
-      Buffer.from([1]),
-      u64(7n),
-      Buffer.from([0]),
-      u64(0n),
-    ]);
+    const expected = Buffer.concat(
+      [
+        Buffer.from("relay:plan-content:v1", "ascii"),
+        u32(r.length),
+        r,
+        u32(e.length),
+        e,
+        Buffer.from([1]),
+        u64(7n),
+        Buffer.from([0]),
+        u64(0n),
+      ].map((part) => Uint8Array.from(part)),
+    );
     expect(toHex(contentPreimage(c))).toBe(expected.toString("hex"));
     expect(toHex(await contentHash(c))).toBe(
-      createHash("sha256").update(expected).digest("hex"),
+      createHash("sha256").update(Uint8Array.from(expected)).digest("hex"),
     );
   });
 });
@@ -263,7 +265,9 @@ describe("shared test vectors (the Anchor program must reproduce these exactly)"
       // independent re-hash of the stored preimage
       expect(
         createHash("sha256")
-          .update(Buffer.from(c.expected.termsPreimageHex, "hex"))
+          .update(
+            Uint8Array.from(Buffer.from(c.expected.termsPreimageHex, "hex")),
+          )
           .digest("hex"),
       ).toBe(c.expected.termsHashHex);
     });

@@ -13,24 +13,12 @@
 
 import {
   address,
-  appendTransactionMessageInstructions,
-  compileTransaction,
   createSolanaRpc,
-  createTransactionMessage,
   generateKeyPairSigner,
   getBase64Encoder,
-  getBase64EncodedWireTransaction,
   getI64Codec,
-  getSignatureFromTransaction,
   lamports,
-  pipe,
-  setTransactionMessageFeePayer,
-  setTransactionMessageLifetimeUsingBlockhash,
-  signTransaction,
   type Address,
-  type Instruction,
-  type KeyPairSigner,
-  type Signature,
 } from "@solana/kit";
 import {
   SOL,
@@ -46,6 +34,8 @@ import {
   RELAY_PROGRAM_ADDRESS,
   TOKEN_PROGRAM_ADDRESS,
   composeFollowTx,
+  sendInstructions,
+  sendSigned,
   createPlanInstruction,
   decodeFollowReceipt,
   getAssociatedTokenAddress,
@@ -134,43 +124,6 @@ async function fetchBuild(
   return parseJupiterBuild(body);
 }
 
-async function waitForSignature(signature: Signature): Promise<boolean> {
-  for (let i = 0; i < 60; i++) {
-    const { value } = await rpc.getSignatureStatuses([signature]).send();
-    const status = value[0];
-    if (status?.confirmationStatus) return status.err === null;
-    await new Promise((r) => setTimeout(r, 500));
-  }
-  throw new Error("transaction was not confirmed in time");
-}
-
-/** Sends instructions signed by `payer` (who is also the fee payer). */
-async function sendInstructions(
-  instructions: Instruction[],
-  payer: KeyPairSigner,
-): Promise<Signature> {
-  const { value: blockhash } = await rpc.getLatestBlockhash().send();
-  const message = pipe(
-    createTransactionMessage({ version: 0 }),
-    (m) => setTransactionMessageFeePayer(payer.address, m),
-    (m) => setTransactionMessageLifetimeUsingBlockhash(blockhash, m),
-    (m) => appendTransactionMessageInstructions(instructions, m),
-  );
-  const signed = await signTransaction(
-    [payer.keyPair],
-    compileTransaction(message),
-  );
-  const signature = getSignatureFromTransaction(signed);
-  await rpc
-    .sendTransaction(getBase64EncodedWireTransaction(signed), {
-      encoding: "base64",
-    })
-    .send();
-  if (!(await waitForSignature(signature)))
-    throw new Error("transaction failed");
-  return signature;
-}
-
 async function main() {
   const creator = await generateKeyPairSigner();
   const follower = await generateKeyPairSigner();
@@ -192,6 +145,7 @@ async function main() {
   const planId = BigInt(Date.now());
   const plan = await getPlanAddress(creator.address, planId);
   await sendInstructions(
+    rpc,
     [
       createPlanInstruction({
         creator: creator.address,
@@ -230,21 +184,15 @@ async function main() {
       computeUnitLimit: 400_000,
       computeUnitPriceCap: 5_000_000n,
     });
-    const signed = await signTransaction(
-      [follower.keyPair],
-      composed.transaction,
-    );
     console.log(
       `  tx ${composed.sizeBytes}/1232 bytes, route: ${build.routeLabels.join(" > ")}`,
     );
-    const signature = getSignatureFromTransaction(signed);
-    await rpc
-      .sendTransaction(getBase64EncodedWireTransaction(signed), {
-        encoding: "base64",
-        skipPreflight,
-      })
-      .send();
-    const succeeded = await waitForSignature(signature);
+    const { signature, succeeded } = await sendSigned(
+      rpc,
+      composed.transaction,
+      follower,
+      { skipPreflight },
+    );
     return { signature, succeeded, receipt: composed.receipt };
   }
 

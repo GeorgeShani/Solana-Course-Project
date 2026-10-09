@@ -294,7 +294,9 @@ describe("composeFollowTx", () => {
     const composed = await composeFollowTx(await base());
     const programs = composed.instructions.map((i) => i.programAddress);
     expect(programs.at(-1)).toBe(RELAY_PROGRAM_ADDRESS);
-    expect(programs.at(-2)).toBe("JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4");
+    expect(programs.at(-2)).toBe(
+      address("JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4"),
+    );
     expect(programs.at(-3)).toBe(RELAY_PROGRAM_ADDRESS);
     expect(programs.filter((p) => p === RELAY_PROGRAM_ADDRESS).length).toBe(2);
     expect(composed.sizeBytes).toBeLessThanOrEqual(1232);

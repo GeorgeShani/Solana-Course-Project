@@ -1286,24 +1286,33 @@ The work is split into small phases that can each be handed to one coding sessio
   - Receipt size is 8 + 132 bytes (the earlier estimate was 211).
   - Only the follower may sign the single swap instruction, and the program requires the exact layout described in `program/programs/relay/src/layout.rs`.
 
-#### Phase 4: Backend foundation (≈ 6 h, depends on Phases 1 and 2)
+#### Phase 4: Backend foundation (≈ 6 h, depends on Phases 1 and 2): DONE
 - **Goal:** the server knows about plans and can serve a feed.
 - **Tasks:**
-  - [ ] Postgres in `compose.yaml`.
-  - [ ] Migrations and runner, using `Bun.sql`.
-  - [ ] `env.ts`.
-  - [ ] Origin middleware, body limit and secure headers.
-  - [ ] Vite `/api` proxy, and `config.ts` set to `API_URL='/api'`.
-  - [ ] `/plans/:pda/confirm` (hash-checked text).
-  - [ ] Price service (Jupiter Price v3, cached).
-  - [ ] `GET /feed` with entry status and ranking.
-  - [ ] `GET /plans/:pda`.
-  - [ ] On-demand `getProgramAccounts` sync.
-  - [ ] A seed script with labelled fictional creators.
+  - [x] Postgres in `compose.yaml`.
+  - [x] Migrations and runner, using `Bun.sql`.
+  - [x] `env.ts`.
+  - [x] Origin middleware, body limit and secure headers.
+  - [x] Vite `/api` proxy, and `config.ts` set to `API_URL='/api'`.
+  - [x] `/plans/:pda/confirm` (hash-checked text).
+  - [x] Price service (Jupiter Price v3, cached).
+  - [x] `GET /feed` with entry status and ranking.
+  - [x] `GET /plans/:pda`.
+  - [x] On-demand `getProgramAccounts` sync.
+  - [x] A seed script with labelled fictional creators.
 - **Files:** `server/src/**`, `server/migrations/*`, `compose.yaml`, `app/vite.config.ts`, `app/src/lib/config.ts`.
 - **Done when:**
   - `bun test` in `server/` is green.
   - A curl script runs: sign `create_plan` → confirm → `/api/feed` shows the plan with its status.
+- **Result:** 42 server tests (Postgres plus an in-memory chain built with the real encoders) and the domain suite pass. Verified live against the Surfpool fork: `bun run --cwd server seed` publishes real onchain plans, the feed over HTTP ranks them (in range, then below range / original entry passed, then expired), a two-version plan shows its hash chain, and writes without the configured Origin get 403.
+- **Deviations from the plan text:**
+  - The chain facts and the text are separate append-only tables (`plan_versions` and `plan_version_content`) so a version can exist onchain without its text and be shown as "text unavailable" (section O).
+  - `creators` has no foreign key from `plans`; a plan exists onchain whether or not its creator made a profile.
+  - `DATABASE_DIRECT_URL` (migrations) is separate from `DATABASE_URL` (runtime), so a pooled runtime URL works later.
+  - `entryStatus` tolerates up to 5 s of clock skew for a price observation (found while verifying live: a freshly fetched price looked like it came from the future).
+  - The server needs `docker compose -f compose.dev.yaml up -d` for Postgres in development; `compose.yaml` gained a `postgres` service and requires `POSTGRES_PASSWORD` in `.env`.
+  - `domain/src/solana/send.ts` holds the shared send-and-confirm helpers used by scripts.
+  - The `test/` folders are now part of the tsconfigs, so tests are type-checked too.
 
 #### Phase 5: Backend follow flow (≈ 4 h, depends on Phases 3 and 4)
 - **Goal:** the server can quote a follow and verify the result.

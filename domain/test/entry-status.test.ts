@@ -55,9 +55,13 @@ describe("entryStatus", () => {
     expect(status(plan(), null)).toBe("price_unavailable");
     expect(status(plan(), price(183_000_000n, 60_000))).toBe("in_range"); // exactly 60s old is still fresh
     expect(status(plan(), price(183_000_000n, 60_001))).toBe("price_stale");
-    expect(status(plan(), { units: 183_000_000n, observedAtMs: NOW + 1 })).toBe(
-      "price_unavailable",
-    );
+    // A few ms of skew between two clocks is tolerated, but not more than 5 s.
+    expect(
+      status(plan(), { units: 183_000_000n, observedAtMs: NOW + 5000 }),
+    ).toBe("in_range");
+    expect(
+      status(plan(), { units: 183_000_000n, observedAtMs: NOW + 5001 }),
+    ).toBe("price_unavailable");
     // A stale price never reports a range position, even one far outside the range.
     expect(status(plan(), price(999_000_000n, 120_000))).toBe("price_stale");
   });
