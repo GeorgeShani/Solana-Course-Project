@@ -344,3 +344,57 @@ export function encodeFollowReceiptAccount(
     followReceiptCodec.encode({ ...r, status: r.status === "pending" ? 0 : 1 }),
   ]);
 }
+
+// ------------------------------------------------------------------------------------- errors
+
+export interface RelayErrorInfo {
+  code: number;
+  name: string;
+  message: string;
+}
+
+/** The program's custom errors, from the IDL (codes start at 6000). */
+export const RELAY_ERRORS: readonly RelayErrorInfo[] = idl.errors.map((e) => ({
+  code: e.code,
+  name: e.name,
+  message: e.msg,
+}));
+
+export function relayErrorByName(name: string): RelayErrorInfo | undefined {
+  return RELAY_ERRORS.find((e) => e.name === name);
+}
+
+export function relayErrorByCode(code: number): RelayErrorInfo | undefined {
+  return RELAY_ERRORS.find((e) => e.code === code);
+}
+
+/**
+ * Finds the Anchor error name in program logs, e.g.
+ * "Program log: AnchorError thrown in ... Error Code: PlanExpired. Error Number: 6006. ..."
+ */
+export function parseAnchorErrorName(
+  logs: readonly string[],
+): string | undefined {
+  for (const line of logs) {
+    const match = /Error Code: ([A-Za-z0-9_]+)\./.exec(line);
+    if (match?.[1]) return match[1];
+  }
+  return undefined;
+}
+
+/** Digs the `Custom` program error code out of a transaction error object, if there is one. */
+export function customErrorCode(err: unknown): number | undefined {
+  if (typeof err === "object" && err !== null) {
+    if (
+      "Custom" in err &&
+      (typeof err.Custom === "number" || typeof err.Custom === "bigint")
+    ) {
+      return Number(err.Custom);
+    }
+    for (const value of Object.values(err)) {
+      const found = customErrorCode(value);
+      if (found !== undefined) return found;
+    }
+  }
+  return undefined;
+}

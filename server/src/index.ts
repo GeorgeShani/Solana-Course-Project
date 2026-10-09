@@ -2,6 +2,8 @@ import { createApp } from "./app";
 import { connect, migrate } from "./db";
 import { loadEnv } from "./env";
 import { createChain } from "./services/chain";
+import { createFollowService } from "./services/follow";
+import { createJupiterClient } from "./services/jupiter";
 import { createPlanService } from "./services/plans";
 import { createJupiterPrices } from "./services/prices";
 
@@ -18,7 +20,14 @@ const chain = createChain(env.solanaRpcUrl, env.cluster);
 const prices = createJupiterPrices(env, db);
 const plans = createPlanService({ env, db, chain, prices });
 
-const app = createApp({ env, db, plans, prices });
+const follow = createFollowService({
+  env,
+  db,
+  chain,
+  jupiter: createJupiterClient(env),
+});
+
+const app = createApp({ env, db, plans, follow, prices });
 
 console.log(
   `relay server on :${env.port} (cluster ${env.cluster}, origin ${env.appOrigin})`,

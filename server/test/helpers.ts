@@ -1,8 +1,18 @@
-import { address, generateKeyPairSigner, type Address } from "@solana/kit";
+import {
+  address,
+  blockhash,
+  generateKeyPairSigner,
+  getBase58Decoder,
+  signature as toSignature,
+  type Address,
+  type Signature,
+  type Transaction,
+} from "@solana/kit";
 import {
   RELAY_PROGRAM_ADDRESS,
   getPlanAddress,
   getVersionAddress,
+  type FollowReceiptAccount,
   type PlanAccount,
   type PlanVersionAccount,
 } from "@relay/domain/solana";
@@ -20,8 +30,15 @@ import {
 import { createApp } from "../src/app";
 import { connect, migrate, type Db } from "../src/db";
 import { loadEnv, type Env } from "../src/env";
+import { createFollowService } from "../src/services/follow";
+import type { BuildParams, JupiterClient } from "../src/services/jupiter";
 import { createPlanService } from "../src/services/plans";
-import type { ChainReader, PriceSource } from "../src/services/types";
+import type {
+  ChainReader,
+  ChainTransaction,
+  PriceSource,
+  SimulationResult,
+} from "../src/services/types";
 
 export const T0 = 1_790_000_000;
 export const ORIGIN = "http://localhost:5173";
@@ -44,6 +61,48 @@ export class FakeChain implements ChainReader {
   versions = new Map<string, PlanVersionAccount>();
   foreign = new Set<string>();
   down = false;
+  receipts = new Map<string, FollowReceiptAccount>();
+  transactions = new Map<string, ChainTransaction>();
+  /** What the next simulation reports. */
+  simulation: SimulationResult = {
+    ok: true,
+    unitsConsumed: 120_000,
+    logs: [],
+    error: null,
+  };
+  simulated: Transaction[] = [];
+  readonly fixedBlockhash = blockhash("11111111111111111111111111111111");
+
+  async getLatestBlockhash() {
+    return {
+      blockhash: this.fixedBlockhash,
+      lastValidBlockHeight: 1_000n,
+    };
+  }
+
+  async simulate(transaction: Transaction) {
+    this.simulated.push(transaction);
+    return this.simulation;
+  }
+
+  /** A stored transaction, for tests that modify it. */
+  storedTransaction(sig: Signature): ChainTransaction {
+    const tx = this.transactions.get(sig);
+    if (!tx) throw new Error("no such stored transaction");
+    return tx;
+  }
+
+  async getTransaction(sig: Signature) {
+    if (this.down) throw new Error("rpc down");
+    return this.transactions.get(sig) ?? null;
+  }
+
+  async getFollowReceipt(receiptPda: string) {
+    if (this.down) throw new Error("rpc down");
+    if (this.foreign.has(receiptPda))
+      throw new Error("Account is not owned by the Relay program");
+    return this.receipts.get(receiptPda) ?? null;
+  }
 
   async nowMs() {
     return this.now;
@@ -157,11 +216,34 @@ export class FakePrices implements PriceSource {
   }
 }
 
+/** Serves a captured real Jupiter response (or fails like Jupiter would). */
+export class FakeJupiter implements JupiterClient {
+  body: unknown;
+  failure: Error | null = null;
+  calls: BuildParams[] = [];
+  constructor(body: unknown) {
+    this.body = body;
+  }
+  async build(params: BuildParams) {
+    this.calls.push(params);
+    if (this.failure) throw this.failure;
+    return this.body;
+  }
+}
+
+/** A well-formed base58 transaction signature (64 bytes) that is unique per `n`. */
+export function fakeSignature(n: number): Signature {
+  const bytes = new Uint8Array(64).fill(n % 256);
+  bytes[0] = (n >> 8) % 256;
+  return toSignature(getBase58Decoder().decode(bytes));
+}
+
 export interface TestApp {
   app: ReturnType<typeof createApp>;
   db: Db;
   chain: FakeChain;
   prices: FakePrices;
+  jupiter: FakeJupiter;
   env: Env;
   post: (
     path: string,
@@ -177,7 +259,9 @@ export async function resetDatabase(db: Db): Promise<void> {
   await migrate(db);
 }
 
-export async function createTestApp(): Promise<TestApp> {
+export async function createTestApp(
+  jupiterBody: unknown = null,
+): Promise<TestApp> {
   const env = loadEnv({
     APP_ORIGIN: ORIGIN,
     SOLANA_CLUSTER: "localnet",
@@ -189,13 +273,16 @@ export async function createTestApp(): Promise<TestApp> {
   const prices = new FakePrices();
   prices.prices.set(SOL.mint, { units: 183_000_000n, ageMs: 1000 });
   prices.prices.set(JUP.mint, { units: 350_000n, ageMs: 1000 });
+  const jupiter = new FakeJupiter(jupiterBody);
   const plans = createPlanService({ env, db, chain, prices });
-  const app = createApp({ env, db, plans, prices });
+  const follow = createFollowService({ env, db, chain, jupiter });
+  const app = createApp({ env, db, plans, follow, prices });
   return {
     app,
     db,
     chain,
     prices,
+    jupiter,
     env,
     get: async (path) => app.request(path),
     post: async (path, body, headers = {}) =>

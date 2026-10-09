@@ -10,6 +10,7 @@ import {
   originGuard,
   rateLimit,
 } from "./middleware";
+import type { FollowService } from "./services/follow";
 import type { PlanService } from "./services/plans";
 import type { PriceSource } from "./services/types";
 import { isRecord } from "./util";
@@ -18,17 +19,31 @@ export interface AppDeps {
   env: Env;
   db: Db;
   plans: PlanService;
+  follow: FollowService;
   prices: PriceSource;
 }
 
 const MAX_BODY_BYTES = 16 * 1024;
+
+async function readJson(request: Request): Promise<Record<string, unknown>> {
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    throw new ApiError(400, "invalid_json", "Body must be valid JSON");
+  }
+  if (!isRecord(body)) {
+    throw new ApiError(400, "invalid_body", "Body must be an object");
+  }
+  return body;
+}
 
 /**
  * The HTTP API. Everything is read-mostly: the Solana program is the authority, and the only
  * write is `POST /plans/:planPda/confirm`, which stores plan text after checking it against the
  * hash committed onchain. Mutating requests need the configured Origin and a JSON body.
  */
-export function createApp({ env, db, plans, prices }: AppDeps) {
+export function createApp({ env, db, plans, follow, prices }: AppDeps) {
   const app = new Hono();
 
   app.use("*", secureHeaders());
@@ -81,15 +96,7 @@ export function createApp({ env, db, plans, prices }: AppDeps) {
     "/plans/:planPda/confirm",
     rateLimit(createRateLimiter(10, 60_000)),
     async (c) => {
-      let body: unknown;
-      try {
-        body = await c.req.json();
-      } catch {
-        throw new ApiError(400, "invalid_json", "Body must be valid JSON");
-      }
-      if (!isRecord(body)) {
-        throw new ApiError(400, "invalid_body", "Body must be an object");
-      }
+      const body = await readJson(c.req.raw);
       return c.json(
         await plans.confirm(c.req.param("planPda"), {
           version: body.version,
@@ -97,6 +104,35 @@ export function createApp({ env, db, plans, prices }: AppDeps) {
         }),
       );
     },
+  );
+
+  const quoteLimiter = createRateLimiter(10, 60_000);
+  const quoteFollowerLimiter = createRateLimiter(10, 60_000);
+  /** Builds the transaction a follower may sign: fresh route, simulated, nothing sent. */
+  app.post("/follow/quote", rateLimit(quoteLimiter), async (c) => {
+    const body = await readJson(c.req.raw);
+    if (
+      typeof body.follower === "string" &&
+      !quoteFollowerLimiter(body.follower)
+    ) {
+      throw new ApiError(
+        429,
+        "rate_limited",
+        "Too many requests. Try again in a moment.",
+      );
+    }
+    return c.json(await follow.quote(body));
+  });
+
+  /** Records the outcome of a follow by re-reading the chain. The client supplies only a signature. */
+  app.post(
+    "/follow/verify",
+    rateLimit(createRateLimiter(30, 60_000)),
+    async (c) => c.json(await follow.verify(await readJson(c.req.raw))),
+  );
+
+  app.get("/me/executions", async (c) =>
+    c.json({ items: await follow.executionsFor(c.req.query("follower")) }),
   );
 
   /** Advisory reference prices (never enforced by the program). */

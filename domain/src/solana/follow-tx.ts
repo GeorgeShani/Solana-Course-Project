@@ -265,3 +265,18 @@ export async function composeFollowTx(
     followerQuote,
   };
 }
+
+/** The priority fee Jupiter asked for, in micro-lamports per compute unit (0 when none). */
+export function priorityFeeMicroLamports(build: JupiterBuild): bigint {
+  for (const ix of build.computeBudgetInstructions) {
+    const data = Uint8Array.from(base64.encode(ix.data));
+    if (data[0] === SET_COMPUTE_UNIT_PRICE) {
+      return new DataView(
+        data.buffer,
+        data.byteOffset,
+        data.byteLength,
+      ).getBigUint64(1, true);
+    }
+  }
+  return 0n;
+}

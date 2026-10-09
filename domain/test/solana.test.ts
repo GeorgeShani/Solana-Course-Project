@@ -7,6 +7,7 @@ import {
   closePlanInstruction,
   composeFollowTx,
   createPlanInstruction,
+  customErrorCode,
   decodeFollowReceipt,
   decodePlan,
   decodePlanVersion,
@@ -18,6 +19,10 @@ import {
   getPlanAddress,
   getReceiptAddress,
   getVersionAddress,
+  parseAnchorErrorName,
+  priorityFeeMicroLamports,
+  relayErrorByCode,
+  relayErrorByName,
   revisePlanInstruction,
 } from "../src/solana";
 import { parseJupiterBuild } from "../src/jupiter";
@@ -382,5 +387,49 @@ describe("composeFollowTx", () => {
     await expect(
       composeFollowTx({ ...input, computeUnitPriceCap: 0n }),
     ).rejects.toThrow(/Priority fee/);
+  });
+});
+
+describe("error decoding", () => {
+  it("looks program errors up by name and code from the IDL", () => {
+    const expired = relayErrorByName("PlanExpired");
+    expect(expired?.code).toBe(6006);
+    expect(relayErrorByCode(6006)?.name).toBe("PlanExpired");
+    expect(relayErrorByCode(1)).toBeUndefined();
+    expect(relayErrorByName("Nope")).toBeUndefined();
+  });
+
+  it("reads the Anchor error name from program logs", () => {
+    const logs = [
+      "Program X invoke [1]",
+      "Program log: AnchorError thrown in programs/relay/src/instructions/begin_follow.rs:67. Error Code: PlanExpired. Error Number: 6006. Error Message: This plan version has expired.",
+    ];
+    expect(parseAnchorErrorName(logs)).toBe("PlanExpired");
+    expect(parseAnchorErrorName(["Program log: all good"])).toBeUndefined();
+    expect(parseAnchorErrorName([])).toBeUndefined();
+  });
+
+  it("finds a custom error code anywhere in a transaction error", () => {
+    expect(customErrorCode({ InstructionError: [4, { Custom: 6006 }] })).toBe(
+      6006,
+    );
+    expect(customErrorCode({ InstructionError: [4, { Custom: 6006n }] })).toBe(
+      6006,
+    );
+    expect(
+      customErrorCode({ InstructionError: [0, "AccountNotFound"] }),
+    ).toBeUndefined();
+    expect(customErrorCode("BlockhashNotFound")).toBeUndefined();
+    expect(customErrorCode(null)).toBeUndefined();
+  });
+});
+
+describe("priorityFeeMicroLamports", () => {
+  it("reads the compute-unit price Jupiter asked for", () => {
+    const build = parseJupiterBuild(fixture);
+    expect(priorityFeeMicroLamports(build)).toBeGreaterThanOrEqual(0n);
+    expect(
+      priorityFeeMicroLamports({ ...build, computeBudgetInstructions: [] }),
+    ).toBe(0n);
   });
 });
