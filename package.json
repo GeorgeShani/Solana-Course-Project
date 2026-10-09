@@ -1,7 +1,11 @@
 {
   "name": "solana-course-project",
   "private": true,
-  "workspaces": ["app", "server", "domain"],
+  "workspaces": [
+    "app",
+    "server",
+    "domain"
+  ],
   "scripts": {
     "dev:app": "bun run --cwd app dev",
     "dev:server": "bun run --cwd server dev",
@@ -10,7 +14,8 @@
     "program:build": "bun run scripts/anchor.ts build",
     "program:test": "bun run scripts/anchor.ts test",
     "program:deploy": "bun run scripts/anchor.ts deploy",
-    "typecheck:scripts": "tsc -p tsconfig.json"
+    "typecheck:scripts": "tsc -p tsconfig.json",
+    "lint": "bunx oxlint -c .oxlintrc.json app domain server scripts"
   },
   "devDependencies": {
     "@types/bun": "latest",

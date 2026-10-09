@@ -1,10 +1,6 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": [
-    "react",
-    "typescript",
-    "oxc"
-  ],
+  "plugins": ["react", "typescript", "oxc"],
   "rules": {
     "react/rules-of-hooks": "error",
     "react/only-export-components": [
@@ -12,17 +8,18 @@
       {
         "allowConstantExport": true
       }
+    ],
+    "typescript/consistent-type-assertions": [
+      "error",
+      {
+        "assertionStyle": "never"
+      }
     ]
   },
-  "ignorePatterns": [
-    "src/routeTree.gen.ts",
-    "dist"
-  ],
+  "ignorePatterns": ["src/routeTree.gen.ts", "dist"],
   "overrides": [
     {
-      "files": [
-        "src/routes/**"
-      ],
+      "files": ["src/routes/**"],
       "rules": {
         "react/only-export-components": "off"
       }
