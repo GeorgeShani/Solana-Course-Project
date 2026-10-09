@@ -1,0 +1,16 @@
+[package]
+name = "cpi_attacker"
+version = "0.1.0"
+description = "TEST ONLY: forwards an instruction to another program via CPI. Never deployed."
+edition.workspace = true
+rust-version.workspace = true
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "cpi_attacker"
+
+[dependencies]
+anchor-lang = "1.1.2"
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(target_os, values("solana"))'] }

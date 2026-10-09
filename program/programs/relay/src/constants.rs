@@ -27,3 +27,14 @@ pub const JUP_MINT: Pubkey = pubkey!("JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvC
 
 /// Allowed (base, quote) pairs. The follower spends the quote token to receive the base token.
 pub const SUPPORTED_PAIRS: [(Pubkey, Pubkey); 2] = [(WSOL_MINT, USDC_MINT), (JUP_MINT, USDC_MINT)];
+
+#[constant]
+pub const RECEIPT_SEED: &[u8] = b"receipt";
+
+/// Jupiter Aggregator v6 (RouteV2 etc.). The only program whose instruction may sit between
+/// `begin_follow` and `finish_follow`. Confirmed in docs/spikes/surfpool-jupiter.md.
+pub const JUPITER_PROGRAM_IDS: [Pubkey; 1] =
+    [pubkey!("JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4")];
+
+/// Classic SPL Associated Token Account program (used to derive the follower's canonical accounts).
+pub const ATA_PROGRAM_ID: Pubkey = pubkey!("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL");

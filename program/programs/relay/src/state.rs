@@ -43,3 +43,31 @@ pub struct PlanVersion {
     pub terms_hash: [u8; 32],
     pub bump: u8,
 }
+
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, Copy, Debug, PartialEq, Eq, InitSpace)]
+pub enum ReceiptStatus {
+    /// Exists only inside a transaction, between begin_follow and finish_follow.
+    Pending,
+    Recorded,
+}
+
+/// Proof that one follower's swap, executed inside a single transaction, happened inside a plan
+/// version's entry range. Written only by the program from observed token balance changes;
+/// nothing the client sends is trusted.
+#[account]
+#[derive(InitSpace)]
+pub struct FollowReceipt {
+    pub plan: Pubkey,
+    pub version: u16,
+    pub follower: Pubkey,
+    pub pre_base: u64,
+    pub pre_quote: u64,
+    pub max_quote_in: u64,
+    pub quote_spent: u64,
+    pub base_received: u64,
+    pub status: ReceiptStatus,
+    pub recorded_at: i64,
+    pub slot: u64,
+    pub nonce: u64,
+    pub bump: u8,
+}
