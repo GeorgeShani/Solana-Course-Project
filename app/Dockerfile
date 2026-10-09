@@ -22,7 +22,7 @@ ARG VITE_API_URL=/api
 ENV VITE_RPC_URL=$VITE_RPC_URL VITE_API_URL=$VITE_API_URL
 RUN bun run --cwd app build
 
-# The SSR bundle imports react, @tanstack/react-router, @solana/web3.js, ...
+# The SSR bundle imports react, @tanstack/react-router, @solana/kit, ...
 # at runtime, so the final image needs production node_modules.
 FROM oven/bun:1 AS prod-deps
 WORKDIR /repo

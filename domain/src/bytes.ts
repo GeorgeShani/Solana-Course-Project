@@ -3,7 +3,8 @@
 const enc = new TextEncoder();
 export const utf8 = (s: string): Uint8Array => enc.encode(s);
 
-export function concat(parts: readonly Uint8Array[]): Uint8Array {
+/** Accepts any byte array, including the read-only arrays that @solana/kit codecs return. */
+export function concat(parts: readonly ArrayLike<number>[]): Uint8Array {
   const out = new Uint8Array(parts.reduce((n, p) => n + p.length, 0));
   let o = 0;
   for (const p of parts) {

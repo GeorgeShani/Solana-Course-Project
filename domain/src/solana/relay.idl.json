@@ -8,24 +8,101 @@
   },
   "instructions": [
     {
-      "name": "close_plan",
-      "discriminator": [
-        45,
-        137,
-        184,
-        220,
-        162,
-        253,
-        161,
-        8
+      "name": "begin_follow",
+      "docs": [
+        "Snapshot the follower's balances. Valid only as: begin_follow, one Jupiter swap, finish_follow."
       ],
+      "discriminator": [213, 60, 38, 48, 215, 232, 193, 52],
+      "accounts": [
+        {
+          "name": "follower",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "plan"
+        },
+        {
+          "name": "plan_version",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [118, 101, 114, 115, 105, 111, 110]
+              },
+              {
+                "kind": "account",
+                "path": "plan"
+              },
+              {
+                "kind": "arg",
+                "path": "version"
+              }
+            ]
+          }
+        },
+        {
+          "name": "receipt",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [114, 101, 99, 101, 105, 112, 116]
+              },
+              {
+                "kind": "account",
+                "path": "plan_version"
+              },
+              {
+                "kind": "account",
+                "path": "follower"
+              },
+              {
+                "kind": "arg",
+                "path": "nonce"
+              }
+            ]
+          }
+        },
+        {
+          "name": "follower_base"
+        },
+        {
+          "name": "follower_quote"
+        },
+        {
+          "name": "instructions",
+          "address": "Sysvar1nstructions1111111111111111111111111"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "version",
+          "type": "u16"
+        },
+        {
+          "name": "nonce",
+          "type": "u64"
+        },
+        {
+          "name": "max_quote_in",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "close_plan",
+      "discriminator": [45, 137, 184, 220, 162, 253, 161, 8],
       "accounts": [
         {
           "name": "creator",
           "signer": true,
-          "relations": [
-            "plan"
-          ]
+          "relations": ["plan"]
         },
         {
           "name": "plan",
@@ -36,16 +113,7 @@
     },
     {
       "name": "create_plan",
-      "discriminator": [
-        77,
-        43,
-        141,
-        254,
-        212,
-        118,
-        41,
-        186
-      ],
+      "discriminator": [77, 43, 141, 254, 212, 118, 41, 186],
       "accounts": [
         {
           "name": "creator",
@@ -59,12 +127,7 @@
             "seeds": [
               {
                 "kind": "const",
-                "value": [
-                  112,
-                  108,
-                  97,
-                  110
-                ]
+                "value": [112, 108, 97, 110]
               },
               {
                 "kind": "account",
@@ -84,15 +147,7 @@
             "seeds": [
               {
                 "kind": "const",
-                "value": [
-                  118,
-                  101,
-                  114,
-                  115,
-                  105,
-                  111,
-                  110
-                ]
+                "value": [118, 101, 114, 115, 105, 111, 110]
               },
               {
                 "kind": "account",
@@ -100,10 +155,7 @@
               },
               {
                 "kind": "const",
-                "value": [
-                  1,
-                  0
-                ]
+                "value": [1, 0]
               }
             ]
           }
@@ -142,34 +194,68 @@
         {
           "name": "content_hash",
           "type": {
-            "array": [
-              "u8",
-              32
-            ]
+            "array": ["u8", 32]
           }
         }
       ]
     },
     {
-      "name": "revise_plan",
-      "discriminator": [
-        45,
-        156,
-        119,
-        120,
-        160,
-        78,
-        85,
-        71
+      "name": "finish_follow",
+      "docs": [
+        "Measure what the swap did and record a receipt, or revert everything."
       ],
+      "discriminator": [13, 188, 25, 154, 150, 81, 248, 8],
+      "accounts": [
+        {
+          "name": "follower",
+          "signer": true,
+          "relations": ["receipt"]
+        },
+        {
+          "name": "receipt",
+          "writable": true
+        },
+        {
+          "name": "follower_base"
+        },
+        {
+          "name": "follower_quote"
+        },
+        {
+          "name": "plan_version",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [118, 101, 114, 115, 105, 111, 110]
+              },
+              {
+                "kind": "account",
+                "path": "plan"
+              },
+              {
+                "kind": "account",
+                "path": "receipt.version",
+                "account": "FollowReceipt"
+              }
+            ]
+          }
+        },
+        {
+          "name": "plan"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "revise_plan",
+      "discriminator": [45, 156, 119, 120, 160, 78, 85, 71],
       "accounts": [
         {
           "name": "creator",
           "writable": true,
           "signer": true,
-          "relations": [
-            "plan"
-          ]
+          "relations": ["plan"]
         },
         {
           "name": "plan",
@@ -181,15 +267,7 @@
             "seeds": [
               {
                 "kind": "const",
-                "value": [
-                  118,
-                  101,
-                  114,
-                  115,
-                  105,
-                  111,
-                  110
-                ]
+                "value": [118, 101, 114, 115, 105, 111, 110]
               },
               {
                 "kind": "account",
@@ -228,10 +306,7 @@
         {
           "name": "content_hash",
           "type": {
-            "array": [
-              "u8",
-              32
-            ]
+            "array": ["u8", 32]
           }
         }
       ]
@@ -239,71 +314,34 @@
   ],
   "accounts": [
     {
+      "name": "FollowReceipt",
+      "discriminator": [239, 104, 233, 70, 202, 174, 117, 180]
+    },
+    {
       "name": "Plan",
-      "discriminator": [
-        161,
-        231,
-        251,
-        119,
-        2,
-        12,
-        162,
-        2
-      ]
+      "discriminator": [161, 231, 251, 119, 2, 12, 162, 2]
     },
     {
       "name": "PlanVersion",
-      "discriminator": [
-        28,
-        234,
-        239,
-        110,
-        19,
-        210,
-        3,
-        13
-      ]
+      "discriminator": [28, 234, 239, 110, 19, 210, 3, 13]
     }
   ],
   "events": [
     {
+      "name": "FollowRecorded",
+      "discriminator": [203, 187, 121, 59, 15, 11, 36, 236]
+    },
+    {
       "name": "PlanClosedEvent",
-      "discriminator": [
-        6,
-        115,
-        16,
-        243,
-        108,
-        123,
-        11,
-        42
-      ]
+      "discriminator": [6, 115, 16, 243, 108, 123, 11, 42]
     },
     {
       "name": "PlanCommitted",
-      "discriminator": [
-        83,
-        238,
-        231,
-        240,
-        7,
-        247,
-        206,
-        185
-      ]
+      "discriminator": [83, 238, 231, 240, 7, 247, 206, 185]
     },
     {
       "name": "PlanRevised",
-      "discriminator": [
-        1,
-        109,
-        220,
-        203,
-        113,
-        131,
-        135,
-        108
-      ]
+      "discriminator": [1, 109, 220, 203, 113, 131, 135, 108]
     }
   ],
   "errors": [
@@ -336,9 +374,180 @@
       "code": 6005,
       "name": "MathOverflow",
       "msg": "Arithmetic overflow"
+    },
+    {
+      "code": 6006,
+      "name": "PlanExpired",
+      "msg": "This plan version has expired"
+    },
+    {
+      "code": 6007,
+      "name": "PlanNotYetActive",
+      "msg": "This plan version is not active yet"
+    },
+    {
+      "code": 6008,
+      "name": "StaleVersion",
+      "msg": "The plan was updated; review the latest version"
+    },
+    {
+      "code": 6009,
+      "name": "InvalidAmount",
+      "msg": "Amount must be greater than zero"
+    },
+    {
+      "code": 6010,
+      "name": "CpiNotAllowed",
+      "msg": "This instruction cannot be called from another program"
+    },
+    {
+      "code": 6011,
+      "name": "InvalidInstructionLayout",
+      "msg": "The transaction must be exactly: begin_follow, one swap, finish_follow"
+    },
+    {
+      "code": 6012,
+      "name": "UnexpectedInstructionBetweenSnapshots",
+      "msg": "Only one swap signed by the follower may sit between begin_follow and finish_follow"
+    },
+    {
+      "code": 6013,
+      "name": "ReceiptNotPending",
+      "msg": "The receipt is not pending"
+    },
+    {
+      "code": 6014,
+      "name": "TokenAccountMismatch",
+      "msg": "Token accounts must be the follower's associated token accounts"
+    },
+    {
+      "code": 6015,
+      "name": "NoOutputReceived",
+      "msg": "The swap delivered no tokens"
+    },
+    {
+      "code": 6016,
+      "name": "NoInputSpent",
+      "msg": "The swap spent no tokens"
+    },
+    {
+      "code": 6017,
+      "name": "InputAboveMax",
+      "msg": "The swap spent more than the amount the follower approved"
+    },
+    {
+      "code": 6018,
+      "name": "PriceAboveRange",
+      "msg": "The price paid is above the plan's entry range"
+    },
+    {
+      "code": 6019,
+      "name": "PriceBelowRange",
+      "msg": "The price paid is below the plan's entry range"
     }
   ],
   "types": [
+    {
+      "name": "FollowReceipt",
+      "docs": [
+        "Proof that one follower's swap, executed inside a single transaction, happened inside a plan",
+        "version's entry range. Written only by the program from observed token balance changes;",
+        "nothing the client sends is trusted."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "plan",
+            "type": "pubkey"
+          },
+          {
+            "name": "version",
+            "type": "u16"
+          },
+          {
+            "name": "follower",
+            "type": "pubkey"
+          },
+          {
+            "name": "pre_base",
+            "type": "u64"
+          },
+          {
+            "name": "pre_quote",
+            "type": "u64"
+          },
+          {
+            "name": "max_quote_in",
+            "type": "u64"
+          },
+          {
+            "name": "quote_spent",
+            "type": "u64"
+          },
+          {
+            "name": "base_received",
+            "type": "u64"
+          },
+          {
+            "name": "status",
+            "type": {
+              "defined": {
+                "name": "ReceiptStatus"
+              }
+            }
+          },
+          {
+            "name": "recorded_at",
+            "type": "i64"
+          },
+          {
+            "name": "slot",
+            "type": "u64"
+          },
+          {
+            "name": "nonce",
+            "type": "u64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "FollowRecorded",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "receipt",
+            "type": "pubkey"
+          },
+          {
+            "name": "plan",
+            "type": "pubkey"
+          },
+          {
+            "name": "version",
+            "type": "u16"
+          },
+          {
+            "name": "follower",
+            "type": "pubkey"
+          },
+          {
+            "name": "quote_spent",
+            "type": "u64"
+          },
+          {
+            "name": "base_received",
+            "type": "u64"
+          }
+        ]
+      }
+    },
     {
       "name": "Plan",
       "docs": [
@@ -434,10 +643,7 @@
           {
             "name": "terms_hash",
             "type": {
-              "array": [
-                "u8",
-                32
-              ]
+              "array": ["u8", 32]
             }
           },
           {
@@ -467,10 +673,7 @@
           {
             "name": "terms_hash",
             "type": {
-              "array": [
-                "u8",
-                32
-              ]
+              "array": ["u8", 32]
             }
           },
           {
@@ -537,10 +740,7 @@
               "SHA-256 of the offchain text (rationale, exit thesis, ...). See domain/src/commitment.ts."
             ],
             "type": {
-              "array": [
-                "u8",
-                32
-              ]
+              "array": ["u8", 32]
             }
           },
           {
@@ -549,10 +749,7 @@
               "terms_hash of the previous version; all zeros for version 1."
             ],
             "type": {
-              "array": [
-                "u8",
-                32
-              ]
+              "array": ["u8", 32]
             }
           },
           {
@@ -561,10 +758,7 @@
               "Hash over all of the above plus the plan, creator and program id (see commitment.rs)."
             ],
             "type": {
-              "array": [
-                "u8",
-                32
-              ]
+              "array": ["u8", 32]
             }
           },
           {
@@ -573,14 +767,26 @@
           }
         ]
       }
+    },
+    {
+      "name": "ReceiptStatus",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Pending"
+          },
+          {
+            "name": "Recorded"
+          }
+        ]
+      }
     }
   ],
   "constants": [
     {
       "name": "MAX_VERSIONS",
-      "docs": [
-        "Maximum versions per plan (v1 plus 15 revisions)."
-      ],
+      "docs": ["Maximum versions per plan (v1 plus 15 revisions)."],
       "type": "u16",
       "value": "16"
     },
@@ -602,6 +808,11 @@
       "name": "PLAN_SEED",
       "type": "bytes",
       "value": "[112, 108, 97, 110]"
+    },
+    {
+      "name": "RECEIPT_SEED",
+      "type": "bytes",
+      "value": "[114, 101, 99, 101, 105, 112, 116]"
     },
     {
       "name": "VERSION_SEED",
