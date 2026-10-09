@@ -10,11 +10,10 @@
     "start": "bun run serve.ts"
   },
   "dependencies": {
-    "@anchor-lang/core": "^1.2.0",
-    "@solana/web3.js": "^1.99.0",
+    "@relay/domain": "workspace:*",
+    "@solana/kit": "^8.4.0",
     "@tanstack/react-router": "^1.170.41",
     "@tanstack/react-start": "^1.168.60",
-    "buffer": "^6.0.3",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"
   },

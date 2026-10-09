@@ -1,35 +1,21 @@
-// Copies the IDL and TypeScript types that `anchor build` generates into the frontend and the
-// server, so both talk to the same interface the program exposes.
+// Copies the IDL that `anchor build` generates into @relay/domain, which holds the one
+// TypeScript client for the program (account codecs, instruction builders, PDAs). The app,
+// the server and the scripts all use it, so they cannot drift from the deployed interface.
 
 import { copyFileSync, existsSync, mkdirSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 
 const root = join(import.meta.dir, "..");
-const from = join(root, "program", "target");
-const targets = [
-  join(root, "app", "src", "idl"),
-  join(root, "server", "src", "idl"),
-];
+const from = join(root, "program", "target", "idl", "relay.json");
+const to = join(root, "domain", "src", "solana", "relay.idl.json");
 
-/** [path under program/target, file name in the destination]. */
-const files: ReadonlyArray<readonly [string, string]> = [
-  ["idl/relay.json", "relay.json"],
-  ["types/relay.ts", "relay.ts"],
-];
-
-for (const [src] of files) {
-  if (!existsSync(join(from, src))) {
-    console.error(
-      `missing ${join(from, src)}. Run \`bun run program:build\` first.`,
-    );
-    process.exit(1);
-  }
+if (!existsSync(from)) {
+  console.error(`missing ${from}. Run \`bun run program:build\` first.`);
+  process.exit(1);
 }
 
-for (const to of targets) {
-  mkdirSync(to, { recursive: true });
-  for (const [src, dest] of files) {
-    copyFileSync(join(from, src), join(to, dest));
-    console.log(`copied ${src} -> ${to.slice(root.length + 1)}/${dest}`);
-  }
-}
+mkdirSync(dirname(to), { recursive: true });
+copyFileSync(from, to);
+console.log(
+  `copied ${from.slice(root.length + 1)} -> ${to.slice(root.length + 1)}`,
+);

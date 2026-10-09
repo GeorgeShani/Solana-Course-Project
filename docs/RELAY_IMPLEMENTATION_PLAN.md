@@ -33,6 +33,7 @@ An earlier Next.js prototype (`C:\Users\HP\Desktop\curtain-sol`) explored the pr
 | Server role | **Hono becomes required.** Update the docs that call it optional. The app shows an explicit "service unavailable" state when `/api` is down. |
 | Horizon | **A demo in about 3 days.** The plan contains a 72-hour demo cut (W/X) inside a longer MVP roadmap. |
 | Visual identity | **The prototype's theatre identity (curtain, marquee, spotlight, stage), recolored in Solana colors.** The interaction is still the vertical feed. Spectacle frames the data and never decorates it (section G). |
+| Solana SDK | **`@solana/kit`** (owner decision during Phase 3). `@solana/web3.js` v1 and the Anchor TypeScript client are not used. |
 | Delivery shape | **Small phases, each with one focus.** Stage 1 is Phases 0–9 (the 72-hour demo). Stage 2 is Phases 10–18 (the post-demo MVP). Details are in section W. |
 
 ### Phase overview
@@ -1264,19 +1265,26 @@ The work is split into small phases that can each be handed to one coding sessio
   - `anchor-spl` needs its `token_2022` feature for `idl-build` to compile; the program still uses only the classic `token::Mint`, so Token-2022 mints are rejected by type.
   - `sync-idl` copies the IDL to `app/src/idl/` and `server/src/idl/`.
 
-#### Phase 3: Program, part 2: verified follow receipts (≈ 6 h, depends on Phases 0 and 2)
+#### Phase 3: Program, part 2: verified follow receipts (≈ 6 h, depends on Phases 0 and 2): DONE
 - **Goal:** a receipt can exist only if a real in-range swap happened.
 - **Tasks:**
-  - [ ] `FollowReceipt`, plus `begin_follow` / `finish_follow` with the top-level and exactly-one-swap rules.
-  - [ ] Test crates `mock_swap` and `cpi_attacker`.
-  - [ ] The adversarial suite (section U).
-  - [ ] `domain/src/tx.ts` (`composeFollowTx`).
-  - [ ] `scripts/follow-demo.ts`, run on the fork.
+  - [x] `FollowReceipt`, plus `begin_follow` / `finish_follow` with the top-level and exactly-one-swap rules.
+  - [x] Test crates `mock_swap` and `cpi_attacker`.
+  - [x] The adversarial suite (section U).
+  - [x] `domain/src/tx.ts` (`composeFollowTx`).
+  - [x] `scripts/follow-demo.ts`, run on the fork.
 - **Files:** `program/programs/{relay,mock_swap,cpi_attacker}/**`, `domain/src/tx.ts`, `scripts/follow-demo.ts`.
 - **Done when:**
   - All the bypass, CPI and second-wallet tests pass.
   - The script prints a Recorded receipt with real route labels (or the "Simulated swap venue" label under B).
   - It then shows a **landed** `PlanExpired` failure.
+- **Result:** 24 LiteSVM tests cover the anti-forgery rules (45 Rust tests in total), including a CPI attacker, a second-wallet swap, an extra signer, plain-transfer fakes and the exact range boundaries. `bun run --cwd domain demo:follow` runs the real thing on a Surfpool fork: a follow through a real Jupiter route records a receipt (100 USDC → ~0.91 SOL, 857-1014 of 1232 bytes), and after time travel the same follow fails onchain with `PlanExpired` and leaves no receipt.
+- **Deviations from the plan text:**
+  - **Kit replaces web3.js (owner decision).** `@solana/web3.js` v1 is deprecated, so the project uses `@solana/kit` 8.4 and no longer depends on `@solana/web3.js` or `@anchor-lang/core`. The program client (PDAs, account codecs, instruction builders, follow transaction composer) lives in `@relay/domain/solana`; tests check it against the generated IDL and the Rust program. This supersedes the "keep web3.js for the demo" decision in section B and the Kit-migration item in Stage 2 (Phase 17).
+  - `composeFollowTx` is `domain/src/solana/follow-tx.ts` (not `domain/src/tx.ts`); the demo is `domain/scripts/follow-demo.ts`.
+  - `sync-idl` now copies only the IDL, to `domain/src/solana/relay.idl.json`.
+  - Receipt size is 8 + 132 bytes (the earlier estimate was 211).
+  - Only the follower may sign the single swap instruction, and the program requires the exact layout described in `program/programs/relay/src/layout.rs`.
 
 #### Phase 4: Backend foundation (≈ 6 h, depends on Phases 1 and 2)
 - **Goal:** the server knows about plans and can serve a feed.
