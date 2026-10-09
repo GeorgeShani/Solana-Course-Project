@@ -1,20 +1,52 @@
-import { Program } from '@anchor-lang/core'
-import { PublicKey } from '@solana/web3.js'
-import idl from '../idl/course_program.json'
-import type { CourseProgram } from '../idl/course_program'
-import { getConnection } from './solana'
+import { Program } from "@anchor-lang/core";
+import { PublicKey } from "@solana/web3.js";
+import { relayIdl } from "./idl";
+import { getConnection } from "./solana";
 
 /**
- * Typed read-only client for the `course_program` program: it can fetch
- * accounts and decode them, using the generated IDL.
+ * Read-only Anchor client for the Relay program: it can fetch accounts and decode them,
+ * using the generated IDL.
  */
 export function getProgram() {
-  return new Program<CourseProgram>(idl as CourseProgram, {
+  return new Program(relayIdl, {
     connection: getConnection(),
-  })
+  });
 }
 
-/** The template counter is a singleton PDA seeded with "counter". Example only. */
-export function getCounterPda(programId: PublicKey) {
-  return PublicKey.findProgramAddressSync([Buffer.from('counter')], programId)[0]
+const enc = new TextEncoder();
+
+function u64le(n: bigint): Uint8Array {
+  const out = new Uint8Array(8);
+  new DataView(out.buffer).setBigUint64(0, n, true);
+  return out;
+}
+
+function u16le(n: number): Uint8Array {
+  const out = new Uint8Array(2);
+  new DataView(out.buffer).setUint16(0, n, true);
+  return out;
+}
+
+/** Plan PDA: ["plan", creator, plan_id u64 LE]. */
+export function getPlanPda(
+  programId: PublicKey,
+  creator: PublicKey,
+  planId: bigint,
+) {
+  return PublicKey.findProgramAddressSync(
+    [enc.encode("plan"), creator.toBytes(), u64le(planId)],
+    programId,
+  )[0];
+}
+
+/** PlanVersion PDA: ["version", plan, version u16 LE]. */
+export function getVersionPda(
+  programId: PublicKey,
+  plan: PublicKey,
+  version: number,
+) {
+  return PublicKey.findProgramAddressSync(
+    [enc.encode("version"), plan.toBytes(), u16le(version)],
+    programId,
+  )[0];
 }

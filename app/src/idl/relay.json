@@ -1,0 +1,612 @@
+{
+  "address": "Dzm5tgMCdhJZfXeHYuALst4hvZYiCebfyKf1ctx6WBF6",
+  "metadata": {
+    "name": "relay",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Relay: append-only trade-plan commitments and verified follow receipts"
+  },
+  "instructions": [
+    {
+      "name": "close_plan",
+      "discriminator": [
+        45,
+        137,
+        184,
+        220,
+        162,
+        253,
+        161,
+        8
+      ],
+      "accounts": [
+        {
+          "name": "creator",
+          "signer": true,
+          "relations": [
+            "plan"
+          ]
+        },
+        {
+          "name": "plan",
+          "writable": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "create_plan",
+      "discriminator": [
+        77,
+        43,
+        141,
+        254,
+        212,
+        118,
+        41,
+        186
+      ],
+      "accounts": [
+        {
+          "name": "creator",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "plan",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  108,
+                  97,
+                  110
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "creator"
+              },
+              {
+                "kind": "arg",
+                "path": "plan_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "version",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  101,
+                  114,
+                  115,
+                  105,
+                  111,
+                  110
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "plan"
+              },
+              {
+                "kind": "const",
+                "value": [
+                  1,
+                  0
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "base_mint",
+          "docs": [
+            "Must be owned by the classic SPL Token program (Token-2022 mints are rejected by type)."
+          ]
+        },
+        {
+          "name": "quote_mint"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "plan_id",
+          "type": "u64"
+        },
+        {
+          "name": "entry_low",
+          "type": "u64"
+        },
+        {
+          "name": "entry_high",
+          "type": "u64"
+        },
+        {
+          "name": "expires_at",
+          "type": "i64"
+        },
+        {
+          "name": "content_hash",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "revise_plan",
+      "discriminator": [
+        45,
+        156,
+        119,
+        120,
+        160,
+        78,
+        85,
+        71
+      ],
+      "accounts": [
+        {
+          "name": "creator",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "plan"
+          ]
+        },
+        {
+          "name": "plan",
+          "writable": true
+        },
+        {
+          "name": "prev_version",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  101,
+                  114,
+                  115,
+                  105,
+                  111,
+                  110
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "plan"
+              },
+              {
+                "kind": "account",
+                "path": "plan.latest_version",
+                "account": "Plan"
+              }
+            ]
+          }
+        },
+        {
+          "name": "new_version",
+          "writable": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "entry_low",
+          "type": "u64"
+        },
+        {
+          "name": "entry_high",
+          "type": "u64"
+        },
+        {
+          "name": "expires_at",
+          "type": "i64"
+        },
+        {
+          "name": "content_hash",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "Plan",
+      "discriminator": [
+        161,
+        231,
+        251,
+        119,
+        2,
+        12,
+        162,
+        2
+      ]
+    },
+    {
+      "name": "PlanVersion",
+      "discriminator": [
+        28,
+        234,
+        239,
+        110,
+        19,
+        210,
+        3,
+        13
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "PlanClosedEvent",
+      "discriminator": [
+        6,
+        115,
+        16,
+        243,
+        108,
+        123,
+        11,
+        42
+      ]
+    },
+    {
+      "name": "PlanCommitted",
+      "discriminator": [
+        83,
+        238,
+        231,
+        240,
+        7,
+        247,
+        206,
+        185
+      ]
+    },
+    {
+      "name": "PlanRevised",
+      "discriminator": [
+        1,
+        109,
+        220,
+        203,
+        113,
+        131,
+        135,
+        108
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "PairNotSupported",
+      "msg": "This trading pair is not supported"
+    },
+    {
+      "code": 6001,
+      "name": "InvalidBounds",
+      "msg": "Entry bounds must satisfy 0 < low <= high"
+    },
+    {
+      "code": 6002,
+      "name": "InvalidWindow",
+      "msg": "The entry window must stay open between 1 minute and 7 days"
+    },
+    {
+      "code": 6003,
+      "name": "PlanClosed",
+      "msg": "The creator closed this plan"
+    },
+    {
+      "code": 6004,
+      "name": "TooManyVersions",
+      "msg": "A plan can have at most 16 versions"
+    },
+    {
+      "code": 6005,
+      "name": "MathOverflow",
+      "msg": "Arithmetic overflow"
+    }
+  ],
+  "types": [
+    {
+      "name": "Plan",
+      "docs": [
+        "A creator's trade plan. Holds only what changes rarely; every version's terms live in a",
+        "separate immutable `PlanVersion` account. Never closed: it is history."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "creator",
+            "type": "pubkey"
+          },
+          {
+            "name": "plan_id",
+            "type": "u64"
+          },
+          {
+            "name": "base_mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "quote_mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "base_decimals",
+            "type": "u8"
+          },
+          {
+            "name": "quote_decimals",
+            "type": "u8"
+          },
+          {
+            "name": "latest_version",
+            "type": "u16"
+          },
+          {
+            "name": "status",
+            "type": {
+              "defined": {
+                "name": "PlanStatus"
+              }
+            }
+          },
+          {
+            "name": "created_at",
+            "type": "i64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PlanClosedEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "plan",
+            "type": "pubkey"
+          },
+          {
+            "name": "creator",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PlanCommitted",
+      "docs": [
+        "Events are hints for indexers. Logs can be truncated, so indexers must read accounts as truth."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "plan",
+            "type": "pubkey"
+          },
+          {
+            "name": "creator",
+            "type": "pubkey"
+          },
+          {
+            "name": "version",
+            "type": "u16"
+          },
+          {
+            "name": "terms_hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "expires_at",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PlanRevised",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "plan",
+            "type": "pubkey"
+          },
+          {
+            "name": "creator",
+            "type": "pubkey"
+          },
+          {
+            "name": "version",
+            "type": "u16"
+          },
+          {
+            "name": "terms_hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "expires_at",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PlanStatus",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Open"
+          },
+          {
+            "name": "Closed"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PlanVersion",
+      "docs": [
+        "One immutable version of a plan. Nothing in this program can write to it after `init`.",
+        "Prices are u64 quote atomic units per ONE WHOLE base token. Times are unix seconds."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "plan",
+            "type": "pubkey"
+          },
+          {
+            "name": "version",
+            "type": "u16"
+          },
+          {
+            "name": "entry_low",
+            "type": "u64"
+          },
+          {
+            "name": "entry_high",
+            "type": "u64"
+          },
+          {
+            "name": "expires_at",
+            "type": "i64"
+          },
+          {
+            "name": "published_at",
+            "type": "i64"
+          },
+          {
+            "name": "published_slot",
+            "type": "u64"
+          },
+          {
+            "name": "content_hash",
+            "docs": [
+              "SHA-256 of the offchain text (rationale, exit thesis, ...). See domain/src/commitment.ts."
+            ],
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "prev_terms_hash",
+            "docs": [
+              "terms_hash of the previous version; all zeros for version 1."
+            ],
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "terms_hash",
+            "docs": [
+              "Hash over all of the above plus the plan, creator and program id (see commitment.rs)."
+            ],
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    }
+  ],
+  "constants": [
+    {
+      "name": "MAX_VERSIONS",
+      "docs": [
+        "Maximum versions per plan (v1 plus 15 revisions)."
+      ],
+      "type": "u16",
+      "value": "16"
+    },
+    {
+      "name": "MAX_WINDOW_SECS",
+      "type": "i64",
+      "value": "604800"
+    },
+    {
+      "name": "MIN_WINDOW_SECS",
+      "docs": [
+        "A plan's entry window must stay open at least this long and at most this long (seconds).",
+        "Keep in sync with domain/src/plan-terms.ts."
+      ],
+      "type": "i64",
+      "value": "60"
+    },
+    {
+      "name": "PLAN_SEED",
+      "type": "bytes",
+      "value": "[112, 108, 97, 110]"
+    },
+    {
+      "name": "VERSION_SEED",
+      "type": "bytes",
+      "value": "[118, 101, 114, 115, 105, 111, 110]"
+    }
+  ]
+}
