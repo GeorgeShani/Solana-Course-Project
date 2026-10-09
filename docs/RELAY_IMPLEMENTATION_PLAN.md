@@ -1247,17 +1247,22 @@ The work is split into small phases that can each be handed to one coding sessio
 - **Done when:** `bun test` in `domain/` is green, including the exact boundaries and the hash vectors.
 - **Result:** 39 tests pass (`bun test` in `domain/`) and `tsc` is clean. Beyond the listed files the package also has `assets.ts` (the SOL/JUP/USDC allowlist), `bytes.ts` (little-endian writers, base58, hex, SHA-256), `plan-terms.ts` (window and bound validation) and `scripts/gen-vectors.ts`. The vectors are cross-checked against an independent Node `Buffer`/`crypto` reconstruction; the Rust program must reproduce them in Phase 2. Both Dockerfiles now copy `domain/`.
 
-#### Phase 2: Program, part 1: plan commitments (≈ 4 h, depends on Phase 1)
+#### Phase 2: Program, part 1: plan commitments (≈ 4 h, depends on Phase 1): DONE
 - **Goal:** plans and append-only versions exist onchain.
 - **Tasks:**
-  - [ ] Rename `course_program` to `relay` (new keypair, `anchor keys sync`, LiteSVM `.so` path).
-  - [ ] Accounts: `Plan`, `PlanVersion`.
-  - [ ] Instructions: `create_plan`, `revise_plan` (`close_plan` if time allows).
-  - [ ] The onchain `terms_hash`.
-  - [ ] LiteSVM tests: signer, `has_one`, seeds, duplicate or skipped versions, window and pair rules, expiry boundary, TS hash == Rust hash.
-  - [ ] Update `sync-idl.ts`, `app/src/lib/program.ts` and `app/src/idl/*`.
+  - [x] Rename `course_program` to `relay` (new keypair, `anchor keys sync`, LiteSVM `.so` path).
+  - [x] Accounts: `Plan`, `PlanVersion`.
+  - [x] Instructions: `create_plan`, `revise_plan` (`close_plan` if time allows).
+  - [x] The onchain `terms_hash`.
+  - [x] LiteSVM tests: signer, `has_one`, seeds, duplicate or skipped versions, window and pair rules, expiry boundary, TS hash == Rust hash.
+  - [x] Update `sync-idl.ts`, `app/src/lib/program.ts` and `app/src/idl/*`.
 - **Files:** `program/**`, `scripts/sync-idl.ts`, `app/src/lib/program.ts`, `app/src/idl/*`.
 - **Done when:** `bun run program:test` and `bun run build:app` are both green.
+- **Result:** 19 LiteSVM plan-lifecycle tests and 2 vector tests pass (`bun run program:test`), including Rust reproducing every TypeScript hash. `close_plan` shipped too. Program ID: `Dzm5tgMCdhJZfXeHYuALst4hvZYiCebfyKf1ctx6WBF6` (new keypair, in `program/target/deploy/`; back it up before any real deploy). Notes for later phases:
+  - Builds on `/mnt/c` hang in disk wait, so `scripts/anchor.ts` now builds in `~/.cache/relay-target` (WSL) and copies `deploy/`, `idl/`, `types/` back to `program/target/`.
+  - `anchor build` also compiles the integration tests (the IDL step runs `cargo test`), so a test compile error fails the build.
+  - `anchor-spl` needs its `token_2022` feature for `idl-build` to compile; the program still uses only the classic `token::Mint`, so Token-2022 mints are rejected by type.
+  - `sync-idl` copies the IDL to `app/src/idl/` and `server/src/idl/`.
 
 #### Phase 3: Program, part 2: verified follow receipts (≈ 6 h, depends on Phases 0 and 2)
 - **Goal:** a receipt can exist only if a real in-range swap happened.
