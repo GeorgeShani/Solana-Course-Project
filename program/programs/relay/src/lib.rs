@@ -3,6 +3,7 @@ pub mod constants;
 pub mod error;
 pub mod events;
 pub mod instructions;
+pub mod layout;
 pub mod state;
 pub mod terms;
 
@@ -54,5 +55,20 @@ pub mod relay {
 
     pub fn close_plan(ctx: Context<ClosePlan>) -> Result<()> {
         instructions::close_plan::handle_close_plan(ctx)
+    }
+
+    /// Snapshot the follower's balances. Valid only as: begin_follow, one Jupiter swap, finish_follow.
+    pub fn begin_follow(
+        ctx: Context<BeginFollow>,
+        version: u16,
+        nonce: u64,
+        max_quote_in: u64,
+    ) -> Result<()> {
+        instructions::begin_follow::handle_begin_follow(ctx, version, nonce, max_quote_in)
+    }
+
+    /// Measure what the swap did and record a receipt, or revert everything.
+    pub fn finish_follow(ctx: Context<FinishFollow>) -> Result<()> {
+        instructions::finish_follow::handle_finish_follow(ctx)
     }
 }

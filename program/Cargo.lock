@@ -901,6 +901,13 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3d52eff69cd5e647efe296129160853a42795992097e8af39800e1060caeea9b"
 
 [[package]]
+name = "cpi_attacker"
+version = "0.1.0"
+dependencies = [
+ "anchor-lang",
+]
+
+[[package]]
 name = "cpufeatures"
 version = "0.2.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1771,6 +1778,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "mock_swap"
+version = "0.1.0"
+dependencies = [
+ "anchor-lang",
+ "anchor-spl",
+]
+
+[[package]]
 name = "num"
 version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2219,6 +2234,7 @@ dependencies = [
  "litesvm",
  "serde_json",
  "solana-account",
+ "solana-instructions-sysvar",
  "solana-keypair",
  "solana-message",
  "solana-sha256-hasher",

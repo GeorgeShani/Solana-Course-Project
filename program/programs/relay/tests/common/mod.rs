@@ -225,3 +225,157 @@ pub fn assert_fails_with(res: Sent, needle: &str) {
         }
     }
 }
+
+// ---------------------------------------------------------------------------- tokens and venues
+
+/// Jupiter's program id, where the tests load the mock swap venue.
+pub fn jupiter_id() -> Pubkey {
+    relay::JUPITER_PROGRAM_IDS[0]
+}
+
+pub fn ata(owner: &Pubkey, mint: &Pubkey) -> Pubkey {
+    relay::layout::ata_address(owner, mint)
+}
+
+/// A classic SPL token account (165 bytes, initialized).
+pub fn token_account(svm: &LiteSVM, mint: &Pubkey, owner: &Pubkey, amount: u64) -> Account {
+    let mut data = vec![0u8; 165];
+    data[0..32].copy_from_slice(mint.as_ref());
+    data[32..64].copy_from_slice(owner.as_ref());
+    data[64..72].copy_from_slice(&amount.to_le_bytes());
+    data[108] = 1; // state = Initialized
+    Account {
+        lamports: svm.minimum_balance_for_rent_exemption(165),
+        data,
+        owner: anchor_spl::token::ID,
+        executable: false,
+        rent_epoch: 0,
+    }
+}
+
+impl Env {
+    pub fn set_token(&mut self, address: Pubkey, mint: &Pubkey, owner: &Pubkey, amount: u64) {
+        let acc = token_account(&self.svm, mint, owner, amount);
+        self.svm.set_account(address, acc).unwrap();
+    }
+
+    pub fn token_amount(&self, address: &Pubkey) -> u64 {
+        let data = self.raw(address);
+        u64::from_le_bytes(data[64..72].try_into().unwrap())
+    }
+
+    /// Loads a test-only program built by `cargo build-sbf` (see Anchor.toml `test` script).
+    pub fn load_test_program(&mut self, id: Pubkey, file: &str) {
+        let path = format!("{}/../deploy/{file}", env!("CARGO_TARGET_TMPDIR"));
+        let bytes = std::fs::read(&path)
+            .unwrap_or_else(|e| panic!("missing {path}: {e}. Run `bun run program:test`."));
+        self.svm.add_program(id, &bytes).unwrap();
+    }
+}
+
+pub fn pool_authority() -> Pubkey {
+    Pubkey::find_program_address(&[b"pool"], &jupiter_id()).0
+}
+
+pub fn receipt_pda(plan_version: &Pubkey, follower: &Pubkey, nonce: u64) -> Pubkey {
+    Pubkey::find_program_address(
+        &[
+            relay::RECEIPT_SEED,
+            plan_version.as_ref(),
+            follower.as_ref(),
+            &nonce.to_le_bytes(),
+        ],
+        &relay::id(),
+    )
+    .0
+}
+
+pub fn begin_follow_ix(
+    follower: &Pubkey,
+    plan: &Pubkey,
+    version: u16,
+    nonce: u64,
+    max_quote_in: u64,
+    base: &Pubkey,
+    quote: &Pubkey,
+) -> Instruction {
+    let plan_version = version_pda(plan, version);
+    Instruction::new_with_bytes(
+        relay::id(),
+        &relay::instruction::BeginFollow {
+            version,
+            nonce,
+            max_quote_in,
+        }
+        .data(),
+        relay::accounts::BeginFollow {
+            follower: *follower,
+            plan: *plan,
+            plan_version,
+            receipt: receipt_pda(&plan_version, follower, nonce),
+            follower_base: ata(follower, base),
+            follower_quote: ata(follower, quote),
+            instructions: solana_instructions_sysvar::ID,
+            system_program: system_program::ID,
+        }
+        .to_account_metas(None),
+    )
+}
+
+pub fn finish_follow_ix(
+    follower: &Pubkey,
+    plan: &Pubkey,
+    version: u16,
+    nonce: u64,
+    base: &Pubkey,
+    quote: &Pubkey,
+) -> Instruction {
+    let plan_version = version_pda(plan, version);
+    Instruction::new_with_bytes(
+        relay::id(),
+        &relay::instruction::FinishFollow {}.data(),
+        relay::accounts::FinishFollow {
+            follower: *follower,
+            receipt: receipt_pda(&plan_version, follower, nonce),
+            follower_base: ata(follower, base),
+            follower_quote: ata(follower, quote),
+            plan_version,
+            plan: *plan,
+        }
+        .to_account_metas(None),
+    )
+}
+
+/// The mock venue: `user` pays `amount_in` USDC from `user_quote` and receives `amount_out` base
+/// tokens into `user_base`, from the venue's pool.
+pub fn mock_swap_ix(
+    user: &Pubkey,
+    user_quote: &Pubkey,
+    user_base: &Pubkey,
+    pool_quote: &Pubkey,
+    pool_base: &Pubkey,
+    amount_in: u64,
+    amount_out: u64,
+) -> Instruction {
+    let mut data = amount_in.to_le_bytes().to_vec();
+    data.extend_from_slice(&amount_out.to_le_bytes());
+    Instruction {
+        program_id: jupiter_id(),
+        accounts: vec![
+            anchor_lang::solana_program::instruction::AccountMeta::new(*user, true),
+            anchor_lang::solana_program::instruction::AccountMeta::new(*user_quote, false),
+            anchor_lang::solana_program::instruction::AccountMeta::new(*pool_quote, false),
+            anchor_lang::solana_program::instruction::AccountMeta::new(*user_base, false),
+            anchor_lang::solana_program::instruction::AccountMeta::new(*pool_base, false),
+            anchor_lang::solana_program::instruction::AccountMeta::new_readonly(
+                pool_authority(),
+                false,
+            ),
+            anchor_lang::solana_program::instruction::AccountMeta::new_readonly(
+                anchor_spl::token::ID,
+                false,
+            ),
+        ],
+        data,
+    }
+}

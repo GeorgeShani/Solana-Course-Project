@@ -6,6 +6,10 @@ skip_local_validator = true
 resolution = true
 skip-lint = false
 
+[workspace]
+# Only relay is an Anchor program. mock_swap and cpi_attacker are test-only helpers built by `test`.
+members = ["programs/relay"]
+
 [programs.localnet]
 relay = "Dzm5tgMCdhJZfXeHYuALst4hvZYiCebfyKf1ctx6WBF6"
 
@@ -14,6 +18,6 @@ cluster = "localnet"
 wallet = "~/.config/solana/id.json"
 
 [scripts]
-test = "cargo test"
+test = "cargo build-sbf --manifest-path programs/mock_swap/Cargo.toml && cargo build-sbf --manifest-path programs/cpi_attacker/Cargo.toml && cargo test"
 
 [hooks]

@@ -24,3 +24,13 @@ pub struct PlanClosedEvent {
     pub plan: Pubkey,
     pub creator: Pubkey,
 }
+
+#[event]
+pub struct FollowRecorded {
+    pub receipt: Pubkey,
+    pub plan: Pubkey,
+    pub version: u16,
+    pub follower: Pubkey,
+    pub quote_spent: u64,
+    pub base_received: u64,
+}
