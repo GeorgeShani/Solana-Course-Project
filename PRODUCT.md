@@ -46,7 +46,7 @@ The unit of truth is the follower's own execution against a specific, immutable 
 - Watchlist has three tabs: Traders, Records, and History (a public wallet lookup of verified receipts, prefilled from a connected wallet).
 - A wallet is requested only to follow a plan or publish one. Wallets connect through the Wallet Standard (no SDK): choose → connecting → connected, cancelled or failed, with install steps when none is found. Connecting shares the address only and never asks for a signature.
 - Following happens on the record page in a Jupiter-clear panel: amount → fresh quote → review the guaranteed minimum, fees, quote expiry and the plan's range and window → explicit approval in the wallet (sign only) → Relay sends it to this build's network itself → pending → a verified receipt or a failure that stays a failure. The network is named before signing.
-- Production runs on Solana mainnet (owner amendment 2026-10-10). The local Surfpool fork is for automated tests and burner-key rehearsals only.
+- Relay runs on Solana devnet only (owner decision 2026-10-10): test tokens with no value, and the app says so. The local Surfpool fork is for automated tests only.
 
 ## Capabilities and Constraints
 

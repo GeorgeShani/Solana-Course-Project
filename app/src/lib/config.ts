@@ -1,3 +1,5 @@
+import { NETWORKS, parseNetwork, type Network } from "@relay/domain";
+
 /**
  * The Hono server, reached through the same origin (Vite proxy in dev, Caddy in production). The
  * feed needs it; when it is down the app shows a service-unavailable state.
@@ -12,21 +14,19 @@ export const API_URL: string = import.meta.env.VITE_API_URL || "/api";
 // `||`, not `??`: a Docker build arg that is declared but not given arrives as "".
 export const RPC_URL: string = import.meta.env.VITE_RPC_URL || `${API_URL}/rpc`;
 
-/**
- * `mainnet` is production and the default. `localnet` is a local Surfpool mainnet fork for tests
- * and rehearsals; it must be chosen explicitly. Must match the server's SOLANA_CLUSTER.
- */
-export type Cluster = "mainnet" | "localnet";
+export type Cluster = Network;
 
+/** The same `NETWORK` setting the server reads; anything unrecognised means devnet (no real money). */
 export function parseCluster(v: string | undefined): Cluster {
-  return v === "localnet" ? "localnet" : "mainnet";
+  return parseNetwork(v) ?? "devnet";
 }
 
-export const CLUSTER: Cluster = parseCluster(
-  import.meta.env.VITE_SOLANA_CLUSTER,
-);
+/** Set from `NETWORK` in the root `.env` (see vite.config.ts). Must equal the server's. */
+export const CLUSTER: Cluster = parseCluster(import.meta.env.NETWORK);
+
+export const NETWORK_INFO = NETWORKS[CLUSTER];
 
 export const CLUSTER_LABEL: Record<Cluster, string> = {
-  mainnet: "Mainnet",
-  localnet: "Local fork",
+  devnet: NETWORKS.devnet.label,
+  localnet: NETWORKS.localnet.label,
 };

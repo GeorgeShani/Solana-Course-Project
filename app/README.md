@@ -16,15 +16,15 @@ When the API is unreachable the feed says so ("Relay's service is unavailable") 
 
 ## Environment variables
 
-Create `app/.env.local` (git-ignored) if you need to change the defaults.
+There is ONE settings file for the whole repo: `.env` at the repo root (copy `.env.example`). Do not create `app/.env.local`. Vite reads the root file; only `VITE_*` values and `NETWORK` reach the browser, so database and RPC keys stay private.
 
-| Name                  | Default                 | Description                                                                                                                                                                                                                    |
-| --------------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `VITE_RPC_URL`        | `/api/rpc`              | Browser RPC endpoint. The default is Relay's own proxy (`POST /rpc` on the server, a fixed method allowlist), so no provider key is baked into the bundle. Set it to `http://127.0.0.1:8899` to talk to a local fork directly. |
-| `VITE_SOLANA_CLUSTER` | `mainnet`               | `mainnet` or `localnet` (a local Surfpool fork). Must match the server's `SOLANA_CLUSTER`; shown as the cluster chip.                                                                                                          |
-| `SOLANA_RPC_URL`      | public mainnet RPC      | Server-only. RPC used during server render.                                                                                                                                                                                    |
-| `VITE_API_URL`        | `/api`                  | Browser path to the Hono server. In dev, Vite proxies `/api` to `127.0.0.1:3001`; in production, Caddy does.                                                                                                                   |
-| `INTERNAL_API_URL`    | `http://127.0.0.1:3001` | Server-only: where SSR fetches the first feed page.                                                                                                                                                                            |
+| Name               | Default                 | Description                                                                                                                                                                                                                    |
+| ------------------ | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `VITE_RPC_URL`     | `/api/rpc`              | Browser RPC endpoint. The default is Relay's own proxy (`POST /rpc` on the server, a fixed method allowlist), so no provider key is baked into the bundle. Set it to `http://127.0.0.1:8899` to talk to a local fork directly. |
+| `NETWORK`          | `devnet`                | The Solana network, read from the ONE root `.env` (see `.env.example`). Must equal the server's; shown as the network chip.                                                                                                    |
+| `SOLANA_RPC_URL`   | public devnet RPC       | Server-only. RPC used during server render.                                                                                                                                                                                    |
+| `VITE_API_URL`     | `/api`                  | Browser path to the Hono server. In dev, Vite proxies `/api` to `127.0.0.1:3001`; in production, Caddy does.                                                                                                                   |
+| `INTERNAL_API_URL` | `http://127.0.0.1:3001` | Server-only: where SSR fetches the first feed page.                                                                                                                                                                            |
 
 The server's `APP_ORIGIN` must equal the exact origin you open the app on (for example `http://localhost:5175`), or its writes return 403.
 
@@ -37,7 +37,7 @@ From the repo root (macOS or Windows):
 ```bash
 bun install
 docker compose -f compose.dev.yaml up -d   # Postgres for the server
-bun run dev:server   # Hono API on :3001 (needs server/.env)
+bun run dev:server   # Hono API on :3001 (reads the root `.env`)
 bun run dev:app      # http://localhost:5173 (add `-- --port 5175 --strictPort` to pin a port)
 bun run build:app    # production build (client + SSR bundle) + type-check
 bun run --cwd app start   # serve the production build on :3000 (PORT to change)
@@ -99,4 +99,4 @@ Routes render on the server by default. Chain reads belong in route loaders or s
 
 ## Notes
 
-- **Cluster.** `VITE_SOLANA_CLUSTER` and `VITE_RPC_URL` are inlined at build time, so changing them needs a rebuild.
+- **Cluster.** `NETWORK` and `VITE_RPC_URL` are inlined at build time, so changing them needs a rebuild.

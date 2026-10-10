@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { CLUSTER, CLUSTER_LABEL } from "../../lib/config";
+import { NETWORK_INFO } from "../../lib/config";
 import { shortAddress } from "../../lib/format";
 import {
   abandonConnect,
@@ -178,9 +178,7 @@ export function WalletDialog() {
 
         <p className="wallet-dialog__foot">
           <Icon name="chain" size={14} />
-          {CLUSTER === "localnet"
-            ? `${CLUSTER_LABEL[CLUSTER]}: use a test wallet. This build trades on a local copy of Solana.`
-            : `Network: ${CLUSTER_LABEL[CLUSTER]}.`}
+          {NETWORK_INFO.note}
         </p>
       </div>
     </dialog>

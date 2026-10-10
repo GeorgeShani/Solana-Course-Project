@@ -20,3 +20,6 @@ id.json
 Thumbs.db
 .vscode/
 .idea/
+
+# Agent worktrees
+.claude/worktrees/

@@ -46,7 +46,7 @@ Thank you.
 2. "Updates are added, never edited."
 3. "He bought early, at a low price. You bought later, at a higher one." can become "He bought early. You bought late."
 
-If you have 15 seconds to spare instead, add this line after the Solana part, and mention it is a simulated copy of mainnet if asked:
+If you have 15 seconds to spare instead, add this line after the Solana part, and mention it is a simulated local copy of Solana if asked:
 
 > "We've already built the core, and tested it with real swap routes through Jupiter."
 
@@ -81,12 +81,12 @@ Keep the rest of the pitch unchanged from "The screenshot wasn't lying."
 - The on-chain Solana program exists: plans, append-only versions, and receipts that only exist if a real in-range swap happened.
 - It rejects fake receipts: calls through another program, a second wallet swapping into your account, extra signers.
 - The backend verifies results by re-reading the blockchain, not by trusting the app.
-- It was tested with real Jupiter swap routes on a simulated copy of mainnet (no real money).
+- It was tested with real Jupiter swap routes on a simulated local copy of Solana (no real money).
 
 **Do not say:**
 
 - Any number of users, traction, revenue or "traders love it". There is no pilot yet.
-- That it is live on mainnet, or that real money has moved through it.
+- That it is live for the public, or that real money has moved through it.
 - That an in-range plan is "safe", "recommended" or "profitable". The product itself says the opposite.
 - That Relay invented social trading or copy trading. It did not (see the competitors below).
 
@@ -111,4 +111,4 @@ It is not advice, and an "in range" label never means safe or profitable. How re
 An adult who already trades Solana spot and follows trade ideas on social media.
 
 **"Where is it today?"**
-The core is built and tested: the on-chain program, the verification backend, and real Jupiter swap routes on a simulated mainnet. The mobile feed interface is what we are building next, and then a small pilot with about 10 creators and 50-100 users, with success thresholds set before we start.
+The core is built and tested: the on-chain program, the verification backend, and real Jupiter swap routes on a simulated local copy of Solana. The mobile feed interface is what we are building next, and then a small pilot with about 10 creators and 50-100 users, with success thresholds set before we start.

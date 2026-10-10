@@ -29,7 +29,7 @@ export interface VersionView {
 
 export interface PlanCardView {
   planPda: string;
-  cluster: "mainnet" | "localnet";
+  cluster: "devnet" | "localnet";
   creator: {
     address: string;
     handle: string | null;
@@ -135,7 +135,7 @@ function entryStatusOf(v: unknown, path: string): EntryStatus {
 }
 
 function clusterOf(v: unknown, path: string): PlanCardView["cluster"] {
-  if (v === "mainnet" || v === "localnet") return v;
+  if (v === "devnet" || v === "localnet") return v;
   throw new ApiContractError(`${path} is not a known cluster`);
 }
 

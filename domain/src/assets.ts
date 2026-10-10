@@ -1,6 +1,6 @@
 /**
  * The deliberately small allowlist of spot assets Relay supports in the MVP.
- * These are Solana mainnet mints; they also exist on a Surfpool mainnet fork.
+ * Mint addresses are per network; see the network notes below. (Devnet mints are being added.)
  * The Anchor program holds the same allowlist (program/programs/relay/src/constants.rs).
  */
 export interface Asset {

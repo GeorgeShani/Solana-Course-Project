@@ -33,7 +33,7 @@ Relay: "Meet the traders. Follow the evidence." It turns traders' public ideas i
 - **Never fake blockchain behaviour.** Anything shown as real must come from the chain. Fictional data must be visibly labelled.
 - **Failed stays failed.** A failed transaction is never shown or stored as a participation.
 - **Trust nothing from the client** for amounts, prices or outcomes; re-read the chain.
-- **Mainnet is production.** Never ask for, store or sign with a funded key; the owner deploys and signs mainnet transactions. Burner keys only on the Surfpool fork, which is for tests.
+- **Devnet only.** Relay runs on Solana devnet (test tokens, no value); there is no mainnet in this project and none must be added. Never ask for, store or sign with a key that holds real funds; the owner signs. Burner keys only on the local test fork.
 - **Never invent traders, posts or identities.** Curated records need an owner-confirmed source; manual coverage is labelled as manual.
 
 ## Working conventions
@@ -56,4 +56,4 @@ bun run sync-idl                              # IDL -> domain/src/solana/relay.i
 (cd app && bun run build)
 ```
 
-Fork demos (Surfpool, mainnet fork) are described in `docs/spikes/surfpool-jupiter.md` and `server/README.md`.
+Fork demos (Surfpool local fork) are described in `docs/spikes/surfpool-jupiter.md` and `server/README.md`.

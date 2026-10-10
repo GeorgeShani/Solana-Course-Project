@@ -1,10 +1,10 @@
 {
   "name": "server",
   "scripts": {
-    "dev": "bun run --hot src/index.ts",
+    "dev": "bun run --hot --env-file=../.env src/index.ts",
     "start": "bun run src/index.ts",
-    "migrate": "bun run src/migrate.ts",
-    "seed": "bun run scripts/seed-demo.ts",
+    "migrate": "bun run --env-file=../.env src/migrate.ts",
+    "seed": "bun run --env-file=../.env scripts/seed-demo.ts",
     "test": "bun test",
     "typecheck": "tsc -p tsconfig.json"
   },

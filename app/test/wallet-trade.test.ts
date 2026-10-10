@@ -15,7 +15,7 @@ describe("wallet discovery", () => {
     const w = toWalletEntry({
       name: "Test",
       icon: "data:image/svg+xml;base64,AA==",
-      chains: ["solana:mainnet"],
+      chains: ["solana:devnet"],
       features: { "standard:connect": connect },
     });
     expect(w?.name).toBe("Test");
@@ -26,7 +26,7 @@ describe("wallet discovery", () => {
     const w = toWalletEntry({
       name: "Test",
       icon: "https://example.com/icon.png",
-      chains: ["solana:mainnet"],
+      chains: ["solana:devnet"],
       features: { "standard:connect": connect },
     });
     expect(w?.icon).toBeNull();
@@ -38,12 +38,12 @@ describe("wallet discovery", () => {
       toWalletEntry({ name: "Eth", chains: ["eip155:1"], features }),
     ).toBeNull();
     expect(
-      toWalletEntry({ name: " ", chains: ["solana:mainnet"], features }),
+      toWalletEntry({ name: " ", chains: ["solana:devnet"], features }),
     ).toBeNull();
     expect(
       toWalletEntry({
         name: "NoConnect",
-        chains: ["solana:mainnet"],
+        chains: ["solana:devnet"],
         features: { "standard:connect": { version: "1.0.0" } },
       }),
     ).toBeNull();
@@ -53,9 +53,8 @@ describe("wallet discovery", () => {
   test("accounts need an address; chains keep only strings", () => {
     expect(toWalletAccount({ address: "" })).toBeNull();
     expect(
-      toWalletAccount({ address: "abc", chains: ["solana:mainnet", 7] })
-        ?.chains,
-    ).toEqual(["solana:mainnet"]);
+      toWalletAccount({ address: "abc", chains: ["solana:devnet", 7] })?.chains,
+    ).toEqual(["solana:devnet"]);
   });
 });
 

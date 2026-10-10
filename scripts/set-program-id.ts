@@ -1,7 +1,7 @@
-// Points the repo at a new program ID, for the mainnet release.
+// Points the repo at a new program ID, for a new deployment.
 //
-//   solana-keygen new -o relay-mainnet-keypair.json    # on the owner's machine; never commit it
-//   solana address -k relay-mainnet-keypair.json       # prints the ID to pass below
+//   solana-keygen new -o relay-devnet-keypair.json    # on the owner's machine; never commit it
+//   solana address -k relay-devnet-keypair.json       # prints the ID to pass below
 //   bun run scripts/set-program-id.ts <that address>
 //
 // It rewrites `declare_id!` and Anchor.toml. The IDL (and with it @relay/domain's program address)
@@ -44,10 +44,10 @@ anchor = anchor.replace(
   /^relay = "[1-9A-HJ-NP-Za-km-z]{32,44}"$/gm,
   `relay = "${id}"`,
 );
-if (!/^\[programs\.mainnet\]/m.test(anchor)) {
+if (!/^\[programs\.devnet\]/m.test(anchor)) {
   anchor = anchor.replace(
     /^\[programs\.localnet\]\r?\nrelay = "[^"]+"\r?\n/m,
-    (block) => `${block}${eol}[programs.mainnet]${eol}relay = "${id}"${eol}`,
+    (block) => `${block}${eol}[programs.devnet]${eol}relay = "${id}"${eol}`,
   );
 }
 writeFileSync(anchorPath, anchor);

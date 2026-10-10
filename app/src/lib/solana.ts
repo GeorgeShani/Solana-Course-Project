@@ -1,5 +1,6 @@
+import { NETWORKS } from "@relay/domain";
 import { createSolanaRpc } from "@solana/kit";
-import { RPC_URL } from "./config";
+import { CLUSTER, RPC_URL } from "./config";
 
 let rpc: ReturnType<typeof createSolanaRpc> | undefined;
 
@@ -12,11 +13,7 @@ export function rpcUrlForRuntime(): string {
   if (typeof window !== "undefined") {
     return new URL(RPC_URL, window.location.origin).toString();
   }
-  return (
-    process.env.SOLANA_RPC_URL ||
-    process.env.VITE_RPC_URL ||
-    "https://api.mainnet-beta.solana.com"
-  );
+  return process.env.SOLANA_RPC_URL || NETWORKS[CLUSTER].defaultRpcUrl;
 }
 
 /** Shared RPC client. Safe to call on the server and in the browser. */

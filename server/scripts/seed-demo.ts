@@ -2,7 +2,7 @@
 //
 // The plans are REAL: each one is committed onchain on a local Surfpool fork by a freshly
 // generated key. The script refuses any RPC that is not on this machine, so demo plans never reach
-// mainnet. Only the creators' names are fictional, and they
+// any real network. Only the creators' names are fictional, and they
 // are stored with is_demo = true so the UI can label them. Nothing here fakes blockchain state.
 //
 // Needs: the cluster running with the relay program deployed, Postgres migrated, and the API

@@ -101,20 +101,22 @@ describe("sources", () => {
     expect(explorerAccountUrl("A1", "localnet")).toBeNull();
   });
 
-  test("mainnet links accounts and transactions to Solana Explorer", () => {
-    expect(explorerAccountUrl("A1", "mainnet")).toBe(
-      "https://explorer.solana.com/address/A1",
+  test("devnet links accounts and transactions to Solana Explorer", () => {
+    expect(explorerAccountUrl("A1", "devnet")).toBe(
+      "https://explorer.solana.com/address/A1?cluster=devnet",
     );
-    expect(explorerTxUrl("sig", "mainnet")).toBe(
-      "https://explorer.solana.com/tx/sig",
+    expect(explorerTxUrl("sig", "devnet")).toBe(
+      "https://explorer.solana.com/tx/sig?cluster=devnet",
     );
     expect(explorerTxUrl("sig", "localnet")).toBeNull();
   });
 
-  test("any cluster value other than localnet means mainnet", () => {
-    expect(parseCluster(undefined)).toBe("mainnet");
-    expect(parseCluster("devnet")).toBe("mainnet");
+  test("any unrecognised network name means devnet", () => {
+    expect(parseCluster(undefined)).toBe("devnet");
+    expect(parseCluster("")).toBe("devnet");
+    expect(parseCluster("devnet")).toBe("devnet");
     expect(parseCluster("localnet")).toBe("localnet");
+    expect(parseCluster("anything-else")).toBe("devnet");
   });
 
   test("a public post is never described as proof of a trade", () => {

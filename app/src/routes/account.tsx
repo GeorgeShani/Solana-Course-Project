@@ -2,7 +2,7 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { Cue } from "../components/cue/Cue";
 import { Icon } from "../components/ui/Icon";
-import { CLUSTER, CLUSTER_LABEL, RPC_URL } from "../lib/config";
+import { CLUSTER, CLUSTER_LABEL, NETWORK_INFO, RPC_URL } from "../lib/config";
 import { setCueCursor, useCueCursorPref } from "../lib/cue-cursor";
 import { useMounted } from "../lib/mounted";
 import { disconnectWallet, openWalletDialog, useWallet } from "../lib/wallet";
@@ -38,11 +38,7 @@ function Account() {
               <dt>Cluster</dt>
               <dd>
                 {CLUSTER_LABEL[CLUSTER]}
-                {CLUSTER === "localnet" && (
-                  <span className="facts__note">
-                    Surfpool mainnet fork. Test funds only.
-                  </span>
-                )}
+                <span className="facts__note">{NETWORK_INFO.note}</span>
               </dd>
             </div>
             <div>

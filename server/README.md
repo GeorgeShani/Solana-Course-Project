@@ -26,18 +26,18 @@ Every state-changing request must come from the configured `APP_ORIGIN` (or be `
 
 ## Environment variables
 
-| Name                  | Default                                                  | Description                                                                                                                                                                                                      |
-| --------------------- | -------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `PORT`                | `3001`                                                   | Port to listen on.                                                                                                                                                                                               |
-| `APP_ORIGIN`          | `http://localhost:5173`                                  | The one browser origin allowed to write. Must be exactly an origin.                                                                                                                                              |
-| `DATABASE_URL`        | `postgres://relay:relay_local_only@127.0.0.1:5432/relay` | Runtime connection. May be a pooled URL (then disable prepared statements).                                                                                                                                      |
-| `DATABASE_DIRECT_URL` | `DATABASE_URL`                                           | Direct connection used only for migrations.                                                                                                                                                                      |
-| `NODE_ENV`            | none                                                     | `production` turns on the production guard: the server refuses to start on `localnet`, without `APP_ORIGIN` (https), `DATABASE_URL` or `SOLANA_RPC_URL`, with the public Solana RPC, or with `DEMO_MODE`.        |
-| `SOLANA_RPC_URL`      | public mainnet RPC (`localnet`: `http://127.0.0.1:8899`) | RPC endpoint the server reads, and the upstream of `POST /rpc`. Never sent to the browser, so a keyed provider URL is safe here. Required in production.                                                         |
-| `SOLANA_CLUSTER`      | `mainnet`                                                | `mainnet` (production) or `localnet` (a Surfpool fork, tests and rehearsals only; refused in production). Devnet is not supported. On `localnet` the server follows the chain clock, which time travel can move. |
-| `JUPITER_API_KEY`     | none                                                     | Optional, server-side only. Without one the keyless 0.5 req/s tier applies.                                                                                                                                      |
-| `JUPITER_BASE_URL`    | `https://api.jup.ag`                                     |                                                                                                                                                                                                                  |
-| `JUPITER_DEXES`       | none                                                     | Venue allowlist, only used on `localnet` (see `docs/spikes/surfpool-jupiter.md`).                                                                                                                                |
+| Name                  | Default                                                  | Description                                                                                                                                                                      |
+| --------------------- | -------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `PORT`                | `3001`                                                   | Port to listen on.                                                                                                                                                               |
+| `APP_ORIGIN`          | `http://localhost:5173`                                  | The one browser origin allowed to write. Must be exactly an origin.                                                                                                              |
+| `DATABASE_URL`        | `postgres://relay:relay_local_only@127.0.0.1:5432/relay` | Runtime connection. May be a pooled URL (then disable prepared statements).                                                                                                      |
+| `DATABASE_DIRECT_URL` | `DATABASE_URL`                                           | Direct connection used only for migrations.                                                                                                                                      |
+| `NODE_ENV`            | none                                                     | `production` turns on the deployment guard: the server refuses to start on `localnet`, without `APP_ORIGIN` (https) or `DATABASE_URL`, or with `DEMO_MODE`.                      |
+| `SOLANA_RPC_URL`      | the network's public RPC                                 | RPC endpoint the server reads, and the upstream of `POST /rpc`. Never sent to the browser, so a provider URL with a key is safe here.                                            |
+| `NETWORK`             | `devnet`                                                 | `devnet` or `localnet` (a local test fork, tests only). The old name `SOLANA_CLUSTER` still works. On `localnet` the server follows the chain clock, which time travel can move. |
+| `JUPITER_API_KEY`     | none                                                     | Optional, server-side only. Without one the keyless 0.5 req/s tier applies.                                                                                                      |
+| `JUPITER_BASE_URL`    | `https://api.jup.ag`                                     |                                                                                                                                                                                  |
+| `JUPITER_DEXES`       | none                                                     | Venue allowlist, only used on `localnet` (see `docs/spikes/surfpool-jupiter.md`).                                                                                                |
 
 ## Run
 
@@ -53,7 +53,7 @@ bun run --cwd server test                     # needs the dev Postgres and a rel
 On a Surfpool fork the server must be started with the venue allowlist, or Jupiter may pick a private AMM (such as GoonFi) that cannot execute on stale fork state:
 
 ```bash
-SOLANA_CLUSTER=localnet JUPITER_DEXES="Orca V2,Raydium CLMM,Meteora DLMM,Raydium" bun run dev:server
+NETWORK=localnet JUPITER_DEXES="Orca V2,Raydium CLMM,Meteora DLMM,Raydium" bun run dev:server
 bun run --cwd server scripts/follow-via-api.ts   # a follower end to end through the API, plus a recorded failure
 ```
 

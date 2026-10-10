@@ -1,3 +1,4 @@
+import { NETWORKS } from "@relay/domain";
 import { useSyncExternalStore } from "react";
 import { CLUSTER } from "./config";
 
@@ -278,7 +279,7 @@ export async function disconnectWallet(): Promise<void> {
 
 /** The Wallet Standard chain id for this build's cluster, when the account lists it. */
 function chainFor(account: WalletAccount): string | undefined {
-  const id = CLUSTER === "mainnet" ? "solana:mainnet" : "solana:localnet";
+  const id = NETWORKS[CLUSTER].walletChain;
   return account.chains.includes(id) ? id : undefined;
 }
 

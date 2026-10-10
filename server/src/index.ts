@@ -1,6 +1,7 @@
 import { createApp } from "./app";
 import { connect, migrate } from "./db";
 import { loadEnv } from "./env";
+import { assertRpcMatchesNetwork } from "./network-check";
 import { createChain } from "./services/chain";
 import { createFollowService } from "./services/follow";
 import { createJupiterClient } from "./services/jupiter";
@@ -9,6 +10,16 @@ import { createRpcForward } from "./services/rpc-proxy";
 import { createJupiterPrices } from "./services/prices";
 
 const env = loadEnv();
+// A wrong RPC network would label real funds as test funds (or the reverse), so it stops the start.
+if (
+  (await assertRpcMatchesNetwork(env.solanaRpcUrl, env.cluster)) ===
+    "unchecked" &&
+  env.cluster !== "localnet"
+) {
+  console.warn(
+    `could not verify that the RPC is on ${env.cluster}; /health/ready reports the RPC`,
+  );
+}
 
 // Migrations use the direct connection (see DATABASE_DIRECT_URL); the app uses the runtime one.
 const migrationDb = connect(env.databaseDirectUrl);

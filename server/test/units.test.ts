@@ -127,13 +127,44 @@ describe("feed ranking", () => {
 });
 
 describe("env", () => {
-  it("defaults to mainnet with the public RPC outside production", () => {
+  it("defaults to devnet with its public RPC", () => {
     const env = loadEnv({});
-    expect(env.cluster).toBe("mainnet");
+    expect(env.cluster).toBe("devnet");
     expect(env.production).toBe(false);
-    expect(env.solanaRpcUrl).toBe("https://api.mainnet-beta.solana.com");
+    expect(env.solanaRpcUrl).toBe("https://api.devnet.solana.com");
     expect(env.appOrigin).toBe("http://localhost:5173");
     expect(env.databaseDirectUrl).toBe(env.databaseUrl);
+  });
+
+  it("reads NETWORK, falls back to the old SOLANA_CLUSTER name, and prefers NETWORK", () => {
+    expect(loadEnv({ NETWORK: "localnet" }).cluster).toBe("localnet");
+    expect(loadEnv({ SOLANA_CLUSTER: "localnet" }).cluster).toBe("localnet");
+    expect(
+      loadEnv({ NETWORK: "devnet", SOLANA_CLUSTER: "localnet" }).cluster,
+    ).toBe("devnet");
+  });
+
+  it("treats empty values like unset, so a blank line in .env changes nothing", () => {
+    const env = loadEnv({
+      NETWORK: "",
+      SOLANA_RPC_URL: "",
+      APP_ORIGIN: "",
+      JUPITER_BASE_URL: "",
+    });
+    expect(env.cluster).toBe("devnet");
+    expect(env.solanaRpcUrl).toBe("https://api.devnet.solana.com");
+    expect(env.appOrigin).toBe("http://localhost:5173");
+    expect(env.jupiterBaseUrl).toBe("https://api.jup.ag");
+  });
+
+  it("uses each network's default RPC, and a given one wins", () => {
+    expect(loadEnv({ NETWORK: "localnet" }).solanaRpcUrl).toBe(
+      "http://127.0.0.1:8899",
+    );
+    expect(
+      loadEnv({ NETWORK: "devnet", SOLANA_RPC_URL: "https://my.rpc/x" })
+        .solanaRpcUrl,
+    ).toBe("https://my.rpc/x");
   });
 
   it("uses a separate direct URL for migrations when given", () => {
@@ -155,63 +186,46 @@ describe("env", () => {
     );
   });
 
-  it("uses the local fork RPC only when localnet is chosen explicitly", () => {
-    expect(loadEnv({ SOLANA_CLUSTER: "localnet" }).solanaRpcUrl).toBe(
-      "http://127.0.0.1:8899",
-    );
-  });
-
-  it("refuses unsafe production settings, listing every problem", () => {
+  it("refuses unsafe deployment settings, listing every problem", () => {
     let message = "";
     try {
       loadEnv({
         NODE_ENV: "production",
-        SOLANA_CLUSTER: "localnet",
+        NETWORK: "localnet",
         APP_ORIGIN: "http://relay.example",
         DEMO_MODE: "true",
       });
     } catch (e) {
       message = e instanceof Error ? e.message : "";
     }
-    expect(message).toContain("SOLANA_CLUSTER must be mainnet");
+    expect(message).toContain("NETWORK must be devnet");
     expect(message).toContain("APP_ORIGIN must use https");
     expect(message).toContain("DATABASE_URL is required");
-    expect(message).toContain("SOLANA_RPC_URL is required");
     expect(message).toContain("DEMO_MODE must be off");
   });
 
-  it("refuses the public rate-limited RPC in production", () => {
-    expect(() =>
-      loadEnv({
-        NODE_ENV: "production",
-        APP_ORIGIN: "https://relay.example",
-        DATABASE_URL: "postgres://db",
-        SOLANA_RPC_URL: "https://api.mainnet-beta.solana.com/",
-      }),
-    ).toThrow(/dedicated provider/);
-  });
-
-  it("accepts a complete production configuration", () => {
+  it("accepts a complete deployment configuration on devnet", () => {
     const env = loadEnv({
       NODE_ENV: "production",
+      NETWORK: "devnet",
       APP_ORIGIN: "https://relay.example",
       DATABASE_URL: "postgres://db",
-      SOLANA_RPC_URL: "https://rpc.provider.example/?api-key=k",
     });
     expect(env.production).toBe(true);
-    expect(env.cluster).toBe("mainnet");
+    expect(env.cluster).toBe("devnet");
   });
 
-  it("rejects devnet and unknown clusters and applies the venue allowlist only on localnet", () => {
-    expect(() => loadEnv({ SOLANA_CLUSTER: "moon" })).toThrow();
-    expect(() => loadEnv({ SOLANA_CLUSTER: "devnet" })).toThrow();
+  it("refuses any network that is not devnet or localnet, and applies the venue allowlist only on localnet", () => {
+    for (const name of ["moon", "testnet", "mainnet", "mainnet-beta"]) {
+      expect(() => loadEnv({ NETWORK: name })).toThrow(
+        /NETWORK must be devnet or localnet/,
+      );
+    }
     expect(
-      loadEnv({ SOLANA_CLUSTER: "localnet", JUPITER_DEXES: "Orca V2" })
-        .jupiterDexes,
+      loadEnv({ NETWORK: "localnet", JUPITER_DEXES: "Orca V2" }).jupiterDexes,
     ).toBe("Orca V2");
     expect(
-      loadEnv({ SOLANA_CLUSTER: "mainnet", JUPITER_DEXES: "Orca V2" })
-        .jupiterDexes,
+      loadEnv({ NETWORK: "devnet", JUPITER_DEXES: "Orca V2" }).jupiterDexes,
     ).toBeUndefined();
   });
 });

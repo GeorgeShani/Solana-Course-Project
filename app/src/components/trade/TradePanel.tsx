@@ -9,7 +9,12 @@ import {
   type QuoteView,
 } from "../../lib/api";
 import { useWallClock } from "../../lib/clock";
-import { API_URL, CLUSTER, CLUSTER_LABEL } from "../../lib/config";
+import {
+  API_URL,
+  CLUSTER,
+  CLUSTER_LABEL,
+  NETWORK_INFO,
+} from "../../lib/config";
 import {
   FollowSendError,
   MAX_FOLLOW_USDC,
@@ -52,13 +57,6 @@ function errorText(e: unknown): string {
   return m.replace(/\.$/, "");
 }
 
-const NETWORK_NOTE: Record<typeof CLUSTER, string> = {
-  localnet:
-    "Local fork: a private copy of Solana mainnet. Use test funds only. Your wallet may warn that it can't preview this network.",
-  mainnet:
-    "Mainnet: real funds. Approving swaps real tokens from your wallet; nothing is simulated.",
-};
-
 /**
  * Following one Relay plan, in the order a trade must happen: amount, fresh quote, review of the
  * guaranteed minimum, fees, expiry and the plan's conditions, then an explicit approval in the
@@ -87,7 +85,10 @@ export function TradePanel({
 
   const check = checkFollowAmount(amount, card.pair.quoteDecimals);
   const open =
-    status === "in_range" && card.planStatus === "open" && pair !== undefined;
+    NETWORK_INFO.swapsAvailable &&
+    status === "in_range" &&
+    card.planStatus === "open" &&
+    pair !== undefined;
   const busy = BUSY.has(step.k);
   const quote =
     step.k === "quoted" ||
@@ -201,7 +202,9 @@ export function TradePanel({
 
   let label: string;
   let action: (() => void) | null = null;
-  if (!open)
+  if (!NETWORK_INFO.swapsAvailable)
+    label = `Swaps aren't available on ${NETWORK_INFO.label}`;
+  else if (!open)
     label = pair ? reviewUnavailableReason(status) : "Pair not supported";
   else if (!connected) {
     label = wallet.status === "connecting" ? "Connecting…" : "Connect wallet";
@@ -415,11 +418,12 @@ export function TradePanel({
         </p>
       )}
 
-      {open && (
+      {(open || !NETWORK_INFO.swapsAvailable) && (
         <p className="trade__note" role="note">
           <Icon name="shield" size={16} />
-          {NETWORK_NOTE[CLUSTER]} Relay sends the signed transaction to this
-          network itself.
+          {NETWORK_INFO.note}
+          {open &&
+            " Relay sends the signed transaction to this network itself."}
         </p>
       )}
 

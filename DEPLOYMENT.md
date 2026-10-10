@@ -1,101 +1,100 @@
 # Deployment
 
-How to deploy the app as **one stack on one origin**, with Docker Compose and Caddy. The files are in the repo root; see [Status](#status) for what has and has not been tested.
+How to run Relay on a server: **one stack, one domain**, with Docker Compose and Caddy, on an AWS EC2 instance. Relay runs on Solana **devnet** (free test tokens, no real value), so nothing here costs more than the server.
 
 ## Summary
 
-| Question | Recommendation |
-|---|---|
-| Packaging | Docker, one image per service (`app`, `server`), orchestrated with Docker Compose |
-| One app | A reverse proxy (Caddy) puts both services behind a single domain: `/api/*` goes to Hono, everything else to the SSR app |
-| Hosting | One small VPS (e.g. Hetzner, DigitalOcean) running Docker Compose. Caddy handles HTTPS automatically |
-| On-chain program | **Not** in Docker. Deployed to Solana with `anchor deploy` (devnet first, then mainnet) |
-| Alternatives | Railway (monorepo, multiple services, GitHub deploys) or Fly.io (two apps, or one app with two processes) if you don't want to run a server |
-
-Why a VPS with Compose: the repo is already two Bun processes, the compose file is the single description of the whole system, it works the same locally and in production, and a few euros a month covers a course project. Managed platforms (Railway, Fly.io) are the better choice if you'd rather not patch an OS or manage a server; the Dockerfiles work there unchanged (each service is one image).
-
-## What gets deployed
+| Question         | Answer                                                                                                                              |
+| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| Where            | One AWS EC2 instance (Ubuntu) running Docker Compose                                                                                |
+| What runs        | `caddy` (HTTPS, one domain), `app` (the website, server-rendered), `server` (the API), and `postgres` (or your own hosted database) |
+| Network          | Solana devnet. Set once with `NETWORK=devnet` in `.env`                                                                             |
+| Settings         | **One file: `.env` in the repo root** (copy `.env.example`)                                                                         |
+| On-chain program | Not in Docker. Deployed to devnet from your computer. See [DEVNET_RELEASE.md](docs/DEVNET_RELEASE.md)                               |
 
 ```
                    ┌────────────────────── one domain ──────────────────────┐
  browser ──HTTPS──>│ caddy                                                  │
-                   │   /api/*  ──strip /api──> server  (Hono, :3001)        │
-                   │   /*      ───────────────> app    (SSR, Bun, :3000)    │
+                   │   /api/*  ──strip /api──> server  (API, :3001)         │
+                   │   /*      ───────────────> app    (website, :3000)     │
                    └────────────────────────────────────────────────────────┘
- browser ──────────────────────────────> Solana RPC (public, from the client)
+ server ───────────────────────────────> Solana devnet RPC (also used for /api/rpc)
 ```
 
-| Piece | Source | Runtime | Port |
-|---|---|---|---|
-| `app` | `app/` (TanStack Start build, `serve.ts`) | Bun | 3000 |
-| `server` | `server/` (Hono) | Bun | 3001 |
-| `caddy` | `Caddyfile` | Caddy | 80, 443 |
-| Solana program | `program/` | The Solana cluster | n/a |
+The browser never talks to Solana or the database directly. It talks to `/api`, and the server talks to Solana. That keeps any RPC provider key private.
 
-Serving everything from one origin means the browser never makes a cross-origin call to the Hono server, so no CORS configuration is needed in production.
+## The one settings file
+
+Copy `.env.example` to `.env` and fill in only what you need. On a server you usually set:
+
+| Name                | Needed                            | What it is                                                                      |
+| ------------------- | --------------------------------- | ------------------------------------------------------------------------------- |
+| `NETWORK`           | yes                               | `devnet`                                                                        |
+| `DOMAIN`            | yes (server)                      | Your domain, for example `relay.example.com`                                    |
+| `POSTGRES_PASSWORD` | yes, unless `DATABASE_URL` is set | Password for the bundled Postgres                                               |
+| `DATABASE_URL`      | optional                          | A hosted database such as Neon; then you do not need `POSTGRES_PASSWORD`        |
+| `SOLANA_RPC_URL`    | optional                          | A devnet RPC URL from a provider; empty uses the free public one (rate limited) |
+
+Everything else has a default. Do not create `server/.env` or `app/.env.local`: they are not used.
 
 ## Files
 
-| File | Purpose |
-|---|---|
-| [`app/Dockerfile`](app/Dockerfile) | SSR web app: builds with Vite, runs `app/serve.ts` on Bun (port 3000) |
-| [`server/Dockerfile`](server/Dockerfile) | Hono support server on Bun (port 3001) |
-| [`Caddyfile`](Caddyfile) | Reverse proxy: `/api/*` to `server` (prefix stripped), everything else to `app` |
-| [`compose.yaml`](compose.yaml) | Runs `app`, `server` and `caddy`; only Caddy publishes ports (80, 443) |
-| [`.env.example`](.env.example) | `DOMAIN` and `VITE_RPC_URL`; copy to `.env` |
-| [`.dockerignore`](.dockerignore) | Keeps `program/`, `docs/`, `node_modules`, `dist` and secrets out of the build context |
+| File                                     | Purpose                                                               |
+| ---------------------------------------- | --------------------------------------------------------------------- |
+| [`app/Dockerfile`](app/Dockerfile)       | The website: builds with Vite, runs `app/serve.ts` on Bun (port 3000) |
+| [`server/Dockerfile`](server/Dockerfile) | The API on Bun (port 3001)                                            |
+| [`Caddyfile`](Caddyfile)                 | `/api/*` to `server` (prefix removed), everything else to `app`       |
+| [`compose.yaml`](compose.yaml)           | Runs the four services. Only Caddy publishes ports (80 and 443)       |
+| [`.env.example`](.env.example)           | The one settings file, explained                                      |
 
-Each Dockerfile sits next to the code it builds, but both images are built with the **repo root as the build context** (`context: .` in `compose.yaml`, `docker build -f app/Dockerfile .`). The root holds the single Bun workspace lockfile (`bun.lock`), so a per-folder context would not see it. Each installs only its own workspace (`bun install --filter app` or `--filter server`).
+Both images are built with the **repo root** as the build context, because the Bun lockfile lives there.
+
+## Deploy on AWS EC2
+
+1. **Launch an instance.** Ubuntu 24.04 LTS, `t3.small` (2 GB RAM) or larger, 20 GB disk. Building the images needs memory: on a `t3.small`, add 2 GB of swap (`sudo fallocate -l 2G /swapfile && sudo chmod 600 /swapfile && sudo mkswap /swapfile && sudo swapon /swapfile`). A small instance costs roughly 15 to 20 USD a month; check the AWS pricing page for your region.
+2. **Network.** Allocate an **Elastic IP** and attach it, so the address survives restarts. In the security group allow inbound **TCP 80, TCP 443 and UDP 443** from anywhere. Do not open 3000, 3001 or 5432. For SSH, either allow port 22 only from your own IP, or use AWS Systems Manager Session Manager and open no SSH port at all.
+3. **DNS.** Create an `A` record for your domain pointing at the Elastic IP.
+4. **Install Docker.** Follow Docker's Ubuntu instructions for Docker Engine and the Compose plugin, then `sudo usermod -aG docker $USER` and log in again.
+5. **Get the code and settings.**
+   ```bash
+   git clone https://github.com/GeorgeShani/Solana-Course-Project.git
+   cd Solana-Course-Project
+   cp .env.example .env
+   nano .env        # set NETWORK=devnet, DOMAIN, POSTGRES_PASSWORD (or DATABASE_URL)
+   ```
+6. **Start.** `docker compose up -d --build`. Caddy gets an HTTPS certificate on the first request to your domain.
+7. **Check.** `https://<domain>/` shows the website, `https://<domain>/api/health` returns `{"ok":true}`, and `docker compose ps` shows every service healthy.
+8. **Update later.** `git pull && docker compose up -d --build`.
+
+Logs are limited to 10 MB times 5 files per service, so a small disk does not fill up. Use `docker compose logs --tail=100 server` to read them.
+
+### Backups
+
+If you use the bundled Postgres, the data lives in the `pg_data` Docker volume. Take a copy regularly, for example from a daily cron job:
+
+```bash
+docker compose exec -T postgres pg_dump -U relay relay | gzip > ~/relay-$(date +%F).sql.gz
+```
+
+Copy the file off the server (to S3, for example). If you use a hosted database, its own backups apply.
+
+## Deploying the Solana program (devnet)
+
+The program is deployed once from your computer, not from the server. The full steps are in [docs/DEVNET_RELEASE.md](docs/DEVNET_RELEASE.md). In short: `bun run program:build`, deploy to devnet with your own keypair (devnet SOL is free from `solana airdrop`), then `bun run sync-idl` and rebuild the app.
 
 ## Things to know
 
-1. **`VITE_*` variables are baked in at build time.** `VITE_RPC_URL` and `VITE_API_URL` are inlined into the client bundle by `vite build`, so they are Docker **build args**, not runtime env vars. Changing `VITE_RPC_URL` in `.env` means `docker compose up -d --build`.
-2. **Anything in `VITE_*` is public.** Don't put a paid RPC provider key there unless it is restricted by domain; otherwise proxy RPC calls through the Hono server.
-3. **The SSR bundle is not self-contained.** `app/dist/server/server.js` imports `react`, `@tanstack/react-router`, `@solana/kit` and others at runtime, so the app image carries production `node_modules`, not just `dist/`.
-4. **Healthchecks.** `server` is checked on `GET /health`. `app` is checked on the static `/favicon.svg`, on purpose: checking `/` would make every probe call the Solana RPC, and a slow RPC would mark the app unhealthy. Caddy starts only once both are healthy, so if a healthcheck fails, nothing listens on ports 80/443 and the browser shows "connection refused". Healthchecks use `127.0.0.1`, not `localhost`: Bun listens on IPv4 only, and `localhost` may resolve to `::1` inside the container.
-5. **`program/` stays out of the images** (see `.dockerignore`). It is deployed to Solana separately, below.
-6. **Local test.** `DOMAIN=localhost` makes Caddy serve a locally issued certificate (your browser will warn unless you trust Caddy's local CA), so `docker compose up --build` is a production-like run on your machine.
-
-## Deploy steps (VPS)
-
-1. Create a small Ubuntu VPS, point your domain's `A` record at it, and install Docker Engine and the Compose plugin.
-2. Open ports 80 and 443 only (firewall), plus SSH.
-3. Clone the repo, then `cp .env.example .env` and set `DOMAIN` and `VITE_RPC_URL`.
-4. `docker compose up -d --build`. Caddy fetches a TLS certificate on first request.
-5. Check `https://<domain>/` renders (view-source shows server-rendered HTML) and `https://<domain>/api/health` returns `{"ok":true}`.
-6. Update: `git pull && docker compose up -d --build`.
-
-For hands-off updates, add a GitHub Actions workflow that builds the images, pushes them to GHCR, and runs `docker compose pull && docker compose up -d` on the server over SSH. Worth doing once the app is stable.
-
-## Deploying the Solana program
-
-The program is deployed independently of the containers:
-
-1. Set `cluster = "devnet"` in `program/Anchor.toml` and fund the deploy keypair (`solana airdrop 2`).
-2. `bun run program:build`, then `bun run program:deploy`.
-3. `bun run sync-idl` so the app's IDL matches, then rebuild the app image.
-4. For mainnet, deploy from a dedicated keypair, and back up `program/target/deploy/<name>-keypair.json`: losing it means you can no longer upgrade the program. Consider transferring the upgrade authority to a multisig.
-
-The app's `VITE_RPC_URL` must point at the same cluster the program is deployed to.
-
-## Alternative: a single container
-
-If you want literally one process, mount the Hono routes inside the TanStack Start app through a catch-all server route (`/api/$` delegating to `app.fetch`). That removes the second image and Caddy's path routing, at the cost of coupling the support server's lifecycle to the web app. This repo keeps them separate on purpose, so the backend can restart and scale on its own and the app can show a clear "service unavailable" state if it is down. Only switch if operating two services becomes a burden.
+1. **`NETWORK` and `VITE_*` values are baked into the website at build time.** Changing `NETWORK` means `docker compose up -d --build`.
+2. **Only `NETWORK` and `VITE_*` reach the browser.** The database URL, the RPC key and the Jupiter key never do.
+3. **Healthchecks.** `server` is checked on `GET /health`. `app` is checked on the static `/favicon.svg`, on purpose: checking `/` would call Solana on every probe. Caddy starts only once both are healthy, so if a healthcheck fails nothing listens on 80/443 and the browser says "connection refused". Healthchecks use `127.0.0.1`, because Bun listens on IPv4 only.
+4. **The server refuses unsafe settings** when `NODE_ENV=production` (which the images set): `NETWORK=localnet`, a missing `DATABASE_URL`, an `APP_ORIGIN` without https, or `DEMO_MODE` on. It also refuses to start if `SOLANA_RPC_URL` is not a devnet RPC.
+5. **Local test of the whole stack.** With `DOMAIN=localhost`, Caddy serves a locally issued certificate (your browser warns unless you trust Caddy's local CA).
 
 ## Status
 
-Checked in a sandbox **without a Docker daemon**, so no image has been built or run yet:
+Not yet run on a machine with Docker and a real domain. Checked so far: `docker compose config` accepts `compose.yaml`; the Caddyfile routes `/api/health` to the API and `/` to the website in a local run; the server and website start from their built output.
 
-- `docker compose config` accepts `compose.yaml` and fails with a clear message when `DOMAIN` or `VITE_RPC_URL` is missing.
-- `caddy validate` accepts the `Caddyfile`, and a real Caddy run with the upstreams pointed at local processes routed `/api/health` to the Hono server and `/` to the SSR app.
-- The same file sets the images copy (production-only `bun install --filter ...`, `app/dist`, `serve.ts`) were assembled by hand and both services ran from them.
-
-Still to do on a machine with Docker:
-
-- `docker compose up --build`, then open `https://localhost/`, check `https://localhost/api/health` returns `{"ok":true}`, and `docker compose ps` shows every service healthy.
-- Decide the production RPC provider and how its key is protected.
-- Decide devnet-only vs. mainnet once the idea is chosen.
-- Optional: a GitHub Actions workflow that builds the images, pushes them to GHCR, and redeploys over SSH.
+Still to do on a real instance: `docker compose up --build`, open the site and `/api/health`, and confirm `docker compose ps` shows everything healthy.
 
 ## Troubleshooting
 
@@ -107,6 +106,7 @@ docker compose logs --tail=50 # why not?
 ```
 
 - `app` or `server` **unhealthy**: Caddy waits for them and never starts. Read that service's logs.
-- **Build failed**: `docker compose up --build` prints the failing step.
-- `DOMAIN`/`VITE_RPC_URL` missing: Compose stops immediately; create `.env` from `.env.example`.
-- Only Caddy publishes ports (80 and 443). `http://localhost:3000` and `:3001` are intentionally **not** reachable from the host; use `https://localhost/` and `https://localhost/api/health`.
+- `server` exits at start with "Production configuration": it lists every problem at once. Fix `.env`.
+- `server` exits with "not a devnet RPC": `SOLANA_RPC_URL` points at another network. Use a devnet URL, or empty it.
+- **Build failed or killed**: usually out of memory. Add swap (step 1) or use a bigger instance.
+- Only Caddy publishes ports. `http://localhost:3000` and `:3001` are intentionally not reachable from the host; use `https://<domain>/` and `https://<domain>/api/health`.

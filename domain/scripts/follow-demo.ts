@@ -1,4 +1,4 @@
-// End-to-end proof of Phase 3 on a Surfpool mainnet fork with the REAL Jupiter route:
+// End-to-end proof of Phase 3 on a local Surfpool fork with a REAL Jupiter route:
 //
 //   1. a creator publishes a plan (onchain, with a hash-committed text)
 //   2. a follower swaps USDC for SOL through Jupiter inside begin_follow / finish_follow
@@ -9,7 +9,7 @@
 // Run (fork must be running with the relay program deployed, see docs/spikes/surfpool-jupiter.md):
 //   bun run --cwd domain demo:follow
 //
-// Burner keys only: never use a key that holds mainnet funds with a fork.
+// Burner keys only: never use a key that holds real funds with a fork.
 
 import {
   address,

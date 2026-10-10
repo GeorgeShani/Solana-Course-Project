@@ -8,10 +8,10 @@ describe("assertLocalFork", () => {
     expect(() => assertLocalFork("http://[::1]:8899", "t")).not.toThrow();
   });
 
-  it("refuses mainnet, providers and look-alike hosts", () => {
+  it("refuses public clusters, providers and look-alike hosts", () => {
     for (const url of [
-      "https://api.mainnet-beta.solana.com",
-      "https://mainnet.helius-rpc.com/?api-key=k",
+      "https://api.devnet.solana.com",
+      "https://rpc.provider.example/?api-key=k",
       "http://127.0.0.1.evil.example:8899",
       "http://localhost.evil.example",
       "not a url",
