@@ -1648,17 +1648,25 @@ Source: the team brief [RELAY_HANDOFF_2026-10-10.md](RELAY_HANDOFF_2026-10-10.md
   - **Missing:** any trader, source, idea or timeline table; post ingestion of any kind; wallet activity beyond Relay plans; a server change feed and unread cursors; evidence requests; sessions; mainnet configuration (the server defaults to `localnet`, `.env.example` and compose default to devnet); a mainnet deployment of the program; an EC2 runbook.
   - **Labels are not ingestion:** `record-kind.ts` and the four content kinds exist in the UI, but nothing feeds "Public post" or "On-chain activity" yet.
 
-#### P1: mainnet configuration (code, no deploy)
+#### P1: mainnet configuration (code, no deploy): DONE 2026-10-10
 
 - **Goal:** the server and app run against mainnet by default, with secrets kept on the server.
 - **Tasks:**
-  - [ ] `SOLANA_CLUSTER`: `mainnet` (default) or `localnet` (explicit, fork tests). Remove `devnet` from server, app and domain types.
-  - [ ] Production guard: with `NODE_ENV=production` the server refuses to start on `localnet`, without an explicit `APP_ORIGIN`, `DATABASE_URL` or `SOLANA_RPC_URL`, or with the public rate-limited mainnet RPC.
-  - [ ] `POST /rpc`: a JSON-RPC proxy with a fixed method allowlist (blockhash, send, signature status, account and balance reads, simulate), a body limit and rate limits, so a keyed RPC URL never reaches the browser. The app uses `/api/rpc` by default.
-  - [ ] Seed and fork scripts refuse to run against mainnet.
-  - [ ] Explorer links for mainnet transactions and accounts.
-  - [ ] `.env.example`, `compose.yaml`, server and app READMEs updated.
+  - [x] `SOLANA_CLUSTER`: `mainnet` (default) or `localnet` (explicit, fork tests). Remove `devnet` from server, app and domain types.
+  - [x] Production guard: with `NODE_ENV=production` the server refuses to start on `localnet`, without an explicit `APP_ORIGIN`, `DATABASE_URL` or `SOLANA_RPC_URL`, or with the public rate-limited mainnet RPC.
+  - [x] `POST /rpc`: a JSON-RPC proxy with a fixed method allowlist (blockhash, send, signature status, account and balance reads, simulate), a body limit and rate limits, so a keyed RPC URL never reaches the browser. The app uses `/api/rpc` by default.
+  - [x] Seed and fork scripts refuse to run against mainnet.
+  - [x] Explorer links for mainnet transactions and accounts.
+  - [x] `.env.example`, `compose.yaml`, server and app READMEs updated.
 - **Done when:** server and app tests pass; the server started with mainnet settings serves `/health/ready`, `/prices` and an empty-but-truthful `/feed`; `/rpc` rejects a method outside the allowlist.
+- **Result:**
+  - **Cluster.** `Cluster` is now `mainnet | localnet` in the server, app and database `cluster` column values (existing check constraint still allows the old names; nothing writes them). `SOLANA_CLUSTER` defaults to `mainnet`; devnet is rejected. With no RPC set, the server uses Solana's public endpoint locally and `127.0.0.1:8899` on `localnet`.
+  - **Production guard.** `NODE_ENV=production` makes `loadEnv` throw once, listing every problem: not mainnet, `APP_ORIGIN` missing or not https, `DATABASE_URL` missing, `SOLANA_RPC_URL` missing or the public rate-limited endpoint, `DEMO_MODE` on.
+  - **RPC proxy.** `POST /rpc` forwards one JSON-RPC request (no batches) for 18 allowlisted methods, with only the standard fields, `no-store`, the app's Origin guard, 300 requests a minute and 20 `sendTransaction` a minute per client. `getProgramAccounts`, `getSignaturesForAddress`, airdrops and fork cheatcodes are refused with 403 before the provider is called. The app's default RPC is `/api/rpc`; during server render it uses `SOLANA_RPC_URL`.
+  - **Fork-only scripts.** `assertLocalFork` stops `seed-demo`, `follow-demo` and `follow-via-api` unless the RPC host is `127.0.0.1`, `localhost` or `[::1]` (look-alike hosts refused).
+  - **Deployment files.** `compose.yaml` is mainnet-only with bounded logs, the bundled Postgres optional (external `DATABASE_URL` works), `SOLANA_RPC_URL` required, and no RPC URL baked into the app image. `.env.example` rewritten. `DEPLOYMENT.md` is rewritten in P3.
+  - **Verification:** domain 60, app 61, server 74 tests, root lint, `tsc` clean. The server started on mainnet settings: `/health/ready` reports `mainnet`, `/prices` returned live Jupiter SOL and JUP prices, `/feed` is empty and truthful (no plans exist on mainnet, the program is not deployed), `/rpc` returned a real mainnet slot for `getSlot` and 403 for `getProgramAccounts`.
+  - **Not done:** the app production build with `VITE_SOLANA_CLUSTER=mainnet` and the full Docker images have not been built here; the Relay program does not exist on mainnet yet (P2), so a follow cannot be completed.
 
 #### P2: program mainnet release (prepared by the agent, run by the owner)
 

@@ -5,6 +5,7 @@ import { createChain } from "./services/chain";
 import { createFollowService } from "./services/follow";
 import { createJupiterClient } from "./services/jupiter";
 import { createPlanService } from "./services/plans";
+import { createRpcForward } from "./services/rpc-proxy";
 import { createJupiterPrices } from "./services/prices";
 
 const env = loadEnv();
@@ -27,7 +28,14 @@ const follow = createFollowService({
   jupiter: createJupiterClient(env),
 });
 
-const app = createApp({ env, db, plans, follow, prices });
+const app = createApp({
+  env,
+  db,
+  plans,
+  follow,
+  prices,
+  rpc: createRpcForward(env.solanaRpcUrl),
+});
 
 console.log(
   `relay server on :${env.port} (cluster ${env.cluster}, origin ${env.appOrigin})`,

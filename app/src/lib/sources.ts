@@ -9,8 +9,16 @@ export function explorerAccountUrl(
   cluster: Cluster,
 ): string | null {
   if (cluster === "localnet") return null;
-  const base = `https://explorer.solana.com/address/${encodeURIComponent(address)}`;
-  return cluster === "devnet" ? `${base}?cluster=devnet` : base;
+  return `https://explorer.solana.com/address/${encodeURIComponent(address)}`;
+}
+
+/** A public explorer page for a transaction, or null on the local fork. */
+export function explorerTxUrl(
+  signature: string,
+  cluster: Cluster,
+): string | null {
+  if (cluster === "localnet") return null;
+  return `https://explorer.solana.com/tx/${encodeURIComponent(signature)}`;
 }
 
 /** "12 Oct 2026, 14:05" in the reader's time zone, from unix seconds. */

@@ -278,12 +278,7 @@ export async function disconnectWallet(): Promise<void> {
 
 /** The Wallet Standard chain id for this build's cluster, when the account lists it. */
 function chainFor(account: WalletAccount): string | undefined {
-  const id =
-    CLUSTER === "mainnet"
-      ? "solana:mainnet"
-      : CLUSTER === "devnet"
-        ? "solana:devnet"
-        : "solana:localnet";
+  const id = CLUSTER === "mainnet" ? "solana:mainnet" : "solana:localnet";
   return account.chains.includes(id) ? id : undefined;
 }
 

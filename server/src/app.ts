@@ -6,6 +6,7 @@ import type { Db } from "./db";
 import type { Env } from "./env";
 import {
   ApiError,
+  clientKey,
   createRateLimiter,
   originGuard,
   rateLimit,
@@ -13,6 +14,7 @@ import {
 import type { FollowService } from "./services/follow";
 import type { PlanService } from "./services/plans";
 import type { PriceSource } from "./services/types";
+import { parseRpcRequest, type RpcForward } from "./services/rpc-proxy";
 import { isRecord } from "./util";
 
 export interface AppDeps {
@@ -21,6 +23,8 @@ export interface AppDeps {
   plans: PlanService;
   follow: FollowService;
   prices: PriceSource;
+  /** Upstream of POST /rpc (the server's SOLANA_RPC_URL). */
+  rpc: RpcForward;
 }
 
 const MAX_BODY_BYTES = 16 * 1024;
@@ -43,7 +47,7 @@ async function readJson(request: Request): Promise<Record<string, unknown>> {
  * write is `POST /plans/:planPda/confirm`, which stores plan text after checking it against the
  * hash committed onchain. Mutating requests need the configured Origin and a JSON body.
  */
-export function createApp({ env, db, plans, follow, prices }: AppDeps) {
+export function createApp({ env, db, plans, follow, prices, rpc }: AppDeps) {
   const app = new Hono();
 
   app.use("*", secureHeaders());
@@ -64,7 +68,11 @@ export function createApp({ env, db, plans, follow, prices }: AppDeps) {
     }),
   );
   app.use("*", originGuard(env.appOrigin));
-  app.use("*", rateLimit(createRateLimiter(120, 60_000)));
+  // /rpc has its own, higher limit: confirming one wallet transaction polls the RPC.
+  const generalLimit = rateLimit(createRateLimiter(120, 60_000));
+  app.use("*", (c, next) =>
+    c.req.path === "/rpc" ? next() : generalLimit(c, next),
+  );
 
   app.get("/health", (c) => c.json({ ok: true }));
 
@@ -134,6 +142,29 @@ export function createApp({ env, db, plans, follow, prices }: AppDeps) {
   app.get("/me/executions", async (c) =>
     c.json({ items: await follow.executionsFor(c.req.query("follower")) }),
   );
+
+  /**
+   * The browser's Solana RPC. Forwards one allowlisted JSON-RPC request to the server's own
+   * provider, so a keyed RPC URL never reaches the client bundle. Mutating like every POST, so it
+   * needs the app's Origin.
+   */
+  const rpcLimiter = createRateLimiter(300, 60_000);
+  const sendLimiter = createRateLimiter(20, 60_000);
+  app.post("/rpc", rateLimit(rpcLimiter), async (c) => {
+    const request = parseRpcRequest(await readJson(c.req.raw));
+    if (request.method === "sendTransaction" && !sendLimiter(clientKey(c))) {
+      throw new ApiError(
+        429,
+        "rate_limited",
+        "Too many requests. Try again in a moment.",
+      );
+    }
+    const upstream = await rpc(request);
+    return c.body(upstream.body, 200, {
+      "content-type": "application/json",
+      "cache-control": "no-store",
+    });
+  });
 
   /** Advisory reference prices (never enforced by the program). */
   app.get("/prices", async (c) => {

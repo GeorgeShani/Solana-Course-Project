@@ -1,25 +1,41 @@
-# Whole stack on one origin: Caddy -> app (SSR) and server (Hono, under /api).
+# Production stack on one origin: Caddy -> app (SSR) and server (Hono, under /api).
+# Solana mainnet. See DEPLOYMENT.md for the AWS EC2 runbook.
 #
-#   cp .env.example .env     # then edit
+#   cp .env.example .env     # then fill it in
 #   docker compose up -d --build
+#
+# With an external database (for example Neon), set DATABASE_URL in .env and start without the
+# bundled Postgres:  docker compose up -d --build app server caddy
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "5"
+
 services:
   app:
     build:
       context: .
       dockerfile: app/Dockerfile
       args:
-        VITE_RPC_URL: ${VITE_RPC_URL:?set VITE_RPC_URL in .env}
         VITE_API_URL: /api
+        VITE_SOLANA_CLUSTER: mainnet
     restart: unless-stopped
+    environment:
+      # Server render only: the first feed page and the chain status. Never sent to the browser.
+      INTERNAL_API_URL: http://server:3001
+      SOLANA_RPC_URL: ${SOLANA_RPC_URL:?set SOLANA_RPC_URL in .env}
     expose:
       - "3000"
+    logging: *logging
 
   postgres:
     image: postgres:17-alpine
     restart: unless-stopped
     environment:
       POSTGRES_USER: relay
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-}
       POSTGRES_DB: relay
     volumes:
       - pg_data:/var/lib/postgresql/data
@@ -28,6 +44,7 @@ services:
       interval: 5s
       timeout: 3s
       retries: 10
+    logging: *logging
 
   server:
     build:
@@ -36,16 +53,21 @@ services:
     restart: unless-stopped
     environment:
       # Must equal the browser origin exactly: the server rejects writes from any other origin.
-      APP_ORIGIN: https://${DOMAIN}
-      DATABASE_URL: postgres://relay:${POSTGRES_PASSWORD}@postgres:5432/relay
-      SOLANA_RPC_URL: ${SOLANA_RPC_URL:-${VITE_RPC_URL}}
-      SOLANA_CLUSTER: ${SOLANA_CLUSTER:-devnet}
+      APP_ORIGIN: https://${DOMAIN:?set DOMAIN in .env}
+      DATABASE_URL: ${DATABASE_URL:-postgres://relay:${POSTGRES_PASSWORD}@postgres:5432/relay}
+      DATABASE_DIRECT_URL: ${DATABASE_DIRECT_URL:-}
+      SOLANA_CLUSTER: mainnet
+      # A dedicated provider (the server refuses the public endpoint in production). Also the
+      # upstream of /api/rpc, so its key stays on the server.
+      SOLANA_RPC_URL: ${SOLANA_RPC_URL:?set SOLANA_RPC_URL in .env}
       JUPITER_API_KEY: ${JUPITER_API_KEY:-}
     depends_on:
       postgres:
         condition: service_healthy
+        required: false
     expose:
       - "3001"
+    logging: *logging
 
   caddy:
     image: caddy:2
@@ -53,6 +75,7 @@ services:
     ports:
       - "80:80"
       - "443:443"
+      - "443:443/udp"
     environment:
       DOMAIN: ${DOMAIN:?set DOMAIN in .env}
     volumes:
@@ -64,6 +87,7 @@ services:
         condition: service_healthy
       server:
         condition: service_healthy
+    logging: *logging
 
 volumes:
   pg_data:

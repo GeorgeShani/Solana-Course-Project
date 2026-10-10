@@ -55,8 +55,8 @@ function errorText(e: unknown): string {
 const NETWORK_NOTE: Record<typeof CLUSTER, string> = {
   localnet:
     "Local fork: a private copy of Solana mainnet. Use test funds only. Your wallet may warn that it can't preview this network.",
-  devnet: "Devnet: test tokens with no value.",
-  mainnet: "Mainnet: real funds.",
+  mainnet:
+    "Mainnet: real funds. Approving swaps real tokens from your wallet; nothing is simulated.",
 };
 
 /**

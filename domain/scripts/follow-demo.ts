@@ -41,6 +41,7 @@ import {
   getAssociatedTokenAddress,
   getPlanAddress,
   getVersionAddress,
+  assertLocalFork,
 } from "../src/solana";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -48,6 +49,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 const RPC = process.env.SOLANA_RPC_URL ?? "http://127.0.0.1:8899";
+assertLocalFork(RPC, "follow-demo");
 const JUPITER = process.env.JUPITER_BASE_URL ?? "https://api.jup.ag";
 const DEXES =
   process.env.JUPITER_DEXES ?? "Orca V2,Raydium CLMM,Meteora DLMM,Raydium";

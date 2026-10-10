@@ -127,9 +127,11 @@ describe("feed ranking", () => {
 });
 
 describe("env", () => {
-  it("has safe local defaults", () => {
+  it("defaults to mainnet with the public RPC outside production", () => {
     const env = loadEnv({});
-    expect(env.cluster).toBe("localnet");
+    expect(env.cluster).toBe("mainnet");
+    expect(env.production).toBe(false);
+    expect(env.solanaRpcUrl).toBe("https://api.mainnet-beta.solana.com");
     expect(env.appOrigin).toBe("http://localhost:5173");
     expect(env.databaseDirectUrl).toBe(env.databaseUrl);
   });
@@ -153,8 +155,56 @@ describe("env", () => {
     );
   });
 
-  it("rejects an unknown cluster and applies the venue allowlist only on localnet", () => {
+  it("uses the local fork RPC only when localnet is chosen explicitly", () => {
+    expect(loadEnv({ SOLANA_CLUSTER: "localnet" }).solanaRpcUrl).toBe(
+      "http://127.0.0.1:8899",
+    );
+  });
+
+  it("refuses unsafe production settings, listing every problem", () => {
+    let message = "";
+    try {
+      loadEnv({
+        NODE_ENV: "production",
+        SOLANA_CLUSTER: "localnet",
+        APP_ORIGIN: "http://relay.example",
+        DEMO_MODE: "true",
+      });
+    } catch (e) {
+      message = e instanceof Error ? e.message : "";
+    }
+    expect(message).toContain("SOLANA_CLUSTER must be mainnet");
+    expect(message).toContain("APP_ORIGIN must use https");
+    expect(message).toContain("DATABASE_URL is required");
+    expect(message).toContain("SOLANA_RPC_URL is required");
+    expect(message).toContain("DEMO_MODE must be off");
+  });
+
+  it("refuses the public rate-limited RPC in production", () => {
+    expect(() =>
+      loadEnv({
+        NODE_ENV: "production",
+        APP_ORIGIN: "https://relay.example",
+        DATABASE_URL: "postgres://db",
+        SOLANA_RPC_URL: "https://api.mainnet-beta.solana.com/",
+      }),
+    ).toThrow(/dedicated provider/);
+  });
+
+  it("accepts a complete production configuration", () => {
+    const env = loadEnv({
+      NODE_ENV: "production",
+      APP_ORIGIN: "https://relay.example",
+      DATABASE_URL: "postgres://db",
+      SOLANA_RPC_URL: "https://rpc.provider.example/?api-key=k",
+    });
+    expect(env.production).toBe(true);
+    expect(env.cluster).toBe("mainnet");
+  });
+
+  it("rejects devnet and unknown clusters and applies the venue allowlist only on localnet", () => {
     expect(() => loadEnv({ SOLANA_CLUSTER: "moon" })).toThrow();
+    expect(() => loadEnv({ SOLANA_CLUSTER: "devnet" })).toThrow();
     expect(
       loadEnv({ SOLANA_CLUSTER: "localnet", JUPITER_DEXES: "Orca V2" })
         .jupiterDexes,

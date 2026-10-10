@@ -521,3 +521,79 @@ describe("database guarantees", () => {
     expect(rows[0].version_pda).toBe(await getVersionAddress(address(plan), 1));
   });
 });
+
+describe("rpc proxy", () => {
+  const call = (method: string, extra: Record<string, unknown> = {}) => ({
+    jsonrpc: "2.0",
+    id: 1,
+    method,
+    params: [],
+    ...extra,
+  });
+
+  it("forwards an allowlisted request with only the standard fields", async () => {
+    const res = await t.post("/rpc", call("getLatestBlockhash", { x: "drop" }));
+    expect(res.status).toBe(200);
+    expect(res.headers.get("cache-control")).toBe("no-store");
+    expect(await res.json()).toEqual({ jsonrpc: "2.0", id: 1, result: 42 });
+    expect(t.rpc.requests).toEqual([
+      { jsonrpc: "2.0", id: 1, method: "getLatestBlockhash", params: [] },
+    ]);
+  });
+
+  it("refuses methods outside the allowlist without calling the provider", async () => {
+    for (const method of [
+      "getProgramAccounts",
+      "getSignaturesForAddress",
+      "requestAirdrop",
+      "surfnet_setTokenAccount",
+    ]) {
+      const res = await t.post("/rpc", call(method));
+      expect(res.status).toBe(403);
+    }
+    expect(t.rpc.requests).toHaveLength(0);
+  });
+
+  it("refuses batches and malformed requests", async () => {
+    const batch = await t.app.request("/rpc", {
+      method: "POST",
+      headers: { origin: ORIGIN, "content-type": "application/json" },
+      body: JSON.stringify([call("getSlot")]),
+    });
+    expect(batch.status).toBe(400);
+    expect(
+      (await t.post("/rpc", call("getSlot", { jsonrpc: "1.0" }))).status,
+    ).toBe(400);
+    expect((await t.post("/rpc", call("getSlot", { id: null }))).status).toBe(
+      400,
+    );
+    expect((await t.post("/rpc", call("getSlot", { params: {} }))).status).toBe(
+      400,
+    );
+    expect(t.rpc.requests).toHaveLength(0);
+  });
+
+  it("needs the app's Origin like every POST", async () => {
+    const res = await t.app.request("/rpc", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(call("getSlot")),
+    });
+    expect(res.status).toBe(403);
+  });
+
+  it("limits sendTransaction separately", async () => {
+    const statuses: number[] = [];
+    for (let i = 0; i < 21; i++) {
+      statuses.push(
+        (
+          await t.post("/rpc", call("sendTransaction", { params: ["AA=="] }), {
+            "x-forwarded-for": "203.0.113.9",
+          })
+        ).status,
+      );
+    }
+    expect(statuses.slice(0, 20).every((s) => s === 200)).toBe(true);
+    expect(statuses[20]).toBe(429);
+  });
+});

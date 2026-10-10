@@ -20,6 +20,7 @@ import {
 import { USDC, parseJupiterBuild } from "@relay/domain";
 import {
   TOKEN_PROGRAM_ADDRESS,
+  assertLocalFork,
   composeFollowTx,
   getAssociatedTokenAddress,
   sendSigned,
@@ -27,6 +28,7 @@ import {
 import { isRecord } from "../src/util";
 
 const RPC = process.env.SOLANA_RPC_URL ?? "http://127.0.0.1:8899";
+assertLocalFork(RPC, "follow-via-api");
 const API = process.env.API_URL ?? "http://127.0.0.1:3001";
 const ORIGIN = process.env.APP_ORIGIN ?? "http://localhost:5173";
 const JUPITER = process.env.JUPITER_BASE_URL ?? "https://api.jup.ag";

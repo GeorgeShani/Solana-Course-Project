@@ -33,6 +33,7 @@ import { loadEnv, type Env } from "../src/env";
 import { createFollowService } from "../src/services/follow";
 import type { BuildParams, JupiterClient } from "../src/services/jupiter";
 import { createPlanService } from "../src/services/plans";
+import type { RpcForward, RpcRequest } from "../src/services/rpc-proxy";
 import type {
   ChainReader,
   ChainTransaction,
@@ -244,6 +245,7 @@ export interface TestApp {
   chain: FakeChain;
   prices: FakePrices;
   jupiter: FakeJupiter;
+  rpc: FakeRpc;
   env: Env;
   post: (
     path: string,
@@ -251,6 +253,18 @@ export interface TestApp {
     headers?: Record<string, string>,
   ) => Promise<Response>;
   get: (path: string) => Promise<Response>;
+}
+
+/** Records forwarded RPC requests and answers each with a fixed result. */
+export class FakeRpc {
+  readonly requests: RpcRequest[] = [];
+  forward: RpcForward = async (request) => {
+    this.requests.push(request);
+    return {
+      status: 200,
+      body: JSON.stringify({ jsonrpc: "2.0", id: request.id, result: 42 }),
+    };
+  };
 }
 
 export async function resetDatabase(db: Db): Promise<void> {
@@ -276,13 +290,15 @@ export async function createTestApp(
   const jupiter = new FakeJupiter(jupiterBody);
   const plans = createPlanService({ env, db, chain, prices });
   const follow = createFollowService({ env, db, chain, jupiter });
-  const app = createApp({ env, db, plans, follow, prices });
+  const rpc = new FakeRpc();
+  const app = createApp({ env, db, plans, follow, prices, rpc: rpc.forward });
   return {
     app,
     db,
     chain,
     prices,
     jupiter,
+    rpc,
     env,
     get: async (path) => app.request(path),
     post: async (path, body, headers = {}) =>

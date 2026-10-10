@@ -18,12 +18,13 @@ When the API is unreachable the feed says so ("Relay's service is unavailable") 
 
 Create `app/.env.local` (git-ignored) if you need to change the defaults.
 
-| Name | Default | Description |
-|---|---|---|
-| `VITE_RPC_URL` | `http://127.0.0.1:8899` | Solana RPC endpoint (a local Surfpool mainnet fork by default). |
-| `VITE_SOLANA_CLUSTER` | `localnet` | `localnet`, `devnet` or `mainnet`. Must match the server's `SOLANA_CLUSTER`; shown as the cluster chip. |
-| `VITE_API_URL` | `/api` | Browser path to the Hono server. In dev, Vite proxies `/api` to `127.0.0.1:3001`; in production, Caddy does. |
-| `INTERNAL_API_URL` | `http://127.0.0.1:3001` | Server-only: where SSR fetches the first feed page. |
+| Name                  | Default                 | Description                                                                                                                                                                                                                    |
+| --------------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `VITE_RPC_URL`        | `/api/rpc`              | Browser RPC endpoint. The default is Relay's own proxy (`POST /rpc` on the server, a fixed method allowlist), so no provider key is baked into the bundle. Set it to `http://127.0.0.1:8899` to talk to a local fork directly. |
+| `VITE_SOLANA_CLUSTER` | `mainnet`               | `mainnet` or `localnet` (a local Surfpool fork). Must match the server's `SOLANA_CLUSTER`; shown as the cluster chip.                                                                                                          |
+| `SOLANA_RPC_URL`      | public mainnet RPC      | Server-only. RPC used during server render.                                                                                                                                                                                    |
+| `VITE_API_URL`        | `/api`                  | Browser path to the Hono server. In dev, Vite proxies `/api` to `127.0.0.1:3001`; in production, Caddy does.                                                                                                                   |
+| `INTERNAL_API_URL`    | `http://127.0.0.1:3001` | Server-only: where SSR fetches the first feed page.                                                                                                                                                                            |
 
 The server's `APP_ORIGIN` must equal the exact origin you open the app on (for example `http://localhost:5175`), or its writes return 403.
 
@@ -98,4 +99,4 @@ Routes render on the server by default. Chain reads belong in route loaders or s
 
 ## Notes
 
-- **Cluster.** `VITE_RPC_URL` is inlined at build time, so changing it needs a rebuild.
+- **Cluster.** `VITE_SOLANA_CLUSTER` and `VITE_RPC_URL` are inlined at build time, so changing them needs a rebuild.

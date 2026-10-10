@@ -1,7 +1,8 @@
 // Seeds labelled DEMO creators and plans.
 //
-// The plans are REAL: each one is committed onchain on the connected cluster (a Surfpool fork
-// when developing) by a freshly generated key. Only the creators' names are fictional, and they
+// The plans are REAL: each one is committed onchain on a local Surfpool fork by a freshly
+// generated key. The script refuses any RPC that is not on this machine, so demo plans never reach
+// mainnet. Only the creators' names are fictional, and they
 // are stored with is_demo = true so the UI can label them. Nothing here fakes blockchain state.
 //
 // Needs: the cluster running with the relay program deployed, Postgres migrated, and the API
@@ -28,6 +29,7 @@ import {
   type PlanContent,
 } from "@relay/domain";
 import {
+  assertLocalFork,
   CLOCK_SYSVAR_ADDRESS,
   createPlanInstruction,
   getPlanAddress,
@@ -40,6 +42,7 @@ import { loadEnv } from "../src/env";
 import { isRecord } from "../src/util";
 
 const env = loadEnv();
+assertLocalFork(env.solanaRpcUrl, "seed-demo");
 const API_URL = process.env.API_URL ?? "http://127.0.0.1:3001";
 const rpc = createSolanaRpc(env.solanaRpcUrl);
 const db = connect(env.databaseUrl);

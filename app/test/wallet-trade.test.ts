@@ -26,7 +26,7 @@ describe("wallet discovery", () => {
     const w = toWalletEntry({
       name: "Test",
       icon: "https://example.com/icon.png",
-      chains: ["solana:devnet"],
+      chains: ["solana:mainnet"],
       features: { "standard:connect": connect },
     });
     expect(w?.icon).toBeNull();

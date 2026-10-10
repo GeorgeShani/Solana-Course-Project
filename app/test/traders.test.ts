@@ -2,7 +2,8 @@ import { describe, expect, test } from "bun:test";
 import type { PlanCardView } from "../src/lib/api";
 import { fictionalPreviewFeed } from "../src/lib/fixtures";
 import { RECORD_KIND } from "../src/lib/record-kind";
-import { explorerAccountUrl } from "../src/lib/sources";
+import { parseCluster } from "../src/lib/config";
+import { explorerAccountUrl, explorerTxUrl } from "../src/lib/sources";
 import { parseTraderWatchList } from "../src/lib/trader-watch";
 import { groupTraders, traderName } from "../src/lib/traders";
 import { snapshotOf } from "../src/lib/watchlist";
@@ -100,13 +101,20 @@ describe("sources", () => {
     expect(explorerAccountUrl("A1", "localnet")).toBeNull();
   });
 
-  test("devnet and mainnet link to Solana Explorer", () => {
-    expect(explorerAccountUrl("A1", "devnet")).toBe(
-      "https://explorer.solana.com/address/A1?cluster=devnet",
-    );
+  test("mainnet links accounts and transactions to Solana Explorer", () => {
     expect(explorerAccountUrl("A1", "mainnet")).toBe(
       "https://explorer.solana.com/address/A1",
     );
+    expect(explorerTxUrl("sig", "mainnet")).toBe(
+      "https://explorer.solana.com/tx/sig",
+    );
+    expect(explorerTxUrl("sig", "localnet")).toBeNull();
+  });
+
+  test("any cluster value other than localnet means mainnet", () => {
+    expect(parseCluster(undefined)).toBe("mainnet");
+    expect(parseCluster("devnet")).toBe("mainnet");
+    expect(parseCluster("localnet")).toBe("localnet");
   });
 
   test("a public post is never described as proof of a trade", () => {

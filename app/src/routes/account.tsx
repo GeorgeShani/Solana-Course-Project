@@ -47,7 +47,15 @@ function Account() {
             </div>
             <div>
               <dt>RPC</dt>
-              <dd className="num facts__id">{RPC_URL}</dd>
+              <dd className="num facts__id">
+                {RPC_URL}
+                {RPC_URL.endsWith("/rpc") && (
+                  <span className="facts__note">
+                    Relay's proxy to its Solana provider. It forwards a fixed
+                    set of read, simulate and send calls.
+                  </span>
+                )}
+              </dd>
             </div>
           </dl>
         </section>

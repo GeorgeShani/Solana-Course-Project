@@ -4,8 +4,10 @@
 # The build context is the REPO ROOT, not app/: the Bun workspace lockfile
 # (bun.lock) lives there. Run from the root:
 #
-#   docker build -f app/Dockerfile \
-#     --build-arg VITE_RPC_URL=https://api.devnet.solana.com -t app .
+#   docker build -f app/Dockerfile -t app .
+#
+# By default the browser reaches Solana through Relay's own /api/rpc proxy, so no RPC URL (and no
+# provider key) is baked into the bundle. SSR reads SOLANA_RPC_URL at runtime.
 
 FROM oven/bun:1 AS build
 WORKDIR /repo
@@ -17,9 +19,10 @@ RUN bun install --frozen-lockfile --filter app
 COPY app app
 COPY domain domain
 # VITE_* values are inlined into the client bundle at build time.
-ARG VITE_RPC_URL
+ARG VITE_RPC_URL=
 ARG VITE_API_URL=/api
-ENV VITE_RPC_URL=$VITE_RPC_URL VITE_API_URL=$VITE_API_URL
+ARG VITE_SOLANA_CLUSTER=mainnet
+ENV VITE_RPC_URL=$VITE_RPC_URL VITE_API_URL=$VITE_API_URL VITE_SOLANA_CLUSTER=$VITE_SOLANA_CLUSTER
 RUN bun run --cwd app build
 
 # The SSR bundle imports react, @tanstack/react-router, @solana/kit, ...

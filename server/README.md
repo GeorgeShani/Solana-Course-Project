@@ -10,33 +10,34 @@ Serve the feed and plan pages, and store the offchain text of plans. **The Solan
 
 Reached publicly under `/api` (Caddy and the Vite dev proxy strip the prefix).
 
-| Method | Path | What it does |
-|---|---|---|
-| `GET` | `/health` | Liveness: `{ "ok": true }`. |
-| `GET` | `/health/ready` | Checks the database connection. |
-| `GET` | `/feed?pair&cursor&limit` | Ranked plan cards with the advisory entry status. Deterministic ranking; never ranked by claimed return. |
-| `GET` | `/plans/:planPda` | One plan with every version, its text (or `null` when unverified) and its hash chain. |
-| `POST` | `/plans/:planPda/confirm` | Stores a version's text if it matches the onchain `content_hash`. Idempotent. |
-| `GET` | `/prices` | Advisory reference prices and their age. |
-| `POST` | `/follow/quote` | `{ planPda, version, follower, quoteAmount }`. Fetches a fresh Jupiter route, composes the follow transaction with the same code the client runs, refuses prices outside the plan's range, simulates it, and returns a plain-language summary plus the exact inputs the client needs to rebuild and sign it. Nothing is signed or sent. |
-| `POST` | `/follow/verify` | `{ signature }` only. Re-reads the transaction and the receipt account from the chain and records the execution as `recorded` or `failed` (with the reason). Idempotent; a recorded execution is never downgraded. |
-| `GET` | `/me/executions?follower=` | A wallet's verified executions, newest first. |
+| Method | Path                       | What it does                                                                                                                                                                                                                                                                                                                            |
+| ------ | -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GET`  | `/health`                  | Liveness: `{ "ok": true }`.                                                                                                                                                                                                                                                                                                             |
+| `GET`  | `/health/ready`            | Checks the database connection.                                                                                                                                                                                                                                                                                                         |
+| `GET`  | `/feed?pair&cursor&limit`  | Ranked plan cards with the advisory entry status. Deterministic ranking; never ranked by claimed return.                                                                                                                                                                                                                                |
+| `GET`  | `/plans/:planPda`          | One plan with every version, its text (or `null` when unverified) and its hash chain.                                                                                                                                                                                                                                                   |
+| `POST` | `/plans/:planPda/confirm`  | Stores a version's text if it matches the onchain `content_hash`. Idempotent.                                                                                                                                                                                                                                                           |
+| `GET`  | `/prices`                  | Advisory reference prices and their age.                                                                                                                                                                                                                                                                                                |
+| `POST` | `/follow/quote`            | `{ planPda, version, follower, quoteAmount }`. Fetches a fresh Jupiter route, composes the follow transaction with the same code the client runs, refuses prices outside the plan's range, simulates it, and returns a plain-language summary plus the exact inputs the client needs to rebuild and sign it. Nothing is signed or sent. |
+| `POST` | `/follow/verify`           | `{ signature }` only. Re-reads the transaction and the receipt account from the chain and records the execution as `recorded` or `failed` (with the reason). Idempotent; a recorded execution is never downgraded.                                                                                                                      |
+| `GET`  | `/me/executions?follower=` | A wallet's verified executions, newest first.                                                                                                                                                                                                                                                                                           |
 
 Every state-changing request must come from the configured `APP_ORIGIN` (or be `Sec-Fetch-Site: same-origin`) with `Content-Type: application/json`. Bodies are limited to 16 KB and requests are rate limited per client (the right-most `X-Forwarded-For` entry, which the proxy appends).
 
 ## Environment variables
 
-| Name | Default | Description |
-|---|---|---|
-| `PORT` | `3001` | Port to listen on. |
-| `APP_ORIGIN` | `http://localhost:5173` | The one browser origin allowed to write. Must be exactly an origin. |
-| `DATABASE_URL` | `postgres://relay:relay_local_only@127.0.0.1:5432/relay` | Runtime connection. May be a pooled URL (then disable prepared statements). |
-| `DATABASE_DIRECT_URL` | `DATABASE_URL` | Direct connection used only for migrations. |
-| `SOLANA_RPC_URL` | `http://127.0.0.1:8899` | RPC endpoint the server reads (never sent to the browser). |
-| `SOLANA_CLUSTER` | `localnet` | `localnet` (a Surfpool fork), `devnet` or `mainnet`. On `localnet` the server follows the chain clock, which time travel can move. |
-| `JUPITER_API_KEY` | none | Optional, server-side only. Without one the keyless 0.5 req/s tier applies. |
-| `JUPITER_BASE_URL` | `https://api.jup.ag` | |
-| `JUPITER_DEXES` | none | Venue allowlist, only used on `localnet` (see `docs/spikes/surfpool-jupiter.md`). |
+| Name                  | Default                                                  | Description                                                                                                                                                                                                      |
+| --------------------- | -------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `PORT`                | `3001`                                                   | Port to listen on.                                                                                                                                                                                               |
+| `APP_ORIGIN`          | `http://localhost:5173`                                  | The one browser origin allowed to write. Must be exactly an origin.                                                                                                                                              |
+| `DATABASE_URL`        | `postgres://relay:relay_local_only@127.0.0.1:5432/relay` | Runtime connection. May be a pooled URL (then disable prepared statements).                                                                                                                                      |
+| `DATABASE_DIRECT_URL` | `DATABASE_URL`                                           | Direct connection used only for migrations.                                                                                                                                                                      |
+| `NODE_ENV`            | none                                                     | `production` turns on the production guard: the server refuses to start on `localnet`, without `APP_ORIGIN` (https), `DATABASE_URL` or `SOLANA_RPC_URL`, with the public Solana RPC, or with `DEMO_MODE`.        |
+| `SOLANA_RPC_URL`      | public mainnet RPC (`localnet`: `http://127.0.0.1:8899`) | RPC endpoint the server reads, and the upstream of `POST /rpc`. Never sent to the browser, so a keyed provider URL is safe here. Required in production.                                                         |
+| `SOLANA_CLUSTER`      | `mainnet`                                                | `mainnet` (production) or `localnet` (a Surfpool fork, tests and rehearsals only; refused in production). Devnet is not supported. On `localnet` the server follows the chain clock, which time travel can move. |
+| `JUPITER_API_KEY`     | none                                                     | Optional, server-side only. Without one the keyless 0.5 req/s tier applies.                                                                                                                                      |
+| `JUPITER_BASE_URL`    | `https://api.jup.ag`                                     |                                                                                                                                                                                                                  |
+| `JUPITER_DEXES`       | none                                                     | Venue allowlist, only used on `localnet` (see `docs/spikes/surfpool-jupiter.md`).                                                                                                                                |
 
 ## Run
 
