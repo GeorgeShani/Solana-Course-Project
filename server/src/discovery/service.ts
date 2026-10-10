@@ -111,6 +111,64 @@ export interface Page<T> {
   nextCursor: string | null;
 }
 
+/** What a reader is watching, and the last event `seq` they have seen for it. */
+export interface WatchTarget {
+  type: "idea" | "trader";
+  id: string;
+  /** Events with a larger `seq` are new to this reader. 0 means nothing seen yet. */
+  after: string;
+}
+
+export interface ChangeEvent {
+  seq: string;
+  id: string;
+  type: string;
+  occurredAt: string | null;
+  recordedAt: string;
+  summary: string;
+  relationship: { basis: RelationshipBasis; note: string | null };
+  reviewState: string;
+  source: {
+    id: string;
+    url: string;
+    availability: SourceView["availability"];
+    publishedAt: string | null;
+    retrievedAt: string;
+  } | null;
+  evidence: { kind: string; ref: string } | null;
+}
+
+export interface ChangeGroup {
+  idea: { id: string; title: string; assets: string[]; traderId: string };
+  events: ChangeEvent[];
+}
+
+export interface TargetChanges {
+  target: WatchTarget;
+  /** False when the idea or trader does not exist here (for example demo data on a live server). */
+  known: boolean;
+  /** Meaningful events after the reader's cursor, grouped by idea, oldest first by `seq`. */
+  groups: ChangeGroup[];
+  /** Number of meaningful events returned (not the number of events in the target). */
+  count: number;
+  /** True when more meaningful events exist after the last one returned: ask again from there. */
+  hasMore: boolean;
+  /**
+   * The newest event of any kind in this target. A reader that opens the target may store this as
+   * its new cursor: it has then seen everything up to here, including events too minor to list.
+   */
+  latestSeq: string | null;
+}
+
+export interface ChangesResponse {
+  items: TargetChanges[];
+  /** When the newest curated event was recorded: manual coverage is only as fresh as this. */
+  coverage: { kind: "manual_coverage"; lastRecordedAt: string | null };
+  asOf: string;
+}
+
+export const MAX_WATCH_TARGETS = 50;
+
 // ----------------------------------------------------------------------------------- cursors
 
 function encodeCursor(value: unknown): string {
@@ -544,7 +602,152 @@ export function createDiscoveryService({ env, db }: DiscoveryServiceDeps) {
     };
   }
 
-  return { listTraders, getTrader, listIdeas, getIdea };
+  // -------------------------------------------------------------------------------- changes
+
+  /**
+   * "What changed since I last checked?" for a bounded set of watched targets.
+   *
+   * A reader sends what it watches and the last `seq` it has seen for each; the server returns the
+   * MEANINGFUL events after that, grouped under their idea. Meaningful means a sourced update, new
+   * evidence, a discrepancy, a reviewed response, an added source, a correction, a Relay plan, or
+   * the idea's original source becoming unavailable. The first capture of an idea, plain on-chain
+   * activity and an unreviewed response are not changes. The server never marks anything read: the
+   * reader decides when it has seen an event, and stores a cursor for it.
+   *
+   * Cursors are event `seq` values, not times, so tied times, late arrivals (a new event dated
+   * earlier than ones already seen) and duplicates cannot hide or repeat an event.
+   */
+  async function getChanges(
+    targets: WatchTarget[],
+    opts: { limit?: number } = {},
+  ): Promise<ChangesResponse> {
+    if (targets.length > MAX_WATCH_TARGETS)
+      throw new ApiError(
+        400,
+        "too_many_targets",
+        `Watch at most ${MAX_WATCH_TARGETS} things at once`,
+      );
+    const limit = readLimit(opts.limit);
+    const items: TargetChanges[] = [];
+
+    for (const target of targets) {
+      const scope =
+        target.type === "idea"
+          ? db`i.id = ${target.id}`
+          : db`i.trader_id = ${target.id}`;
+      const known =
+        rows(
+          await db`select 1 as found from ${
+            target.type === "idea" ? db`ideas` : db`traders`
+          } i where i.id = ${target.id} and i.is_demo = ${demo}`,
+        ).length > 0;
+      if (!known) {
+        items.push({
+          target,
+          known: false,
+          groups: [],
+          count: 0,
+          hasMore: false,
+          latestSeq: null,
+        });
+        continue;
+      }
+      const latest = rows(
+        await db`select max(e.seq) as latest from timeline_events e join ideas i on i.id = e.idea_id
+                 where ${scope} and i.is_demo = ${demo}`,
+      )[0];
+      const found = rows(
+        await db`
+          select e.*, i.title, i.assets, i.trader_id, i.source_record_id as idea_source
+          from timeline_events e join ideas i on i.id = e.idea_id
+          where ${scope} and i.is_demo = ${demo} and e.seq > ${target.after}::bigint
+            and (
+              e.event_type in ('update_published', 'evidence_added', 'discrepancy_flagged',
+                               'relay_plan_published', 'correction')
+              or (e.event_type = 'response_added' and e.review_state = 'reviewed')
+              or (e.event_type = 'source_added' and e.relationship_basis <> 'original')
+              or (e.event_type = 'source_unavailable' and e.source_record_id = i.source_record_id)
+            )
+          order by e.seq asc
+          limit ${limit + 1}`,
+      );
+      const page = found.slice(0, limit);
+      const sources = await sourcesById([
+        ...new Set(
+          page
+            .map((r) => textOrNull(r, "source_record_id"))
+            .filter((x): x is string => x !== null),
+        ),
+      ]);
+      const groups = new Map<string, ChangeGroup>();
+      for (const r of page) {
+        const ideaId = text(r, "idea_id");
+        let group = groups.get(ideaId);
+        if (!group) {
+          group = {
+            idea: {
+              id: ideaId,
+              title: text(r, "title"),
+              assets: list(r, "assets"),
+              traderId: text(r, "trader_id"),
+            },
+            events: [],
+          };
+          groups.set(ideaId, group);
+        }
+        const sourceId = textOrNull(r, "source_record_id");
+        const source = sourceId === null ? undefined : sources.get(sourceId);
+        const kind = textOrNull(r, "evidence_kind");
+        const ref = textOrNull(r, "evidence_ref");
+        group.events.push({
+          seq: String(r.seq),
+          id: text(r, "id"),
+          type: text(r, "event_type"),
+          occurredAt: dateOrNull(r, "occurred_at"),
+          recordedAt: dateReq(r, "recorded_at"),
+          summary: text(r, "summary"),
+          relationship: {
+            basis: oneOf(r, "relationship_basis", BASES),
+            note: textOrNull(r, "basis_note"),
+          },
+          reviewState: text(r, "review_state"),
+          source: source
+            ? {
+                id: source.id,
+                url: source.url,
+                availability: source.availability,
+                publishedAt: source.publishedAt,
+                retrievedAt: source.retrievedAt,
+              }
+            : null,
+          evidence: kind !== null && ref !== null ? { kind, ref } : null,
+        });
+      }
+      items.push({
+        target,
+        known: true,
+        groups: [...groups.values()],
+        count: page.length,
+        hasMore: found.length > limit,
+        latestSeq: latest ? seqOrNull(latest, "latest") : null,
+      });
+    }
+
+    const newest = rows(
+      await db`select max(e.recorded_at) as at from timeline_events e join ideas i on i.id = e.idea_id
+               where i.is_demo = ${demo}`,
+    )[0];
+    return {
+      items,
+      coverage: {
+        kind: "manual_coverage",
+        lastRecordedAt: newest ? dateOrNull(newest, "at") : null,
+      },
+      asOf: new Date().toISOString(),
+    };
+  }
+
+  return { listTraders, getTrader, listIdeas, getIdea, getChanges };
 }
 
 export type DiscoveryService = ReturnType<typeof createDiscoveryService>;

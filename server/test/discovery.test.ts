@@ -1152,3 +1152,384 @@ describe("GET /discovery", () => {
     ).toBe(403);
   });
 });
+
+// ======================================================================= the changes feed
+
+describe("GET /discovery/changes", () => {
+  const watch = (...targets: string[]) =>
+    `/discovery/changes?${targets.map((x) => `watch=${encodeURIComponent(x)}`).join("&")}`;
+
+  /** The fixture plus extra events on its idea. */
+  function withEvents(...events: Json[]): Json {
+    const raw = fixture();
+    const list = at(raw, trader("ideas", 0, "events"));
+    if (!Array.isArray(list)) throw new Error("fixture");
+    list.push(...events);
+    return raw;
+  }
+  const correction = (id: string, occurredAt: string | null = null): Json => ({
+    id,
+    type: "correction",
+    occurredAt,
+    relationshipBasis: "creator_confirmed",
+    summary: `Correction ${id}`,
+  });
+  const idsOf = (target: Record<string, unknown>): string[] =>
+    list(target.groups).flatMap((g) => list(g.events).map((e) => String(e.id)));
+
+  it("reports what changed after the reader's cursor, and not the idea's first capture", async () => {
+    const app = await fresh();
+    await load(app, fixture());
+    const body = await json(await app.get(watch("idea:sol-watch:0")));
+    const target = list(body.items)[0] ?? {};
+    expect(target).toMatchObject({
+      known: true,
+      count: 1,
+      hasMore: false,
+      latestSeq: "2",
+    });
+    expect(idsOf(target)).toEqual(["sol-update"]); // seq 1 is the first capture, not a change
+    const group = list(target.groups)[0] ?? {};
+    expect(group.idea).toEqual({
+      id: "sol-watch",
+      title: "Watching SOL near 140",
+      assets: ["SOL"],
+      traderId: "ada-test",
+    });
+    const event = list(group.events)[0] ?? {};
+    expect(event.seq).toBe("2");
+    expect(obj(event.source).url).toBe("https://x.com/ada_test/status/101");
+    expect(obj(event.relationship).basis).toBe("creator_confirmed");
+    expect(obj(body.coverage).kind).toBe("manual_coverage");
+    expect(typeof obj(body.coverage).lastRecordedAt).toBe("string");
+    expect(typeof body.asOf).toBe("string");
+  });
+
+  it("returns nothing once the reader has seen everything, and is a caught-up success", async () => {
+    const app = await fresh();
+    await load(app, fixture());
+    const body = await json(await app.get(watch("idea:sol-watch:2")));
+    const target = list(body.items)[0] ?? {};
+    expect(target).toMatchObject({
+      known: true,
+      count: 0,
+      hasMore: false,
+      groups: [],
+      latestSeq: "2",
+    });
+  });
+
+  it("shows a late arrival that happened earlier, because it has a later seq", async () => {
+    const app = await fresh();
+    await load(app, fixture());
+    const seenAll = "idea:sol-watch:2";
+    await load(
+      app,
+      withEvents(correction("late-one", "2026-09-01T00:00:00Z")),
+      new Date("2026-10-09T00:00:00Z"),
+    );
+    const target =
+      list((await json(await app.get(watch(seenAll)))).items)[0] ?? {};
+    expect(idsOf(target)).toEqual(["late-one"]);
+    expect(target.latestSeq).toBe("3");
+  });
+
+  it("keeps events with the same time apart: a cursor between them returns only the later one", async () => {
+    const app = await fresh();
+    await load(
+      app,
+      withEvents(
+        correction("tie-one", "2026-10-03T00:00:00Z"),
+        correction("tie-two", "2026-10-03T00:00:00Z"),
+      ),
+    );
+    const all =
+      list((await json(await app.get(watch("idea:sol-watch:0")))).items)[0] ??
+      {};
+    expect(idsOf(all)).toEqual(["sol-update", "tie-one", "tie-two"]);
+    const afterFirst =
+      list((await json(await app.get(watch("idea:sol-watch:3")))).items)[0] ??
+      {};
+    expect(idsOf(afterFirst)).toEqual(["tie-two"]);
+  });
+
+  it("does not repeat an event when the same file is loaded again", async () => {
+    const app = await fresh();
+    await load(app, withEvents(correction("once")));
+    await load(app, withEvents(correction("once")));
+    const target =
+      list((await json(await app.get(watch("idea:sol-watch:0")))).items)[0] ??
+      {};
+    expect(idsOf(target)).toEqual(["sol-update", "once"]);
+  });
+
+  it("counts only meaningful events, but lets the reader catch up past the minor ones", async () => {
+    const app = await fresh();
+    const raw = withEvents(
+      // Plain on-chain activity is not a change on its own.
+      {
+        id: "minor-tx",
+        type: "onchain_activity",
+        occurredAt: "2026-10-03T00:00:00Z",
+        evidence: { kind: "transaction", ref: SIGNATURE },
+        relationshipBasis: "uncertain",
+        basisNote:
+          "The wallet is linked, but the transfer is not tied to the idea.",
+        summary: "A transfer happened.",
+      },
+      // A response nobody has reviewed is not a change either...
+      {
+        id: "minor-reply",
+        type: "response_added",
+        occurredAt: "2026-10-03T01:00:00Z",
+        evidence: { kind: "url", ref: "https://example.com/reply" },
+        relationshipBasis: "creator_confirmed",
+        reviewState: "not_required",
+        summary: "A reply.",
+      },
+      // ...a reviewed one is.
+      {
+        id: "major-reply",
+        type: "response_added",
+        occurredAt: "2026-10-03T02:00:00Z",
+        evidence: { kind: "url", ref: "https://example.com/reply" },
+        relationshipBasis: "creator_confirmed",
+        reviewState: "reviewed",
+        summary: "A reviewed reply.",
+      },
+      correction("last-correction"),
+    );
+    await load(app, raw);
+    const target =
+      list((await json(await app.get(watch("idea:sol-watch:0")))).items)[0] ??
+      {};
+    expect(idsOf(target)).toEqual([
+      "sol-update",
+      "major-reply",
+      "last-correction",
+    ]);
+    // The newest event of ANY kind, so opening the idea can mark all of it as seen.
+    expect(target.latestSeq).toBe("6");
+    const caughtUp =
+      list((await json(await app.get(watch("idea:sol-watch:6")))).items)[0] ??
+      {};
+    expect(caughtUp.count).toBe(0);
+  });
+
+  it("counts a source disappearing only when it is the idea's original source", async () => {
+    const app = await fresh();
+    const removed = (id: string) => [
+      {
+        state: "available",
+        observedAt: `2026-10-0${id === "ada-post-1" ? 1 : 2}T10:00:00Z`,
+        note: null,
+      },
+      {
+        state: "removed",
+        observedAt: "2026-10-05T10:00:00Z",
+        note: "Deleted.",
+      },
+    ];
+    let raw = withEvents(
+      {
+        id: "update-source-gone",
+        type: "source_unavailable",
+        occurredAt: "2026-10-05T10:00:00Z",
+        sourceId: "ada-post-2",
+        relationshipBasis: "creator_confirmed",
+        summary: "The update was removed.",
+      },
+      {
+        id: "original-source-gone",
+        type: "source_unavailable",
+        occurredAt: "2026-10-05T11:00:00Z",
+        sourceId: "ada-post-1",
+        relationshipBasis: "creator_confirmed",
+        summary: "The original was removed.",
+      },
+    );
+    raw = changed(
+      trader("sources", 1, "availability"),
+      removed("ada-post-2"),
+      raw,
+    );
+    raw = changed(
+      trader("sources", 0, "availability"),
+      removed("ada-post-1"),
+      raw,
+    );
+    await load(app, raw);
+    const target =
+      list((await json(await app.get(watch("idea:sol-watch:0")))).items)[0] ??
+      {};
+    expect(idsOf(target)).toEqual(["sol-update", "original-source-gone"]);
+  });
+
+  it("groups a trader's changes under their ideas", async () => {
+    const app = await fresh();
+    const raw = withEvents();
+    const ideas = at(raw, trader("ideas"));
+    if (!Array.isArray(ideas)) throw new Error("fixture");
+    ideas.push({
+      id: "second-idea",
+      sourceId: "ada-post-2",
+      title: "A second idea",
+      assets: ["BTC"],
+      market: "crypto",
+      statedConditions: null,
+      events: [correction("second-fix")],
+    });
+    await load(app, raw);
+    const target =
+      list((await json(await app.get(watch("trader:ada-test:0")))).items)[0] ??
+      {};
+    const groups = list(target.groups);
+    expect(groups.map((g) => obj(g.idea).id)).toEqual([
+      "sol-watch",
+      "second-idea",
+    ]);
+    expect(idsOf(target)).toEqual(["sol-update", "second-fix"]);
+    expect(target.count).toBe(2);
+  });
+
+  it("pages a long list: limit, hasMore, then continue from the last seq with no gaps or repeats", async () => {
+    const app = await fresh();
+    await load(
+      app,
+      withEvents(
+        ...Array.from({ length: 12 }, (_, n) =>
+          correction(`fix-${String(n).padStart(2, "0")}`),
+        ),
+      ),
+    );
+    const seen: string[] = [];
+    let after = "0";
+    for (let round = 0; round < 6; round++) {
+      const target =
+        list(
+          (
+            await json(
+              await app.get(`${watch(`idea:sol-watch:${after}`)}&limit=5`),
+            )
+          ).items,
+        )[0] ?? {};
+      const events = list(target.groups).flatMap((g) => list(g.events));
+      seen.push(...events.map((e) => String(e.id)));
+      after = String(events.at(-1)?.seq ?? after);
+      if (target.hasMore !== true) break;
+    }
+    expect(seen).toHaveLength(13);
+    expect(new Set(seen).size).toBe(13);
+    expect(seen[0]).toBe("sol-update");
+  });
+
+  it("says a target is unknown instead of failing, and never leaks demo data to a live server", async () => {
+    const app = await fresh();
+    await load(app, fixture());
+    const body = await json(
+      await app.get(
+        watch("idea:ghost-idea:0", "trader:ghost-trader:0", "idea:sol-watch:0"),
+      ),
+    );
+    const items = list(body.items);
+    expect(items.map((i) => i.known)).toEqual([false, false, true]);
+    expect(items[0]).toMatchObject({ count: 0, groups: [], latestSeq: null });
+  });
+
+  it("is bounded and strict about what it is asked", async () => {
+    const app = await fresh();
+    const many = Array.from(
+      { length: 51 },
+      (_, n) => `idea:idea-${String(n).padStart(3, "0")}:0`,
+    );
+    expect((await app.get(watch(...many))).status).toBe(400);
+    expect((await app.get(watch(...many.slice(0, 50)))).status).toBe(200);
+    for (const bad of [
+      "idea:x:0",
+      "idea:UPPER-case:0",
+      "plan:sol-watch:0",
+      "idea:sol-watch",
+      "idea:sol-watch:-1",
+      "idea:sol-watch:abc",
+      `idea:sol-watch:${"9".repeat(20)}`,
+      "",
+    ]) {
+      expect((await app.get(watch(bad))).status).toBe(400);
+    }
+    expect(
+      (await app.get(`${watch("idea:sol-watch:0")}&limit=abc`)).status,
+    ).toBe(400);
+    // Watching nothing is fine and returns just the coverage.
+    const empty = await json(await app.get("/discovery/changes"));
+    expect(empty.items).toEqual([]);
+  });
+
+  it("collapses a repeated target and treats a huge cursor as 'seen everything'", async () => {
+    const app = await fresh();
+    await load(app, fixture());
+    const body = await json(
+      await app.get(
+        watch(
+          "idea:sol-watch:0",
+          "idea:sol-watch:5",
+          `idea:sol-watch:${"9".repeat(18)}`,
+        ),
+      ),
+    );
+    expect(list(body.items)).toHaveLength(1);
+    expect(obj(list(body.items)[0]?.target).after).toBe("0");
+    const far =
+      list(
+        (await json(await app.get(watch(`idea:sol-watch:${"9".repeat(18)}`))))
+          .items,
+      )[0] ?? {};
+    expect(far.count).toBe(0);
+  });
+
+  it("only reads: asking changes nothing, and asking again gives the same answer", async () => {
+    const app = await fresh();
+    await load(app, fixture());
+    const before = (
+      await app.db`select count(*)::int as n from timeline_events`
+    )[0].n;
+    const strip = (b: Record<string, unknown>) => JSON.stringify(b.items);
+    const first = strip(await json(await app.get(watch("idea:sol-watch:0"))));
+    const second = strip(await json(await app.get(watch("idea:sol-watch:0"))));
+    expect(second).toBe(first);
+    expect(
+      (await app.db`select count(*)::int as n from timeline_events`)[0].n,
+    ).toBe(before);
+  });
+});
+
+describe("changes feed and demo data", () => {
+  it("does not show a demo idea's changes on a live server, even when asked for it by id", async () => {
+    const app = await fresh();
+    await load(app, fixture());
+    const demoFile = changed(
+      trader("ownerConfirmed"),
+      undefined,
+      changed(["demo"], true),
+    );
+    const renamed = JSON.parse(
+      JSON.stringify(demoFile)
+        .replaceAll("ada-post", "demo-post")
+        .replaceAll("sol-watch", "demo-watch")
+        .replaceAll("sol-update", "demo-update")
+        .replaceAll("ada_test", "demo_test")
+        .replaceAll("ada-test", "demo-test")
+        .replace(WALLET, PLAN),
+    );
+    await load(app, renamed);
+    const body = await json(
+      await app.get(
+        "/discovery/changes?watch=idea:demo-watch:0&watch=trader:demo-test:0&watch=idea:sol-watch:0",
+      ),
+    );
+    const items = list(body.items);
+    expect(items.map((i) => i.known)).toEqual([false, false, true]);
+    expect(JSON.stringify(items.slice(0, 2))).not.toContain("demo-update");
+    // And the coverage time reflects live data only.
+    expect(obj(body.coverage).lastRecordedAt).not.toBeNull();
+  });
+});
