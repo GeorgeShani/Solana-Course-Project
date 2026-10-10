@@ -71,7 +71,8 @@ export function StatusBlock({
           "No current price"
         ) : (
           <>
-            Now <span className="num">{formatUsd(priceUnits, quoteDecimals)}</span>
+            Now{" "}
+            <span className="num">{formatUsd(priceUnits, quoteDecimals)}</span>
             {priceAgeMs !== null && <> · updated {formatAge(priceAgeMs)}</>}
           </>
         )}

@@ -88,7 +88,8 @@ function rec(v: unknown, path: string): Rec {
 }
 
 function str(v: unknown, path: string): string {
-  if (typeof v !== "string") throw new ApiContractError(`${path} must be a string`);
+  if (typeof v !== "string")
+    throw new ApiContractError(`${path} must be a string`);
   return v;
 }
 
@@ -103,13 +104,15 @@ function num(v: unknown, path: string): number {
 }
 
 function bool(v: unknown, path: string): boolean {
-  if (typeof v !== "boolean") throw new ApiContractError(`${path} must be a boolean`);
+  if (typeof v !== "boolean")
+    throw new ApiContractError(`${path} must be a boolean`);
   return v;
 }
 
 function digits(v: unknown, path: string): string {
   const s = str(v, path);
-  if (!/^\d+$/.test(s)) throw new ApiContractError(`${path} must be an unsigned integer string`);
+  if (!/^\d+$/.test(s))
+    throw new ApiContractError(`${path} must be an unsigned integer string`);
   return s;
 }
 
@@ -141,7 +144,10 @@ function planStatusOf(v: unknown, path: string): PlanCardView["planStatus"] {
 
 function parseVersion(v: unknown, path: string): VersionView {
   const r = rec(v, path);
-  const text = r.text === null || r.text === undefined ? null : rec(r.text, `${path}.text`);
+  const text =
+    r.text === null || r.text === undefined
+      ? null
+      : rec(r.text, `${path}.text`);
   return {
     version: num(r.version, `${path}.version`),
     versionPda: str(r.versionPda, `${path}.versionPda`),
@@ -168,14 +174,18 @@ export function parsePlanCard(v: unknown, path = "card"): PlanCardView {
   const creator = rec(r.creator, `${path}.creator`);
   const pair = rec(r.pair, `${path}.pair`);
   const entry = rec(r.entry, `${path}.entry`);
-  const price = entry.price === null ? null : rec(entry.price, `${path}.entry.price`);
+  const price =
+    entry.price === null ? null : rec(entry.price, `${path}.entry.price`);
   return {
     planPda: str(r.planPda, `${path}.planPda`),
     cluster: clusterOf(r.cluster, `${path}.cluster`),
     creator: {
       address: str(creator.address, `${path}.creator.address`),
       handle: strOrNull(creator.handle, `${path}.creator.handle`),
-      displayName: strOrNull(creator.displayName, `${path}.creator.displayName`),
+      displayName: strOrNull(
+        creator.displayName,
+        `${path}.creator.displayName`,
+      ),
       isDemo: bool(creator.isDemo, `${path}.creator.isDemo`),
     },
     pair: {
@@ -196,7 +206,10 @@ export function parsePlanCard(v: unknown, path = "card"): PlanCardView {
       price: price && {
         units: digits(price.units, `${path}.entry.price.units`),
         display: str(price.display, `${path}.entry.price.display`),
-        observedAtMs: num(price.observedAtMs, `${path}.entry.price.observedAtMs`),
+        observedAtMs: num(
+          price.observedAtMs,
+          `${path}.entry.price.observedAtMs`,
+        ),
       },
     },
     nowMs: num(r.nowMs, `${path}.nowMs`),
@@ -205,7 +218,8 @@ export function parsePlanCard(v: unknown, path = "card"): PlanCardView {
 
 export function parseFeedPage(v: unknown): FeedPage {
   const r = rec(v, "feed");
-  if (!Array.isArray(r.items)) throw new ApiContractError("feed.items must be an array");
+  if (!Array.isArray(r.items))
+    throw new ApiContractError("feed.items must be an array");
   return {
     items: r.items.map((item, i) => parsePlanCard(item, `feed.items[${i}]`)),
     nextCursor: strOrNull(r.nextCursor, "feed.nextCursor"),
@@ -242,7 +256,9 @@ export async function fetchFeedPage(
   try {
     body = await res.json();
   } catch {
-    throw new ApiUnavailableError("Relay's service sent an unreadable response");
+    throw new ApiUnavailableError(
+      "Relay's service sent an unreadable response",
+    );
   }
   if (!res.ok) {
     const message =

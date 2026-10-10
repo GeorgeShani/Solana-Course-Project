@@ -1,7 +1,15 @@
-import { HeadContent, Link, Scripts, createRootRoute } from "@tanstack/react-router";
+import {
+  HeadContent,
+  Link,
+  Scripts,
+  createRootRoute,
+} from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { Providers } from "../components/Providers";
-import { CURTAIN_BOOT_SCRIPT, CurtainIntro } from "../components/theatre/CurtainIntro";
+import {
+  CURTAIN_BOOT_SCRIPT,
+  CurtainIntro,
+} from "../components/theatre/CurtainIntro";
 import { Marquee } from "../components/theatre/Marquee";
 import { TabBar } from "../components/ui/TabBar";
 import { CLUSTER, CLUSTER_LABEL } from "../lib/config";
@@ -14,7 +22,10 @@ export const Route = createRootRoute({
   head: () => ({
     meta: [
       { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
+      {
+        name: "viewport",
+        content: "width=device-width, initial-scale=1, viewport-fit=cover",
+      },
       { name: "theme-color", content: "#0b0716" },
       { name: "color-scheme", content: "dark" },
       { title: "Relay — creator trade plans, checked against the chain" },
