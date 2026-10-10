@@ -1,144 +1,173 @@
 ---
 name: Relay
-description: A theatre stage lit in Solana colors; each trade plan is one act, read on a flat programme sheet.
+description: A lit theatre stage where each real onchain trade plan is one act, read on a flat velvet programme plaque.
 colors:
-  velvet: "#0b0716"
-  velvet-2: "#140d24"
-  velvet-3: "#1c1430"
-  velvet-4: "#271d40"
-  chalk: "#f3eeff"
-  haze: "#b9afd6"
-  mute: "#9d93bf"
-  hairline: "rgba(243, 238, 255, 0.12)"
-  hairline-strong: "rgba(243, 238, 255, 0.22)"
+  velvet: "#1b1035"
+  velvet-deep: "#0f0820"
+  velvet-2: "#1d1236"
+  velvet-3: "#251746"
+  velvet-4: "#2f1e57"
+  ink-well: "#12091f"
+  plaque: "#170d2c"
+  glass: "rgba(36, 22, 70, 0.72)"
+  chalk: "#f6f1ff"
+  haze: "#b9aed8"
+  mute: "#a297c8"
+  hairline: "rgba(246, 241, 255, 0.14)"
+  hairline-strong: "rgba(246, 241, 255, 0.26)"
+  curtain: "#8a1734"
+  curtain-dark: "#3d0718"
+  curtain-light: "#c2304f"
+  brass: "#d6b26a"
+  limelight: "#ffd98a"
+  limelight-hover: "#ffe3a6"
+  bulb: "#fff3cf"
   sol-purple: "#9945ff"
   sol-purple-light: "#b98cff"
   sol-green: "#14f195"
   st-in: "#14f195"
-  st-above: "#f6bd55"
+  st-above: "#ff9b73"
   st-below: "#62d3f5"
-  st-ended: "#b3aacd"
-  st-unknown: "#c9c0e6"
+  st-ended: "#b9aed8"
+  st-unknown: "#d9d1f2"
   danger: "#ff7a86"
 typography:
   display:
-    fontFamily: "Big Shoulders Display Variable, Big Shoulders Display, Arial Narrow, sans-serif"
-    fontSize: "2.5rem"
+    fontFamily: "Big Shoulders Display Variable, Big Shoulders Display, sans-serif"
+    fontSize: "clamp(4rem, 22vw, 6rem)"
     fontWeight: 800
-    lineHeight: 0.95
-    letterSpacing: "0.01em"
+    lineHeight: 0.88
+    letterSpacing: "0.04em"
   headline:
-    fontFamily: "Big Shoulders Display Variable, Big Shoulders Display, Arial Narrow, sans-serif"
-    fontSize: "2.125rem"
+    fontFamily: "Big Shoulders Display Variable, Big Shoulders Display, sans-serif"
+    fontSize: "clamp(2.5rem, 11vw, 3.5rem)"
+    fontWeight: 800
+    lineHeight: 0.88
+    letterSpacing: "0.01em"
+  act-pair:
+    fontFamily: "Big Shoulders Display Variable, Big Shoulders Display, sans-serif"
+    fontSize: "clamp(2rem, 4.6dvh, 2.75rem)"
+    fontWeight: 800
+    lineHeight: 0.88
+    letterSpacing: "0.01em"
+  marquee-word:
+    fontFamily: "Big Shoulders Display Variable, Big Shoulders Display, sans-serif"
+    fontSize: "1.375rem"
+    fontWeight: 800
+    lineHeight: 0.88
+    letterSpacing: "0.14em"
+  title:
+    fontFamily: "Big Shoulders Display Variable, Big Shoulders Display, sans-serif"
+    fontSize: "1.75rem"
     fontWeight: 800
     lineHeight: 0.95
-    letterSpacing: "0.01em"
-  marquee:
-    fontFamily: "Big Shoulders Display Variable, Big Shoulders Display, Arial Narrow, sans-serif"
-    fontSize: "1.625rem"
-    fontWeight: 800
-    lineHeight: 0.9
-    letterSpacing: "0.32em"
-  title:
-    fontFamily: "Big Shoulders Display Variable, Big Shoulders Display, Arial Narrow, sans-serif"
+  section:
+    fontFamily: "-apple-system, BlinkMacSystemFont, SF Pro Text, system-ui, Segoe UI, Roboto, sans-serif"
     fontSize: "1.25rem"
     fontWeight: 700
-    lineHeight: 1.05
-    letterSpacing: "0.01em"
-  status:
-    fontFamily: "Schibsted Grotesk Variable, Schibsted Grotesk, system-ui, sans-serif"
-    fontSize: "1.25rem"
+  callout:
+    fontFamily: "-apple-system, BlinkMacSystemFont, SF Pro Text, system-ui, Segoe UI, Roboto, sans-serif"
+    fontSize: "1rem"
     fontWeight: 700
-    lineHeight: 1.2
+    fontFeature: "tnum, lnum"
   body:
-    fontFamily: "Schibsted Grotesk Variable, Schibsted Grotesk, system-ui, sans-serif"
-    fontSize: "0.9375rem"
+    fontFamily: "-apple-system, BlinkMacSystemFont, SF Pro Text, system-ui, Segoe UI, Roboto, sans-serif"
+    fontSize: "1.0625rem"
     fontWeight: 400
     lineHeight: 1.45
-    fontFeature: "\"tnum\" 1, \"lnum\" 1"
-  small:
-    fontFamily: "Schibsted Grotesk Variable, Schibsted Grotesk, system-ui, sans-serif"
-    fontSize: "0.875rem"
-    fontWeight: 400
-    lineHeight: 1.4
+  subhead:
+    fontFamily: "-apple-system, BlinkMacSystemFont, SF Pro Text, system-ui, Segoe UI, Roboto, sans-serif"
+    fontSize: "0.9375rem"
+    fontWeight: 600
   footnote:
-    fontFamily: "Schibsted Grotesk Variable, Schibsted Grotesk, system-ui, sans-serif"
+    fontFamily: "-apple-system, BlinkMacSystemFont, SF Pro Text, system-ui, Segoe UI, Roboto, sans-serif"
     fontSize: "0.8125rem"
     fontWeight: 400
-    lineHeight: 1.4
   label:
-    fontFamily: "Schibsted Grotesk Variable, Schibsted Grotesk, system-ui, sans-serif"
+    fontFamily: "-apple-system, BlinkMacSystemFont, SF Pro Text, system-ui, Segoe UI, Roboto, sans-serif"
     fontSize: "0.75rem"
     fontWeight: 600
-    letterSpacing: "0.02em"
+  mono:
+    fontFamily: "ui-monospace, SF Mono, Menlo, monospace"
+    fontSize: "0.9em"
 rounded:
   sm: "10px"
-  md: "14px"
-  lg: "20px"
+  md: "16px"
+  lg: "24px"
   pill: "999px"
+  arch: "999px 999px 24px 24px"
 spacing:
   s1: "4px"
   s2: "8px"
   s3: "12px"
   s4: "16px"
-  s5: "20px"
-  s6: "24px"
-  s7: "32px"
-  s8: "48px"
+  s5: "24px"
+  s6: "32px"
+  s7: "48px"
 components:
-  button-ghost:
-    backgroundColor: "transparent"
+  button-glass:
+    backgroundColor: "{colors.glass}"
     textColor: "{colors.chalk}"
-    typography: "{typography.body}"
-    rounded: "{rounded.pill}"
-    padding: "0 20px"
-    height: "48px"
-  button-ghost-hover:
-    backgroundColor: "{colors.velvet-4}"
-    textColor: "{colors.chalk}"
-  button-ghost-small:
-    typography: "{typography.small}"
+    typography: "{typography.subhead}"
     rounded: "{rounded.pill}"
     padding: "0 16px"
-    height: "40px"
+    height: "44px"
+  button-glass-on:
+    backgroundColor: "{colors.glass}"
+    textColor: "{colors.limelight}"
+    rounded: "{rounded.pill}"
+    height: "44px"
   button-primary:
-    backgroundColor: "{colors.sol-purple}"
+    backgroundColor: "{colors.limelight}"
     textColor: "{colors.velvet}"
-    typography: "{typography.body}"
+    typography: "{typography.subhead}"
     rounded: "{rounded.pill}"
-    padding: "0 20px"
-    height: "48px"
+    padding: "0 16px"
+    height: "44px"
+  button-primary-hover:
+    backgroundColor: "{colors.limelight-hover}"
+    textColor: "{colors.velvet}"
   button-primary-disabled:
-    backgroundColor: "{colors.velvet-3}"
+    backgroundColor: "transparent"
     textColor: "{colors.mute}"
+  button-icon:
+    backgroundColor: "{colors.glass}"
+    textColor: "{colors.chalk}"
     rounded: "{rounded.pill}"
-  act-panel:
+    size: "44px"
+  chip:
+    backgroundColor: "transparent"
+    textColor: "{colors.chalk}"
+    rounded: "{rounded.pill}"
+    padding: "4px 12px"
+  badge:
+    backgroundColor: "transparent"
+    textColor: "{colors.limelight}"
+    typography: "{typography.label}"
+    rounded: "{rounded.pill}"
+    padding: "0 8px"
+  status-plaque:
+    backgroundColor: "{colors.plaque}"
+    textColor: "{colors.chalk}"
+    rounded: "{rounded.md}"
+    padding: "12px 16px"
+  status-pill-in:
+    backgroundColor: "{colors.st-in}"
+    textColor: "{colors.velvet-deep}"
+    typography: "{typography.subhead}"
+    rounded: "{rounded.pill}"
+    padding: "3px 12px 3px 8px"
+  portrait:
+    backgroundColor: "{colors.ink-well}"
+    rounded: "{rounded.arch}"
+    width: "clamp(84px, 15dvh, 176px)"
+  script-sheet:
     backgroundColor: "{colors.velvet-2}"
     textColor: "{colors.chalk}"
     rounded: "{rounded.lg}"
-    padding: "16px 20px"
-  status-panel:
-    backgroundColor: "{colors.velvet-3}"
-    textColor: "{colors.chalk}"
-    padding: "12px 20px 16px"
-  banner:
-    backgroundColor: "{colors.velvet-2}"
+  tab-bar:
+    backgroundColor: "rgba(15, 8, 32, 0.96)"
     textColor: "{colors.haze}"
-    typography: "{typography.footnote}"
-    rounded: "{rounded.md}"
-    padding: "8px 12px"
-  badge-fictional:
-    textColor: "{colors.chalk}"
-    rounded: "6px"
-    padding: "3px 8px"
-  chip-cluster:
-    textColor: "{colors.haze}"
-    typography: "{typography.label}"
-    rounded: "{rounded.pill}"
-    padding: "3px 8px"
-  tabbar:
-    backgroundColor: "rgba(16, 10, 30, 0.82)"
-    textColor: "{colors.mute}"
     typography: "{typography.label}"
     height: "56px"
 ---
@@ -149,151 +178,167 @@ components:
 
 **Creative North Star: "The Lit Stage, the Flat Programme"**
 
-Relay is a theatre. The frame performs: a lettered RELAY marquee between two rows of chasing purple and green bulbs, a follow-spot cone hung from above, an opening curtain once per session and a closing curtain at the end of the feed. Inside the frame, each trade plan is one act on a flat velvet panel, and the data on that panel never moves, glows or decorates. The brand gradient belongs to the frame; the figures belong to the reader.
+Relay is a small theatre at night. A purple stage sits under a warm radial wash; burgundy velvet drapes in repeating folds are gathered at both wings with a brass hem and a bead fringe; a scalloped valance with a brass trim carries a lit marquee sign spelling RELAY between two rows of bulbs; a limelight cone falls from the valance onto the current act; a perspective floor recedes beneath it. The world is ported from the curtain-sol reference, with Solana purple and green admitted only where they carry meaning.
 
-Density is one plan per screen on a 440px column, read top to bottom in a fixed order: creator, pair, entry range, status, window, rationale, evidence, actions in the thumb zone. The world is dark velvet with a purple cast, not black, and its theatre materials are flat: the curtain halves, valance, closing drapes and desktop wings are plain velvet gradients falling to black, meeting at a single hairline. No fabric folds, fringe or raster drapery.
+Each trade plan is one act, one screen tall, snapped vertically at the reader's own pace. The act's cast (an arched brass portrait holding the creator's sigil and a name plate) lives in the theatre; the act's programme (entry status, range bar, current price, expiry) lives on a flat velvet plaque that no light, glow or gradient touches. The theatre carries the mood; the plaque carries the facts. Density is low: one act, one decision, read in a few seconds.
+
+Motion belongs to the theatre, never to the numbers. The curtain parts once per session, the spotlight swings onto each newly active act, the portrait rises into its light, and at the end the drapes close over a "Fin." and a curtain call. All of it is off under reduced motion.
 
 **Key Characteristics:**
-- Velvet near-black ground with a purple cast; three raised velvet steps for panels.
-- Solana purple and green confined to the frame: marquee bulbs, spotlight, card edge, active tab rule, primary button, focus ring, links.
-- Condensed display type for names and pairs; a neutral grotesk with tabular numerals for everything read.
-- Status carried by ink plus icon plus shape plus words, never by color alone.
-- Pill controls, softly rounded panels, hairline borders, drawn stroke icons.
-- Motion is the frame's (curtain, bulbs, spot); data moves only to report a change (range marker).
+- Theatre materials (velvet, curtain, brass, limelight) frame; a flat plaque (#170d2c) holds every number.
+- Big Shoulders Display 800 for the marquee, names, pairs and the finale; the system text stack on the Apple text scale for everything read.
+- Pills everywhere for controls; an arch (round top, 24px base corners) for portraits.
+- Solana green is the "In plan range" cue ink; the Solana gradient appears only on the active tab.
+- Creators are sigils, never faces.
+- 8pt spacing with 4pt half-steps; 44px minimum touch targets.
 
 ## Colors
 
-A velvet stage of purple-cast near-blacks, chalk and haze text, Solana brand light at the edges, and five quiet status inks.
+A night-purple stage, burgundy velvet and warm brass, lit by limelight, with Solana purple and green held back for meaning.
 
 ### Primary
-- **Solana Purple** (`sol-purple`): the frame's light. Spotlight cone, marquee sign glow, curtain-side warmth of the brand gradient, text selection. Never fills a data surface.
-- **Solana Green** (`sol-green`): the frame's other light and the system's interactive accent: links, focus outline, text caret, the "watched" star and toggled-on button state, alternating marquee bulbs.
-- **Brand Gradient** (`linear-gradient(100deg, #b57bff 0%, #8f7dff 40%, #3fe0b6 80%, #14f195 100%)`): the primary button fill and the 2px active-tab rule. Nothing else.
-- **Brand Edge** (`linear-gradient(140deg, rgba(153,69,255,0.6), rgba(153,69,255,0.12) 45%, rgba(20,241,149,0.35))`): the 1px border of the act panel and the marquee's bottom rule; the only gradient that touches a data container, and only at its perimeter.
+- **Limelight** (`limelight`): the light of the stage. The primary button fill, links, focus ring, text selection, caret, badge text, the marquee word and the "Fin." glow. Its hover lifts to **Pale Limelight** (`limelight-hover`).
+- **Brass** (`brass`): the trim of the theatre. Valance hem, drape hems and bead fringe, portrait and avatar frames, marquee sign border, badge border, the script sheet's top edge, the scrollbar thumb (at 40%), and the tab bar's top hairline (at 32%).
 
 ### Secondary
-- **Lilac Lamp** (`sol-purple-light`): the lit purple bulb in the marquee.
+- **Curtain Burgundy** (`curtain`), **Curtain Shadow** (`curtain-dark`), **Curtain Highlight** (`curtain-light`): only in the drape folds (a 56px repeating dark→mid→light→mid→dark band) and the valance scallops. Never behind text.
+- **Marquee Bulb** (`bulb`): the bulb bodies, haloed in limelight.
 
-### Tertiary (status inks)
-- **In-Range Green** (`st-in`): "In plan range". Shares the Solana green hue deliberately; on the status panel it reads as a filled check icon, a band and words.
-- **Passed Amber** (`st-above`): "Original entry passed"; also the icon and border tint of warning banners (stale data, service trouble).
-- **Below Cyan** (`st-below`): "Below plan range".
-- **Ended Lavender** (`st-ended`): "Plan expired" and "Closed by creator".
-- **Unknown Lilac** (`st-unknown`): "Price may be outdated" and "Price unavailable"; always paired with a dashed border and dashed track.
-- **Error Rose** (`danger`): reserved for errors; defined in tokens and not yet used on a shipped surface.
+### Tertiary
+- **Solana Green** (`sol-green` / `st-in`): the "In plan range" cue ink: the filled status pill and its range band. One of the five sigil inks.
+- **Solana Purple** (`sol-purple`, `sol-purple-light`): the gradient's start on the active tab indicator; the lighter purple is a sigil ink.
 
 ### Neutral
-- **Velvet** (`velvet`): the stage ground, page background, valance.
-- **Velvet 2** (`velvet-2`): the act panel, banners, watchlist rows, the light side of curtain and drape gradients.
-- **Velvet 3** (`velvet-3`): the status panel inside the act, tally chips, disabled primary button.
-- **Velvet 4** (`velvet-4`): ghost button hover fill, scrollbar thumb.
-- **Chalk** (`chalk`): primary text and every figure; the range marker; the "new plans" pill fill.
-- **Haze** (`haze`): secondary text: meta lines, range labels, window line, banner body.
-- **Mute** (`mute`): tertiary text: inactive tabs, definition terms, disabled labels, absent-evidence lines.
-- **Hairline / Hairline Strong** (`hairline`, `hairline-strong`): 1px dividers, chip and button outlines, curtain meeting edges.
+- **Stage Velvet** (`velvet`): page background; under the theatre's radial (#2a1752 at top, velvet at 55%, velvet-deep at the edge).
+- **Deep Velvet** (`velvet-deep`): the radial's edge; text on limelight and on the filled green pill.
+- **Programme Plaque** (`plaque`): the flat status plaque, and the 3px knockout ring around the range marker.
+- **Velvet Steps** (`velvet-2`, `velvet-3`, `velvet-4`): the script sheet and watchlist rows sit on velvet-2.
+- **Ink Well** (`ink-well`): the inside of portrait and avatar frames.
+- **Glass** (`glass`): glass pill fill with a 12px backdrop blur.
+- **Chalk** (`chalk`): primary text. **Haze** (`haze`): secondary text, hints, bylines, inactive tabs. **Mute** (`mute`): tertiary text and disabled labels.
+- **Hairline** (`hairline`, `hairline-strong`): 1px borders, dividers, dashed disabled outlines, the sheet handle.
+
+### Status inks
+The fixed status vocabulary maps to five tones, each always paired with an icon, a pill shape and words: in (`st-in`, filled pill), above (`st-above`, ember outline), below (`st-below`, cyan outline), ended (`st-ended`, haze outline, for expired and closed), unknown (`st-unknown`, dashed outline, for stale and unavailable prices). `danger` is reserved for destructive or error text. Ember (`st-above`) also marks warning banners and stage error details.
 
 ### Named Rules
-**The Frame-Only Brand Rule.** Solana purple, green and their gradients light the frame (marquee, spot, curtain, tab rule, primary button, card perimeter, focus). They never fill, tint or glow behind a figure, a status headline or a rationale.
+**The Flat Programme Rule.** Data never sits on a gradient or under a glow. Every price, range and status sits on the flat plaque or plain velvet; theatre materials, the spotlight and every text-shadow stay off it.
 
-**The Ink-Plus-Shape Rule.** A status ink never appears alone: it always arrives with its icon, its words, a hint line and a tinted 1px top rule on the status panel; price states add a dashed rule and dashed track.
+**The Green Means In Rule.** Solana green appears as cue ink only: the "In plan range" pill and band (and as one sigil ink). The purple→green gradient appears in exactly one place: the active tab's 2px indicator.
+
+**The Words Plus Shape Rule.** A status is never color alone: icon, pill shape (filled, outlined, dashed) and the exact headline words travel together.
 
 ## Typography
 
-**Display Font:** Big Shoulders Display (with Arial Narrow, sans-serif)
-**Body Font:** Schibsted Grotesk (with system-ui, sans-serif)
-**Label/Mono Font:** ui-monospace / SF Mono only for `code` and `kbd`
+**Display Font:** Big Shoulders Display Variable (with Big Shoulders Display, sans-serif)
+**Body Font:** the system text stack (-apple-system, BlinkMacSystemFont, SF Pro Text, system-ui, Segoe UI, Roboto, sans-serif)
+**Label/Mono Font:** ui-monospace, SF Mono, Menlo (code and kbd only)
 
-**Character:** A tall, condensed theatre-bill face for RELAY, pairs, names and stage titles, set against a plain newsprint grotesk that does all the reading. Every number is tabular and lining.
+**Character:** A condensed, heavy marquee face for what is billed (RELAY, creator names, pairs, "Fin."), set tight at 0.88 line height; the platform's own text face for everything read, on Apple's text-style sizes.
 
 ### Hierarchy
-- **Display** (800, 2.5rem, 0.95): stage titles: page titles, the finale "caught up" line, service-state headlines (2.25rem there).
-- **Headline** (800, 2.125rem, 0.95): the trading pair on each act, the largest thing on the card. On viewports under 860px tall it is set at 2.25rem.
-- **Marquee** (800, 1.625rem, 0.32em tracking): the RELAY sign only.
-- **Title** (700, 1.25rem, 1.05): creator name in the act byline, truncated with an ellipsis.
-- **Status** (Schibsted 700, 1.25rem, 1.2): the entry-status headline, in its ink.
-- **Body** (400, 0.9375rem, 1.45): rationale and general reading text; page prose capped at 62ch. Lead (1rem) for the entry range.
-- **Small / Footnote** (0.875rem / 0.8125rem): price line, hint, window line, evidence, banners, meta.
-- **Label** (600, 0.75rem, 0.02em): tab labels, cluster chip, range labels, chain-clock chip.
+- **Display** (800, clamp(4rem, 22vw, 6rem), 0.88, +0.04em): the opening marquee sign; "Fin." uses the same face at clamp(5rem, 30vw, 6rem) in limelight.
+- **Headline** (800, clamp(2.5rem, 11vw, 3.5rem), 0.88): page titles and, at clamp(2.25rem, 9vw, 3rem), stage message titles.
+- **Act Pair** (800, clamp(2rem, 4.6dvh, 2.75rem), 0.88; 3.25rem at ≥900px): the pair on each act ("SOL / USDC"). Portrait name plates use the same face at min(2rem, 21cqi).
+- **Marquee Word** (800, 1.375rem, +0.14em): RELAY in the valance sign.
+- **Title** (800, 1.75rem, 0.95): the script sheet title.
+- **Section** (700, 1.25rem): page section headings.
+- **Body** (400, 1.0625rem, 1.45): default text. Rationale runs at subhead size, max 34ch (52ch on desktop), clamped to two lines.
+- **Callout** (700, 1rem, tabular): the current price ("Now $X").
+- **Subhead** (600, 0.9375rem): buttons, status pill (700), chips, ranges.
+- **Footnote** (0.8125rem): bylines, hints, price age, banners.
+- **Label** (600, 0.75rem): tab labels, badges, version line, range labels, Review's reason.
 
 ### Named Rules
-**The Two Voices Rule.** Display type names things (RELAY, pairs, creators, stage titles); the grotesk reports things. A number is never set in the display face except as part of a pair name.
+**The Tabular Read Rule.** Every number a reader compares (prices, ranges, counts, countdowns) uses tabular lining numerals.
 
-**The Tabular Rule.** Prices, ranges, times and counts use tabular lining numerals so values line up and don't jitter when they update.
+**The Billing Face Rule.** Big Shoulders is for what is billed on the marquee: the brand, names, pairs, titles, "Fin.". It never sets a price, a hint or a sentence.
 
 ## Layout
 
-A fixed three-row app shell: a 56px marquee (plus safe-area inset), a stage that fills the rest, and a 56px tab bar (plus safe-area inset). The feed is a vertical scroll-snap list, one act per full stage height, with mandatory snap and stop-always; no auto-advance. Acts carry 12px outer padding; the panel pads 16px vertical and 20px horizontal, with a 12px internal gap.
+A fixed three-row app: the valance (56px plus the top safe area), the stage (fills), the tab bar (56px plus the bottom safe area). Drapes occupy the wings at 7.5% each (`--wing`), and every column pads past them (wing + 8–24px).
 
-Spacing runs on a 4/8 grid (4, 8, 12, 16, 20, 24, 32, 48). On viewports under 860px tall the card tightens (panel padding 12/16px, gap 8px) so the whole act fits without internal scroll; under 760px the rationale clamps to one line instead of two. The action row is sticky to the panel's bottom edge only when the card must scroll, keeping Watch in the thumb zone.
+The feed is native vertical scroll-snap (mandatory, stop always), one act per full stage height, no auto-advance. On phones the act is a centred single column: portrait, byline, pair and range, the status plaque (stretched, max 420px), expiry beside the status pill, rationale, then actions pushed to the thumb zone with `margin-top: auto`. Gaps are 8px, growing to 12px on tall screens (≥900px high); below 760px high the rationale clamps to one line, below 680px the evidence line hides, and when a banner shows the portrait shrinks to 12dvh so the plan's terms keep their room.
 
-At 900px and wider the shell becomes a three-column grid: a 440px centered column between two flat wings that fall from black to transparent, the marquee spanning full width, the tab bar boxed by side hairlines, and a keyboard hint (J/K, arrows, W) fixed bottom-right. Secondary pages (Search, My Plans, Account) are a single 600px column with 32/20/48px padding.
+At ≥900px wide the act becomes a two-column stage that stands on the floor horizon: cast column 240px left, programme up to 460px right, left-aligned, bottom-aligned, with a bottom padding of 20dvh so nothing crosses the floor's edge; the spotlight shifts 230px left onto the portrait, and a keyboard hint appears bottom right. Content pages cap at 600px; the tab list at 560px; the script sheet at 520px (a bottom sheet on phones, a centred brass-bordered dialog on desktop).
+
+Spacing is an 8pt grid with 4pt half-steps (4, 8, 12, 16, 24, 32, 48).
 
 ## Elevation & Depth
 
-Flat by construction. Depth comes from velvet steps (velvet to velvet-4) and light, not shadow: the follow-spot cone and a soft purple radial wash at the top of the shell give the stage its volume, and the active act receives a faint lift (a radial purple tint across its top 140px plus a 1px inner top highlight) that fades in over 600ms. Data panels carry no shadow.
+Depth is theatrical: layered planes (stage radial, floor in perspective, drapes, valance, tab bar) rather than card elevation. Shadows are dark and soft, used to seat materials on the stage; warm glows belong only to light sources (bulbs, marquee, limelight button, portrait frame) and never to data.
 
 ### Shadow Vocabulary
-- **Marquee sign glow** (`text-shadow: 0 0 14px rgba(153,69,255,0.75), 0 0 2px rgba(243,238,255,0.6)`): the RELAY letters only; it is the lit sign.
-- **Bulb glow** (`box-shadow: inset 0 0 0 1px rgba(0,0,0,0.35), 0 0 6px 1px <lamp glow>`): each lit marquee bulb.
-- **Finale title glow** (`text-shadow: 0 0 22px rgba(153,69,255,0.55)`): the end-of-feed title, a frame moment.
-- **Floating pill** (`box-shadow: 0 6px 18px rgba(0,0,0,0.45)`): the chalk "new plans" pill that floats over the feed; the one surface that hovers.
-- **Marker knockout** (`box-shadow: 0 0 0 3px var(--velvet-3)`): separates the chalk range marker from the band; a cut, not a lift.
+- **Valance drop** (`box-shadow: 0 6px 18px rgba(0,0,0,0.5)`): the valance over the stage.
+- **Marquee glow** (`box-shadow: 0 4px 18px -6px rgba(0,0,0,0.7), 0 0 28px -10px rgba(255,217,138,0.6)`): the valance sign; the opening sign uses `0 0 60px -10px rgba(255,217,138,0.55)`.
+- **Bulb halo** (`box-shadow: 0 0 6px 2px rgba(255,217,138,0.85)`): marquee bulbs (4px 1px at the valance size).
+- **Portrait lift** (`box-shadow: 0 20px 60px -20px rgba(0,0,0,0.8), 0 0 40px -12px rgba(255,217,138,0.45)`): the arched frame in the light.
+- **Plaque seat** (`box-shadow: 0 16px 40px -24px rgba(0,0,0,0.9)`): the status plaque. Dark only.
+- **Limelight press** (`box-shadow: 0 8px 24px -10px rgba(255,217,138,0.7)`): the primary button.
+- **Sheet rise** (`box-shadow: 0 -20px 60px -20px rgba(0,0,0,0.8)`): the script sheet, over a 50% black backdrop.
+- **Wing shadow**: drapes cast a 90° gradient from rgba(8,3,18,0.55) to transparent across wing + 28px.
 
 ### Named Rules
-**The Glow Belongs To Lamps Rule.** Glow is reserved for things that are lights in the theatre: the marquee sign, the bulbs, the spot and the finale title. Panels, buttons, figures and status headlines are never lit from within.
+**The Light Sources Glow Rule.** Only things that emit light (bulbs, the marquee word, the limelight button, the portrait in the spotlight, "Fin.") carry a warm glow. Plaques and numbers sit in a dark seat shadow or none.
 
 ## Shapes
 
-Soft, consistent rounding with pill controls. Panels use 20px (act), 14px (banners, watchlist rows) and 10px (marquee sign, focus shape on tabs); every button, chip, tally item and the range track and band are full pills (999px). The fictional badge and `kbd` keys use a tighter 6px. Borders are 1px hairlines; dashed borders are a semantic signal (unavailable price, fictional/preview content, disabled actions), not decoration. Theatre geometry is rectangular and flat: curtain halves, drapes and wings are straight-edged velvet panels meeting on one hairline. Icons are a single drawn stroke family on a 24 grid, 1.75 stroke, round caps and joins; the in-range status uses a solid disc with a knocked-out check, and the watched star fills.
+Controls are full pills (999px): buttons, chips, badges, status pills, the range track and band, the cluster chip, the skip link. Portraits are arches: a fully rounded top over 24px base corners, framed by a 2px brass border; avatars are brass-ringed circles; stage message placeholders are the same arch in a 2px dashed brass. Containers use 16px (plaque, watchlist rows) or 24px (sheet, sign); small boxes (valance sign, banners, stage details) use 10px. The valance is scalloped (72px radial scallops) over a 3px brass hem; drapes end in a 6px brass inset hem and a 14px bead fringe. Dashed strokes mean "not known or not available": unknown status, offline plaque, priceless range track, disabled buttons.
 
 ## Components
 
 ### Buttons
-Full-pill, 48px tall, plain and tactile; the gradient is earned only by the primary action.
-- **Shape:** full pill (999px), 48px min height, 20px horizontal padding; small variant 40px tall, 16px padding, small type.
-- **Primary:** brand gradient fill, velvet text, weight 600, no border. Hover raises brightness to 108%.
-- **Ghost (default):** transparent with a strong hairline border, chalk text. Hover fills velvet-4 and brightens the border.
-- **Toggled on (Watch):** green-tinted border and green text with a filled star.
-- **Disabled:** mute text and a dashed border; the disabled primary drops its gradient for velvet-3. A disabled action always shows its reason in footnote type directly beneath.
-- **Transitions:** background, border and color over 220ms on the expo-out curve.
+Glass and limelight pills that feel like lit tickets.
+- **Shape:** full pill (999px), minimum height 44px, 16px side padding, subhead 600; small variant 36px high, 12px padding, footnote size.
+- **Primary (limelight):** limelight fill, velvet text, no border, limelight press shadow. Hover (hover-capable devices) lifts to pale limelight. Disabled turns transparent with a 1px dashed strong hairline and mute text, and is never hidden: its reason sits beneath it.
+- **Glass:** glass fill with a 12px backdrop blur, 1px hairline border, chalk text. Hover darkens to rgba(52,33,98,0.86) with a strong hairline. Pressed/on state (`data-on`) borders in 60% limelight with limelight text. Disabled uses mute text and a dashed border.
+- **Icon:** a 44px glass circle. On phones the Watch button collapses to this star circle with its name kept in the accessible label.
+- **Press:** all buttons scale to 0.97 on active (100ms); color transitions run 200ms on the house ease.
+- **Focus:** 2px limelight outline, 3px offset (global).
 
-### Chips
-- **Cluster chip:** pill with strong hairline border, haze label type, pinned right in the marquee.
-- **Chain clock / tally:** small pills with hairline border on velvet-3 or transparent; figures inside in chalk, tabular.
-- **Fictional badge:** 6px-rounded, dashed chalk border, uppercase 0.6875rem 700 with 0.08em tracking. It is a mandatory truth label for invented content, not an ornamental tag.
+### Chips and Badges
+- **Chip:** hairline-bordered pill, 4px 12px, chalk text; quiet variant in haze at footnote size; button variant 40px high on glass.
+- **Badge:** brass-bordered pill with limelight label text (0.75rem 600), used for "Demo" and "Fictional preview".
 
-### Cards / Containers
-- **Act panel:** velvet-2 fill, 20px radius, 1px brand-edge gradient border, flat. Internally scrolls only when it must, with scrollbars hidden. Offline data desaturates the whole panel to 25%.
-- **Status panel:** full-bleed band inside the act on velvet-3, with a 1px top rule tinted 55% of its status ink (dashed for price states). Holds icon + status headline, the range bar, "Now $X · updated Ns ago", and a chalk hint line.
-- **Banner:** velvet-2, 14px radius, amber-tinted border and amber alert icon for warnings; dashed chalk border for the fictional preview notice.
+### Status Plaque (signature)
+The programme. A flat #170d2c plaque, 16px radius, 1px hairline, 12px 16px padding, dark seat shadow, left-aligned. It holds the status pill (20px icon plus the exact headline), the expiry pill beside it, the always-visible hint, the range bar and "Now $X · updated Ns ago". The pill is filled Solana green with deep velvet text for "In plan range", outlined at 1.5px in the tone ink otherwise, dashed for unknown prices. The plaque border turns dashed when offline.
 
-### Inputs / Fields
-No text inputs ship yet. The global focus treatment is a 2px Solana-green outline offset 2px; the green caret is set system-wide.
+### Range Bar
+An 8px pill track at 8% chalk (dashed outline when there is no price); the plan band fills at 34% of the tone ink with a 70% inner outline; a 4×22px chalk marker with a 3px plaque knockout ring marks the price, with a chalk arrowhead when clamped beyond the track. Labels are caption, haze, tabular. The marker's left position eases in 250ms; nothing else moves.
+
+### Portrait and Sigil (signature)
+An arched brass frame (3:4) over the ink well, holding the creator's deterministic sigil: a 5×5 mirrored grid of rounded cells inside a #2A1A4F disc, inked from five colors (#F6D98B, #14F195, #FF9466, #B98CFF, #F4EEFF). A gradient name plate at the base sets the stage name in the billing face. Ended plans dim the sigil (grayscale 0.4, brightness 0.9).
 
 ### Navigation
-- **Marquee:** 56px, velvet gradient from #120a22, brand-edge bottom rule, centered RELAY sign between two rows of 6px bulbs alternating lilac and mint, chasing in three phases over 2.7s.
-- **Tab bar:** four equal tabs (Feed, Search, My Plans, Account), stroke icon over a 0.75rem 600 label. Inactive mute, hover haze, current chalk with a 2px brand-gradient rule on the top edge spanning the middle 44%. Background is translucent velvet with a 14px backdrop blur over a top hairline.
+- **Valance:** scalloped burgundy with a brass hem; centre is the small marquee sign (RELAY between two 7-bulb rows, brass border, ink-well fill), right is the brass-ringed cluster chip.
+- **Tab bar:** four tabs (Feed, Search, My Plans, Account) on rgba(15,8,32,0.96) under a 32% brass hairline; labels at 0.75rem 600 in haze, chalk on hover and when current; the current tab carries a 2px Solana gradient indicator on its top edge (inset 28% each side).
 
-### Range Bar (signature)
-An 8px pill track (chalk at 8% alpha), the plan's entry band as a pill in its status ink at 34% fill with a 70% inner outline, and a 4×22px chalk marker knocked out of the band by a 3px velvet-3 ring. The marker slides to the price over 250ms; when the price is beyond the range it clamps to the edge with a small chalk arrowhead. Without a price the track turns dashed and the band and marker disappear. Range labels sit beneath in tabular label type.
+### Script Sheet
+The plan's full script (Layer 2): a velvet-2 bottom sheet with a 2px brass top edge, 24px top corners, a 40×4px handle, rising 260ms. Terms and history are hairline-ruled definition rows (7.5rem label column). History entries hang off a 50% brass left rule. On desktop it centres with a full brass border and no handle.
 
-### Curtain and Finale (signature)
-The opening curtain is two flat velvet halves (black to velvet-2) meeting on a 1px hairline, with a 44px velvet valance. Once per session, the halves part and narrow over 1.05s on the curtain curve after a 0.12s hold, and the valance lifts away; the curtain never receives pointer events and is removed entirely when reduced motion or a prior viewing applies. At the end of the feed the finale card draws two matching drapes in from the wings over 700ms, framing a "caught up" title, a tally of statuses and the next actions.
+### Stage Messages and Finale
+Empty, loading and error states stand on the stage: a dashed brass arch, a headline title, haze text, glass actions; errors tint the arch ember. The finale closes the drapes over the stage, shows "Fin." in limelight, a curtain call of brass-ringed sigil avatars, a tally of plans by status on dark pills, the watched plans as chips, and replay and discovery actions.
+
+### Motion
+House ease is cubic-bezier(0.16, 1, 0.3, 1); state transitions take 200ms. Theatre motion runs through motion/react: the spotlight swings in from the scroll direction (±14°, 0.9s); the portrait rises into its light on activation (from 18px down, 0.55 opacity, 0.96 scale, 0.9s); the finale drapes close in 1.1s and the curtain call drops in staggered by 0.12s. The opening (CSS keyframes, ≤1.2s, once per session, skippable, never blocks input) gathers the drapes to scaleX(0.14) with ±2° skew and shrinks the sign into the valance. The marquee bulbs chase in 1.6s steps. Under reduced motion all of it stops, resolved hydration-safely (motion is assumed on at render and switched off once mounted).
 
 ## Do's and Don'ts
 
 ### Do:
-- **Do** keep every data surface flat on velvet-2 / velvet-3; let the brand gradient touch only its 1px perimeter.
-- **Do** pair each status ink with its icon, its exact words, a hint and a tinted top rule; use dashed rule and dashed track for price states.
-- **Do** set the pair and creator name in Big Shoulders Display and every figure in Schibsted Grotesk with tabular lining numerals.
-- **Do** use pill buttons at 48px (40px small) with the brand gradient reserved for the single primary action, and show a disabled action's reason beneath it.
-- **Do** use dashed borders to mean "not real or not available": fictional content, missing price, unavailable action.
-- **Do** build theatre pieces (curtain, drapes, wings, valance) as flat velvet gradients falling to black, meeting on a single hairline.
-- **Do** switch off the curtain, bulb chase, spotlight easing and smooth scroll under reduced motion.
+- **Do** put every price, range, status and countdown on the flat plaque (#170d2c) or plain velvet.
+- **Do** show status as icon, pill shape and the exact vocabulary together: "In plan range", "Original entry passed", "Below plan range", "Plan expired", "Closed by creator", "Price may be outdated", "Price unavailable".
+- **Do** use tabular numerals for every compared number.
+- **Do** represent every creator by their sigil in a brass arch or ring.
+- **Do** keep disabled actions visible with their reason beneath them.
+- **Do** keep touch targets at 44px minimum and focus as a 2px limelight outline offset 3px.
+- **Do** run theatre motion through motion/react with the house ease, and switch it all off under reduced motion via the hydration-safe calm-motion hook.
+- **Do** use the ui-monospace stack for code and kbd only.
 
 ### Don't:
-- **Don't** put a glow, gradient fill or spotlight over a price, range, status headline or rationale.
-- **Don't** draw fabric: no fold stripes, bead fringe, gathered drapes or raster curtain imagery.
-- **Don't** use red for anything but errors, or Solana green on a status other than "In plan range" and interactive affordances.
-- **Don't** let the curtain block input or replay within a session.
-- **Don't** introduce a second icon family; glyphs are the 24-grid, 1.75-stroke drawn set, with solid fill reserved for the in-range check disc and the watched star.
+- **Don't** set data on a gradient, under the spotlight cone, or under any glow or text-shadow.
+- **Don't** use Solana green for anything but the "In plan range" cue (and sigil ink), or the Solana gradient anywhere but the active tab indicator.
+- **Don't** show faces or photographs of creators; sigils only.
+- **Don't** auto-advance acts, add a ticker, or add a particle burst.
+- **Don't** animate anything continuously near prices; the bulbs chase only in the valance.
+- **Don't** say "Eligible" or invent status words outside the fixed vocabulary.
+- **Don't** set prices, hints or sentences in Big Shoulders Display.

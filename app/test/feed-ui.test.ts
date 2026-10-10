@@ -2,6 +2,7 @@ import type { EntryStatus } from "@relay/domain";
 import { describe, expect, test } from "bun:test";
 import {
   ApiContractError,
+  fetchPlanVersions,
   parseFeedPage,
   type FeedPage,
   type PlanCardView,
@@ -20,6 +21,7 @@ import {
   formatUsdText,
   shortAddress,
 } from "../src/lib/format";
+import { stageName } from "../src/lib/labels";
 import { chainNowMs, liveEntry } from "../src/lib/live-status";
 import { rangeGeometry } from "../src/lib/range";
 import {
@@ -212,6 +214,71 @@ describe("api contract", () => {
     expect(() => parseFeedPage(badUnits)).toThrow(
       "feed.items[1].version.entryLowUnits",
     );
+  });
+
+  test("keeps the committed reference price, and null when the text has none", () => {
+    const withRef = wire();
+    withRef.items[0].version.text.refPrice = {
+      units: "108938245",
+      display: "108.938245",
+      source: "jupiter-price-v3",
+    };
+    const parsed = parseFeedPage(withRef);
+    expect(parsed.items[0].version.text?.refPrice).toEqual({
+      display: "108.938245",
+      source: "jupiter-price-v3",
+    });
+    expect(parsed.items[1].version.text?.refPrice).toBeNull();
+  });
+
+  test("plan versions come back oldest first and are validated", async () => {
+    const v = wire().items[0].version;
+    const realFetch = globalThis.fetch;
+    const reply = (body: unknown) =>
+      Object.assign(
+        async () => new Response(JSON.stringify(body), { status: 200 }),
+        { preconnect: realFetch.preconnect },
+      );
+    try {
+      globalThis.fetch = reply({
+        versions: [
+          { ...v, version: 1 },
+          { ...v, version: 2 },
+        ],
+      });
+      expect(
+        (await fetchPlanVersions("/api", "pda")).map((x) => x.version),
+      ).toEqual([1, 2]);
+      globalThis.fetch = reply({ versions: [{ ...v, termsHash: 7 }] });
+      await expect(fetchPlanVersions("/api", "pda")).rejects.toThrow(
+        "plan.versions[0].termsHash",
+      );
+    } finally {
+      globalThis.fetch = realFetch;
+    }
+  });
+});
+
+describe("labels", () => {
+  test("the portrait plate drops a demo creator's suffix; the badge carries it", () => {
+    const demo = card({
+      creator: {
+        address: "a",
+        handle: "mika_demo",
+        displayName: "Mika Tan (demo)",
+        isDemo: true,
+      },
+    });
+    expect(stageName(demo)).toBe("Mika Tan");
+    const real = card({
+      creator: {
+        address: "a",
+        handle: null,
+        displayName: "Sam (demo)",
+        isDemo: false,
+      },
+    });
+    expect(stageName(real)).toBe("Sam (demo)");
   });
 });
 

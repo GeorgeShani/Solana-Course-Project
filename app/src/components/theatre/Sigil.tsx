@@ -1,7 +1,7 @@
 /**
  * Deterministic mask-like glyph for a creator, used instead of uploaded portraits. The same seed
- * gives the same sigil on the server and the client. Ported from the curtain-sol prototype and
- * recolored in the Solana palette.
+ * gives the same sigil on the server and the client. Ported from the curtain-sol theatre; two of its
+ * inks are Solana green and purple.
  */
 function fnv1a(input: string) {
   let hash = 0x811c9dc5;
@@ -12,7 +12,7 @@ function fnv1a(input: string) {
   return hash;
 }
 
-const INKS = ["#14F195", "#B98CFF", "#7CE3FF", "#F3EEFF", "#5EF0B8"];
+const INKS = ["#F6D98B", "#14F195", "#FF9466", "#B98CFF", "#F4EEFF"];
 
 function design(seed: string) {
   let state = fnv1a(seed);
@@ -32,13 +32,18 @@ function design(seed: string) {
   return { ink, cells, clip: `sigil-${fnv1a(seed).toString(36)}` };
 }
 
-export function Sigil({ seed, size = 40 }: { seed: string; size?: number }) {
+export function Sigil({
+  seed,
+  size = 40,
+}: {
+  seed: string;
+  size?: number | string;
+}) {
   const { ink, cells, clip } = design(seed);
   return (
     <svg
       viewBox="0 0 100 100"
-      width={size}
-      height={size}
+      style={{ width: size, height: size }}
       aria-hidden="true"
       focusable="false"
     >
@@ -51,9 +56,9 @@ export function Sigil({ seed, size = 40 }: { seed: string; size?: number }) {
         cx="50"
         cy="50"
         r="48"
-        fill="#1C1430"
+        fill="#2A1A4F"
         stroke={ink}
-        strokeWidth="2.5"
+        strokeWidth="2"
       />
       <g clipPath={`url(#${clip})`} fill={ink}>
         {cells.map(({ x, y }) => (

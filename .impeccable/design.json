@@ -1,176 +1,197 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-10T13:20:00+04:00",
+  "generatedAt": "2026-10-10T13:56:00+04:00",
   "title": "Design System: Relay",
   "extensions": {
     "colorMeta": {
-      "velvet": { "role": "neutral", "displayName": "Velvet", "canonical": "#0b0716", "tonalRamp": ["#05030b", "#0b0716", "#140d24", "#1c1430", "#271d40", "#3a2d5a", "#5a4c80", "#8a7fb0"] },
-      "velvet-2": { "role": "neutral", "displayName": "Velvet 2", "canonical": "#140d24", "tonalRamp": ["#05030b", "#0b0716", "#140d24", "#1c1430", "#271d40", "#3a2d5a", "#5a4c80", "#8a7fb0"] },
-      "velvet-3": { "role": "neutral", "displayName": "Velvet 3", "canonical": "#1c1430", "tonalRamp": ["#05030b", "#0b0716", "#140d24", "#1c1430", "#271d40", "#3a2d5a", "#5a4c80", "#8a7fb0"] },
-      "velvet-4": { "role": "neutral", "displayName": "Velvet 4", "canonical": "#271d40", "tonalRamp": ["#05030b", "#0b0716", "#140d24", "#1c1430", "#271d40", "#3a2d5a", "#5a4c80", "#8a7fb0"] },
-      "chalk": { "role": "neutral", "displayName": "Chalk", "canonical": "#f3eeff", "tonalRamp": ["#2a2440", "#4a4268", "#6c6490", "#9d93bf", "#b9afd6", "#d6cfee", "#e8e2fa", "#f3eeff"] },
-      "haze": { "role": "neutral", "displayName": "Haze", "canonical": "#b9afd6", "tonalRamp": ["#2a2440", "#4a4268", "#6c6490", "#9d93bf", "#b9afd6", "#d6cfee", "#e8e2fa", "#f3eeff"] },
-      "mute": { "role": "neutral", "displayName": "Mute", "canonical": "#9d93bf", "tonalRamp": ["#2a2440", "#4a4268", "#6c6490", "#9d93bf", "#b9afd6", "#d6cfee", "#e8e2fa", "#f3eeff"] },
-      "hairline": { "role": "neutral", "displayName": "Hairline", "canonical": "rgba(243, 238, 255, 0.12)" },
-      "hairline-strong": { "role": "neutral", "displayName": "Hairline Strong", "canonical": "rgba(243, 238, 255, 0.22)" },
-      "sol-purple": { "role": "primary", "displayName": "Solana Purple", "canonical": "#9945ff", "tonalRamp": ["#1e0a3d", "#36146e", "#5a20b0", "#7b33e6", "#9945ff", "#b98cff", "#d4b8ff", "#ece0ff"] },
-      "sol-purple-light": { "role": "secondary", "displayName": "Lilac Lamp", "canonical": "#b98cff", "tonalRamp": ["#1e0a3d", "#36146e", "#5a20b0", "#7b33e6", "#9945ff", "#b98cff", "#d4b8ff", "#ece0ff"] },
-      "sol-green": { "role": "primary", "displayName": "Solana Green", "canonical": "#14f195", "tonalRamp": ["#032e1d", "#065436", "#0a7d50", "#0fb06f", "#14f195", "#5ef6b6", "#a4fad5", "#dcfdee"] },
-      "st-in": { "role": "tertiary", "displayName": "In-Range Green", "canonical": "#14f195", "tonalRamp": ["#032e1d", "#065436", "#0a7d50", "#0fb06f", "#14f195", "#5ef6b6", "#a4fad5", "#dcfdee"] },
-      "st-above": { "role": "tertiary", "displayName": "Passed Amber", "canonical": "#f6bd55", "tonalRamp": ["#3a2606", "#62420c", "#8f6114", "#c28620", "#f6bd55", "#f9d18a", "#fbe3b8", "#fdf3e0"] },
-      "st-below": { "role": "tertiary", "displayName": "Below Cyan", "canonical": "#62d3f5", "tonalRamp": ["#082f3b", "#0f5163", "#18768f", "#2aa3c6", "#62d3f5", "#93e1f8", "#c0eefb", "#e6f8fd"] },
-      "st-ended": { "role": "tertiary", "displayName": "Ended Lavender", "canonical": "#b3aacd", "tonalRamp": ["#28243a", "#433d5c", "#625a80", "#8a82a8", "#b3aacd", "#cbc5de", "#e0dcec", "#f2f0f7"] },
-      "st-unknown": { "role": "tertiary", "displayName": "Unknown Lilac", "canonical": "#c9c0e6", "tonalRamp": ["#2b2540", "#474066", "#686090", "#958cbf", "#c9c0e6", "#d9d3ef", "#e8e4f6", "#f5f3fb"] },
-      "danger": { "role": "tertiary", "displayName": "Error Rose", "canonical": "#ff7a86", "tonalRamp": ["#3d0a10", "#6b1520", "#a02234", "#d84456", "#ff7a86", "#ffa3ab", "#ffcbd0", "#ffeef0"] }
+      "limelight": { "role": "primary", "displayName": "Limelight", "canonical": "#ffd98a", "tonalRamp": ["#332200", "#664500", "#996700", "#d69100", "#ffb314", "#ffc752", "#ffde99", "#fff3db"] },
+      "limelight-hover": { "role": "primary", "displayName": "Pale Limelight", "canonical": "#ffe3a6" },
+      "brass": { "role": "primary", "displayName": "Brass", "canonical": "#d6b26a", "tonalRamp": ["#281e0b", "#503d16", "#785b21", "#a87f2e", "#cca047", "#dab977", "#e9d6af", "#f7f1e3"] },
+      "curtain": { "role": "secondary", "displayName": "Curtain Burgundy", "canonical": "#8a1734", "tonalRamp": ["#2c0710", "#570f21", "#831631", "#b81f45", "#dd3660", "#e66a8a", "#f0a8ba", "#fae0e7"] },
+      "curtain-dark": { "role": "secondary", "displayName": "Curtain Shadow", "canonical": "#3d0718", "tonalRamp": ["#2e0512", "#5c0a24", "#891036", "#c0164c", "#e72d67", "#ed638f", "#f4a4bd", "#fbdfe8"] },
+      "curtain-light": { "role": "secondary", "displayName": "Curtain Highlight", "canonical": "#c2304f", "tonalRamp": ["#290a11", "#521421", "#7b1e32", "#ac2a46", "#d04361", "#dd748a", "#ebadba", "#f8e2e7"] },
+      "bulb": { "role": "secondary", "displayName": "Marquee Bulb", "canonical": "#fff3cf", "tonalRamp": ["#332600", "#664c00", "#997300", "#d6a100", "#ffc414", "#ffd452", "#ffe599", "#fff6db"] },
+      "sol-green": { "role": "tertiary", "displayName": "Solana Green", "canonical": "#14f195", "tonalRamp": ["#03301d", "#06603b", "#099058", "#0cca7b", "#22f29b", "#5bf5b5", "#9ff9d4", "#ddfdf0"] },
+      "sol-purple": { "role": "tertiary", "displayName": "Solana Purple", "canonical": "#9945ff", "tonalRamp": ["#170033", "#2e0066", "#450099", "#6100d6", "#7e14ff", "#a052ff", "#c799ff", "#ebdbff"] },
+      "sol-purple-light": { "role": "tertiary", "displayName": "Light Solana Purple", "canonical": "#b98cff", "tonalRamp": ["#140033", "#280066", "#3c0099", "#5400d6", "#7014ff", "#9552ff", "#c199ff", "#e9dbff"] },
+      "velvet": { "role": "neutral", "displayName": "Stage Velvet", "canonical": "#1b1035", "tonalRamp": ["#140c27", "#28184e", "#3c2376", "#5432a5", "#704bc9", "#957ad7", "#c1b1e7", "#e9e4f7"] },
+      "velvet-deep": { "role": "neutral", "displayName": "Deep Velvet", "canonical": "#0f0820", "tonalRamp": ["#130a29", "#261452", "#391f7a", "#502bab", "#6c43d0", "#9374dc", "#bfadeb", "#e9e2f8"] },
+      "velvet-2": { "role": "neutral", "displayName": "Velvet Step 2", "canonical": "#1d1236", "tonalRamp": ["#150d26", "#29194d", "#3e2673", "#5636a1", "#734fc4", "#977dd4", "#c2b3e6", "#eae4f6"] },
+      "velvet-3": { "role": "neutral", "displayName": "Velvet Step 3", "canonical": "#251746", "tonalRamp": ["#140d26", "#29194d", "#3d2673", "#5535a1", "#724ec5", "#977cd4", "#c2b2e6", "#eae4f6"] },
+      "velvet-4": { "role": "neutral", "displayName": "Velvet Step 4", "canonical": "#2f1e57", "tonalRamp": ["#140d26", "#291a4c", "#3d2772", "#56379f", "#7351c3", "#977ed3", "#c2b3e5", "#eae4f6"] },
+      "ink-well": { "role": "neutral", "displayName": "Ink Well", "canonical": "#12091f", "tonalRamp": ["#170b28", "#2e174f", "#452277", "#6030a6", "#7e49ca", "#a079d8", "#c7b0e8", "#ebe3f7"] },
+      "plaque": { "role": "neutral", "displayName": "Programme Plaque", "canonical": "#170d2c", "tonalRamp": ["#150c27", "#29174f", "#3e2376", "#5631a5", "#734ac9", "#9879d7", "#c2b0e8", "#eae3f7"] },
+      "glass": { "role": "neutral", "displayName": "Glass", "canonical": "rgba(36, 22, 70, 0.72)" },
+      "chalk": { "role": "neutral", "displayName": "Chalk", "canonical": "#f6f1ff", "tonalRamp": ["#16121f", "#2c2440", "#433761", "#5e4c8a", "#7c69ad", "#a08fca", "#cbc0e8", "#f6f1ff"] },
+      "haze": { "role": "neutral", "displayName": "Haze", "canonical": "#b9aed8", "tonalRamp": ["#151122", "#2b2145", "#403267", "#594691", "#7661b3", "#9a8ac7", "#c4bade", "#eae7f3"] },
+      "mute": { "role": "neutral", "displayName": "Mute", "canonical": "#a297c8", "tonalRamp": ["#151221", "#2a2343", "#403564", "#594a8c", "#7666ae", "#9a8ec3", "#c3bcdc", "#eae8f3"] },
+      "hairline": { "role": "neutral", "displayName": "Hairline", "canonical": "rgba(246, 241, 255, 0.14)" },
+      "hairline-strong": { "role": "neutral", "displayName": "Strong Hairline", "canonical": "rgba(246, 241, 255, 0.26)" },
+      "st-in": { "role": "status", "displayName": "In Plan Range (Solana Green)", "canonical": "#14f195", "tonalRamp": ["#03301d", "#06603b", "#099058", "#0cca7b", "#22f29b", "#5bf5b5", "#9ff9d4", "#ddfdf0"] },
+      "st-above": { "role": "status", "displayName": "Ember (Original Entry Passed)", "canonical": "#ff9b73", "tonalRamp": ["#330f00", "#661d00", "#992c00", "#d63d00", "#ff5714", "#ff8352", "#ffb699", "#ffe6db"] },
+      "st-below": { "role": "status", "displayName": "Cyan (Below Plan Range)", "canonical": "#62d3f5", "tonalRamp": ["#032630", "#064b60", "#097190", "#0d9ec9", "#22c1f1", "#5cd1f5", "#9fe4f9", "#ddf6fd"] },
+      "st-ended": { "role": "status", "displayName": "Ended (Expired / Closed)", "canonical": "#b9aed8", "tonalRamp": ["#151122", "#2b2145", "#403267", "#594691", "#7661b3", "#9a8ac7", "#c4bade", "#eae7f3"] },
+      "st-unknown": { "role": "status", "displayName": "Unknown (Stale / Unavailable)", "canonical": "#d9d1f2", "tonalRamp": ["#120b28", "#241650", "#362277", "#4c2fa7", "#6848cb", "#8f78d9", "#bdafe9", "#e8e3f7"] },
+      "danger": { "role": "status", "displayName": "Danger", "canonical": "#ff7a86", "tonalRamp": ["#330005", "#660009", "#99000e", "#d60013", "#ff142a", "#ff5261", "#ff99a2", "#ffdbdf"] }
     },
     "typographyMeta": {
-      "display": { "displayName": "Display", "purpose": "Stage titles: page titles, finale line, service-state headlines." },
-      "headline": { "displayName": "Headline", "purpose": "The trading pair on each act; 2.25rem on viewports under 860px tall." },
-      "marquee": { "displayName": "Marquee", "purpose": "The RELAY sign only, with the lit-sign glow." },
-      "title": { "displayName": "Title", "purpose": "Creator name in the act byline, single line with ellipsis." },
-      "status": { "displayName": "Status", "purpose": "Entry-status headline, set in its status ink." },
-      "body": { "displayName": "Body", "purpose": "Rationale and reading text; page prose max 62ch." },
-      "small": { "displayName": "Small", "purpose": "Price line, hint, window line, small buttons." },
-      "footnote": { "displayName": "Footnote", "purpose": "Meta, evidence, banners, disabled-action reasons." },
-      "label": { "displayName": "Label", "purpose": "Tab labels, cluster chip, range labels, chain-clock chip." }
+      "display": { "displayName": "Display", "purpose": "The opening marquee sign; 'Fin.' at clamp(5rem, 30vw, 6rem) in limelight." },
+      "headline": { "displayName": "Headline", "purpose": "Page titles; stage message titles at clamp(2.25rem, 9vw, 3rem)." },
+      "act-pair": { "displayName": "Act Pair", "purpose": "The pair on each act; 3.25rem at >=900px. Name plates use the face at min(2rem, 21cqi)." },
+      "marquee-word": { "displayName": "Marquee Word", "purpose": "RELAY in the valance sign." },
+      "title": { "displayName": "Title", "purpose": "Script sheet title." },
+      "section": { "displayName": "Section", "purpose": "Page section headings." },
+      "callout": { "displayName": "Callout", "purpose": "The current price, tabular." },
+      "body": { "displayName": "Body", "purpose": "Default reading text." },
+      "subhead": { "displayName": "Subhead", "purpose": "Buttons, status pill (700), chips, entry range, rationale." },
+      "footnote": { "displayName": "Footnote", "purpose": "Bylines, hints, price age, banners." },
+      "label": { "displayName": "Label", "purpose": "Tab labels, badges, version line, range labels, Review's reason." },
+      "mono": { "displayName": "Mono", "purpose": "code and kbd only (sanctioned ui-monospace stack)." }
     },
-    "gradients": [
-      { "name": "sol-gradient", "value": "linear-gradient(100deg, #b57bff 0%, #8f7dff 40%, #3fe0b6 80%, #14f195 100%)", "purpose": "Primary button fill and active-tab rule only." },
-      { "name": "sol-edge", "value": "linear-gradient(140deg, rgba(153, 69, 255, 0.6), rgba(153, 69, 255, 0.12) 45%, rgba(20, 241, 149, 0.35))", "purpose": "1px border of the act panel and the marquee bottom rule." },
-      { "name": "velvet-fall", "value": "linear-gradient(90deg, #000, var(--velvet-2))", "purpose": "Flat curtain halves and finale drapes (mirrored for the right side); desktop wings fall from #000 to transparent." }
-    ],
     "shadows": [
-      { "name": "marquee-sign-glow", "value": "text-shadow: 0 0 14px rgba(153, 69, 255, 0.75), 0 0 2px rgba(243, 238, 255, 0.6)", "purpose": "RELAY letters only." },
-      { "name": "bulb-glow", "value": "box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.35), 0 0 6px 1px rgba(153, 69, 255, 0.75)", "purpose": "Lit marquee bulb (green variant uses rgba(20, 241, 149, 0.65))." },
-      { "name": "finale-title-glow", "value": "text-shadow: 0 0 22px rgba(153, 69, 255, 0.55)", "purpose": "End-of-feed title." },
-      { "name": "floating-pill", "value": "box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45)", "purpose": "The chalk new-plans pill floating over the feed." },
-      { "name": "marker-knockout", "value": "box-shadow: 0 0 0 3px var(--velvet-3)", "purpose": "Separates the range marker from the band." },
-      { "name": "active-act-lift", "value": "box-shadow: inset 0 1px 0 rgba(243, 238, 255, 0.14); background: radial-gradient(70% 100% at 50% 0, rgba(190, 150, 255, 0.09), transparent)", "purpose": "Top 140px of the active act, fading in over 600ms." }
+      { "name": "valance-drop", "value": "0 6px 18px rgba(0,0,0,0.5)", "purpose": "The valance over the stage." },
+      { "name": "marquee-glow", "value": "0 4px 18px -6px rgba(0,0,0,0.7), 0 0 28px -10px rgba(255,217,138,0.6)", "purpose": "The valance sign (a light source)." },
+      { "name": "sign-glow", "value": "0 0 60px -10px rgba(255,217,138,0.55)", "purpose": "The full opening marquee sign." },
+      { "name": "bulb-halo", "value": "0 0 6px 2px rgba(255,217,138,0.85)", "purpose": "Marquee bulbs; 0 0 4px 1px rgba(255,217,138,0.8) at valance size." },
+      { "name": "portrait-lift", "value": "0 20px 60px -20px rgba(0,0,0,0.8), 0 0 40px -12px rgba(255,217,138,0.45)", "purpose": "The arched portrait frame in the spotlight." },
+      { "name": "plaque-seat", "value": "0 16px 40px -24px rgba(0,0,0,0.9)", "purpose": "The status plaque; dark only, never a glow." },
+      { "name": "limelight-press", "value": "0 8px 24px -10px rgba(255,217,138,0.7)", "purpose": "The primary limelight button." },
+      { "name": "sheet-rise", "value": "0 -20px 60px -20px rgba(0,0,0,0.8)", "purpose": "The script sheet, over a rgba(0,0,0,0.5) backdrop." },
+      { "name": "pill-float", "value": "0 6px 18px -6px rgba(0,0,0,0.6)", "purpose": "Floating limelight pills over the feed." }
     ],
     "motion": [
-      { "name": "ease-out", "value": "cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "All state transitions, spot fade-in, marker slide, valance lift." },
-      { "name": "ease-curtain", "value": "cubic-bezier(0.7, 0, 0.25, 1)", "purpose": "Opening curtain halves and finale drapes." },
-      { "name": "t-state", "value": "220ms", "purpose": "Button and tab color/background/border transitions." },
-      { "name": "marker-slide", "value": "250ms", "purpose": "Range marker moving to the current price." },
-      { "name": "spot-and-lift", "value": "600ms", "purpose": "Follow-spot fade-in and active-act lift." },
-      { "name": "finale-drapes", "value": "700ms", "purpose": "Closing drapes drawing in at end of feed." },
-      { "name": "curtain-open", "value": "1.05s after 0.12s hold; valance lifts 0.5s from 0.7s", "purpose": "Once per session, pointer-events none, off under reduced motion." },
-      { "name": "bulb-chase", "value": "2.7s steps(1) infinite, three phases 0.9s apart", "purpose": "Marquee bulbs; off under reduced motion." }
+      { "name": "ease-out", "value": "cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "House ease for state transitions and all motion/react theatre motion ([0.16, 1, 0.3, 1])." },
+      { "name": "state", "value": "200ms", "purpose": "Color, border and background transitions." },
+      { "name": "press", "value": "100ms scale(0.97)", "purpose": "Button active press." },
+      { "name": "spotlight-swing", "value": "rotate ±14deg -> 0, scaleY 0.4 -> 1, opacity 0 -> 1, 0.9s, ease-out (0.4s delay on the first act)", "purpose": "Spotlight swings onto each newly active act from the scroll direction (motion/react)." },
+      { "name": "portrait-rise", "value": "y 18px -> 0, opacity 0.55 -> 1, scale 0.96 -> 1, 0.9s, ease-out, 0.15s delay", "purpose": "Portrait rises into the light on activation (motion/react). Data never moves." },
+      { "name": "finale-drapes", "value": "scaleX 0.14 -> 1, skewY ±2deg -> 0, 1.1s, ease-out", "purpose": "Drapes close over the finale (motion/react); 'Fin.' scales in at 0.6s over 0.9s." },
+      { "name": "curtain-call", "value": "y [40,0,6,0], rotate [0,0,8,0], 1.1s, ease-out, 0.8s + 0.12s stagger", "purpose": "Sigil avatars take their bow (motion/react)." },
+      { "name": "curtain-opening", "value": "drapes 1.05s cubic-bezier(0.33,1,0.68,1) from 0.1s; sign rises out 0.55s from 0.55s; valance sign settles 0.4s from 0.75s", "purpose": "Opening, CSS keyframes, <=1.2s, once per session, skippable, never blocks input." },
+      { "name": "bulb-chase", "value": "1.6s steps(1) infinite, 0.53s/1.06s offsets", "purpose": "Marquee bulbs only, away from prices." },
+      { "name": "sheet-up", "value": "260ms ease-out, translateY 40% -> 0", "purpose": "Script sheet entrance." },
+      { "name": "range-marker", "value": "left 250ms ease-out", "purpose": "Price marker position update." },
+      { "name": "reduced-motion", "value": "all off", "purpose": "CSS durations to 0.001ms; motion/react durations to 0 via useCalmMotion (false on server and during hydration, then the device setting)." }
     ],
     "breakpoints": [
-      { "name": "short", "value": "max-height: 860px", "purpose": "Tighter act padding and gaps; pair at 2.25rem." },
-      { "name": "very-short", "value": "max-height: 760px", "purpose": "Rationale clamps to one line." },
-      { "name": "narrow", "value": "max-width: 419px", "purpose": "Fictional badge drops the word 'preview'." },
-      { "name": "stage", "value": "min-width: 900px", "purpose": "440px column between flat wings; keyboard hint shown." }
+      { "name": "short", "value": "max-height: 680px", "purpose": "Evidence line hides." },
+      { "name": "compact", "value": "max-height: 760px", "purpose": "Rationale clamps to one line." },
+      { "name": "tall", "value": "min-height: 900px", "purpose": "Act gaps grow to 12px." },
+      { "name": "narrow", "value": "max-width: 520px", "purpose": "Watchlist rows reflow." },
+      { "name": "desktop", "value": "min-width: 900px", "purpose": "Two-column stage on the floor horizon; centred script dialog; keyboard hint." }
     ]
   },
   "components": [
     {
-      "name": "Primary Button",
+      "name": "Primary Button (Limelight)",
       "kind": "button",
       "refersTo": "button-primary",
-      "description": "The single primary action; brand gradient pill.",
-      "html": "<button class=\"ds-btn ds-btn-primary\">Try again</button>",
-      "css": ".ds-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 0 20px; border-radius: 999px; font-family: var(--font-ui, 'Schibsted Grotesk', system-ui, sans-serif); font-size: 0.9375rem; font-weight: 600; line-height: 1.1; cursor: pointer; transition: background-color 220ms cubic-bezier(0.16,1,0.3,1), border-color 220ms cubic-bezier(0.16,1,0.3,1), color 220ms cubic-bezier(0.16,1,0.3,1), filter 220ms; } .ds-btn-primary { border: 0; background: linear-gradient(100deg, #b57bff 0%, #8f7dff 40%, #3fe0b6 80%, #14f195 100%); color: #0b0716; } .ds-btn-primary:hover { filter: brightness(1.08); } .ds-btn-primary:focus-visible { outline: 2px solid #14f195; outline-offset: 2px; }"
+      "description": "The one lit action; disabled stays visible, dashed, with its reason beneath.",
+      "html": "<button class=\"ds-btn ds-btn-primary\">Review trade</button>",
+      "css": ".ds-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 0 16px; border-radius: 999px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif; font-size: 0.9375rem; font-weight: 600; line-height: 1.1; cursor: pointer; transition: background-color 200ms cubic-bezier(0.16,1,0.3,1), border-color 200ms cubic-bezier(0.16,1,0.3,1), color 200ms cubic-bezier(0.16,1,0.3,1), transform 100ms cubic-bezier(0.16,1,0.3,1); } .ds-btn-primary { border: 0; background: #ffd98a; color: #1b1035; box-shadow: 0 8px 24px -10px rgba(255,217,138,0.7); } .ds-btn-primary:hover { background: #ffe3a6; } .ds-btn-primary:active { transform: scale(0.97); } .ds-btn-primary:focus-visible { outline: 2px solid #ffd98a; outline-offset: 3px; } .ds-btn-primary:disabled { background: transparent; border: 1px dashed rgba(246,241,255,0.26); color: #a297c8; box-shadow: none; cursor: not-allowed; }"
     },
     {
-      "name": "Ghost Button",
+      "name": "Glass Button",
       "kind": "button",
-      "refersTo": "button-ghost",
-      "description": "Default action: Watch, Details, Refresh. Hairline pill.",
-      "html": "<button class=\"ds-btn-ghost\"><svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m12 3.8 2.5 5.1 5.6.8-4 4 .9 5.6-5-2.7-5 2.7.9-5.6-4-4 5.6-.8z\"/></svg>Watch</button>",
-      "css": ".ds-btn-ghost { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 0 20px; border-radius: 999px; border: 1px solid rgba(243,238,255,0.22); background: transparent; color: #f3eeff; font-family: 'Schibsted Grotesk', system-ui, sans-serif; font-size: 0.9375rem; font-weight: 600; cursor: pointer; transition: background-color 220ms cubic-bezier(0.16,1,0.3,1), border-color 220ms cubic-bezier(0.16,1,0.3,1); } .ds-btn-ghost:hover { background: #271d40; border-color: rgba(243,238,255,0.36); } .ds-btn-ghost:focus-visible { outline: 2px solid #14f195; outline-offset: 2px; } .ds-btn-ghost[aria-pressed='true'] { border-color: rgba(20,241,149,0.55); color: #14f195; }"
+      "refersTo": "button-glass",
+      "description": "Default action pill on the stage (View plan, Watch).",
+      "html": "<button class=\"ds-btn-glass\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M6 3h9l3 3v15H6z\"/><path d=\"M9 10h6M9 14h6\"/></svg>View plan</button>",
+      "css": ".ds-btn-glass { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; border-radius: 999px; border: 1px solid rgba(246,241,255,0.14); background: rgba(36,22,70,0.72); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); color: #f6f1ff; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif; font-size: 0.9375rem; font-weight: 600; cursor: pointer; transition: background-color 200ms cubic-bezier(0.16,1,0.3,1), border-color 200ms cubic-bezier(0.16,1,0.3,1), transform 100ms cubic-bezier(0.16,1,0.3,1); } .ds-btn-glass:hover { background: rgba(52,33,98,0.86); border-color: rgba(246,241,255,0.26); } .ds-btn-glass:active { transform: scale(0.97); } .ds-btn-glass:focus-visible { outline: 2px solid #ffd98a; outline-offset: 3px; }"
     },
     {
-      "name": "Disabled Primary with Reason",
+      "name": "Watch Icon Button",
       "kind": "button",
-      "refersTo": "button-primary-disabled",
-      "description": "Unavailable primary action; dashed outline and a stated reason below.",
-      "html": "<div class=\"ds-disabled-wrap\"><button class=\"ds-btn-disabled\" disabled>Review trade</button><p class=\"ds-reason\">Trade review isn't available in this build yet</p></div>",
-      "css": ".ds-disabled-wrap { display: grid; gap: 6px; width: 320px; } .ds-btn-disabled { min-height: 48px; padding: 0 20px; border-radius: 999px; border: 1px dashed rgba(243,238,255,0.22); background: #1c1430; color: #9d93bf; font-family: 'Schibsted Grotesk', system-ui, sans-serif; font-size: 0.9375rem; font-weight: 600; cursor: not-allowed; } .ds-reason { margin: 0; text-align: center; color: #b9afd6; font-family: 'Schibsted Grotesk', system-ui, sans-serif; font-size: 0.8125rem; }"
+      "refersTo": "button-icon",
+      "description": "44px glass star circle; on state borders in limelight.",
+      "html": "<button class=\"ds-btn-icon\" aria-pressed=\"true\" aria-label=\"Stop watching SOL / USDC\"><svg width=\"22\" height=\"22\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z\"/></svg></button>",
+      "css": ".ds-btn-icon { display: inline-grid; place-items: center; width: 44px; height: 44px; padding: 0; border-radius: 999px; border: 1px solid rgba(246,241,255,0.14); background: rgba(36,22,70,0.72); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); color: #f6f1ff; cursor: pointer; transition: border-color 200ms cubic-bezier(0.16,1,0.3,1), transform 100ms cubic-bezier(0.16,1,0.3,1); } .ds-btn-icon[aria-pressed='true'] { border-color: rgba(255,217,138,0.6); color: #ffd98a; } .ds-btn-icon:hover { background: rgba(52,33,98,0.86); } .ds-btn-icon:active { transform: scale(0.97); } .ds-btn-icon:focus-visible { outline: 2px solid #ffd98a; outline-offset: 3px; }"
     },
     {
-      "name": "Status Panel with Range Bar",
-      "kind": "custom",
-      "refersTo": "status-panel",
-      "description": "Entry status: ink, icon, words, range band, chalk marker, price age and hint.",
-      "html": "<div class=\"ds-status\"><div class=\"ds-status-head\"><svg viewBox=\"0 0 24 24\" width=\"22\" height=\"22\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"12\" r=\"9\" fill=\"currentColor\"/><path d=\"m8 12.3 2.7 2.7L16.2 9.5\" stroke=\"#1c1430\" stroke-width=\"2.25\"/></svg>In plan range</div><div class=\"ds-track\"><div class=\"ds-band\" style=\"left:25%;right:25%\"></div><div class=\"ds-marker\" style=\"left:50%\"></div></div><p class=\"ds-price\">Now <b>$102.40</b> · updated 6s ago</p><p class=\"ds-hint\">Price is inside the creator's original entry. Not a recommendation.</p></div>",
-      "css": ".ds-status { --ink: #14f195; display: grid; gap: 8px; width: 340px; padding: 12px 20px 16px; background: #1c1430; border-top: 1px solid color-mix(in srgb, var(--ink) 55%, transparent); font-family: 'Schibsted Grotesk', system-ui, sans-serif; color: #f3eeff; } .ds-status-head { display: flex; align-items: center; gap: 8px; color: var(--ink); font-size: 1.25rem; font-weight: 700; line-height: 1.2; } .ds-track { position: relative; height: 8px; margin: 8px 0 4px; border-radius: 999px; background: rgba(243,238,255,0.08); } .ds-band { position: absolute; top: 0; bottom: 0; border-radius: 999px; background: color-mix(in srgb, var(--ink) 34%, transparent); outline: 1px solid color-mix(in srgb, var(--ink) 70%, transparent); outline-offset: -1px; } .ds-marker { position: absolute; top: 50%; width: 4px; height: 22px; border-radius: 2px; background: #f3eeff; box-shadow: 0 0 0 3px #1c1430; transform: translate(-50%,-50%); transition: left 250ms cubic-bezier(0.16,1,0.3,1); } .ds-price { margin: 0; color: #b9afd6; font-size: 0.875rem; font-variant-numeric: tabular-nums lining-nums; } .ds-price b { color: #f3eeff; } .ds-hint { margin: 0; font-size: 0.875rem; line-height: 1.4; }"
-    },
-    {
-      "name": "Act Panel",
-      "kind": "card",
-      "refersTo": "act-panel",
-      "description": "One plan per screen: flat velvet panel with a brand-edge hairline.",
-      "html": "<article class=\"ds-act\"><p class=\"ds-act-name\">Understudy A</p><p class=\"ds-act-meta\">@fictional_a · v1 · 12 min ago</p><h2 class=\"ds-act-pair\">SOL / USDC</h2><p class=\"ds-act-range\">Entry <b>$100.00 – $105.00</b></p></article>",
-      "css": ".ds-act { width: 360px; display: flex; flex-direction: column; gap: 12px; padding: 16px 20px; border-radius: 20px; border: 1px solid transparent; background: linear-gradient(#140d24, #140d24) padding-box, linear-gradient(140deg, rgba(153,69,255,0.6), rgba(153,69,255,0.12) 45%, rgba(20,241,149,0.35)) border-box; color: #f3eeff; font-family: 'Schibsted Grotesk', system-ui, sans-serif; } .ds-act p, .ds-act h2 { margin: 0; } .ds-act-name { font-family: 'Big Shoulders Display', 'Arial Narrow', sans-serif; font-weight: 700; font-size: 1.25rem; line-height: 1.05; } .ds-act-meta { color: #b9afd6; font-size: 0.8125rem; margin-top: -10px; } .ds-act-pair { font-family: 'Big Shoulders Display', 'Arial Narrow', sans-serif; font-weight: 800; font-size: 2.125rem; line-height: 0.95; letter-spacing: 0.01em; } .ds-act-range { color: #b9afd6; font-size: 1rem; margin-top: -8px; font-variant-numeric: tabular-nums; } .ds-act-range b { color: #f3eeff; font-weight: 600; }"
-    },
-    {
-      "name": "Fictional Badge",
+      "name": "Brass Badge",
       "kind": "chip",
-      "refersTo": "badge-fictional",
-      "description": "Mandatory truth label on invented content; dashed outline.",
-      "html": "<span class=\"ds-badge\">Fictional preview</span>",
-      "css": ".ds-badge { display: inline-block; padding: 3px 8px; border-radius: 6px; border: 1px dashed rgba(243,238,255,0.6); color: #f3eeff; font-family: 'Schibsted Grotesk', system-ui, sans-serif; font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }"
+      "refersTo": "badge",
+      "description": "Marks demo creators and fictional previews.",
+      "html": "<span class=\"ds-badge\">Demo</span>",
+      "css": ".ds-badge { display: inline-flex; align-items: center; padding: 0 8px; border: 1px solid #d6b26a; border-radius: 999px; color: #ffd98a; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif; font-size: 0.75rem; font-weight: 600; line-height: 1.6; white-space: nowrap; }"
     },
     {
-      "name": "Warning Banner",
+      "name": "Status Plaque",
       "kind": "card",
-      "refersTo": "banner",
-      "description": "Stale or degraded data notice; amber border and alert icon.",
-      "html": "<div class=\"ds-banner\"><svg viewBox=\"0 0 24 24\" width=\"18\" height=\"18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 4 21 19.5H3z\"/><path d=\"M12 10v4M12 17h.01\"/></svg><p><strong>Prices may be out of date.</strong> Relay can't reach the server right now.</p></div>",
-      "css": ".ds-banner { display: flex; gap: 8px; align-items: flex-start; width: 340px; padding: 8px 12px; border-radius: 14px; background: #140d24; border: 1px solid rgba(246,189,85,0.5); color: #b9afd6; font-family: 'Schibsted Grotesk', system-ui, sans-serif; font-size: 0.8125rem; line-height: 1.4; } .ds-banner p { margin: 0; } .ds-banner svg { flex: none; margin-top: 1px; color: #f6bd55; } .ds-banner strong { color: #f3eeff; }"
+      "refersTo": "status-plaque",
+      "description": "The flat programme: status pill, hint, range bar and current price. No glow, no gradient.",
+      "html": "<section class=\"ds-plaque\"><div class=\"ds-plaque-head\"><h3 class=\"ds-pill-in\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M8 12.5l2.7 2.7L16 9.8\"/></svg>In plan range</h3><span class=\"ds-chip\">Closes in <b>2h 14m</b></span></div><p class=\"ds-hint\">Price is inside the creator's original entry. Not a recommendation.</p><div class=\"ds-track\"><div class=\"ds-band\" style=\"left:30%;right:30%\"></div><div class=\"ds-marker\" style=\"left:46%\"></div></div><p class=\"ds-hint\">Now <span class=\"ds-now\">$148.20</span> · updated 6s ago</p></section>",
+      "css": ".ds-plaque { width: 320px; display: grid; gap: 8px; padding: 12px 16px; border-radius: 16px; border: 1px solid rgba(246,241,255,0.14); background: #170d2c; box-shadow: 0 16px 40px -24px rgba(0,0,0,0.9); color: #f6f1ff; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif; text-align: left; } .ds-plaque-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; } .ds-pill-in { margin: 0; display: inline-flex; align-items: center; gap: 6px; padding: 3px 12px 3px 8px; border: 1.5px solid #14f195; border-radius: 999px; background: #14f195; color: #0f0820; font-size: 0.9375rem; font-weight: 700; line-height: 1.3; } .ds-chip { padding: 3px 8px; border: 1px solid rgba(246,241,255,0.14); border-radius: 999px; font-size: 0.8125rem; font-variant-numeric: tabular-nums; } .ds-hint { margin: 0; font-size: 0.8125rem; color: #b9aed8; } .ds-track { position: relative; height: 8px; margin-top: 8px; border-radius: 999px; background: rgba(246,241,255,0.08); } .ds-band { position: absolute; top: 0; bottom: 0; border-radius: 999px; background: color-mix(in srgb, #14f195 34%, transparent); outline: 1px solid color-mix(in srgb, #14f195 70%, transparent); outline-offset: -1px; } .ds-marker { position: absolute; top: 50%; width: 4px; height: 22px; border-radius: 2px; background: #f6f1ff; box-shadow: 0 0 0 3px #170d2c; transform: translate(-50%, -50%); transition: left 250ms cubic-bezier(0.16,1,0.3,1); } .ds-now { color: #f6f1ff; font-size: 1rem; font-weight: 700; font-variant-numeric: tabular-nums lining-nums; }"
+    },
+    {
+      "name": "Outlined and Unknown Status Pills",
+      "kind": "chip",
+      "refersTo": "status-pill-in",
+      "description": "Every tone except in-range is outlined in its ink; unknown prices are dashed.",
+      "html": "<div class=\"ds-pills\"><span class=\"ds-pill\" style=\"--ink:#ff9b73\">Original entry passed</span><span class=\"ds-pill\" style=\"--ink:#62d3f5\">Below plan range</span><span class=\"ds-pill\" style=\"--ink:#b9aed8\">Plan expired</span><span class=\"ds-pill ds-pill-unknown\" style=\"--ink:#d9d1f2\">Price may be outdated</span></div>",
+      "css": ".ds-pills { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px; background: #170d2c; border-radius: 16px; } .ds-pill { display: inline-flex; align-items: center; padding: 3px 12px; border: 1.5px solid var(--ink); border-radius: 999px; color: var(--ink); font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif; font-size: 0.9375rem; font-weight: 700; line-height: 1.3; } .ds-pill-unknown { border-style: dashed; }"
+    },
+    {
+      "name": "Arched Portrait",
+      "kind": "custom",
+      "refersTo": "portrait",
+      "description": "Brass arch over the ink well with the creator's sigil and a name plate. Sigils only, never faces.",
+      "html": "<div class=\"ds-portrait\"><div class=\"ds-sigil\"><svg viewBox=\"0 0 100 100\" width=\"72%\" aria-hidden=\"true\"><circle cx=\"50\" cy=\"50\" r=\"48\" fill=\"#2A1A4F\" stroke=\"#14F195\" stroke-width=\"2\"/><g fill=\"#14F195\"><rect x=\"15\" y=\"15\" width=\"13\" height=\"13\" rx=\"3\"/><rect x=\"71\" y=\"15\" width=\"13\" height=\"13\" rx=\"3\"/><rect x=\"43\" y=\"29\" width=\"13\" height=\"13\" rx=\"3\"/><rect x=\"29\" y=\"43\" width=\"13\" height=\"13\" rx=\"3\"/><rect x=\"57\" y=\"43\" width=\"13\" height=\"13\" rx=\"3\"/><rect x=\"15\" y=\"57\" width=\"13\" height=\"13\" rx=\"3\"/><rect x=\"71\" y=\"57\" width=\"13\" height=\"13\" rx=\"3\"/><rect x=\"43\" y=\"71\" width=\"13\" height=\"13\" rx=\"3\"/></g></svg></div><div class=\"ds-plate\"><p class=\"ds-name\">Mariam</p></div></div>",
+      "css": ".ds-portrait { position: relative; width: 160px; aspect-ratio: 3 / 4; overflow: hidden; border: 2px solid #d6b26a; border-radius: 999px 999px 24px 24px; background: #12091f; box-shadow: 0 20px 60px -20px rgba(0,0,0,0.8), 0 0 40px -12px rgba(255,217,138,0.45); } .ds-sigil { position: absolute; inset: 0 0 16% 0; display: grid; place-items: center; } .ds-plate { position: absolute; inset: auto 0 0 0; padding: 24px 8px 8px; background: linear-gradient(to top, #0b0617, rgba(11,6,23,0.82) 55%, transparent); text-align: center; } .ds-name { margin: 0; color: #f6f1ff; font-family: 'Big Shoulders Display Variable', 'Big Shoulders Display', sans-serif; font-weight: 800; font-size: 2rem; line-height: 0.9; letter-spacing: 0.01em; }"
+    },
+    {
+      "name": "Valance Marquee Sign",
+      "kind": "nav",
+      "refersTo": "marquee-word",
+      "description": "Scalloped burgundy valance with brass hem carrying the lit RELAY sign between bulb rows.",
+      "html": "<header class=\"ds-valance\"><a class=\"ds-sign\" href=\"#\" aria-label=\"Relay, go to the feed\"><span class=\"ds-bulbs\"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span class=\"ds-word\">RELAY</span><span class=\"ds-bulbs\"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span></a></header>",
+      "css": ".ds-valance { display: flex; align-items: center; justify-content: center; height: 56px; background: radial-gradient(ellipse 36px 30px at 36px 0, #c2304f, #8a1734 60%, #3d0718) 0 0 / 72px 100% repeat-x; border-bottom: 3px solid #d6b26a; box-shadow: 0 6px 18px rgba(0,0,0,0.5); } .ds-sign { display: flex; flex-direction: column; gap: 3px; padding: 4px 10px; border: 2px solid #d6b26a; border-radius: 10px; background: rgba(18,9,31,0.92); box-shadow: 0 4px 18px -6px rgba(0,0,0,0.7), 0 0 28px -10px rgba(255,217,138,0.6); color: #ffd98a; text-decoration: none; } .ds-sign:focus-visible { outline: 2px solid #ffd98a; outline-offset: 3px; } .ds-bulbs { display: flex; justify-content: space-between; padding: 0 2px; } .ds-bulbs i { width: 5px; height: 5px; border-radius: 50%; background: #fff3cf; box-shadow: 0 0 4px 1px rgba(255,217,138,0.8); animation: ds-chase 1.6s steps(1) infinite; } .ds-bulbs i:nth-child(3n+2) { animation-delay: 0.53s; } .ds-bulbs i:nth-child(3n+3) { animation-delay: 1.06s; } @keyframes ds-chase { 0% { opacity: 1; } 33% { opacity: 0.25; } } @media (prefers-reduced-motion: reduce) { .ds-bulbs i { animation: none; } } .ds-word { font-family: 'Big Shoulders Display Variable', 'Big Shoulders Display', sans-serif; font-weight: 800; font-size: 1.375rem; line-height: 0.88; letter-spacing: 0.14em; padding-left: 0.14em; text-align: center; text-shadow: 0 0 14px rgba(255,217,138,0.5); }"
     },
     {
       "name": "Tab Bar",
       "kind": "nav",
-      "refersTo": "tabbar",
-      "description": "Four tabs; current tab in chalk with a brand-gradient top rule.",
-      "html": "<nav class=\"ds-tabbar\"><a class=\"ds-tab\" aria-current=\"page\" href=\"#\"><svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"5\" y=\"3.5\" width=\"14\" height=\"10\" rx=\"2\"/><path d=\"M7 17.5h10M9 20.5h6\"/></svg>Feed</a><a class=\"ds-tab\" href=\"#\"><svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"11\" cy=\"11\" r=\"6.5\"/><path d=\"m16 16 4.5 4.5\"/></svg>Search</a><a class=\"ds-tab\" href=\"#\"><svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M4 7.5a2 2 0 0 0 2-2h12a2 2 0 0 0 2 2v9a2 2 0 0 0-2 2H6a2 2 0 0 0-2-2z\"/><path d=\"M9 10h6M9 14h4\"/></svg>My Plans</a><a class=\"ds-tab\" href=\"#\"><svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"9\" r=\"3.5\"/><path d=\"M5 19.5c1.4-3 4-4.5 7-4.5s5.6 1.5 7 4.5\"/></svg>Account</a></nav>",
-      "css": ".ds-tabbar { display: grid; grid-template-columns: repeat(4, 1fr); width: 390px; height: 56px; background: rgba(16,10,30,0.82); border-top: 1px solid rgba(243,238,255,0.12); } .ds-tab { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; color: #9d93bf; font-family: 'Schibsted Grotesk', system-ui, sans-serif; font-size: 0.75rem; font-weight: 600; text-decoration: none; transition: color 220ms cubic-bezier(0.16,1,0.3,1); } .ds-tab:hover { color: #b9afd6; } .ds-tab:focus-visible { outline: 2px solid #14f195; outline-offset: -4px; border-radius: 10px; } .ds-tab[aria-current='page'] { color: #f3eeff; } .ds-tab[aria-current='page']::before { content: ''; position: absolute; top: -1px; left: 28%; right: 28%; height: 2px; border-radius: 0 0 2px 2px; background: linear-gradient(100deg, #b57bff 0%, #8f7dff 40%, #3fe0b6 80%, #14f195 100%); }"
-    },
-    {
-      "name": "Marquee",
-      "kind": "nav",
-      "refersTo": "marquee",
-      "description": "RELAY sign between two rows of chasing purple and green bulbs.",
-      "html": "<header class=\"ds-marquee\"><div class=\"ds-sign\"><span class=\"ds-bulbs\"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span class=\"ds-word\">RELAY</span><span class=\"ds-bulbs\"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span></div></header>",
-      "css": ".ds-marquee { display: flex; align-items: center; justify-content: center; width: 390px; height: 56px; background: linear-gradient(180deg, #120a22, #0b0716); border-bottom: 1px solid transparent; border-image: linear-gradient(140deg, rgba(153,69,255,0.6), rgba(153,69,255,0.12) 45%, rgba(20,241,149,0.35)) 1; } .ds-sign { display: inline-flex; flex-direction: column; align-items: center; gap: 3px; } .ds-word { font-family: 'Big Shoulders Display', 'Arial Narrow', sans-serif; font-weight: 800; font-size: 1.625rem; line-height: 0.9; letter-spacing: 0.32em; margin-right: -0.32em; color: #f3eeff; text-shadow: 0 0 14px rgba(153,69,255,0.75), 0 0 2px rgba(243,238,255,0.6); } .ds-bulbs { display: flex; gap: 6px; } .ds-bulbs i { width: 6px; height: 6px; border-radius: 999px; background: radial-gradient(circle at 45% 40%, #fff 0 22%, #b98cff 48%, #3d2566 100%); box-shadow: inset 0 0 0 1px rgba(0,0,0,0.35), 0 0 6px 1px rgba(153,69,255,0.75); } .ds-bulbs i:nth-child(even) { background: radial-gradient(circle at 45% 40%, #fff 0 22%, #8af8c9 48%, #2a5a48 100%); box-shadow: inset 0 0 0 1px rgba(0,0,0,0.35), 0 0 6px 1px rgba(20,241,149,0.65); }"
+      "refersTo": "tab-bar",
+      "description": "Four tabs under a brass hairline; the Solana gradient marks only the active tab.",
+      "html": "<nav class=\"ds-tabbar\"><a class=\"ds-tab\" aria-current=\"page\" href=\"#\">Feed</a><a class=\"ds-tab\" href=\"#\">Search</a><a class=\"ds-tab\" href=\"#\">My Plans</a><a class=\"ds-tab\" href=\"#\">Account</a></nav>",
+      "css": ".ds-tabbar { display: grid; grid-template-columns: repeat(4, 1fr); height: 56px; max-width: 560px; background: rgba(15,8,32,0.96); border-top: 1px solid rgba(214,178,106,0.32); font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif; } .ds-tab { position: relative; display: flex; align-items: center; justify-content: center; color: #b9aed8; font-size: 0.75rem; font-weight: 600; text-decoration: none; transition: color 200ms cubic-bezier(0.16,1,0.3,1); } .ds-tab:hover, .ds-tab[aria-current='page'] { color: #f6f1ff; } .ds-tab[aria-current='page']::before { content: ''; position: absolute; top: -1px; left: 28%; right: 28%; height: 2px; border-radius: 0 0 2px 2px; background: linear-gradient(90deg, #9945ff, #14f195); } .ds-tab:focus-visible { outline: 2px solid #ffd98a; outline-offset: -4px; }"
     }
   ],
   "narrative": {
     "northStar": "The Lit Stage, the Flat Programme",
-    "overview": "Relay is a theatre. The frame performs: a lettered RELAY marquee between two rows of chasing purple and green bulbs, a follow-spot cone hung from above, an opening curtain once per session and a closing curtain at the end of the feed. Inside the frame, each trade plan is one act on a flat velvet panel, and the data on that panel never moves, glows or decorates. The brand gradient belongs to the frame; the figures belong to the reader.\n\nDensity is one plan per screen on a 440px column, read top to bottom in a fixed order: creator, pair, entry range, status, window, rationale, evidence, actions in the thumb zone. The world is dark velvet with a purple cast, not black, and its theatre materials are flat: the curtain halves, valance, closing drapes and desktop wings are plain velvet gradients falling to black, meeting at a single hairline. No fabric folds, fringe or raster drapery.",
+    "overview": "Relay is a small theatre at night. A purple stage sits under a warm radial wash; burgundy velvet drapes in repeating folds are gathered at both wings with a brass hem and a bead fringe; a scalloped valance with a brass trim carries a lit marquee sign spelling RELAY between two rows of bulbs; a limelight cone falls from the valance onto the current act; a perspective floor recedes beneath it. The world is ported from the curtain-sol reference, with Solana purple and green admitted only where they carry meaning.\n\nEach trade plan is one act, one screen tall, snapped vertically at the reader's own pace. The act's cast (an arched brass portrait holding the creator's sigil and a name plate) lives in the theatre; the act's programme (entry status, range bar, current price, expiry) lives on a flat velvet plaque that no light, glow or gradient touches. The theatre carries the mood; the plaque carries the facts. Density is low: one act, one decision, read in a few seconds.\n\nMotion belongs to the theatre, never to the numbers. The curtain parts once per session, the spotlight swings onto each newly active act, the portrait rises into its light, and at the end the drapes close over a \"Fin.\" and a curtain call. All of it is off under reduced motion.",
     "keyCharacteristics": [
-      "Velvet near-black ground with a purple cast; three raised velvet steps for panels.",
-      "Solana purple and green confined to the frame: marquee bulbs, spotlight, card edge, active tab rule, primary button, focus ring, links.",
-      "Condensed display type for names and pairs; a neutral grotesk with tabular numerals for everything read.",
-      "Status carried by ink plus icon plus shape plus words, never by color alone.",
-      "Pill controls, softly rounded panels, hairline borders, drawn stroke icons.",
-      "Motion is the frame's (curtain, bulbs, spot); data moves only to report a change (range marker)."
+      "Theatre materials (velvet, curtain, brass, limelight) frame; a flat plaque (#170d2c) holds every number.",
+      "Big Shoulders Display 800 for the marquee, names, pairs and the finale; the system text stack on the Apple text scale for everything read.",
+      "Pills everywhere for controls; an arch (round top, 24px base corners) for portraits.",
+      "Solana green is the \"In plan range\" cue ink; the Solana gradient appears only on the active tab.",
+      "Creators are sigils, never faces.",
+      "8pt spacing with 4pt half-steps; 44px minimum touch targets."
     ],
     "rules": [
-      { "name": "The Frame-Only Brand Rule", "body": "Solana purple, green and their gradients light the frame (marquee, spot, curtain, tab rule, primary button, card perimeter, focus). They never fill, tint or glow behind a figure, a status headline or a rationale.", "section": "colors" },
-      { "name": "The Ink-Plus-Shape Rule", "body": "A status ink never appears alone: it always arrives with its icon, its words, a hint line and a tinted 1px top rule on the status panel; price states add a dashed rule and dashed track.", "section": "colors" },
-      { "name": "The Two Voices Rule", "body": "Display type names things (RELAY, pairs, creators, stage titles); the grotesk reports things. A number is never set in the display face except as part of a pair name.", "section": "typography" },
-      { "name": "The Tabular Rule", "body": "Prices, ranges, times and counts use tabular lining numerals so values line up and don't jitter when they update.", "section": "typography" },
-      { "name": "The Glow Belongs To Lamps Rule", "body": "Glow is reserved for things that are lights in the theatre: the marquee sign, the bulbs, the spot and the finale title. Panels, buttons, figures and status headlines are never lit from within.", "section": "elevation" }
+      { "name": "The Flat Programme Rule", "body": "Data never sits on a gradient or under a glow. Every price, range and status sits on the flat plaque or plain velvet; theatre materials, the spotlight and every text-shadow stay off it.", "section": "colors" },
+      { "name": "The Green Means In Rule", "body": "Solana green appears as cue ink only: the \"In plan range\" pill and band (and as one sigil ink). The purple→green gradient appears in exactly one place: the active tab's 2px indicator.", "section": "colors" },
+      { "name": "The Words Plus Shape Rule", "body": "A status is never color alone: icon, pill shape (filled, outlined, dashed) and the exact headline words travel together.", "section": "colors" },
+      { "name": "The Tabular Read Rule", "body": "Every number a reader compares (prices, ranges, counts, countdowns) uses tabular lining numerals.", "section": "typography" },
+      { "name": "The Billing Face Rule", "body": "Big Shoulders is for what is billed on the marquee: the brand, names, pairs, titles, \"Fin.\". It never sets a price, a hint or a sentence.", "section": "typography" },
+      { "name": "The Light Sources Glow Rule", "body": "Only things that emit light (bulbs, the marquee word, the limelight button, the portrait in the spotlight, \"Fin.\") carry a warm glow. Plaques and numbers sit in a dark seat shadow or none.", "section": "elevation" }
     ],
     "dos": [
-      "**Do** keep every data surface flat on velvet-2 / velvet-3; let the brand gradient touch only its 1px perimeter.",
-      "**Do** pair each status ink with its icon, its exact words, a hint and a tinted top rule; use dashed rule and dashed track for price states.",
-      "**Do** set the pair and creator name in Big Shoulders Display and every figure in Schibsted Grotesk with tabular lining numerals.",
-      "**Do** use pill buttons at 48px (40px small) with the brand gradient reserved for the single primary action, and show a disabled action's reason beneath it.",
-      "**Do** use dashed borders to mean \"not real or not available\": fictional content, missing price, unavailable action.",
-      "**Do** build theatre pieces (curtain, drapes, wings, valance) as flat velvet gradients falling to black, meeting on a single hairline.",
-      "**Do** switch off the curtain, bulb chase, spotlight easing and smooth scroll under reduced motion."
+      "Do put every price, range, status and countdown on the flat plaque (#170d2c) or plain velvet.",
+      "Do show status as icon, pill shape and the exact vocabulary together: \"In plan range\", \"Original entry passed\", \"Below plan range\", \"Plan expired\", \"Closed by creator\", \"Price may be outdated\", \"Price unavailable\".",
+      "Do use tabular numerals for every compared number.",
+      "Do represent every creator by their sigil in a brass arch or ring.",
+      "Do keep disabled actions visible with their reason beneath them.",
+      "Do keep touch targets at 44px minimum and focus as a 2px limelight outline offset 3px.",
+      "Do run theatre motion through motion/react with the house ease, and switch it all off under reduced motion via the hydration-safe calm-motion hook.",
+      "Do use the ui-monospace stack for code and kbd only."
     ],
     "donts": [
-      "**Don't** put a glow, gradient fill or spotlight over a price, range, status headline or rationale.",
-      "**Don't** draw fabric: no fold stripes, bead fringe, gathered drapes or raster curtain imagery.",
-      "**Don't** use red for anything but errors, or Solana green on a status other than \"In plan range\" and interactive affordances.",
-      "**Don't** let the curtain block input or replay within a session.",
-      "**Don't** introduce a second icon family; glyphs are the 24-grid, 1.75-stroke drawn set, with solid fill reserved for the in-range check disc and the watched star."
+      "Don't set data on a gradient, under the spotlight cone, or under any glow or text-shadow.",
+      "Don't use Solana green for anything but the \"In plan range\" cue (and sigil ink), or the Solana gradient anywhere but the active tab indicator.",
+      "Don't show faces or photographs of creators; sigils only.",
+      "Don't auto-advance acts, add a ticker, or add a particle burst.",
+      "Don't animate anything continuously near prices; the bulbs chase only in the valance.",
+      "Don't say \"Eligible\" or invent status words outside the fixed vocabulary.",
+      "Don't set prices, hints or sentences in Big Shoulders Display."
     ]
   }
 }

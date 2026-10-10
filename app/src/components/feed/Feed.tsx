@@ -35,6 +35,8 @@ import { toggleWatched, useWatchList } from "../../lib/watchlist";
 import { Icon } from "../ui/Icon";
 import { Banner, EmptyState, Finale, UnavailableState } from "./FeedStates";
 import { PlanCard } from "./PlanCard";
+import { ScriptSheet } from "./ScriptSheet";
+import { Spotlight } from "./Spotlight";
 
 const POLL_MS = 15_000;
 const NO_PAGES: FeedPage[] = [];
@@ -238,6 +240,13 @@ export function Feed({
     );
   }, []);
 
+  // ------------------------------------------------------------------ script sheet
+
+  const [scriptId, setScriptId] = useState<string | null>(null);
+  const scriptCard = scriptId
+    ? (cards.find((c) => c.planPda === scriptId) ?? null)
+    : null;
+
   // ------------------------------------------------------------------ keyboard
 
   const goTo = useCallback((id: string) => {
@@ -266,11 +275,12 @@ export function Feed({
     } else if (key === "k" || key === "ArrowUp" || key === "PageUp") {
       e.preventDefault();
       goTo(ids[Math.max(0, i - 1)]);
-    } else if (key === "w" && currentId !== FINALE_ID) {
+    } else if ((key === "w" || key === "d") && currentId !== FINALE_ID) {
       const card = cards.find((c) => c.planPda === currentId);
       if (card) {
         e.preventDefault();
-        onToggleWatch(card);
+        if (key === "w") onToggleWatch(card);
+        else setScriptId(card.planPda);
       }
     }
   };
@@ -319,18 +329,29 @@ export function Feed({
   }
 
   const tally = STATUS_ORDER.map((s): [string, number] => [
-    STATUS_HEADLINE[s].toLowerCase(),
+    STATUS_HEADLINE[s],
     cards.filter((c) => liveById.get(c.planPda)?.status === s).length,
   ]).filter(([, n]) => n > 0);
+  const cast = [
+    ...new Map(
+      cards.map((c) => [
+        c.creator.address,
+        { seed: c.creator.address, name: creatorName(c) },
+      ]),
+    ).values(),
+  ];
 
   return (
     <div className="feed-wrap">
-      <div key={activeId ?? "first"} className="feed-spot" aria-hidden="true" />
+      <Spotlight
+        index={Math.max(0, activeIndex)}
+        lit={activeId !== FINALE_ID}
+      />
       <div className="feed-banners">
         {preview && (
           <Banner tone="preview">
-            <strong>Fictional preview — not live data.</strong> Creators, prices
-            and plans are invented to show the layout. Nothing here is onchain.{" "}
+            <strong>Fictional preview — not live data.</strong> Invented
+            creators, prices and plans; nothing here is onchain.{" "}
             <Link to="/">Leave preview</Link>
           </Banner>
         )}
@@ -378,31 +399,47 @@ export function Feed({
             offline={offline}
             watching={watched.has(card.planPda)}
             onToggleWatch={() => onToggleWatch(card)}
+            onOpenScript={() => setScriptId(card.planPda)}
             articleRef={observeAct}
           />
         ))}
         <Finale
           sectionRef={observeAct}
           active={activeId === FINALE_ID}
+          cast={cast}
           tally={tally}
           total={cards.length}
-          watching={cards.filter((c) => watched.has(c.planPda)).length}
+          watched={cards
+            .filter((c) => watched.has(c.planPda))
+            .map((c) => ({
+              planPda: c.planPda,
+              label: planLabel(c),
+              seed: c.creator.address,
+            }))}
           hasMore={!!query.hasNextPage}
           loadingMore={query.isFetchingNextPage}
           refreshing={query.isFetching}
           onRefresh={() => {
             void query.refetch().then(showNewest);
           }}
-          onTop={() => cards[0] && goTo(cards[0].planPda)}
+          onReplay={() => cards[0] && goTo(cards[0].planPda)}
+          onGoTo={goTo}
         />
       </div>
+
+      <ScriptSheet
+        card={scriptCard}
+        live={scriptCard ? (liveById.get(scriptCard.planPda) ?? null) : null}
+        nowMs={nowMs}
+        onClose={() => setScriptId(null)}
+      />
 
       <p className="sr-only" aria-live="polite">
         {announcement}
       </p>
       <p className="feed-keys" aria-hidden="true">
         <kbd>J</kbd>/<kbd>K</kbd> or <kbd>↑</kbd>/<kbd>↓</kbd> move ·{" "}
-        <kbd>W</kbd> watch
+        <kbd>W</kbd> watch · <kbd>D</kbd> plan
       </p>
     </div>
   );
