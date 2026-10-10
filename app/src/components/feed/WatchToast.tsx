@@ -15,9 +15,12 @@ const SHOW_MS = 5000;
 export function WatchToast({
   toast,
   onDismiss,
+  onPage = false,
 }: {
   toast: { key: number; subject: string } | null;
   onDismiss: () => void;
+  /** On a scrolling page rather than the feed's stage: pinned under the header. */
+  onPage?: boolean;
 }) {
   const reduce = useCalmMotion();
   useEffect(() => {
@@ -31,7 +34,7 @@ export function WatchToast({
       {toast && (
         <motion.aside
           key={toast.key}
-          className="watch-toast"
+          className={onPage ? "watch-toast watch-toast--page" : "watch-toast"}
           aria-label="Watch confirmation"
           initial={reduce ? { opacity: 0 } : { opacity: 0, y: -24 }}
           animate={{ opacity: 1, y: 0 }}
@@ -40,12 +43,12 @@ export function WatchToast({
         >
           <Cue pose="saved" className="watch-toast__cue" />
           <div className="watch-toast__text">
-            <p className="watch-toast__title">Saved to My Plans</p>
+            <p className="watch-toast__title">Saved to your Watchlist</p>
             <p className="watch-toast__body">
               Watching {toast.subject} doesn't place a trade.
             </p>
-            <Link to="/me" className="watch-toast__link">
-              Open My Plans
+            <Link to="/watchlist" className="watch-toast__link">
+              Open Watchlist
             </Link>
           </div>
           <button

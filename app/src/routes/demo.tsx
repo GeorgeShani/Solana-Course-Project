@@ -5,6 +5,7 @@ import { Cue, type CuePose } from "../components/cue/Cue";
 import { StatusBlock } from "../components/feed/StatusBlock";
 import { Portrait } from "../components/theatre/Portrait";
 import { Icon } from "../components/ui/Icon";
+import { KindBadge } from "../components/ui/KindBadge";
 import {
   DEMO_LABEL,
   DEMO_PLAN,
@@ -19,7 +20,7 @@ import { useCueGaze, useStagePointer } from "../lib/pointer";
 import { STATUS_HEADLINE } from "../lib/status";
 
 export const Route = createFileRoute("/demo")({
-  head: () => ({ meta: [{ title: "Try a demo · Relay" }] }),
+  head: () => ({ meta: [{ title: "Try the demo · Relay" }] }),
   component: Demo,
 });
 
@@ -90,7 +91,7 @@ function Demo() {
       >
         <DemoBanner />
         <h1 id="demo-title" className="page__title">
-          Try a demo
+          Try the demo
         </h1>
       </section>
     );
@@ -107,12 +108,54 @@ function Demo() {
     <section className="page demo" aria-labelledby="demo-title">
       <DemoBanner />
       <h1 id="demo-title" className="page__title">
-        Try a demo
+        Try the demo
       </h1>
       <p className="page__text">
-        Follow one fictional plan from first look to the moment its entry
-        passes. A simulated clock moves only when you press the advance button.
+        Follow one fictional trader from a public idea to a plan, and watch the
+        plan until its entry passes. A simulated clock moves only when you press
+        the advance button.
       </p>
+
+      <section className="demo__records" aria-labelledby="demo-records-title">
+        <h2 id="demo-records-title" className="page__section">
+          Mika's records
+        </h2>
+        <ul className="records">
+          <li className="record-row">
+            <span className="record-row__top">
+              <KindBadge kind="fictional" />
+              <KindBadge kind="public_post" />
+              <span className="record-row__time">
+                {DEMO_PLAN.publishedMinutesBefore + 18} min before the plan
+              </span>
+            </span>
+            <span className="record-row__title">“{DEMO_PLAN.post}”</span>
+            <span className="record-row__terms">
+              An idea, not proof of a trade. Nothing here says Mika bought.
+            </span>
+          </li>
+          <li className="record-row">
+            <span className="record-row__top">
+              <KindBadge kind="fictional" />
+              <KindBadge kind="relay_plan" />
+              <span className="record-row__time">
+                {DEMO_PLAN.publishedMinutesBefore} min ago
+              </span>
+            </span>
+            <span className="record-row__title">
+              {DEMO_PLAN.pair} · Buy plan
+            </span>
+            <span className="record-row__terms">
+              Entry{" "}
+              <span className="num">
+                {formatUsdText(DEMO_PLAN.entryLow)} –{" "}
+                {formatUsdText(DEMO_PLAN.entryHigh)}
+              </span>{" "}
+              · the plan below. Real plans are signed on Solana.
+            </span>
+          </li>
+        </ul>
+      </section>
 
       <div className="demo__grid">
         <figure className="demo__cue">
@@ -263,8 +306,8 @@ function Demo() {
 
       {last && (
         <div className="demo__finish">
-          <Link to="/" className="btn btn--primary">
-            Explore real plans
+          <Link to="/traders" className="btn btn--primary">
+            Explore real traders
           </Link>
           <button type="button" className="btn btn--glass" onClick={restart}>
             Restart demo

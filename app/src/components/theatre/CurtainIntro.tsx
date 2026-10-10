@@ -1,4 +1,6 @@
+import { motion, useTransform } from "motion/react";
 import { useEffect, type ReactNode } from "react";
+import { useStagePointer } from "../../lib/pointer";
 import { MarqueeSign } from "./Marquee";
 
 export const SEEN_KEY = "relay:curtain-seen";
@@ -27,11 +29,13 @@ function end() {
  * CSS animation that begins before hydration, so a slow script can never hold the stage shut.
  */
 export function Drapes() {
+  const pointer = useStagePointer();
+  const x = useTransform(pointer.x, (v) => v * -4);
   return (
-    <div className="drapes" aria-hidden="true">
+    <motion.div className="drapes" aria-hidden="true" style={{ x }}>
       <div className="drape drape--left" />
       <div className="drape drape--right" />
-    </div>
+    </motion.div>
   );
 }
 

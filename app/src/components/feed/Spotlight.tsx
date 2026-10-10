@@ -1,6 +1,7 @@
-import { motion } from "motion/react";
+import { motion, useTransform } from "motion/react";
 import { useState } from "react";
 import { useCalmMotion } from "../../lib/motion";
+import { useStagePointer } from "../../lib/pointer";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
@@ -10,6 +11,8 @@ const EASE = [0.16, 1, 0.3, 1] as const;
  */
 export function Spotlight({ index, lit }: { index: number; lit: boolean }) {
   const reduce = useCalmMotion();
+  const pointer = useStagePointer();
+  const drift = useTransform(pointer.x, (v) => v * 18);
   const [track, setTrack] = useState({ index, dir: 1 });
   if (track.index !== index)
     setTrack({ index, dir: index > track.index ? 1 : -1 });
@@ -19,7 +22,7 @@ export function Spotlight({ index, lit }: { index: number; lit: boolean }) {
       key={index}
       className="spotlight"
       aria-hidden="true"
-      style={{ transformOrigin: "50% 0%" }}
+      style={{ transformOrigin: "50% 0%", x: drift }}
       initial={
         reduce ? false : { opacity: 0, rotate: track.dir * 14, scaleY: 0.4 }
       }

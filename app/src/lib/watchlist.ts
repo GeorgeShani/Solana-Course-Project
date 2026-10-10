@@ -1,5 +1,6 @@
 import type { EntryStatus } from "@relay/domain";
 import { useSyncExternalStore } from "react";
+import type { PlanCardView } from "./api";
 
 /**
  * The local watch list. Watching needs no wallet and no account: it lives in this browser only
@@ -83,6 +84,22 @@ export function parseSnapshot(v: unknown): WatchSnapshot | undefined {
     entryLow,
     entryHigh,
     expiresAt,
+  };
+}
+
+/** The plan as the reader sees it now, kept so the Watchlist can show what changed since. */
+export function snapshotOf(
+  card: PlanCardView,
+  status: EntryStatus,
+): WatchSnapshot {
+  return {
+    status,
+    version: card.version.version,
+    priceUnits: card.entry.price?.units ?? null,
+    quoteDecimals: card.pair.quoteDecimals,
+    entryLow: card.version.entryLow,
+    entryHigh: card.version.entryHigh,
+    expiresAt: card.version.expiresAt,
   };
 }
 

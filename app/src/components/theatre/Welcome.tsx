@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Cue } from "../cue/Cue";
 import { useCalmMotion } from "../../lib/motion";
 import { useCueGaze, useStagePointer } from "../../lib/pointer";
+import { ENTER_EVENT, leaveWelcome } from "../../lib/stage";
 import { ENTERED_KEY, SEEN_KEY } from "./CurtainIntro";
 import { MarqueeSign } from "./Marquee";
 
@@ -67,6 +68,17 @@ export function Welcome({
     document.documentElement.dataset.welcome = "opening";
     setOpening(true);
   };
+  const enterRef = useRef(enter);
+  useEffect(() => {
+    enterRef.current = enter;
+  });
+  useEffect(() => {
+    const onEnter = () => {
+      if (document.documentElement.dataset.welcome === "on") enterRef.current();
+    };
+    window.addEventListener(ENTER_EVENT, onEnter);
+    return () => window.removeEventListener(ENTER_EVENT, onEnter);
+  }, []);
 
   const drape = (side: 1 | -1) => (
     <motion.div
@@ -117,11 +129,7 @@ export function Welcome({
         }}
       >
         <div className="welcome__sign">
-          <MarqueeSign
-            heading
-            titleId="welcome-title"
-            sub="Follow the plan. See the proof."
-          />
+          <MarqueeSign />
         </div>
 
         <div className="welcome__stage">
@@ -157,10 +165,12 @@ export function Welcome({
           </motion.div>
         </div>
 
+        <h1 id="welcome-title" className="welcome__title">
+          Meet the traders. Follow the evidence.
+        </h1>
         <p className="welcome__lede">
-          Traders lock their plans on Solana: an entry range and a deadline.
-          Relay shows whether that original entry is still open, and what really
-          happened to the wallets that followed.
+          Discover Solana traders, explore their public ideas, and see the
+          activity we can verify.
         </p>
         <div className="welcome__actions">
           <button
@@ -169,15 +179,14 @@ export function Welcome({
             onClick={enter}
             disabled={opening}
           >
-            Explore the plans
+            Explore traders
           </button>
-          <Link to="/demo" className="btn btn--glass">
-            Try a demo
+          <Link to="/demo" className="btn btn--glass" onClick={leaveWelcome}>
+            Try the demo
           </Link>
         </div>
         <p className="welcome__note">
-          Not financial advice. Watching never trades, and every trade is your
-          own approval.
+          Not financial advice. Watching needs no wallet and never trades.
         </p>
       </motion.div>
     </motion.section>
