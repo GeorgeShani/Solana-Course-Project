@@ -28,7 +28,12 @@ export type IconName =
   | "post"
   | "fictional"
   | "back"
-  | "external";
+  | "external"
+  | "wallet"
+  | "copy"
+  | "arrow-down"
+  | "next"
+  | "shield";
 
 const PATHS: Record<IconName, ReactNode> = {
   feed: (
@@ -174,6 +179,26 @@ const PATHS: Record<IconName, ReactNode> = {
     <>
       <path d="M14 4.5h5.5V10M19.5 4.5 11 13" />
       <path d="M17.5 14v4a1.5 1.5 0 0 1-1.5 1.5H6A1.5 1.5 0 0 1 4.5 18V8A1.5 1.5 0 0 1 6 6.5h4" />
+    </>
+  ),
+  wallet: (
+    <>
+      <path d="M18.5 8.5V6.5A1.5 1.5 0 0 0 17 5H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12.5a1.5 1.5 0 0 0 1.5-1.5v-7.5a1.5 1.5 0 0 0-1.5-1.5H6" />
+      <path d="M16 14h.01" />
+    </>
+  ),
+  copy: (
+    <>
+      <rect x="8.5" y="8.5" width="11" height="11" rx="2" />
+      <path d="M15.5 8.5V6a1.5 1.5 0 0 0-1.5-1.5H6A1.5 1.5 0 0 0 4.5 6v8A1.5 1.5 0 0 0 6 15.5h2.5" />
+    </>
+  ),
+  "arrow-down": <path d="M12 5v14M6 13l6 6 6-6" />,
+  next: <path d="m9 5 7 7-7 7" />,
+  shield: (
+    <>
+      <path d="M12 3.5 19 6v5.5c0 4.2-2.9 7.6-7 9-4.1-1.4-7-4.8-7-9V6z" />
+      <path d="m9 12 2.2 2.2L15.5 10" />
     </>
   ),
 };

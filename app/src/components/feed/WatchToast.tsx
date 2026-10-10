@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect } from "react";
+import { cueReact } from "../../lib/cue-cursor";
 import { useCalmMotion } from "../../lib/motion";
 import { Cue } from "../cue/Cue";
 import { Icon } from "../ui/Icon";
@@ -25,6 +26,7 @@ export function WatchToast({
   const reduce = useCalmMotion();
   useEffect(() => {
     if (!toast) return;
+    cueReact();
     const t = window.setTimeout(onDismiss, SHOW_MS);
     return () => window.clearTimeout(t);
   }, [toast, onDismiss]);

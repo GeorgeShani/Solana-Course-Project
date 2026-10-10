@@ -1,7 +1,10 @@
 import { Link } from "@tanstack/react-router";
 import type { ReactNode } from "react";
-import { leaveWelcome, requestEnter } from "../../lib/stage";
-import { NAV } from "../../lib/nav";
+import { setCueCursor, useCueCursorPref } from "../../lib/cue-cursor";
+import { HEADER_NAV } from "../../lib/nav";
+import { Cue } from "../cue/Cue";
+import { Icon } from "../ui/Icon";
+import { WalletButton } from "../wallet/WalletButton";
 
 function Bulbs({ count }: { count: number }) {
   return (
@@ -37,17 +40,33 @@ export function MarqueeSign({
   );
 }
 
+function CursorSwitch() {
+  const on = useCueCursorPref();
+  return (
+    <button
+      type="button"
+      className="hdr-btn hdr-btn--icon hdr-btn--cursor"
+      aria-pressed={on}
+      aria-label="Cue cursor"
+      title={on ? "Cue cursor on" : "Cue cursor off"}
+      onClick={() => setCueCursor(!on)}
+    >
+      <Cue pose="mascot" />
+    </button>
+  );
+}
+
 /**
  * The valance over the stage: scalloped burgundy with a brass hem, carrying the small RELAY sign.
- * On desktop it is also the header: the app's navigation inside, a compact set of links on the
- * welcome. The bulbs chase slowly and stop under reduced motion.
+ * On desktop it is the header: the app's destinations at left, the network, the Cue cursor switch
+ * and the wallet at right. The welcome shows none of it; the bulbs stop under reduced motion.
  */
 export function Valance({ clusterLabel }: { clusterLabel: string | null }) {
   return (
     <header className="valance">
-      <nav className="topnav topnav--app" aria-label="Main">
+      <nav className="topnav" aria-label="Main">
         <ul className="topnav__list">
-          {NAV.slice(0, 3).map((t) => (
+          {HEADER_NAV.map((t) => (
             <li key={t.to}>
               <Link
                 to={t.to}
@@ -67,62 +86,20 @@ export function Valance({ clusterLabel }: { clusterLabel: string | null }) {
         <Bulbs count={7} />
       </Link>
       <div className="valance__end">
-        <nav className="topnav topnav--app" aria-label="Help and account">
-          <ul className="topnav__list">
-            <li>
-              <Link
-                to="/how-it-works"
-                className="topnav__link"
-                activeProps={{ "aria-current": "page" }}
-              >
-                How it works
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/account"
-                className="topnav__link"
-                activeProps={{ "aria-current": "page" }}
-              >
-                Account
-              </Link>
-            </li>
-          </ul>
-        </nav>
-        <nav className="topnav topnav--welcome" aria-label="Welcome">
-          <ul className="topnav__list">
-            <li>
-              <button
-                type="button"
-                className="topnav__link"
-                onClick={requestEnter}
-              >
-                Explore
-              </button>
-            </li>
-            <li>
-              <Link
-                to="/how-it-works"
-                className="topnav__link"
-                onClick={leaveWelcome}
-              >
-                How it works
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/watchlist"
-                className="topnav__link"
-                onClick={leaveWelcome}
-              >
-                Watchlist
-              </Link>
-            </li>
-          </ul>
-        </nav>
         {clusterLabel && (
           <span className="valance__cluster">{clusterLabel}</span>
         )}
+        <CursorSwitch />
+        <Link
+          to="/account"
+          className="hdr-btn hdr-btn--icon hdr-btn--account"
+          aria-label="Account"
+          title="Account"
+          activeProps={{ "aria-current": "page" }}
+        >
+          <Icon name="account" size={18} />
+        </Link>
+        <WalletButton />
       </div>
     </header>
   );

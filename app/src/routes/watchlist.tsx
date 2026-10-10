@@ -1,10 +1,18 @@
 import { formatUnits } from "@relay/domain";
 import { useQuery } from "@tanstack/react-query";
-import { Link, createFileRoute } from "@tanstack/react-router";
-import { useState, type FormEvent } from "react";
+import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
+import {
+  useRef,
+  useState,
+  type FormEvent,
+  type KeyboardEvent,
+  type ReactNode,
+} from "react";
 import { Cue } from "../components/cue/Cue";
 import { Avatar } from "../components/theatre/Portrait";
 import { Icon } from "../components/ui/Icon";
+import { KindBadge } from "../components/ui/KindBadge";
+import { PairIcon } from "../components/ui/TokenIcon";
 import {
   fetchExecutions,
   fetchPlan,
@@ -30,14 +38,30 @@ import {
   type WatchedTrader,
 } from "../lib/trader-watch";
 import { traderName, useTraderIndex } from "../lib/traders";
+import { useWallet } from "../lib/wallet";
 import {
   removeWatched,
   useWatchList,
   type WatchedPlan,
 } from "../lib/watchlist";
 
+const TABS = ["traders", "records", "history"] as const;
+type Tab = (typeof TABS)[number];
+const TAB_LABEL: Record<Tab, string> = {
+  traders: "Traders",
+  records: "Records",
+  history: "History",
+};
+
+function isTab(v: unknown): v is Tab {
+  return TABS.some((t) => t === v);
+}
+
 export const Route = createFileRoute("/watchlist")({
   head: () => ({ meta: [{ title: "Watchlist · Relay" }] }),
+  validateSearch: (search: Record<string, unknown>): { tab?: Tab } => ({
+    tab: isTab(search.tab) ? search.tab : undefined,
+  }),
   component: Watchlist,
 });
 
@@ -72,74 +96,135 @@ function Watchlist() {
   const mounted = useMounted();
   const watching = useWatchList();
   const traders = useWatchedTraders();
-  const empty = watching.length === 0 && traders.length === 0;
-  return (
-    <section className="page" aria-labelledby="watchlist-title">
-      <h1 id="watchlist-title" className="page__title">
-        Watchlist
-      </h1>
-      <p className="page__text page__text--quiet">
-        Saved in this browser only. No wallet or account needed. Watching never
-        trades.
-      </p>
+  const navigate = useNavigate({ from: "/watchlist" });
+  const tab = Route.useSearch().tab ?? "traders";
+  const tabRefs = useRef<Partial<Record<Tab, HTMLButtonElement | null>>>({});
 
-      {!mounted ? (
-        <p className="page__text" aria-busy="true">
-          Reading your watchlist…
-        </p>
-      ) : empty ? (
-        <div className="me-empty">
-          <Cue pose="discover" className="me-empty__cue" />
-          <div>
-            <p className="page__text">
-              Nothing watched yet. Tap <strong>Watch</strong> on a trader or a
-              record to keep it here and see what changes.
-            </p>
-            <p className="me-empty__links">
-              <Link to="/">Discover</Link>
-              <Link to="/traders">Browse traders</Link>
-              <Link to="/demo">Try the demo</Link>
-            </p>
-          </div>
+  const select = (t: Tab, focus = false) => {
+    void navigate({ search: { tab: t }, replace: true });
+    if (focus) tabRefs.current[t]?.focus();
+  };
+
+  const onKey = (e: KeyboardEvent<HTMLDivElement>) => {
+    const i = TABS.indexOf(tab);
+    const next =
+      e.key === "ArrowRight"
+        ? TABS[(i + 1) % TABS.length]
+        : e.key === "ArrowLeft"
+          ? TABS[(i + TABS.length - 1) % TABS.length]
+          : e.key === "Home"
+            ? TABS[0]
+            : e.key === "End"
+              ? TABS[TABS.length - 1]
+              : null;
+    if (!next) return;
+    e.preventDefault();
+    select(next, true);
+  };
+
+  const count: Record<Tab, number | null> = {
+    traders: mounted ? traders.length : null,
+    records: mounted ? watching.length : null,
+    history: null,
+  };
+
+  return (
+    <section
+      className="page page--wide"
+      aria-labelledby="watchlist-title"
+      data-cursor-zone
+    >
+      <header className="page__head">
+        <h1 id="watchlist-title" className="page__title">
+          Watchlist
+        </h1>
+        <span className="storage-note">
+          <Icon name="shield" size={13} />
+          Stored in this browser only
+        </span>
+      </header>
+
+      <div className="wl-tabs">
+        <div
+          className="tabs"
+          role="tablist"
+          aria-label="Watchlist"
+          onKeyDown={onKey}
+        >
+          {TABS.map((t) => (
+            <button
+              key={t}
+              ref={(el) => {
+                tabRefs.current[t] = el;
+              }}
+              type="button"
+              role="tab"
+              id={`wl-tab-${t}`}
+              aria-selected={tab === t}
+              aria-controls={`wl-panel-${t}`}
+              tabIndex={tab === t ? 0 : -1}
+              className="tabs__tab"
+              onClick={() => select(t)}
+            >
+              {TAB_LABEL[t]}
+              {count[t] !== null && count[t] > 0 && (
+                <span className="tabs__count">{count[t]}</span>
+              )}
+            </button>
+          ))}
         </div>
-      ) : (
-        <>
-          <h2 className="page__section">Traders</h2>
-          {traders.length === 0 ? (
-            <p className="page__text">
-              No traders watched. Open a <Link to="/traders">trader</Link> and
-              tap <strong>Watch trader</strong>.
-            </p>
+      </div>
+
+      <div
+        role="tabpanel"
+        id={`wl-panel-${tab}`}
+        aria-labelledby={`wl-tab-${tab}`}
+        className="wl-panel"
+      >
+        {!mounted ? (
+          <p className="page__text" aria-busy="true">
+            Reading your watchlist…
+          </p>
+        ) : tab === "traders" ? (
+          traders.length === 0 ? (
+            <Empty>Watch a trader to see their new plans here.</Empty>
           ) : (
             <WatchedTraders list={traders} />
-          )}
-
-          <h2 className="page__section">Records</h2>
-          {watching.length === 0 ? (
-            <p className="page__text">
-              No records watched. Tap <strong>Watch</strong> on a plan in{" "}
-              <Link to="/">Discover</Link>.
-            </p>
+          )
+        ) : tab === "records" ? (
+          watching.length === 0 ? (
+            <Empty>Watch a plan to see what changes after you save it.</Empty>
           ) : (
-            <ul className="watchlist">
+            <ul className="wl-list">
               {watching.map((w) => (
                 <WatchedRow key={w.planPda} w={w} />
               ))}
             </ul>
-          )}
-        </>
-      )}
-
-      <h2 className="page__section">Followed</h2>
-      <Followed />
+          )
+        ) : (
+          <Followed />
+        )}
+      </div>
     </section>
+  );
+}
+
+function Empty({ children }: { children: ReactNode }) {
+  return (
+    <div className="wl-empty">
+      <Cue pose="saved" className="wl-empty__cue" />
+      <p className="wl-empty__line">{children}</p>
+      <Link to="/traders" className="btn btn--primary btn--large">
+        Explore traders
+      </Link>
+    </div>
   );
 }
 
 function WatchedTraders({ list }: { list: readonly WatchedTrader[] }) {
   const q = useTraderIndex();
   return (
-    <ul className="watchlist">
+    <ul className="wl-list">
       {list.map((w) => {
         const t = q.data?.traders.find((x) => x.address === w.address);
         const fresh = t
@@ -149,51 +234,63 @@ function WatchedTraders({ list }: { list: readonly WatchedTrader[] }) {
                 p.version.publishedAt > w.seenPublishedAt,
             ).length
           : 0;
+        const latest = t?.plans[0];
         return (
-          <li key={w.address} className="watchlist__item watchlist__item--rich">
-            <Avatar seed={w.address} size={36} />
-            <div className="watchlist__text">
-              <p className="watchlist__label">{t ? traderName(t) : w.label}</p>
-              {w.savedAt > 0 && (
-                <p className="watchlist__meta">
-                  Watching since {when(w.savedAt)}
-                </p>
-              )}
+          <li key={w.address} className="wl-card lift">
+            <Avatar seed={w.address} size={48} />
+            <div className="wl-card__body">
+              <p className="wl-card__title">
+                {t ? traderName(t) : w.label}
+                {t?.isDemo && <span className="badge">Demo creator</span>}
+              </p>
+              <p className="wl-card__meta">
+                <span className="num">{shortAddress(w.address)}</span>
+                {w.savedAt > 0 && <> · watching since {when(w.savedAt)}</>}
+              </p>
               {q.isPending ? (
-                <p className="watchlist__meta" aria-busy="true">
-                  Checking for new records…
+                <p className="wl-card__meta" aria-busy="true">
+                  Checking for new plans…
                 </p>
               ) : q.isError ? (
                 <p className="watchlist__error" role="status">
-                  Couldn't check for new records right now.{" "}
+                  Couldn't check for new plans.{" "}
                   <button type="button" onClick={() => void q.refetch()}>
                     Try again
                   </button>
                 </p>
               ) : !t ? (
-                <p className="watchlist__meta">
-                  No records from this wallet in the feed now.
+                <p className="wl-card__meta">
+                  No plans from this wallet in the feed now.
                 </p>
               ) : (
-                <p className="watchlist__now">
+                <p className="wl-card__now">
                   {fresh > 0 ? (
                     <span className="watchlist__status" data-tone="new">
-                      {fresh} new {fresh === 1 ? "plan" : "plans"} since you
-                      watched
+                      {fresh} new since you watched
                     </span>
                   ) : (
-                    <span className="watchlist__meta">
-                      No new records since you watched.
+                    <span className="wl-card__meta">Nothing new</span>
+                  )}
+                  {latest && (
+                    <span className="wl-card__meta">
+                      Latest: {latest.pair.label} ·{" "}
+                      {formatClock(latest.version.publishedAt)}
                     </span>
                   )}
                 </p>
               )}
+              <p className="wl-card__source">
+                <KindBadge kind="relay_plan" />
+                <span className="wl-card__meta">
+                  Source: plans this wallet signed
+                </span>
+              </p>
             </div>
-            <div className="watchlist__actions">
+            <div className="wl-card__actions">
               <Link
                 to="/traders/$address"
                 params={{ address: w.address }}
-                className="btn btn--ghost btn--small"
+                className="btn btn--glass btn--small"
               >
                 Open
               </Link>
@@ -215,35 +312,41 @@ function WatchedTraders({ list }: { list: readonly WatchedTrader[] }) {
 
 function WatchedRow({ w }: { w: WatchedPlan }) {
   const q = usePlan(w.planPda);
-  const live = useLive(q.data?.card, q.dataUpdatedAt);
+  const card = q.data?.card;
+  const live = useLive(card, q.dataUpdatedAt);
   const status = live?.entry.status;
   const changes =
-    q.data && status && w.snapshot
-      ? watchChanges(w.snapshot, q.data.card, status)
+    card && status && w.snapshot
+      ? watchChanges(w.snapshot, card, status)
       : null;
   const missed = status === "above_range";
 
   return (
-    <li className="watchlist__item watchlist__item--rich">
-      {missed ? (
-        <Cue pose="missed" className="watchlist__cue" />
+    <li className="wl-card lift">
+      {card ? (
+        <PairIcon
+          base={card.pair.baseSymbol}
+          quote={card.pair.quoteSymbol}
+          size={36}
+        />
       ) : (
-        <Icon name="star-filled" className="watchlist__star" />
+        <span className="wl-card__star">
+          <Icon name="star-filled" size={22} />
+        </span>
       )}
-      <div className="watchlist__text">
-        <p className="watchlist__label">
-          {q.data ? planLabel(q.data.card) : w.label}
+      <div className="wl-card__body">
+        <p className="wl-card__title">{card ? planLabel(card) : w.label}</p>
+        <p className="wl-card__meta">
+          {w.savedAt > 0 && <>Watching since {when(w.savedAt)}</>}
+          {q.data && <> · checked {when(q.dataUpdatedAt)}</>}
         </p>
-        {w.savedAt > 0 && (
-          <p className="watchlist__meta">Watching since {when(w.savedAt)}</p>
-        )}
         {q.isPending ? (
-          <p className="watchlist__meta" aria-busy="true">
+          <p className="wl-card__meta" aria-busy="true">
             Checking the plan now…
           </p>
         ) : q.isError ? (
           <p className="watchlist__error" role="status">
-            Couldn't load this plan right now. {q.error.message}.{" "}
+            Couldn't load this plan. {q.error.message}.{" "}
             <button type="button" onClick={() => void q.refetch()}>
               Try again
             </button>
@@ -251,23 +354,22 @@ function WatchedRow({ w }: { w: WatchedPlan }) {
         ) : (
           status && (
             <>
-              <p className="watchlist__now">
+              <p className="wl-card__now">
                 <span
                   className="watchlist__status"
                   data-tone={STATUS_TONE[status]}
                 >
                   {STATUS_HEADLINE[status]}
                 </span>
-                <span className="watchlist__meta">
-                  checked {when(q.dataUpdatedAt)}
-                </span>
+                {!w.snapshot ? (
+                  <span className="wl-card__meta">
+                    Saved before snapshots, so only today's status
+                  </span>
+                ) : changes && changes.length === 0 ? (
+                  <span className="wl-card__meta">No change since saved</span>
+                ) : null}
               </p>
-              {!w.snapshot ? (
-                <p className="watchlist__meta">
-                  Watched before Relay kept a snapshot, so only the current
-                  status is shown.
-                </p>
-              ) : changes && changes.length > 0 ? (
+              {changes && changes.length > 0 && (
                 <dl
                   className="changes"
                   aria-label={`Changes since you watched ${w.label}`}
@@ -290,24 +392,26 @@ function WatchedRow({ w }: { w: WatchedPlan }) {
                     </div>
                   ))}
                 </dl>
-              ) : (
-                <p className="watchlist__meta">No change since you watched.</p>
               )}
               {missed && (
-                <p className="watchlist__note">
-                  The price moved above the plan's original range. Watching
-                  saved the plan; it did not place a trade.
+                <p className="wl-card__missed">
+                  <Cue pose="missed" className="wl-card__cue" />
+                  Price moved above the range. Watching saved the plan; it
+                  didn't trade.
                 </p>
               )}
             </>
           )
         )}
+        <p className="wl-card__source">
+          <KindBadge kind="relay_plan" />
+        </p>
       </div>
-      <div className="watchlist__actions">
+      <div className="wl-card__actions">
         <Link
           to="/records/$planPda"
           params={{ planPda: w.planPda }}
-          className="btn btn--ghost btn--small"
+          className="btn btn--glass btn--small"
         >
           Open
         </Link>
@@ -334,10 +438,13 @@ function readFollower(): string {
 
 function Followed() {
   const mounted = useMounted();
+  const { state: wallet } = useWallet();
+  const connected =
+    wallet.status === "connected" ? wallet.account.address : null;
   const [address, setAddress] = useState<string | null>(null);
   const [draft, setDraft] = useState<string | null>(null);
   const [invalid, setInvalid] = useState(false);
-  const saved = address ?? (mounted ? readFollower() : "");
+  const saved = address ?? (mounted ? readFollower() || (connected ?? "") : "");
   const value = draft ?? saved;
 
   const q = useQuery({
@@ -348,9 +455,7 @@ function Followed() {
     retry: 1,
   });
 
-  const submit = (e: FormEvent) => {
-    e.preventDefault();
-    const next = value.trim();
+  const lookUp = (next: string) => {
     if (!isAddress(next)) {
       setInvalid(true);
       return;
@@ -365,43 +470,61 @@ function Followed() {
     }
   };
 
+  const submit = (e: FormEvent) => {
+    e.preventDefault();
+    lookUp(value.trim());
+  };
+
   const recorded = q.data?.filter((x) => x.status === "recorded") ?? [];
   const failed = q.data?.filter((x) => x.status === "failed") ?? [];
 
   return (
-    <>
-      <p className="page__text">
-        Trades are approved in your own wallet, and Relay records each verified
-        receipt. Look up a wallet to see its verified follows. This reads public
-        onchain records; Relay doesn't connect to or control the wallet.
-      </p>
-      <form className="lookup" onSubmit={submit} noValidate>
-        <label htmlFor="follower" className="lookup__label">
-          Wallet address
-        </label>
-        <div className="lookup__row">
-          <input
-            id="follower"
-            className="lookup__input num"
-            value={value}
-            onChange={(e) => setDraft(e.target.value)}
-            spellCheck={false}
-            autoComplete="off"
-            autoCapitalize="off"
-            inputMode="text"
-            aria-invalid={invalid}
-            aria-describedby={invalid ? "follower-error" : undefined}
-            placeholder="Solana address"
-          />
-          <button type="submit" className="btn btn--glass">
-            Look up
-          </button>
+    <div className="wl-history" data-cursor="native">
+      <form className="wl-lookup" onSubmit={submit} noValidate>
+        <div className="field">
+          <label htmlFor="follower" className="field__label">
+            Wallet address
+          </label>
+          <div className="wl-lookup__row">
+            <input
+              id="follower"
+              className="field__input num"
+              value={value}
+              onChange={(e) => setDraft(e.target.value)}
+              spellCheck={false}
+              autoComplete="off"
+              autoCapitalize="off"
+              inputMode="text"
+              aria-invalid={invalid}
+              aria-describedby="follower-msg"
+              placeholder="Solana address"
+            />
+            <button type="submit" className="btn btn--glass btn--large">
+              Look up
+            </button>
+          </div>
+          {invalid ? (
+            <p id="follower-msg" className="field__error" role="alert">
+              That isn't a Solana address: 32–44 letters and digits.
+            </p>
+          ) : (
+            <p id="follower-msg" className="field__hint">
+              Reads public receipts only. Relay never controls this wallet.
+              {connected && connected !== saved && (
+                <>
+                  {" "}
+                  <button
+                    type="button"
+                    className="link-btn"
+                    onClick={() => lookUp(connected)}
+                  >
+                    Use connected wallet
+                  </button>
+                </>
+              )}
+            </p>
+          )}
         </div>
-        {invalid && (
-          <p id="follower-error" className="lookup__error" role="alert">
-            That isn't a Solana address. It should be 32–44 letters and digits.
-          </p>
-        )}
       </form>
 
       {isAddress(saved) &&
@@ -411,7 +534,7 @@ function Followed() {
           </p>
         ) : q.isError ? (
           <div className="watchlist__error" role="status">
-            Couldn't load follows right now. {q.error.message}.{" "}
+            Couldn't load follows. {q.error.message}.{" "}
             <button type="button" onClick={() => void q.refetch()}>
               Try again
             </button>
@@ -423,7 +546,7 @@ function Followed() {
           </p>
         ) : (
           <>
-            <h3 className="page__subsection">Verified entries</h3>
+            <h2 className="page__subsection">Verified entries</h2>
             {recorded.length === 0 ? (
               <p className="page__text">None yet.</p>
             ) : (
@@ -434,15 +557,15 @@ function Followed() {
               </ul>
             )}
 
-            <h3 className="page__subsection">Verified closed outcomes</h3>
+            <h2 className="page__subsection">Closed outcomes</h2>
             <p className="page__text">
-              None yet. Exiting through Relay isn't available, so no closed
-              result can be verified. Open positions above show estimates only.
+              None verified: exiting through Relay isn't available yet. Open
+              positions show estimates only.
             </p>
 
             {failed.length > 0 && (
               <>
-                <h3 className="page__subsection">Failed attempts</h3>
+                <h2 className="page__subsection">Failed attempts</h2>
                 <ul className="receipts">
                   {failed.map((x) => (
                     <FailedRow key={x.signature} x={x} />
@@ -452,7 +575,7 @@ function Followed() {
             )}
           </>
         ))}
-    </>
+    </div>
   );
 }
 

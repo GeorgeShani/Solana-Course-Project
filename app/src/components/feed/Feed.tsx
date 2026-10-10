@@ -356,7 +356,7 @@ export function Feed({
   ];
 
   return (
-    <div className="feed-wrap">
+    <div className="feed-wrap" data-cursor-zone>
       <Spotlight
         index={Math.max(0, activeIndex)}
         lit={activeId !== FINALE_ID}

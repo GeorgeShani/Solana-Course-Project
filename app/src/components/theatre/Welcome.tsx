@@ -61,9 +61,19 @@ export function Welcome({
     onEntered();
   };
 
+  /** The drapes gather to exactly the wings the app's frame rests on, so the handover doesn't jump. */
+  const [gather, setGather] = useState(0.14);
+
   const enter = () => {
     if (opening) return;
     remember();
+    const wing = document
+      .querySelector(".drapes > .drape")
+      ?.getBoundingClientRect().width;
+    const full = document
+      .querySelector(".welcome__drape")
+      ?.getBoundingClientRect().width;
+    if (wing && full) setGather(Math.min(1, wing / full));
     // The feed becomes visible behind the drapes as they part.
     document.documentElement.dataset.welcome = "opening";
     setOpening(true);
@@ -87,7 +97,7 @@ export function Welcome({
       style={{ x: drapeX }}
       initial={false}
       animate={
-        opening ? { scaleX: 0.14, skewY: side * 2 } : { scaleX: 1, skewY: 0 }
+        opening ? { scaleX: gather, skewY: side * 2 } : { scaleX: 1, skewY: 0 }
       }
       transition={
         reduce
@@ -106,6 +116,7 @@ export function Welcome({
     <motion.section
       className="welcome"
       aria-labelledby="welcome-title"
+      data-cursor-zone
       initial={false}
       animate={{ opacity: reduce && opening ? 0 : 1 }}
       transition={{ duration: reduce && opening ? 0.2 : 0 }}
@@ -129,7 +140,7 @@ export function Welcome({
         }}
       >
         <div className="welcome__sign">
-          <MarqueeSign />
+          <MarqueeSign heading titleId="welcome-title" />
         </div>
 
         <div className="welcome__stage">
@@ -165,12 +176,8 @@ export function Welcome({
           </motion.div>
         </div>
 
-        <h1 id="welcome-title" className="welcome__title">
-          Meet the traders. Follow the evidence.
-        </h1>
-        <p className="welcome__lede">
-          Discover Solana traders, explore their public ideas, and see the
-          activity we can verify.
+        <p className="welcome__line">
+          Discover Solana traders. Explore their ideas. Check the evidence.
         </p>
         <div className="welcome__actions">
           <button
@@ -185,9 +192,6 @@ export function Welcome({
             Try the demo
           </Link>
         </div>
-        <p className="welcome__note">
-          Not financial advice. Watching needs no wallet and never trades.
-        </p>
       </motion.div>
     </motion.section>
   );

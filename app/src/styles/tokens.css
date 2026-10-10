@@ -60,6 +60,17 @@
   --t-footnote: 0.8125rem;
   --t-caption: 0.75rem;
 
+  /* headings: hero 40, page 32, section 24, card 20 (desktop sizes; phones step down) */
+  --h-hero: clamp(2rem, 6vw, 2.5rem);
+  --h-page: clamp(1.75rem, 5vw, 2rem);
+  --h-section: 1.25rem;
+  --h-card: 1.0625rem;
+
+  /* controls: standard 48, small 44, extra small 40 */
+  --ctl: 48px;
+  --ctl-sm: 44px;
+  --ctl-xs: 40px;
+
   /* space, radius, motion */
   --s1: 4px;
   --s2: 8px;
@@ -77,5 +88,8 @@
   /* chrome */
   --valance-h: 56px;
   --tabbar-h: 56px;
-  --wing: 7.5%;
+  /* The gathered drapes: decoration only, so they never take more than a sliver of a phone. */
+  --wing: clamp(14px, 4vw, 64px);
+  --page-w: 760px;
+  --page-w-wide: 1080px;
 }

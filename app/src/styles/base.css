@@ -113,7 +113,7 @@ kbd {
   align-items: center;
   justify-content: center;
   gap: var(--s2);
-  min-height: 44px;
+  min-height: var(--ctl-sm);
   padding: 0 var(--s4);
   border-radius: 999px;
   border: 1px solid var(--hairline);
@@ -184,8 +184,212 @@ kbd {
 }
 
 .btn--small {
-  min-height: 36px;
+  min-height: var(--ctl-xs);
   padding: 0 var(--s3);
+  font-size: var(--t-footnote);
+}
+
+.btn--large {
+  min-height: var(--ctl);
+  padding: 0 var(--s5);
+  font-size: var(--t-callout);
+}
+
+.btn--block {
+  display: flex;
+  width: 100%;
+}
+
+/* Tertiary: text weight, a hairline only on hover, for secondary actions in a row. */
+.btn--ghost {
+  border-color: transparent;
+  color: var(--haze);
+}
+
+@media (hover: hover) {
+  .btn--ghost:hover:not(:disabled) {
+    border-color: var(--hairline);
+    background: rgba(246, 241, 255, 0.06);
+    color: var(--chalk);
+  }
+}
+
+.btn--ghost[data-tone="danger"] {
+  color: var(--danger);
+}
+
+/* The bookmark answers the tap: a short pop when something becomes watched. */
+.btn[data-on="true"] svg {
+  animation: bookmark-pop 420ms var(--ease-out);
+}
+
+@keyframes bookmark-pop {
+  40% {
+    transform: scale(1.35) rotate(-8deg);
+  }
+}
+
+/* An on/off switch (48 by 28). The label says what it controls; the state is aria-checked. */
+.switch {
+  position: relative;
+  flex-shrink: 0;
+  width: 48px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid var(--hairline-strong);
+  border-radius: 999px;
+  background: var(--ink-well);
+  cursor: pointer;
+  transition:
+    background-color var(--t-state) var(--ease-out),
+    border-color var(--t-state) var(--ease-out);
+}
+
+.switch::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--haze);
+  transition:
+    transform var(--t-state) var(--ease-out),
+    background-color var(--t-state) var(--ease-out);
+}
+
+.switch[aria-checked="true"] {
+  border-color: var(--limelight);
+  background: rgba(255, 217, 138, 0.22);
+}
+
+.switch[aria-checked="true"]::after {
+  transform: translateX(20px);
+  background: var(--limelight);
+}
+
+.switch:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Tabs: a segmented rail. Selection is a filled pill plus weight, never colour alone. */
+.tabs {
+  display: flex;
+  gap: 2px;
+  width: fit-content;
+  max-width: 100%;
+  padding: 3px;
+  overflow-x: auto;
+  border: 1px solid var(--hairline);
+  border-radius: 999px;
+  background: var(--ink-well);
+  scrollbar-width: none;
+}
+
+.tabs__tab {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s2);
+  min-height: var(--ctl-xs);
+  padding: 0 var(--s4);
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--haze);
+  font-size: var(--t-subhead);
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--t-state) var(--ease-out),
+    color var(--t-state) var(--ease-out);
+}
+
+@media (hover: hover) {
+  .tabs__tab:hover {
+    color: var(--chalk);
+  }
+}
+
+.tabs__tab[aria-selected="true"] {
+  background: var(--velvet-4);
+  color: var(--chalk);
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(7, 2, 15, 0.4);
+}
+
+.tabs__tab:focus-visible {
+  outline-offset: -2px;
+}
+
+.tabs__count {
+  min-width: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: rgba(246, 241, 255, 0.1);
+  font-size: var(--t-caption);
+  text-align: center;
+}
+
+.tabs__tab[aria-selected="true"] .tabs__count {
+  background: rgba(255, 217, 138, 0.2);
+  color: var(--limelight);
+}
+
+/* Text fields (48 tall, label above, message below). */
+.field {
+  display: grid;
+  gap: 6px;
+}
+
+.field__label {
+  color: var(--chalk);
+  font-size: var(--t-subhead);
+  font-weight: 600;
+}
+
+.field__input {
+  min-width: 0;
+  min-height: var(--ctl);
+  padding: 0 var(--s3);
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--r-sm);
+  background: var(--ink-well);
+  color: var(--chalk);
+  font: inherit;
+  font-size: var(--t-callout);
+  transition: border-color var(--t-state) var(--ease-out);
+}
+
+.field__input::placeholder {
+  color: var(--mute);
+}
+
+@media (hover: hover) {
+  .field__input:hover:not(:disabled) {
+    border-color: rgba(246, 241, 255, 0.4);
+  }
+}
+
+.field__input:focus-visible {
+  border-color: var(--limelight);
+  outline: 2px solid rgba(255, 217, 138, 0.35);
+  outline-offset: 1px;
+}
+
+.field__input[aria-invalid="true"] {
+  border-color: var(--danger);
+}
+
+.field__error {
+  color: var(--danger);
+  font-size: var(--t-footnote);
+}
+
+.field__hint {
+  color: var(--haze);
   font-size: var(--t-footnote);
 }
 
@@ -236,34 +440,100 @@ kbd {
 /* ---------------------------------------------------------------- pages */
 
 .page {
+  --page-max: var(--page-w);
   position: relative;
   z-index: 10;
   height: 100%;
   overflow-y: auto;
-  padding: var(--s6) calc(var(--wing) + var(--s4)) var(--s7);
+  padding: var(--s5) calc(var(--wing) + var(--s4)) var(--s7);
+}
+
+.page--wide {
+  --page-max: var(--page-w-wide);
 }
 
 .page > * {
-  max-width: 600px;
+  max-width: min(100%, var(--page-max));
   margin-left: auto;
   margin-right: auto;
+}
+
+/* One coordinated entrance per page: the first few blocks rise in sequence, the rest are there. */
+@media (prefers-reduced-motion: no-preference) {
+  .page > * {
+    animation: page-in 420ms var(--ease-out) both;
+  }
+
+  .page > :nth-child(2) {
+    animation-delay: 50ms;
+  }
+
+  .page > :nth-child(3) {
+    animation-delay: 100ms;
+  }
+
+  .page > :nth-child(n + 4) {
+    animation-delay: 150ms;
+  }
+}
+
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+.page__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--s2) var(--s4);
+  margin-bottom: var(--s4);
+}
+
+.page__head .page__title {
+  margin-bottom: 0;
 }
 
 .page__title {
   font-family: var(--font-display);
   font-weight: 800;
-  font-size: clamp(2.5rem, 11vw, 3.5rem);
-  line-height: 0.88;
+  font-size: var(--h-page);
+  line-height: 1;
   letter-spacing: 0.01em;
-  margin-bottom: var(--s4);
+  margin-bottom: var(--s3);
   text-wrap: balance;
+}
+
+.page__lede {
+  max-width: 52ch;
+  color: var(--haze);
+  font-size: var(--t-callout);
+  text-wrap: pretty;
 }
 
 .page__section {
   margin-top: var(--s6);
-  margin-bottom: var(--s2);
-  font-size: var(--t-title3);
+  margin-bottom: var(--s3);
+  font-size: var(--h-section);
   font-weight: 700;
+  line-height: 1.2;
+}
+
+/* A short label for where data lives (this browser, the chain): concise, never a paragraph. */
+.storage-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px var(--s2);
+  border: 1px solid var(--hairline);
+  border-radius: 999px;
+  color: var(--haze);
+  font-size: var(--t-caption);
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 .page__text {
@@ -848,7 +1118,10 @@ kbd {
 .page > .back {
   display: flex;
   width: fit-content;
-  margin-left: max(calc(-1 * var(--s2)), calc((100% - 600px) / 2 - var(--s2)));
+  margin-left: max(
+    calc(-1 * var(--s2)),
+    calc((100% - var(--page-max)) / 2 - var(--s2))
+  );
 }
 
 /* A missing-data or error message with Cue's helpful pose. */

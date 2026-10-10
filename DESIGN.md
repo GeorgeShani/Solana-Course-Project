@@ -185,6 +185,7 @@ Each trade plan is one act, one screen tall, snapped vertically at the reader's 
 Motion belongs to the theatre, never to the numbers. The curtain parts once per session, the spotlight swings onto each newly active act, the portrait rises into its light, and at the end the drapes close over a "Fin." and a curtain call. All of it is off under reduced motion.
 
 **Key Characteristics:**
+
 - Theatre materials (velvet, curtain, brass, limelight) frame; a flat plaque (#170d2c) holds every number.
 - Big Shoulders Display 800 for the marquee, names, pairs and the finale; the system text stack on the Apple text scale for everything read.
 - Pills everywhere for controls; an arch (round top, 24px base corners) for portraits.
@@ -197,18 +198,22 @@ Motion belongs to the theatre, never to the numbers. The curtain parts once per 
 A night-purple stage, burgundy velvet and warm brass, lit by limelight, with Solana purple and green held back for meaning.
 
 ### Primary
+
 - **Limelight** (`limelight`): the light of the stage. The primary button fill, links, focus ring, text selection, caret, badge text, the marquee word and the "Fin." glow. Its hover lifts to **Pale Limelight** (`limelight-hover`).
 - **Brass** (`brass`): the trim of the theatre. Valance hem, drape hems and bead fringe, portrait and avatar frames, marquee sign border, badge border, the script sheet's top edge, the scrollbar thumb (at 40%), and the tab bar's top hairline (at 32%).
 
 ### Secondary
+
 - **Curtain Burgundy** (`curtain`), **Curtain Shadow** (`curtain-dark`), **Curtain Highlight** (`curtain-light`): only in the drape folds (a 56px repeating dark→mid→light→mid→dark band) and the valance scallops. Never behind text.
 - **Marquee Bulb** (`bulb`): the bulb bodies, haloed in limelight.
 
 ### Tertiary
+
 - **Solana Green** (`sol-green` / `st-in`): the "In plan range" cue ink: the filled status pill and its range band. One of the five sigil inks.
 - **Solana Purple** (`sol-purple`, `sol-purple-light`): the gradient's start on the active tab indicator; the lighter purple is a sigil ink.
 
 ### Neutral
+
 - **Stage Velvet** (`velvet`): page background; under the theatre's radial (#2a1752 at top, velvet at 55%, velvet-deep at the edge).
 - **Deep Velvet** (`velvet-deep`): the radial's edge; text on limelight and on the filled green pill.
 - **Programme Plaque** (`plaque`): the flat status plaque, and the 3px knockout ring around the range marker.
@@ -219,9 +224,11 @@ A night-purple stage, burgundy velvet and warm brass, lit by limelight, with Sol
 - **Hairline** (`hairline`, `hairline-strong`): 1px borders, dividers, dashed disabled outlines, the sheet handle.
 
 ### Status inks
+
 The fixed status vocabulary maps to five tones, each always paired with an icon, a pill shape and words: in (`st-in`, filled pill), above (`st-above`, ember outline), below (`st-below`, cyan outline), ended (`st-ended`, haze outline, for expired and closed), unknown (`st-unknown`, dashed outline, for stale and unavailable prices). `danger` is reserved for destructive or error text. Ember (`st-above`) also marks warning banners and stage error details.
 
 ### Named Rules
+
 **The Flat Programme Rule.** Data never sits on a gradient or under a glow. Every price, range and status sits on the flat plaque or plain velvet; theatre materials, the spotlight and every text-shadow stay off it.
 
 **The Green Means In Rule.** Solana green appears as cue ink only: the "In plan range" pill and band (and as one sigil ink). The purple→green gradient appears in exactly one place: the active tab's 2px indicator.
@@ -237,8 +244,11 @@ The fixed status vocabulary maps to five tones, each always paired with an icon,
 **Character:** A condensed, heavy marquee face for what is billed (RELAY, creator names, pairs, "Fin."), set tight at 0.88 line height; the platform's own text face for everything read, on Apple's text-style sizes.
 
 ### Hierarchy
+
 - **Display** (800, clamp(4rem, 22vw, 6rem), 0.88, +0.04em): the opening marquee sign; "Fin." uses the same face at clamp(5rem, 30vw, 6rem) in limelight.
-- **Headline** (800, clamp(2.5rem, 11vw, 3.5rem), 0.88): page titles and, at clamp(2.25rem, 9vw, 3rem), stage message titles.
+- **Hero** (`--h-hero`, clamp(2rem, 6vw, 2.5rem)): the record page title and walkthrough scene titles.
+- **Page** (`--h-page`, clamp(1.75rem, 5vw, 2rem), line height 1): page titles. Section headings use `--h-section` (1.25rem) and card titles `--h-card` (1.0625rem). The scale follows the Figma design system's proportions: page titles stay close to body size, so the stage, not the type, carries the drama.
+- **Headline** (800, clamp(2.25rem, 9vw, 3rem), 0.88): stage message titles only.
 - **Act Pair** (800, clamp(2rem, 4.6dvh, 2.75rem), 0.88; 3.25rem at ≥900px): the pair on each act ("SOL / USDC"). Portrait name plates use the same face at min(2rem, 21cqi).
 - **Marquee Word** (800, 1.375rem, +0.14em): RELAY in the valance sign.
 - **Title** (800, 1.75rem, 0.95): the script sheet title.
@@ -250,6 +260,7 @@ The fixed status vocabulary maps to five tones, each always paired with an icon,
 - **Label** (600, 0.75rem): tab labels, badges, version line, range labels, Review's reason.
 
 ### Named Rules
+
 **The Tabular Read Rule.** Every number a reader compares (prices, ranges, counts, countdowns) uses tabular lining numerals.
 
 **The Billing Face Rule.** Big Shoulders is for what is billed on the marquee: the brand, names, pairs, titles, "Fin.". It never sets a price, a hint or a sentence.
@@ -260,7 +271,7 @@ A fixed three-row app: the valance (56px plus the top safe area), the stage (fil
 
 The feed is native vertical scroll-snap (mandatory, stop always), one act per full stage height, no auto-advance. On phones the act is a centred single column: portrait, byline, pair and range, the status plaque (stretched, max 420px), expiry beside the status pill, rationale, then actions pushed to the thumb zone with `margin-top: auto`. Gaps are 8px, growing to 12px on tall screens (≥900px high); below 760px high the rationale clamps to one line, below 680px the evidence line hides, and when a banner shows the portrait shrinks to 12dvh so the plan's terms keep their room.
 
-At ≥900px wide the act becomes a two-column stage that stands on the floor horizon: cast column 240px left, programme up to 460px right, left-aligned, bottom-aligned, with a bottom padding of 20dvh so nothing crosses the floor's edge; the spotlight shifts 230px left onto the portrait, and a keyboard hint appears bottom right. Content pages cap at 600px; the tab list at 560px; the script sheet at 520px (a bottom sheet on phones, a centred brass-bordered dialog on desktop).
+At ≥900px wide the act becomes a two-column stage that stands on the floor horizon: cast column 240px left, programme up to 460px right, left-aligned, bottom-aligned, with a bottom padding of 20dvh so nothing crosses the floor's edge; the spotlight shifts 230px left onto the portrait, and a keyboard hint appears bottom right. Content pages cap at 760px (`--page-w`), or 1080px (`--page-w-wide`) for Traders, profiles and records; the script sheet at 520px (a bottom sheet on phones, a centred brass-bordered dialog on desktop).
 
 Spacing is an 8pt grid with 4pt half-steps (4, 8, 12, 16, 24, 32, 48).
 
@@ -269,6 +280,7 @@ Spacing is an 8pt grid with 4pt half-steps (4, 8, 12, 16, 24, 32, 48).
 Depth is theatrical: layered planes (stage radial, floor in perspective, drapes, valance, tab bar) rather than card elevation. Shadows are dark and soft, used to seat materials on the stage; warm glows belong only to light sources (bulbs, marquee, limelight button, portrait frame) and never to data.
 
 ### Shadow Vocabulary
+
 - **Valance drop** (`box-shadow: 0 6px 18px rgba(0,0,0,0.5)`): the valance over the stage.
 - **Marquee glow** (`box-shadow: 0 4px 18px -6px rgba(0,0,0,0.7), 0 0 28px -10px rgba(255,217,138,0.6)`): the valance sign; the opening sign uses `0 0 60px -10px rgba(255,217,138,0.55)`.
 - **Bulb halo** (`box-shadow: 0 0 6px 2px rgba(255,217,138,0.85)`): marquee bulbs (4px 1px at the valance size).
@@ -279,6 +291,7 @@ Depth is theatrical: layered planes (stage radial, floor in perspective, drapes,
 - **Wing shadow**: drapes cast a 90° gradient from rgba(8,3,18,0.55) to transparent across wing + 28px.
 
 ### Named Rules
+
 **The Light Sources Glow Rule.** Only things that emit light (bulbs, the marquee word, the limelight button, the portrait in the spotlight, "Fin.") carry a warm glow. Plaques and numbers sit in a dark seat shadow or none.
 
 ## Shapes
@@ -288,63 +301,110 @@ Controls are full pills (999px): buttons, chips, badges, status pills, the range
 ## Components
 
 ### Buttons
+
 Glass and limelight pills that feel like lit tickets.
-- **Shape:** full pill (999px), minimum height 44px, 16px side padding, subhead 600; small variant 36px high, 12px padding, footnote size.
+
+- **Shape:** full pill (999px), three control heights: 48px (`--ctl`, large: primary page actions, the trade input), 44px (`--ctl-sm`, default) and 40px (`--ctl-xs`, small: rows, header, tabs). Default padding 16px, subhead 600; small uses 12px padding at footnote size; large 24px at callout size.
+- **Ghost:** transparent with haze text for the secondary action in a row; a hairline appears on hover. A danger tone exists for Disconnect.
 - **Primary (limelight):** limelight fill, velvet text, no border, limelight press shadow. Hover (hover-capable devices) lifts to pale limelight. Disabled turns transparent with a 1px dashed strong hairline and mute text, and is never hidden: its reason sits beneath it.
 - **Glass:** glass fill with a 12px backdrop blur, 1px hairline border, chalk text. Hover darkens to rgba(52,33,98,0.86) with a strong hairline. Pressed/on state (`data-on`) borders in 60% limelight with limelight text. Disabled uses mute text and a dashed border.
 - **Icon:** a 44px glass circle. On phones the Watch button collapses to this star circle with its name kept in the accessible label.
 - **Press:** all buttons scale to 0.97 on active (100ms); color transitions run 200ms on the house ease.
 - **Focus:** 2px limelight outline, 3px offset (global).
 
+### Inputs, Tabs and Switches
+
+- **Field:** a subhead label above a 48px input (10px radius, velvet-3 fill, hairline, callout size), a footnote hint below and an ember error with `aria-invalid`. Focus is the global limelight outline.
+- **Tabs:** a pill track (velvet-2, hairline) of 40px pill tabs; the selected tab is chalk on velvet-4 with a limelight count. Tabs are a real ARIA tablist: arrow keys, Home and End move selection, and the URL (`?tab=`) holds the state.
+- **Switch:** a 48×28 pill with a 20px thumb, `role="switch"` with `aria-checked`; on is limelight. Used for the Cue cursor preference.
+
 ### Chips and Badges
+
 - **Chip:** hairline-bordered pill, 4px 12px, chalk text; quiet variant in haze at footnote size; button variant 40px high on glass.
 - **Badge:** brass-bordered pill with limelight label text (0.75rem 600), used for "Demo" and "Fictional preview".
 
 ### Status Plaque (signature)
+
 The programme. A flat #170d2c plaque, 16px radius, 1px hairline, 12px 16px padding, dark seat shadow, left-aligned. It holds the status pill (20px icon plus the exact headline), the expiry pill beside it, the always-visible hint, the range bar and "Now $X · updated Ns ago". The pill is filled Solana green with deep velvet text for "In plan range", outlined at 1.5px in the tone ink otherwise, dashed for unknown prices. The plaque border turns dashed when offline.
 
 ### Range Bar
+
 An 8px pill track at 8% chalk (dashed outline when there is no price); the plan band fills at 34% of the tone ink with a 70% inner outline; a 4×22px chalk marker with a 3px plaque knockout ring marks the price, with a chalk arrowhead when clamped beyond the track. Labels are caption, haze, tabular. The marker's left position eases in 250ms; nothing else moves.
 
 ### Portrait and Sigil (signature)
+
 An arched brass frame (3:4) over the ink well, holding the creator's deterministic sigil: a 5×5 mirrored grid of rounded cells inside a #2A1A4F disc, inked from five colors (#F6D98B, #14F195, #FF9466, #B98CFF, #F4EEFF). A gradient name plate at the base sets the stage name in the billing face. Ended plans dim the sigil (grayscale 0.4, brightness 0.9).
 
 ### Navigation
+
 - **Valance:** scalloped burgundy with a brass hem; centre is the small marquee sign (RELAY between two 7-bulb rows, brass border, ink-well fill), right is the brass-ringed cluster chip.
-- **Header (≥900px):** the valance is also the header, a 1fr / sign / 1fr grid. Left: Discover, Traders, Watchlist; right: How it works, Account, the cluster chip. Links sit on a dark rail (rgba(15,8,32,0.86), 1px 40% brass border, pill) so they read over the scallops: 36px pills, footnote 600, haze; hover lifts to chalk on 8% chalk; pressed 14% chalk; current is limelight text on 14% limelight. During the welcome the rail shows only Explore, How it works and Watchlist.
-- **Tab bar (phones, inside the app only):** four tabs (Discover, Traders, Watchlist, Account) on rgba(15,8,32,0.96) under a 32% brass hairline; labels at 0.75rem 600 in haze, chalk on hover and when current; the current tab carries a 2px Solana gradient indicator on its top edge (inset 28% each side). Hidden on the welcome (it fades up 0.7s into the opening) and on desktop. The stage, drapes and floor all reserve `--tabbar-space`, so the bar never covers content.
+- **Header (≥900px):** the valance is also the header, a 1fr / sign / 1fr grid. Left: Discover, Traders, Watchlist, How it works on a dark rail (rgba(15,8,32,0.86), 1px 40% brass border, pill) so they read over the scallops: 36px pills, footnote 600, haze; hover lifts to chalk on 8% chalk; pressed 14% chalk; current is limelight text on 14% limelight with `aria-current="page"`. Right: the cluster chip, the Cue cursor switch (a 40px circle holding the mascot, grey when off; shown only for a fine hover pointer), an Account icon link and the wallet control. The welcome shows none of it.
+- **Wallet control:** a 40px header pill. Disconnected it reads "Connect wallet" and opens the wallet dialog; connected it shows a green dot and the short address and opens a disclosure popover (wallet name and address, Copy address, Account, Disconnect). An outside click or Escape closes it; Escape returns focus to the control.
+- **Wallet dialog:** a centred velvet-2 native `<dialog>` (max 420px, 24px radius, blurred 70% backdrop, rising 260ms) that walks choose → connecting → connected, cancelled, failed or missing. Detected Wallet Standard wallets are 56px option rows with their icon; "Connecting" names the wallet and says nothing will be signed; cancel and failure say what happened in one sentence with Try again; the missing state explains what a wallet is with links to get one. Connecting never asks for a signature.
+- **Tab bar (phones, inside the app only):** four tabs (Discover, Traders, Watchlist, Account) on rgba(15,8,32,0.96) under a 32% brass hairline; labels at 0.75rem 600 in haze, chalk on hover and when current; the current tab carries a 2px Solana gradient indicator on its top edge (inset 28% each side). Hidden on the welcome and on desktop. On phones the wallet lives on Account and in the trade panel, not in the header. The stage, drapes and floor all reserve `--tabbar-space`, so the bar never covers content.
 - **Back:** a 44px haze pill with a chevron above page titles; it goes back in history, or to a named fallback when the page was opened directly.
 
 ### Record Kinds
+
 A small pill (caption 600, 14px icon, words) on every record: **Public post** (dashed hairline, haze: an idea, not proof), **On-chain activity** (solid strong hairline, chalk), **Published through Relay** (solid 75% brass, limelight), **Fictional demo** (dotted ember). The border style carries the kind as much as the colour does. Demo creators also keep the brass "Demo creator" badge; wallets with no Relay profile get a quiet "Wallet only" badge.
 
 ### Traders, Profiles and Records
-- **Trader rows:** velvet-2 rows (16px radius, hairline) with a brass-ringed sigil avatar, the name with its badge, the handle and short wallet, a plan count and age, and a chevron. Hover: 55% brass border on velvet-3; press scales to 0.99.
-- **Profile:** the arched portrait beside the name (headline face), handle, badges and the Watch trader glass pill; then hairline-ruled Identity facts (wallet, name, public sources, explorer), each with a footnote saying what supports it. Missing values are mute italics ("None connected."), never blank.
-- **Record rows and the record page:** a kind pill and timestamp, the pair, the terms. The record page title is the pair in the headline face over "Buy plan" at 0.55em haze, with "Follow the plan. See the proof." in limelight beneath; sections run What was posted, Status now (the real plaque), Evidence (full accounts and hashes at footnote size), Version history, Following this plan.
+
+- **Panel:** the shared content surface: velvet-2, 16px radius, hairline, 16–24px padding, a section heading. Content pages widen to `page--wide` (up to 1080px) where a two-column layout earns it.
+- **Trader cards:** a responsive grid (`.tgrid`, one column on phones, auto-fill 300px+ on desktop). Each card has a brass-ringed sigil avatar, the name as a stretched link to the profile, handle and short wallet, badges, the "Published through Relay" kind pill with "Signed N plans", a latest-plan box (pair icon, status pill, age) and a Watch button that sits above the stretched link. Hover lifts the card 2px with a darker shadow. A brass callout above the grid says the ten selected traders aren't connected yet; nobody is invented to fill it.
+- **Profile:** the arched portrait beside the name, handle, badges and the Watch trader pill; then a two-column grid at ≥900px: Activity (rich record rows with pair icon, kind, status and chevron) beside an aside with Identity facts and a "Not connected yet" panel. Missing values are mute italics ("None connected."), never blank.
+- **Record page:** a hero (pair icon, kind pills, the pair as title, byline with chain time, Watch and Open in Discover), then a grid: status (the real plaque), What was posted, Evidence, followers, and Version history in a disclosure on the left; the trade panel in a sticky 380px side column at ≥900px. On phones the order is status, trade, then the rest.
+
+### Trade Panel
+
+Following a plan, laid out like a swap card (Jupiter was the reference for proportions). The head names the network with a dot ("Local fork", "Devnet") before anything is signed. Two stacked boxes: "You pay" (a tabular amount input with the quote token chip, the wallet balance when known, and the per-follow limits or the amount error beneath) and "You receive" (the quoted estimate and "At least X, or the trade fails instead"), joined by a small arrow. Ruled rows carry the plan's range and timing; after a quote, "Fees and route" is a disclosure (network, priority and receipt-account fees in SOL, the route). A network note says what this cluster is and that Relay sends the signed transaction itself. One large primary button walks the state: Connect wallet → Get quote → Approve in the wallet → a three-step progress list (Approve in wallet, Confirm on network, Verify receipt) → the outcome. A failure keeps its words in an ember alert and is never shown as success. When the plan is out of range, expired or a fictional preview, the boxes dim and the button is disabled with its reason.
+
+### How It Works
+
+Three scenes (Discover a trader, Watch what matters, Check the evidence) behind a step indicator (`aria-current="step"`). Each scene is Cue in a pose beside a title, one or two sentences and a small live example marked "Example · fictional": a trader card, a Watch toggle Cue reacts to, and four expandable record kinds. Back / Next, Skip, and "Try the demo" on the last scene; arrow keys page between scenes and focus moves to the new title. On phones Cue sits beside the copy and the nav sticks to the bottom so the buttons stay in view. "What Relay won't do" and "Connected today" are disclosures below.
+
+### Watchlist
+
+A tablist (Traders, Records, History) with counts and a "Stored in this browser only" note. Rows are velvet-2 cards: traders with avatar, demo badge, new-plan count, latest plan and source; records with pair icon, status, "changed" marks and a missed-entry Cue. The empty state is Cue hugging the bookmark, one sentence and "Explore traders". History is a wallet lookup (prefilled from the connected wallet) listing receipts and failed follows exactly as recorded.
+
+### Account
+
+Wallet (connected: name, address, Follow history, Disconnect; otherwise Connect and "How to get one"), Preferences (the Cue cursor switch, with an error if storage is blocked), Network, and a Cue panel with Meet Cue again and Try the demo.
+
 - **Notice:** missing data and errors on pages: a dashed brass (ember for errors) velvet-2 box with Cue's cable pose at 72px, a title, subhead text and underlined limelight links.
 
 ### Script Sheet
+
 The plan's full script (Layer 2): a velvet-2 bottom sheet with a 2px brass top edge, 24px top corners, a 40×4px handle, rising 260ms. Terms and history are hairline-ruled definition rows (7.5rem label column). History entries hang off a 50% brass left rule. On desktop it centres with a full brass border and no handle.
 
 ### Stage Messages and Finale
+
 Empty and error states stand on the stage with Cue (discover pose when empty, the cable pose when the service is unavailable), a headline title, haze text and glass actions. The unavailable state adds a separate link to the fictional demo. Loading keeps the dashed brass arch. The finale closes the drapes over the stage, shows "Fin." in limelight, then Cue's bow (rises 28px, settles, dips 6px about the feet over 1.6s), "That's tonight's lineup.", a curtain call of brass-ringed sigil avatars, a tally of plans by status on dark pills, the watched plans as chips, Review your Watchlist and Explore again, then Browse traders and Refresh links.
 
 ### Cue (signature)
+
 Relay's usher: a purple gecko in a burgundy usher jacket. Seven poses come straight from the owner's Figma vectors and are never redrawn or recoloured: welcome (curtain pull, wave), discover (plan card and spotlight), saved (hugging the bookmark), missed ("Missed this entry" ticket), unavailable (tangled cable), bow ("Fin." sign, eyes closed) and the standing mascot. The art renders as an inline 400×400 SVG at a square aspect; `cue--lit` adds a warm limelight rim (drop-shadow) only. Sizes: welcome up to 280px on phones (220px on short phones) and 460px on desktop; page notices 72px; stage messages 150–230px; finale 130–240px; demo 200px on phones and 380px on desktop; plan-sheet callout 88px; watch toast 76px; Watchlist rows 64px. Cue is never placed over prices, ranges or controls, and the watch toast sits at the top of the stage so the action row stays clear.
 
+### Cue Cursor
+
+On desktop with a fine hover pointer, Cue can follow the pointer over decorative stage areas: a 12px limelight tip sits exactly at the hotspot and a 34px mascot hangs below it, fading in 140ms. The overlay is `pointer-events: none`. The native cursor returns over text, links, buttons, inputs, dialogs, the trade panel and anything marked `data-cursor="native"`, so aiming and reading never depend on Cue. It is off for touch or coarse pointers and under reduced motion, and the header switch (and the Account preference) turns it off and remembers that in the browser.
+
 ### Welcome
-A closed-curtain scene over the stage (house lights down) that also covers the tab bar's row: a smaller brass marquee sign (the brand, with a quieter 36px glow and 7px bulbs), Cue in a limelight cone, the h1 "Meet the traders. Follow the evidence." in the headline face (balanced, 16ch), a 34ch lede, "Explore traders" (limelight primary) and "Try the demo" (glass), and a footnote. It scrolls instead of cropping; below 700px high Cue and the sign shrink so both actions stay in view. Desktop (≥900px) is a two-column grid: Cue on the left, sign, headline and copy on the right.
+
+A closed-curtain scene over the stage (house lights down) that also covers the tab bar's row: a smaller brass marquee sign (the brand, with a quieter 36px glow and 7px bulbs), Cue in a limelight cone, one line, "Discover Solana traders. Explore their ideas. Check the evidence." (body size, 600, balanced, 30ch; 1.125rem and 32ch on desktop), and "Explore traders" (limelight primary) and "Try the demo" (glass). There is no header navigation, wallet or tab bar on the welcome, and it never replays on a route change; Account offers "Meet Cue again". It scrolls instead of cropping; below 700px high Cue and the sign shrink so both actions stay in view. Desktop (≥900px) is a two-column grid: Cue on the left, sign, headline and copy on the right.
 
 ### Demo
+
 A page with a sticky dashed-brass "Fictional demo · simulated prices · no real trades" banner, Mika's two records (a fictional public post and a fictional Relay plan, each with both kind pills), Cue with a speech card (the speaker name in the billing face), the demo plan using the real status plaque and range bar, and a two-column "Since you watched" comparison. Changed values turn ember and carry the words "· changed", so colour is never the only signal.
 
 ### Motion
-House ease is cubic-bezier(0.16, 1, 0.3, 1); state transitions take 200ms. Theatre motion runs through motion/react: the spotlight swings in from the scroll direction (±14°, 0.9s); the portrait rises into its light on activation (from 18px down, 0.55 opacity, 0.96 scale, 0.9s); the finale drapes close in 1.1s and the curtain call drops in staggered by 0.12s. The opening (CSS keyframes, ≤1.2s, once per session, skippable, never blocks input) gathers the drapes to scaleX(0.14) with ±2° skew and shrinks the sign into the valance. The marquee bulbs chase in 1.6s steps. The welcome opens on click: Cue hops into the discover pose (0.36s), and the drapes gather to the wings after 0.3s over 0.9s (ease 0.33,1,0.68,1) and hand off to the resting drapes. With a fine pointer only, motion-value springs shift the limelight slightly, lean Cue up to 3°, shift the drapes by up to 7px and move Cue's pupils within 5×3.5 SVG units; inside the app the resting drapes drift up to 4px and the feed's spotlight up to 18px. Nothing interactive moves, the cursor stays normal, and leaving the window springs everything back to rest. Under reduced motion all of it stops (the welcome becomes a 0.2s fade), resolved hydration-safely (motion is assumed on at render and switched off once mounted).
+
+House ease is cubic-bezier(0.16, 1, 0.3, 1); state transitions take 200ms. Theatre motion runs through motion/react: the spotlight swings in from the scroll direction (±14°, 0.9s); the portrait rises into its light on activation (from 18px down, 0.55 opacity, 0.96 scale, 0.9s); the finale drapes close in 1.1s and the curtain call drops in staggered by 0.12s. The opening (CSS keyframes, ≤1.2s, once per session, skippable, never blocks input) gathers the drapes to scaleX(0.14) with ±2° skew and shrinks the sign into the valance. The marquee bulbs chase in 1.6s steps. The welcome opens on click: Cue hops into the discover pose (0.36s), and the drapes gather to the wings after 0.3s over 0.9s (ease 0.33,1,0.68,1) and hand off to the resting drapes. With a fine pointer only, motion-value springs shift the limelight slightly, lean Cue up to 3°, shift the drapes by up to 7px and move Cue's pupils within 5×3.5 SVG units; inside the app the resting drapes drift up to 4px and the feed's spotlight up to 18px. Nothing interactive moves, the cursor is native wherever there is something to read or press, and leaving the window springs everything back to rest. Screens use small, functional motion only: How it works slides scenes 24px (a fade under reduced motion), cards lift 2px on hover, the wallet dialog rises 260ms, and Cue reacts to a Watch. Every flow works with all of it off. Under reduced motion all of it stops (the welcome becomes a 0.2s fade), resolved hydration-safely (motion is assumed on at render and switched off once mounted).
 
 ## Do's and Don'ts
 
 ### Do:
+
 - **Do** put every price, range, status and countdown on the flat plaque (#170d2c) or plain velvet.
 - **Do** show status as icon, pill shape and the exact vocabulary together: "In plan range", "Original entry passed", "Below plan range", "Plan expired", "Closed by creator", "Price may be outdated", "Price unavailable".
 - **Do** use tabular numerals for every compared number.
@@ -355,6 +415,7 @@ House ease is cubic-bezier(0.16, 1, 0.3, 1); state transitions take 200ms. Theat
 - **Do** use the ui-monospace stack for code and kbd only.
 
 ### Don't:
+
 - **Don't** set data on a gradient, under the spotlight cone, or under any glow or text-shadow.
 - **Don't** use Solana green for anything but the "In plan range" cue (and sigil ink), or the Solana gradient anywhere but the active tab indicator.
 - **Don't** show faces or photographs of creators; sigils only.

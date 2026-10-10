@@ -297,18 +297,20 @@ export function ScriptSheet({
           <section className="script__section" aria-labelledby="script-follow">
             <h3 id="script-follow">Following this plan</h3>
             <ol className="script__steps">
+              <li>Connect your wallet.</li>
               <li>Choose how much to spend.</li>
               <li>
                 Get a fresh quote, checked against the plan's entry range and
                 window.
               </li>
-              <li>Connect your wallet.</li>
               <li>Approve the trade yourself. Relay never trades for you.</li>
             </ol>
             <p className="script__note">
               {live && (live.status === "expired" || live.status === "closed")
                 ? "This plan's entry window has ended, so it can't be followed."
-                : "Reviewing and approving a trade isn't available in this build yet, so nothing here can be signed."}
+                : card.fictionalPreview
+                  ? "A fictional preview can't be followed."
+                  : "Following happens on the plan's full record, where you review the quote before your wallet asks."}
             </p>
           </section>
 
