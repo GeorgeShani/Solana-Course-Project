@@ -1,4 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { Link, createFileRoute } from "@tanstack/react-router";
+import { Cue } from "../components/cue/Cue";
 import { CLUSTER, CLUSTER_LABEL, RPC_URL } from "../lib/config";
 
 export const Route = createFileRoute("/account")({
@@ -35,6 +36,23 @@ function Account() {
           <dd className="num">{RPC_URL}</dd>
         </div>
       </dl>
+
+      <h2 className="page__section">Cue</h2>
+      <div className="me-empty">
+        <Cue pose="mascot" className="me-empty__cue" />
+        <div>
+          <p className="page__text">
+            Cue is Relay's usher. Replay the opening any time, or walk through
+            the fictional demo again.
+          </p>
+          <p className="me-empty__links">
+            <Link to="/" search={{ welcome: true }}>
+              Meet Cue again
+            </Link>
+            <Link to="/demo">Try the demo</Link>
+          </p>
+        </div>
+      </div>
     </section>
   );
 }

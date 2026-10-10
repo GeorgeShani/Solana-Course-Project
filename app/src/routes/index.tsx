@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Feed } from "../components/feed/Feed";
 import { FeedLoading } from "../components/feed/FeedStates";
 import { CurtainIntro } from "../components/theatre/CurtainIntro";
+import { Welcome } from "../components/theatre/Welcome";
 import { getChainStatus } from "../lib/chain";
 import { getFirstFeedPage, type FeedLoad } from "../lib/feed-server";
 import { fictionalPreviewFeed } from "../lib/fixtures";
@@ -12,6 +13,8 @@ interface FeedSearch {
   plan?: string;
   /** Development only: a labelled fictional feed for layout checks. */
   preview?: "fictional";
+  /** Show the welcome scene again, even after the visitor has entered before. */
+  welcome?: true;
 }
 
 const URL_WRITE_DELAY_MS = 350;
@@ -23,6 +26,7 @@ export const Route = createFileRoute("/")({
         ? search.plan
         : undefined,
     preview: search.preview === "fictional" ? "fictional" : undefined,
+    welcome: search.welcome !== undefined ? true : undefined,
   }),
   loaderDeps: ({ search }) => ({ preview: search.preview }),
   loader: async ({
@@ -48,7 +52,7 @@ export const Route = createFileRoute("/")({
 
 function FeedRoute() {
   const { feed, chainOk, preview } = Route.useLoaderData();
-  const { plan } = Route.useSearch();
+  const { plan, welcome } = Route.useSearch();
   const navigate = useNavigate({ from: "/" });
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const [initialPlan] = useState(plan);
@@ -68,9 +72,22 @@ function FeedRoute() {
   );
   useEffect(() => () => clearTimeout(timer.current), []);
 
+  const onEntered = useCallback(() => {
+    if (welcome)
+      void navigate({
+        search: (prev) => ({ ...prev, welcome: undefined }),
+        replace: true,
+        resetScroll: false,
+      });
+    document
+      .querySelector<HTMLElement>(".feed [data-plan], .stage-msg")
+      ?.focus({ preventScroll: true });
+  }, [navigate, welcome]);
+
   const count = feed.ok ? feed.page.items.length : 0;
   return (
     <>
+      <Welcome forced={!!welcome} onEntered={onEntered} />
       <CurtainIntro
         sub={
           !feed.ok

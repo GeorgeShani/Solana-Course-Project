@@ -409,10 +409,236 @@ html[data-curtain="on"] .valance__sign {
   outline-offset: -4px;
 }
 
+/* ---------------------------------------------------------------- Cue, the usher */
+
+.cue {
+  position: relative;
+  aspect-ratio: 1;
+}
+
+.cue__art {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* The pupils and glints follow --cue-look-x/y (set per frame by useCueGaze), within the eye. */
+.cue-pupil,
+.cue-glint {
+  transform: translate(var(--cue-look-x, 0px), var(--cue-look-y, 0px));
+}
+
+/* The sheet's floor shadow is drawn for a light page; on the stage it needs more weight. */
+.cue .cue-shadow {
+  fill: #07020f;
+  opacity: 0.45;
+}
+
+/* Cue's dark outline would vanish into the velvet: a warm rim from the limelight keeps his edge. */
+.cue--lit {
+  filter: drop-shadow(0 0 1px rgba(255, 217, 138, 0.35))
+    drop-shadow(0 10px 24px rgba(0, 0, 0, 0.45));
+}
+
+/* ---------------------------------------------------------------- welcome (first visit) */
+
+.welcome {
+  display: none;
+}
+
+html[data-welcome="on"] .welcome,
+html[data-welcome="opening"] .welcome {
+  position: absolute;
+  inset: -3px 0 0 0;
+  z-index: 36;
+  display: block;
+  overflow: hidden;
+}
+
+/* The feed waits behind closed curtains: not visible, not focusable, not announced. */
+html[data-welcome="on"] .feed-wrap,
+html[data-welcome="on"] .stage > .stage-msg,
+html[data-welcome="on"] .valance__sign {
+  visibility: hidden;
+}
+
+/* As the drapes part, the big sign hands over to the small one in the valance. */
+html[data-welcome="opening"] .valance__sign {
+  animation: sign-settle 0.4s var(--ease-out) 0.75s both;
+}
+
+.welcome__drape {
+  z-index: 0;
+}
+
+/* House lights down: a pool of shade in the middle of the drapes so the copy reads on velvet. */
+.welcome::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    80% 62% at 50% 54%,
+    rgba(15, 8, 32, 0.86),
+    rgba(15, 8, 32, 0.6) 55%,
+    rgba(15, 8, 32, 0.12)
+  );
+}
+
+html[data-welcome="opening"] .welcome::after {
+  opacity: 0;
+  transition: opacity 0.5s var(--ease-out) 0.3s;
+}
+
+.welcome__scene {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s3);
+  padding: var(--s4) calc(var(--wing) + var(--s3)) var(--s5);
+  text-align: center;
+}
+
+.welcome .sign {
+  width: min(82vw, 380px);
+}
+
+.welcome .sign__title {
+  font-size: clamp(3rem, 15vw, 5rem);
+}
+
+.welcome .sign__sub {
+  font-size: var(--t-callout);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.welcome__stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+.welcome__light {
+  position: absolute;
+  inset: -12% -30% -4%;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      42% 46% at 50% 56%,
+      rgba(255, 217, 138, 0.26),
+      transparent 72%
+    ),
+    conic-gradient(
+      from 0deg at 50% -30%,
+      transparent 168deg,
+      rgba(255, 217, 138, 0.14) 176deg,
+      rgba(255, 217, 138, 0.2) 180deg,
+      rgba(255, 217, 138, 0.14) 184deg,
+      transparent 192deg
+    );
+  filter: blur(6px);
+}
+
+.welcome__lean {
+  transform-origin: 50% 90%;
+}
+
+.welcome__stage .cue {
+  width: min(62vw, 30dvh, 300px);
+  margin: -9% 0 -11%;
+}
+
+.welcome__lede {
+  max-width: 36ch;
+  font-size: var(--t-subhead);
+  line-height: 1.5;
+  color: var(--chalk);
+  text-wrap: pretty;
+}
+
+.welcome__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--s3);
+}
+
+.welcome__note {
+  max-width: 34ch;
+  font-size: var(--t-footnote);
+  color: var(--haze);
+}
+
+@media (min-width: 900px) {
+  .welcome__scene {
+    display: grid;
+    grid-template-columns: min(36vw, 60dvh, 500px) min(30rem, 44vw);
+    grid-template-areas:
+      "cue sign"
+      "cue lede"
+      "cue actions"
+      "cue note";
+    align-content: center;
+    justify-content: center;
+    column-gap: clamp(var(--s6), 5vw, 80px);
+    row-gap: var(--s4);
+    max-width: 1120px;
+    margin: 0 auto;
+    text-align: left;
+  }
+
+  .welcome__sign {
+    grid-area: sign;
+  }
+
+  .welcome .sign {
+    width: 100%;
+  }
+
+  .welcome .sign__title {
+    font-size: 5.5rem;
+  }
+
+  .welcome__stage {
+    grid-area: cue;
+    align-self: center;
+  }
+
+  .welcome__stage .cue {
+    width: min(36vw, 60dvh, 500px);
+  }
+
+  .welcome__lede {
+    grid-area: lede;
+    max-width: 44ch;
+    font-size: var(--t-body);
+  }
+
+  .welcome__actions {
+    grid-area: actions;
+    justify-content: flex-start;
+  }
+
+  .welcome__note {
+    grid-area: note;
+  }
+}
+
 /* ---------------------------------------------------------------- reduced motion */
 
 @media (prefers-reduced-motion: reduce) {
   .bulb {
+    animation: none;
+  }
+
+  html[data-welcome="opening"] .valance__sign {
     animation: none;
   }
 }

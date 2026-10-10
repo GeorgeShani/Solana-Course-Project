@@ -268,6 +268,90 @@ export async function fetchPlanVersions(
   return r.versions.map((v, i) => parseVersion(v, `plan.versions[${i}]`));
 }
 
+/** One plan with its live entry status and full version history, from `${base}/plans/:pda`. */
+export async function fetchPlan(
+  base: string,
+  planPda: string,
+  init?: RequestInit,
+): Promise<{ card: PlanCardView; versions: VersionView[] }> {
+  const body = await getJson(
+    `${base}/plans/${encodeURIComponent(planPda)}`,
+    init,
+  );
+  const r = rec(body, "plan");
+  if (!Array.isArray(r.versions))
+    throw new ApiContractError("plan.versions must be an array");
+  return {
+    card: parsePlanCard(r, "plan"),
+    versions: r.versions.map((v, i) => parseVersion(v, `plan.versions[${i}]`)),
+  };
+}
+
+/** A follow transaction the server verified onchain. Amounts are base units as strings. */
+export interface ExecutionView {
+  signature: string;
+  status: "recorded" | "failed";
+  follower: string;
+  planPda: string;
+  version: number;
+  receiptPda: string | null;
+  quoteSpent: string | null;
+  baseReceived: string | null;
+  /** Quote base units per one whole base token. */
+  effectivePrice: string | null;
+  errorName: string | null;
+  errorMessage: string | null;
+  slot: string;
+  blockTime: number | null;
+}
+
+function digitsOrNull(v: unknown, path: string): string | null {
+  return v === null || v === undefined ? null : digits(v, path);
+}
+
+export function parseExecution(v: unknown, path = "execution"): ExecutionView {
+  const r = rec(v, path);
+  const status = r.status;
+  if (status !== "recorded" && status !== "failed")
+    throw new ApiContractError(`${path}.status must be recorded or failed`);
+  return {
+    signature: str(r.signature, `${path}.signature`),
+    status,
+    follower: str(r.follower, `${path}.follower`),
+    planPda: str(r.planPda, `${path}.planPda`),
+    version: num(r.version, `${path}.version`),
+    receiptPda: strOrNull(r.receiptPda, `${path}.receiptPda`),
+    quoteSpent: digitsOrNull(r.quoteSpent, `${path}.quoteSpent`),
+    baseReceived: digitsOrNull(r.baseReceived, `${path}.baseReceived`),
+    effectivePrice: digitsOrNull(r.effectivePrice, `${path}.effectivePrice`),
+    errorName: strOrNull(r.errorName, `${path}.errorName`),
+    errorMessage: strOrNull(r.errorMessage, `${path}.errorMessage`),
+    slot: digits(r.slot, `${path}.slot`),
+    blockTime:
+      r.blockTime === null || r.blockTime === undefined
+        ? null
+        : num(r.blockTime, `${path}.blockTime`),
+  };
+}
+
+/** Verified follow transactions for one wallet, from `${base}/me/executions`. Public data. */
+export async function fetchExecutions(
+  base: string,
+  follower: string,
+  init?: RequestInit,
+): Promise<ExecutionView[]> {
+  const r = rec(
+    await getJson(
+      `${base}/me/executions?follower=${encodeURIComponent(follower)}`,
+      init,
+    ),
+    "executions",
+  );
+  if (!Array.isArray(r.items))
+    throw new ApiContractError("executions.items must be an array");
+  return r.items.map((v, i) => parseExecution(v, `executions.items[${i}]`));
+}
+
 async function getJson(url: string, init?: RequestInit): Promise<unknown> {
   let res: Response;
   try {

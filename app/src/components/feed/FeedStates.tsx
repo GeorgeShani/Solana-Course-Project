@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import { useState, type ReactNode, type Ref } from "react";
+import { Cue, type CuePose } from "../cue/Cue";
 import { Avatar } from "../theatre/Portrait";
 import { Icon } from "../ui/Icon";
 import { useCalmMotion } from "../../lib/motion";
@@ -14,17 +15,23 @@ function StageMessage({
   actions,
   tone = "neutral",
   busy = false,
+  pose,
 }: {
   title: string;
   children: ReactNode;
   actions?: ReactNode;
   tone?: "neutral" | "error";
   busy?: boolean;
+  pose?: CuePose;
 }) {
   return (
     <section className="stage-msg" data-tone={tone} aria-busy={busy}>
       <div className="stage-msg__body">
-        <div className="stage-msg__arch" aria-hidden="true" />
+        {pose ? (
+          <Cue pose={pose} className="stage-msg__cue cue--lit" />
+        ) : (
+          <div className="stage-msg__arch" aria-hidden="true" />
+        )}
         <h1 className="stage-msg__title">{title}</h1>
         {children}
         {actions && <div className="stage-msg__actions">{actions}</div>}
@@ -60,6 +67,7 @@ export function UnavailableState({
     <StageMessage
       tone="error"
       busy={checking}
+      pose="unavailable"
       title={
         kind === "contract"
           ? "Relay sent data this app can't read"
@@ -76,15 +84,6 @@ export function UnavailableState({
             <Icon name="refresh" />
             {checking ? "Checking…" : "Try again"}
           </button>
-          {DEV && (
-            <Link
-              to="/"
-              search={{ preview: "fictional" }}
-              className="btn btn--glass"
-            >
-              Open fictional preview
-            </Link>
-          )}
         </>
       }
     >
@@ -94,14 +93,24 @@ export function UnavailableState({
           : "The feed comes from Relay's server, which didn't respond. No plans are shown instead of guessing."}
       </p>
       <p className="stage-msg__detail">{message}</p>
+      <p className="stage-msg__aside">
+        While you wait, a separate <Link to="/demo">fictional demo</Link> shows
+        how Relay works with simulated prices. It never mixes into the feed.
+      </p>
       {DEV && kind === "unavailable" && (
         <details className="stage-msg__dev">
           <summary>Development setup</summary>
           <p>
-            Start the API with <code>bun run dev:server</code> (port 3001). It
-            reads <code>DATABASE_URL</code> from <code>server/.env</code>; for a
-            local database run{" "}
-            <code>docker compose -f compose.dev.yaml up -d</code>.
+            A 502 here means the dev proxy could not reach the API on port 3001.
+            Start it with <code>bun run dev:server</code>. It reads{" "}
+            <code>DATABASE_URL</code> from <code>server/.env</code>; for a local
+            database run <code>docker compose -f compose.dev.yaml up -d</code>.
+          </p>
+          <p>
+            <Link to="/" search={{ preview: "fictional" }}>
+              Open the fictional feed preview
+            </Link>{" "}
+            to check layout without the API.
           </p>
         </details>
       )}
@@ -120,6 +129,7 @@ export function EmptyState({
     <StageMessage
       title="No open plans right now"
       busy={refreshing}
+      pose="discover"
       actions={
         <>
           <button
@@ -273,6 +283,28 @@ export function Finale({
           Fin.
           <span className="sr-only"> You've seen every plan in the feed.</span>
         </motion.h2>
+        <motion.div
+          className="finale__cue"
+          initial={false}
+          animate={
+            shown && !reduce
+              ? { y: [28, 0, 0, 6, 0], opacity: [0, 1, 1, 1, 1] }
+              : { y: 0, opacity: shown ? 1 : 0 }
+          }
+          transition={
+            reduce
+              ? { duration: 0 }
+              : {
+                  delay: 0.7,
+                  duration: 1.6,
+                  times: [0, 0.35, 0.6, 0.8, 1],
+                  ease: EASE,
+                }
+          }
+        >
+          <Cue pose="bow" className="cue--lit" />
+        </motion.div>
+        <p className="finale__line">That's tonight's lineup.</p>
         <ul
           className="finale__cast"
           aria-label="Curtain call: creators in this feed"
@@ -328,17 +360,17 @@ export function Finale({
           </div>
         )}
         <div className="finale__actions">
+          <Link to="/me" className="btn btn--primary">
+            <Icon name="plans" />
+            {watched.length > 0 ? "Review watched plans" : "My Plans"}
+          </Link>
           <button type="button" className="btn btn--glass" onClick={onReplay}>
             <Icon name="replay" />
-            Replay from the first act
+            Explore again
           </button>
-          <Link to="/search" className="btn btn--primary">
-            <Icon name="search" />
-            Search plans
-          </Link>
         </div>
         <div className="finale__links">
-          <Link to="/me">My Plans</Link>
+          <Link to="/search">Search plans</Link>
           <button type="button" onClick={onRefresh} disabled={refreshing}>
             {refreshing ? "Refreshing…" : "Refresh the lineup"}
           </button>

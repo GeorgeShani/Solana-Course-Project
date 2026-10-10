@@ -93,6 +93,49 @@
   display: none;
 }
 
+.watch-toast {
+  position: absolute;
+  left: 50%;
+  top: var(--s3);
+  z-index: 25;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: var(--s3);
+  width: min(calc(100% - 2 * var(--wing) - var(--s4)), 420px);
+  translate: -50% 0;
+  padding: var(--s2) var(--s2) var(--s2) var(--s1);
+  border: 1px solid var(--brass);
+  border-radius: var(--r-md);
+  background: var(--velvet-deep);
+  box-shadow: 0 16px 40px rgba(7, 2, 15, 0.6);
+}
+
+.watch-toast__cue {
+  width: 76px;
+  margin: -14px -6px -10px 0;
+}
+
+.watch-toast__title {
+  font-weight: 700;
+}
+
+.watch-toast__body {
+  color: var(--haze);
+  font-size: var(--t-footnote);
+}
+
+.watch-toast__link {
+  display: inline-flex;
+  min-height: 32px;
+  align-items: center;
+  color: var(--limelight);
+  font-size: var(--t-footnote);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 /* ---------------------------------------------------------------- the act */
 
 .act {
@@ -604,6 +647,24 @@
   border-radius: 999px 999px var(--r-lg) var(--r-lg);
 }
 
+.stage-msg__cue {
+  width: clamp(150px, 26dvh, 230px);
+  margin: -8% 0 -10%;
+}
+
+.stage-msg__aside {
+  max-width: 36ch;
+  color: var(--haze);
+  font-size: var(--t-subhead);
+}
+
+.stage-msg__aside a,
+.stage-msg__dev a {
+  color: var(--limelight);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 .stage-msg__body {
   position: relative;
   max-width: 440px;
@@ -710,10 +771,21 @@
 .finale__fin {
   font-family: var(--font-display);
   font-weight: 800;
-  font-size: clamp(5rem, 30vw, 6rem);
+  font-size: clamp(3.5rem, 18vw, 5rem);
   line-height: 0.88;
   color: var(--limelight);
   text-shadow: 0 0 32px rgba(255, 217, 138, 0.55);
+}
+
+.finale__cue {
+  width: clamp(130px, 24dvh, 240px);
+  margin: -10% 0 -12%;
+  transform-origin: 50% 100%;
+}
+
+.finale__line {
+  font-size: var(--t-title3);
+  font-weight: 700;
 }
 
 .finale__cast {
@@ -942,6 +1014,46 @@
 .script__note {
   color: var(--haze);
   font-size: var(--t-footnote);
+}
+
+.script__callout {
+  display: grid;
+  grid-template-columns: 88px 1fr;
+  align-items: center;
+  gap: var(--s3);
+  padding: var(--s2) var(--s4) var(--s2) var(--s2);
+  border: 1px solid rgba(255, 155, 115, 0.45);
+  border-radius: var(--r-md);
+  background: rgba(255, 155, 115, 0.08);
+}
+
+.script__callout h3 {
+  margin-bottom: var(--s1);
+  color: var(--st-above);
+  font-weight: 700;
+}
+
+.script__callout p {
+  color: var(--chalk);
+  font-size: var(--t-subhead);
+}
+
+.script__callout-cue {
+  margin: -8px 0 -10px;
+}
+
+.script__steps {
+  display: grid;
+  gap: var(--s1);
+  padding-left: var(--s5);
+  list-style: decimal;
+  color: var(--chalk);
+  font-size: var(--t-subhead);
+}
+
+.script__steps li::marker {
+  color: var(--limelight);
+  font-weight: 700;
 }
 
 .script__history {

@@ -37,6 +37,7 @@ import { Banner, EmptyState, Finale, UnavailableState } from "./FeedStates";
 import { PlanCard } from "./PlanCard";
 import { ScriptSheet } from "./ScriptSheet";
 import { Spotlight } from "./Spotlight";
+import { WatchToast } from "./WatchToast";
 
 const POLL_MS = 15_000;
 const NO_PAGES: FeedPage[] = [];
@@ -228,17 +229,34 @@ export function Feed({
     lastActive.current = { id: activeCard.planPda, status: activeStatus };
   }, [activeCard, activeStatus]);
 
-  const onToggleWatch = useCallback((card: PlanCardView) => {
-    const result = toggleWatched(card.planPda, planLabel(card));
+  const [toast, setToast] = useState<{ key: number; subject: string } | null>(
+    null,
+  );
+  const dismissToast = useCallback(() => setToast(null), []);
+  const onToggleWatch = (card: PlanCardView) => {
+    const status = (liveById.get(card.planPda) ?? liveEntry(card, nowMs))
+      .status;
+    const result = toggleWatched(card.planPda, planLabel(card), {
+      status,
+      version: card.version.version,
+      priceUnits: card.entry.price?.units ?? null,
+      quoteDecimals: card.pair.quoteDecimals,
+      entryLow: card.version.entryLow,
+      entryHigh: card.version.entryHigh,
+      expiresAt: card.version.expiresAt,
+    });
     const subject = `${creatorName(card)}'s ${card.pair.baseSymbol} plan`;
     setAnnouncement(
       result === null
         ? "Couldn't save the watch list: this browser is blocking local storage"
         : result
-          ? `Watching ${subject}`
+          ? `Watching ${subject}. Watching doesn't place a trade.`
           : `Stopped watching ${subject}`,
     );
-  }, []);
+    setToast((prev) =>
+      result ? { key: (prev?.key ?? 0) + 1, subject } : null,
+    );
+  };
 
   // ------------------------------------------------------------------ script sheet
 
@@ -433,6 +451,8 @@ export function Feed({
         nowMs={nowMs}
         onClose={() => setScriptId(null)}
       />
+
+      <WatchToast toast={toast} onDismiss={dismissToast} />
 
       <p className="sr-only" aria-live="polite">
         {announcement}
