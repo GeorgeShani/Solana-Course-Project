@@ -8,12 +8,12 @@ web
 
 ## Users
 
-- **Followers (primary):** adult Solana spot traders who already follow trade ideas from creators on X or Telegram. They arrive on a phone, often between other apps, and want to know in a few seconds whether a creator's plan still applies to them.
+- **Followers (primary):** adults who already follow several traders across public sources (X, Telegram and others), in any market (owner amendment 2026-10-10). They arrive on a phone and want to know what changed in an idea they saved, where it came from, and what can actually be established. Solana spot traders are the first group who can also act on a Relay plan.
 - **Creators (secondary):** people who publish trade plans and want a public, tamper-evident record of what they said and when, plus evidence of how followers actually did.
 
 ## Product Purpose
 
-**Relay connects people with Solana traders' public ideas and verifiable activity in one scrolling experience** (owner clarification 2026-10-10). It starts with 10 selected traders. They are never called the world's best, verified partners or trustworthy without evidence.
+**Meet the traders. Follow the evidence.** Relay brings traders' public ideas into followable timelines, connecting the original source, later updates and the evidence that is available (owner amendment 2026-10-10, see `docs/RELAY_HANDOFF_2026-10-10.md`). The first release covers 2–3 owner-chosen traders, with 10 as the expansion target. They are never called the world's best, verified partners or trustworthy without evidence.
 
 Inside that, Relay-native plans answer one question: _"Is this trade idea still available to me, and what happened after people actually followed it?"_ ("Follow the plan. See the proof.")
 
@@ -46,7 +46,7 @@ The unit of truth is the follower's own execution against a specific, immutable 
 - Watchlist has three tabs: Traders, Records, and History (a public wallet lookup of verified receipts, prefilled from a connected wallet).
 - A wallet is requested only to follow a plan or publish one. Wallets connect through the Wallet Standard (no SDK): choose → connecting → connected, cancelled or failed, with install steps when none is found. Connecting shares the address only and never asks for a signature.
 - Following happens on the record page in a Jupiter-clear panel: amount → fresh quote → review the guaranteed minimum, fees, quote expiry and the plan's range and window → explicit approval in the wallet (sign only) → Relay sends it to this build's network itself → pending → a verified receipt or a failure that stays a failure. The network is named before signing.
-- The demo runs on a local Surfpool mainnet fork in desktop Chrome at a 390×844 viewport with a test wallet.
+- Production runs on Solana mainnet (owner amendment 2026-10-10). The local Surfpool fork is for automated tests and burner-key rehearsals only.
 
 ## Capabilities and Constraints
 

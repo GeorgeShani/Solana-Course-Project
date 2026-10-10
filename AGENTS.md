@@ -8,9 +8,11 @@ The plan is the source of truth for what to build and why. Phases marked `DONE` 
 
 If code and plan disagree, say so and ask rather than silently picking one.
 
+Current work is **Stage 3** of the plan (owner amendment 2026-10-10). Also read the team brief it is based on, [docs/RELAY_HANDOFF_2026-10-10.md](docs/RELAY_HANDOFF_2026-10-10.md).
+
 ## What this is
 
-Relay is a mobile-first feed of creator trade plans for Solana spot traders. It answers: "Is this idea still available to me, and what happened after people followed it?" Followers authorize each trade themselves; creator updates never authorize anything. An eligible entry is never described as safe, recommended or profitable.
+Relay: "Meet the traders. Follow the evidence." It turns traders' public ideas into followable timelines (original source, later updates, available evidence), for people who follow traders in any market. Its execution path is Relay-native plans on Solana: "Is this idea still available to me, and what happened after people followed it?" Followers authorize each trade themselves; creator updates never authorize anything. An eligible entry is never described as safe, recommended or profitable. Public-source discovery and Relay-native execution never share authority.
 
 ## Repository map
 
@@ -31,7 +33,8 @@ Relay is a mobile-first feed of creator trade plans for Solana spot traders. It 
 - **Never fake blockchain behaviour.** Anything shown as real must come from the chain. Fictional data must be visibly labelled.
 - **Failed stays failed.** A failed transaction is never shown or stored as a participation.
 - **Trust nothing from the client** for amounts, prices or outcomes; re-read the chain.
-- **Burner keys only on a fork.** Never sign Surfpool transactions with a key that holds mainnet funds.
+- **Mainnet is production.** Never ask for, store or sign with a funded key; the owner deploys and signs mainnet transactions. Burner keys only on the Surfpool fork, which is for tests.
+- **Never invent traders, posts or identities.** Curated records need an owner-confirmed source; manual coverage is labelled as manual.
 
 ## Working conventions
 

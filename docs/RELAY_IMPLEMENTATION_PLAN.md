@@ -38,6 +38,15 @@ An earlier Next.js prototype (`C:\Users\HP\Desktop\curtain-sol`) explored the pr
 | Solana SDK                 | **`@solana/kit`** (owner decision during Phase 3). `@solana/web3.js` v1 and the Anchor TypeScript client are not used.                                                                                                |
 | Delivery shape             | **Small phases, each with one focus.** Stage 1 is Phases 0–9 (the 72-hour demo). Stage 2 is Phases 10–18 (the post-demo MVP). Details are in section W.                                                               |
 
+> **Owner amendment (2026-10-10, continuation). Read [Stage 3](#stage-3-continuation-owner-amendment-2026-10-10) before starting new work.** The team's brief is [RELAY_HANDOFF_2026-10-10.md](RELAY_HANDOFF_2026-10-10.md). In short:
+>
+> - **Product:** "Meet the traders. Follow the evidence." Relay turns traders' public ideas into followable timelines (original source, later updates, available evidence). The audience is traders and people who follow traders, across markets, not only Solana traders. Two paths whose authority never blends: **A. public-source discovery** (off-chain, no wallet) and **B. Relay-native plan execution** (the Solana program; the only path that can produce a verified receipt).
+> - **Network:** production is **Solana mainnet**. Devnet is dropped. A local Surfpool fork stays only for automated tests and burner-key rehearsals; it is never a default and never in a production build.
+> - **Program:** the agent prepares the mainnet release; **the owner deploys it with their own keys** after a security pass, with the upgrade authority on a multisig. This replaces Phase 17's external review with an internal pass, by owner decision.
+> - **Trader data:** 2–3 traders chosen by the owner. Their public posts are linked by hand and labelled as manual coverage; their on-chain wallet activity comes automatically from a provider in [TRADER_DATA_SOURCES.md](TRADER_DATA_SOURCES.md).
+> - **UI:** a radical rebuild waits for the owner's Figma design system. Backend work comes first.
+> - **Hosting:** AWS EC2 running the existing Docker Compose + Caddy stack.
+
 ### Phase overview
 
 | Phase | Focus                                                                                 | Estimate | Depends on |
@@ -1604,6 +1613,104 @@ The work is split into small phases that can each be handed to one coding sessio
 | 17    | Devnet → mainnet readiness              | Kit + Codama migration ADR; v1 transactions; upgrade-authority multisig; external review; RPC provider   | security review signed off; no mainnet path without it          |
 | 18    | Onboarding                              | evaluate Privy or an alternative: Solana embedded wallets, custody model, export, pricing, regions       | a decision record; a prototype behind a flag                    |
 | Later | Fiat onramp                             | a provider per region, with KYC                                                                          | legal review first                                              |
+
+### Stage 3: continuation (owner amendment 2026-10-10)
+
+Source: the team brief [RELAY_HANDOFF_2026-10-10.md](RELAY_HANDOFF_2026-10-10.md) (sections cited as "brief §n") and the owner's answers on 2026-10-10. Stage 1 and 2 phases keep their numbers and Results; unfinished boxes there stay unticked. Where this stage and an older section disagree, this stage wins, except for the security rules in sections K, N, O, Q and T, which still apply in full.
+
+#### Owner decisions
+
+| Topic           | Decision                                                                                                                                                                                                                                                                                                                                | Consequence                                                                                                                                               |
+| --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Product         | Brief §2: "Meet the traders. Follow the evidence." Customer job: "I saved this trader's idea. What changed, where is the original context, and what can I actually establish?" Core loop: Discover → Inspect → Watch → Relevant update → Return → Understand.                                                                           | Discovery entities (traders, sources, ideas, timeline events, evidence requests) are new and separate from plans and receipts.                            |
+| Audience        | Traders and people following traders, across markets.                                                                                                                                                                                                                                                                                   | Copy must not call everyone a Solana trader. Solana is the first _execution_ path, not a claim that every market is verified onchain.                     |
+| Network         | Mainnet only for anything users see. Devnet removed. The Surfpool fork is test-only.                                                                                                                                                                                                                                                    | `SOLANA_CLUSTER` defaults to `mainnet`; `localnet` must be chosen explicitly and is refused in production.                                                |
+| Program release | The agent prepares; the owner deploys with their own keys after an internal security pass. Upgrade authority on a Squads multisig.                                                                                                                                                                                                      | The agent never holds or asks for a funded key. Phase 17's external review is replaced by the internal pass (owner's choice; the risk is recorded in P2). |
+| Trader data     | 2–3 owner-chosen traders. Posts are curated by hand ("Manual coverage"). Wallet activity is automated through a provider. Third-party PnL only as a labelled estimate.                                                                                                                                                                  | No automated post ingestion is claimed. No trader is added without an owner-confirmed source and identity basis.                                          |
+| UI              | Radical rebuild after the owner sends the Figma design system and authorizes the Figma connection. Premium, theatre "stage" flow that grows from a simple start to advanced use; the first page is a single non-scrolling curtain hero; the closing footer uses the same theatre structure; contrast ratios checked; one design system. | C4 is blocked on the Figma link. Backend phases do not wait for it.                                                                                       |
+| Hosting         | AWS EC2 with the existing Compose + Caddy stack.                                                                                                                                                                                                                                                                                        | P3 documents and hardens it; the agent takes no AWS action without the owner.                                                                             |
+
+#### Differences between the brief and the owner's answers (resolved)
+
+- Brief §5 keeps the execution demo "on the supported fork/test environment"; the owner now wants mainnet. Resolution: execution runs on mainnet once the owner has deployed the program (P2); until then the record page states that execution is not available on this network. The fork stays for tests only.
+- Brief §12 forbids "program-authority, deployment or financial changes in a discovery/UI migration". Resolution: the mainnet release is its own phase (P2), run by the owner, and is never bundled with discovery or UI work.
+- Brief §13 orders C0 → C1 → C2 → C3 → C4. The production phases P1–P3 are added after C0 because the owner asked for production now; C1–C3 backend work can run alongside them.
+
+#### C0: inventory and reconcile: DONE 2026-10-10
+
+- [x] Record the current commit, branch, capabilities and missing integrations.
+- [x] Add the dated owner amendment and map the brief into this plan.
+- [ ] Confirm one viable source and identity basis per trader. **Blocked on the owner:** names and links of the 2–3 traders, and whether each has agreed to take part.
+- **Result:**
+  - **Baseline:** `main` at `b22b7ca` (the brief's reviewed baseline). Work continues on `feat/relay-continuation`. An uncommitted, regenerated `app/src/routeTree.gen.ts` was left untouched.
+  - **Checks on the baseline:** domain 58 tests, app 60 tests, server 65 tests (local Postgres), root lint: all pass.
+  - **Exists and is preserved:** the Relay program (plans, append-only versions, follow receipts with the anti-forgery layout); the Kit client and `composeFollowTx`; `GET /feed`, `GET /plans/:planPda`, `POST /plans/:planPda/confirm`, `GET /prices`, `POST /follow/quote`, `POST /follow/verify`, `GET /me/executions`, `GET /health`, `GET /health/ready`; the theatre app with welcome, Cue, Discover, Traders (grouped by signing wallet), records, Watchlist (traders, records, history), How it works, the fictional `/demo`, Wallet Standard connect and the trade panel.
+  - **Missing:** any trader, source, idea or timeline table; post ingestion of any kind; wallet activity beyond Relay plans; a server change feed and unread cursors; evidence requests; sessions; mainnet configuration (the server defaults to `localnet`, `.env.example` and compose default to devnet); a mainnet deployment of the program; an EC2 runbook.
+  - **Labels are not ingestion:** `record-kind.ts` and the four content kinds exist in the UI, but nothing feeds "Public post" or "On-chain activity" yet.
+
+#### P1: mainnet configuration (code, no deploy)
+
+- **Goal:** the server and app run against mainnet by default, with secrets kept on the server.
+- **Tasks:**
+  - [ ] `SOLANA_CLUSTER`: `mainnet` (default) or `localnet` (explicit, fork tests). Remove `devnet` from server, app and domain types.
+  - [ ] Production guard: with `NODE_ENV=production` the server refuses to start on `localnet`, without an explicit `APP_ORIGIN`, `DATABASE_URL` or `SOLANA_RPC_URL`, or with the public rate-limited mainnet RPC.
+  - [ ] `POST /rpc`: a JSON-RPC proxy with a fixed method allowlist (blockhash, send, signature status, account and balance reads, simulate), a body limit and rate limits, so a keyed RPC URL never reaches the browser. The app uses `/api/rpc` by default.
+  - [ ] Seed and fork scripts refuse to run against mainnet.
+  - [ ] Explorer links for mainnet transactions and accounts.
+  - [ ] `.env.example`, `compose.yaml`, server and app READMEs updated.
+- **Done when:** server and app tests pass; the server started with mainnet settings serves `/health/ready`, `/prices` and an empty-but-truthful `/feed`; `/rpc` rejects a method outside the allowlist.
+
+#### P2: program mainnet release (prepared by the agent, run by the owner)
+
+- **Goal:** a reviewed, reproducible build and a checklist the owner can follow.
+- **Tasks:**
+  - [ ] Internal security pass on `program/programs/relay` (signers, PDA seeds, layout introspection, u128 math, token program and mint checks, rent, upgrade risk). Findings fixed or recorded.
+  - [ ] Confirm every mainnet constant: Jupiter program ID, USDC/wSOL/JUP mints, program ID.
+  - [ ] Verifiable build (`anchor build --verifiable` or `solana-verify`) and a recorded program hash.
+  - [ ] `docs/MAINNET_RELEASE.md`: cost estimate, the owner's deploy steps, moving the upgrade authority to a Squads multisig, verifying the deployed hash, and rollback/freeze options.
+- **Risk recorded:** `begin_follow` and `finish_follow` receive the follower as a signer. Whoever holds the upgrade authority could ship a program that moves a follower's funds inside that transaction. The authority must sit on a multisig, and making the program immutable after the pilot should be considered.
+- **Done when:** the owner has the checklist and a verified build hash. The deploy itself is the owner's action.
+
+#### P3: AWS EC2 production runbook
+
+- [ ] `DEPLOYMENT.md` section for EC2: instance size, security group (80/443 only; SSH via SSM or a restricted IP), Elastic IP, DNS, Docker install, swap for builds, `.env` handling, Postgres volume backups (or the existing Neon database), log rotation, updates.
+- [ ] Compose: optional external `DATABASE_URL`, server and app logs bounded, no published ports except Caddy.
+- **Done when:** the runbook is complete and `docker compose config` validates. No AWS resource is created by the agent.
+
+#### C1: real source → timeline (backend first)
+
+- [ ] Migrations: `traders`, `trader_links` (X/Telegram/website/wallet with an identity basis), `source_records`, `ideas`, `timeline_events` (a global sequence for cursors, relationship basis, review state). Kept separate from plans and receipts; demo data has its own provenance flag.
+- [ ] A curation CLI that loads owner-reviewed records from a file in the repo (curator, retrieved time, published time if known, availability), labelled manual coverage.
+- [ ] Wallet activity for linked wallets from the chosen provider, as "On-chain activity", never tied to a post just because both name the same asset.
+- [ ] `GET /discovery/traders`, `GET /discovery/traders/:id`, `GET /discovery/ideas/:id`.
+- **Gate:** brief §13 C1.
+
+#### C2: watch → changes → return (server side first)
+
+- [ ] `GET /discovery/changes` for a bounded set of watched targets and cursors, using the event sequence, not timestamps.
+- [ ] The app keeps watches locally (migrating existing saved items) and acknowledges only on deliberate opening. Frontend part lands with C4.
+- **Gate:** brief §13 C2.
+
+#### C3: ask for evidence → response
+
+- [ ] Anonymous, server-issued browser session (random token, stored hashed); it does not identify a person.
+- [ ] `POST /discovery/evidence-requests` and `POST /discovery/evidence-requests/:id/submissions`, validated, bounded and rate-limited; no server-side fetching of submitted URLs; review only through an internal CLI.
+- [ ] Reviewed responses append timeline events and appear in changes.
+- **Gate:** brief §13 C3.
+
+#### C4: UI rebuild (blocked on the Figma design system)
+
+- [ ] The Figma design system (link from the owner, Figma connection authorized) mapped to tokens and components.
+- [ ] Impeccable `shape` and critique passes; contrast checked; reduced motion; 390×844, a short phone and desktop.
+- [ ] Theatre flow: non-scrolling curtain hero first, then the app, then a closing footer in the same structure. Cue and existing assets reused.
+- [ ] Discovery timelines, the changes inbox, evidence requests and the trade panel on mainnet.
+- **Gate:** brief §13 C4, plus the owner's visual sign-off.
+
+#### C5: integrated demonstration and pilot
+
+- [ ] Regression of plan, quote and receipt on mainnet with a small real amount, run by the owner's wallet.
+- [ ] Genuine-source journey and the labelled fictional fallback.
+- [ ] Limitations and test results recorded; no traction, audit or "verified trader" claims.
 
 ---
 
