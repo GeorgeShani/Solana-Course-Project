@@ -14,14 +14,14 @@ Relay is a mobile-first feed of creator trade plans for Solana spot traders. It 
 
 ## Repository map
 
-| Folder | What it is |
-|---|---|
-| `program/` | Rust + Anchor program (`relay`), plus test-only `mock_swap` and `cpi_attacker`. The authority for rules. |
-| `domain/` | `@relay/domain`: integer money math, hashes, entry status, and the Kit program client in `domain/src/solana`. Shared by app, server and scripts. |
-| `server/` | Hono + Bun + Postgres. Mirrors the chain, serves the feed, verifies follows. Never an authority. |
-| `app/` | TanStack Start (React) frontend. |
-| `scripts/` | `anchor.ts` (runs Anchor through WSL), `sync-idl.ts`. |
-| `docs/` | The plan and the spike notes. |
+| Folder     | What it is                                                                                                                                       |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `program/` | Rust + Anchor program (`relay`), plus test-only `mock_swap` and `cpi_attacker`. The authority for rules.                                         |
+| `domain/`  | `@relay/domain`: integer money math, hashes, entry status, and the Kit program client in `domain/src/solana`. Shared by app, server and scripts. |
+| `server/`  | Hono + Bun + Postgres. Mirrors the chain, serves the feed, verifies follows. Never an authority.                                                 |
+| `app/`     | TanStack Start (React) frontend.                                                                                                                 |
+| `scripts/` | `anchor.ts` (runs Anchor through WSL), `sync-idl.ts`.                                                                                            |
+| `docs/`    | The plan and the spike notes.                                                                                                                    |
 
 ## Rules that always apply
 

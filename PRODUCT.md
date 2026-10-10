@@ -21,12 +21,12 @@ Success means a reader can tell in seconds what kind of record they are looking 
 
 ### Four kinds of content, never blended
 
-| Kind | Label | What it proves |
-| --- | --- | --- |
-| Public idea or post | Public post | That the trader said it, linked to the original source and time. Not that a trade happened. |
-| Verified on-chain activity | On-chain activity | A transaction on Solana, shown under a person only when the wallet association is supported. |
+| Kind                         | Label                   | What it proves                                                                                 |
+| ---------------------------- | ----------------------- | ---------------------------------------------------------------------------------------------- |
+| Public idea or post          | Public post             | That the trader said it, linked to the original source and time. Not that a trade happened.    |
+| Verified on-chain activity   | On-chain activity       | A transaction on Solana, shown under a person only when the wallet association is supported.   |
 | Plan published through Relay | Published through Relay | A plan the wallet signed and committed onchain. The only kind that can be reviewed as a trade. |
-| Fictional demo | Fictional demo | Nothing. Invented for the walkthrough. |
+| Fictional demo               | Fictional demo          | Nothing. Invented for the walkthrough.                                                         |
 
 - Every public record carries its original source and timestamp.
 - A wallet is associated with a person only when supported (today: the wallet signed the plan; later: a signed link, plan Phase 16). A wallet is not a person.
