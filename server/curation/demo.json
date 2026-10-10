@@ -1,0 +1,147 @@
+{
+  "demo": true,
+  "curator": "Relay demo (fictional)",
+  "traders": [
+    {
+      "id": "demo-aria-vale",
+      "displayName": "Aria Vale (fictional demo)",
+      "markets": ["crypto"],
+      "attributionBasis": "A fictional profile invented for the demo. There is no real person or account behind it.",
+      "participation": "public_source_only",
+      "coverageLimits": "Fictional. Nothing here was posted by anyone, and nothing was traded.",
+      "links": [
+        {
+          "kind": "website",
+          "value": "https://example.com/fictional/aria-vale",
+          "identityBasis": "uncertain",
+          "basisNote": "Fictional demo link. example.com is a reserved example domain."
+        }
+      ],
+      "sources": [
+        {
+          "id": "demo-aria-post-1",
+          "provider": "website",
+          "url": "https://example.com/fictional/aria-vale/posts/1",
+          "recordType": "post",
+          "publishedAt": "2026-09-01T09:00:00Z",
+          "retrievedAt": "2026-09-02T10:00:00Z",
+          "displayedContent": "Fictional demo post: watching SOL near the 140 area. Will reassess if it loses 130.",
+          "availability": [
+            { "state": "available", "observedAt": "2026-09-02T10:00:00Z" }
+          ]
+        },
+        {
+          "id": "demo-aria-post-2",
+          "provider": "website",
+          "url": "https://example.com/fictional/aria-vale/posts/2",
+          "recordType": "post",
+          "publishedAt": "2026-09-03T12:00:00Z",
+          "retrievedAt": "2026-09-03T13:00:00Z",
+          "displayedContent": "Fictional demo update: no longer watching SOL after it moved above 150.",
+          "availability": [
+            { "state": "available", "observedAt": "2026-09-03T13:00:00Z" }
+          ]
+        },
+        {
+          "id": "demo-aria-post-3",
+          "provider": "website",
+          "url": "https://example.com/fictional/aria-vale/posts/3",
+          "recordType": "post",
+          "publishedAt": "2026-09-05T08:00:00Z",
+          "retrievedAt": "2026-09-05T09:00:00Z",
+          "displayedContent": "Fictional demo post that was later removed by its author.",
+          "availability": [
+            { "state": "available", "observedAt": "2026-09-05T09:00:00Z" },
+            {
+              "state": "removed",
+              "observedAt": "2026-09-08T09:00:00Z",
+              "note": "Fictional: the author removed the post."
+            }
+          ]
+        }
+      ],
+      "ideas": [
+        {
+          "id": "demo-sol-140-area",
+          "sourceId": "demo-aria-post-1",
+          "title": "Watching SOL near 140 (fictional demo)",
+          "assets": ["SOL"],
+          "market": "crypto",
+          "statedConditions": "Watching 140. Reassess below 130.",
+          "events": [
+            {
+              "id": "demo-sol-update-1",
+              "type": "update_published",
+              "occurredAt": "2026-09-03T12:00:00Z",
+              "sourceId": "demo-aria-post-2",
+              "relationshipBasis": "creator_confirmed",
+              "summary": "The author says they stopped watching after the price moved above 150."
+            },
+            {
+              "id": "demo-sol-chart-link",
+              "type": "evidence_added",
+              "occurredAt": null,
+              "evidence": {
+                "kind": "url",
+                "ref": "https://example.com/fictional/charts/sol"
+              },
+              "relationshipBasis": "editorially_associated",
+              "basisNote": "A fictional chart the curator linked. The author did not say it is about this idea.",
+              "summary": "A chart was added by the curator. Its date is unknown."
+            },
+            {
+              "id": "demo-sol-removed-post",
+              "type": "source_unavailable",
+              "occurredAt": "2026-09-08T09:00:00Z",
+              "sourceId": "demo-aria-post-3",
+              "relationshipBasis": "uncertain",
+              "basisNote": "The removed post may or may not have been about this idea. Its text is no longer shown.",
+              "summary": "A later post that may relate to this idea was removed by its author."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "demo-bo-lindqvist",
+      "displayName": "Bo Lindqvist (fictional demo)",
+      "markets": ["us-equities"],
+      "attributionBasis": "A fictional profile invented for the demo. There is no real person or account behind it.",
+      "participation": "public_source_only",
+      "coverageLimits": "Fictional. Nothing here was posted by anyone, and nothing was traded.",
+      "links": [
+        {
+          "kind": "website",
+          "value": "https://example.com/fictional/bo-lindqvist",
+          "identityBasis": "uncertain",
+          "basisNote": "Fictional demo link. example.com is a reserved example domain."
+        }
+      ],
+      "sources": [
+        {
+          "id": "demo-bo-article-1",
+          "provider": "website",
+          "url": "https://example.com/fictional/bo-lindqvist/articles/1",
+          "recordType": "article",
+          "publishedAt": null,
+          "retrievedAt": "2026-09-10T10:00:00Z",
+          "displayedContent": "Fictional demo article: a view on a stock with no entry or exit stated.",
+          "availability": [
+            { "state": "available", "observedAt": "2026-09-10T10:00:00Z" }
+          ]
+        }
+      ],
+      "ideas": [
+        {
+          "id": "demo-equity-view",
+          "sourceId": "demo-bo-article-1",
+          "title": "A view on a fictional stock, no conditions given (fictional demo)",
+          "assets": ["FICT"],
+          "market": "us-equities",
+          "statedConditions": null,
+          "events": []
+        }
+      ]
+    }
+  ]
+}

@@ -14,6 +14,8 @@ import {
   requestLog,
   type AppEnv,
 } from "./middleware";
+import { mountDiscovery } from "./discovery/routes";
+import type { DiscoveryService } from "./discovery/service";
 import type { FollowService } from "./services/follow";
 import type { PlanService } from "./services/plans";
 import type { ChainReader, PriceSource } from "./services/types";
@@ -28,6 +30,8 @@ export interface AppDeps {
   prices: PriceSource;
   /** Upstream of POST /rpc (the server's SOLANA_RPC_URL). */
   rpc: RpcForward;
+  /** Sourced traders, ideas and timelines (read-only). */
+  discovery: DiscoveryService;
   /** Used by GET /health/ready to ask the RPC for its slot. */
   chain: Pick<ChainReader, "health">;
   /** Request lines and errors. Defaults to silent so tests and scripts stay quiet. */
@@ -61,6 +65,7 @@ export function createApp({
   follow,
   prices,
   rpc,
+  discovery,
   chain,
   logger = silentLogger,
 }: AppDeps) {
@@ -138,6 +143,8 @@ export function createApp({
       }),
     );
   });
+
+  mountDiscovery(app, discovery);
 
   app.get("/plans/:planPda", async (c) =>
     c.json(await plans.detail(c.req.param("planPda"))),

@@ -22,6 +22,17 @@ Reached publicly under `/api` (Caddy and the Vite dev proxy strip the prefix).
 | `POST` | `/follow/verify`           | `{ signature }` only. Re-reads the transaction and the receipt account from the chain and records the execution as `recorded` or `failed` (with the reason). Idempotent; a recorded execution is never downgraded.                                                                                                                      |
 | `GET`  | `/me/executions?follower=` | A wallet's verified executions, newest first.                                                                                                                                                                                                                                                                                           |
 
+Discovery (read-only; sourced traders, their ideas and each idea's timeline; see [curation/README.md](curation/README.md)):
+
+| Method | Path                                   | What it does                                                                                                                                                                                                                                                                                                                                                                  |
+| ------ | -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GET`  | `/discovery/traders?cursor&limit`      | Sourced profiles, by id: markets, why Relay attributes the profile, whether the trader agreed to take part, what Relay cannot see, who confirmed the source, idea count and the newest event cursor.                                                                                                                                                                          |
+| `GET`  | `/discovery/traders/:id`               | One profile with its links (each with how it is known: `creator_confirmed`, `editorially_associated` or `uncertain`) and its ideas.                                                                                                                                                                                                                                           |
+| `GET`  | `/discovery/ideas?cursor&limit&trader` | Ideas, newest activity first (ties by id), with the original source, the stated conditions (or `null`: "Entry conditions not specified") and the newest event `seq`.                                                                                                                                                                                                          |
+| `GET`  | `/discovery/ideas/:id`                 | The original source (`publishedAt` as the source says it, `null` if unknown, and `retrievedAt` when Relay captured it; availability; the permitted excerpt, or a tombstone if removed) and the timeline: each event with its type, times, source or evidence, how it is tied to the idea, review state and hash. `chain.verified` says whether the stored hashes still match. |
+
+Everything is manual coverage: a person recorded it, and nothing is fetched from X, Telegram or any provider. Demo and live rows never mix: a server with `DEMO_MODE=true` serves only the fictional demo rows, any other server only live rows. `seq` is the global order of events and is what a reader keeps as its cursor, never a timestamp.
+
 Every state-changing request must come from the configured `APP_ORIGIN` (or be `Sec-Fetch-Site: same-origin`) with `Content-Type: application/json`. Bodies are limited to 16 KB and requests are rate limited per client (the right-most `X-Forwarded-For` entry, which the proxy appends).
 
 ## Environment variables
@@ -55,6 +66,8 @@ From the repo root:
 docker compose -f compose.dev.yaml up -d      # Postgres on 127.0.0.1:5432
 bun run dev:server                            # applies migrations, then serves :3001
 bun run --cwd server seed                     # optional: real onchain demo plans with labelled fictional creators
+bun run --cwd server curate --demo            # optional: the fictional discovery demo (DEMO_MODE=true serves it)
+bun run --cwd server curate --check           # validate server/curation/curated.json (the real traders; empty until the owner supplies them)
 bun run --cwd server test                     # needs the dev Postgres and a relay_test database
 ```
 

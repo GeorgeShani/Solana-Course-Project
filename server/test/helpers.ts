@@ -31,6 +31,7 @@ import { createApp } from "../src/app";
 import { connect, migrate, type Db } from "../src/db";
 import { loadEnv, type Env } from "../src/env";
 import { silentLogger, type Logger } from "../src/logger";
+import { createDiscoveryService } from "../src/discovery/service";
 import { createFollowService } from "../src/services/follow";
 import type { BuildParams, JupiterClient } from "../src/services/jupiter";
 import { createPlanService } from "../src/services/plans";
@@ -306,9 +307,11 @@ export async function createTestApp(
   const plans = createPlanService({ env, db, chain, prices, logger });
   const follow = createFollowService({ env, db, chain, jupiter, logger });
   const rpc = new FakeRpc();
+  const discovery = createDiscoveryService({ env, db });
   const app = createApp({
     env,
     db,
+    discovery,
     plans,
     follow,
     prices,
