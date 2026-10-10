@@ -22,7 +22,7 @@ You're scrolling. A trader you follow posts a screenshot: plus forty percent. `[
 
 **The screenshot wasn't lying.** `[pause]` **It just wasn't about you.** `[pause]`
 
-He got in at nine. You got in at nine-forty, at a higher price. Nobody shows you that part. `[pause]`
+He bought early, at a low price. You bought later, at a higher one. Nobody shows you that part. `[pause]`
 
 That's why we're building Relay. `[pause]`
 
@@ -44,7 +44,7 @@ Thank you.
 
 1. "Each plan shows where the creator wanted to get in, and when the idea expires." can become "Each plan has an entry and an expiry."
 2. "Updates are added, never edited."
-3. "He got in at nine. You got in at nine-forty, at a higher price." can become "He got in early. You got in late."
+3. "He bought early, at a low price. You bought later, at a higher one." can become "He bought early. You bought late."
 
 If you have 15 seconds to spare instead, add this line after the Solana part, and mention it is a simulated copy of mainnet if asked:
 
