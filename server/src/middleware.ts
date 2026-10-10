@@ -1,6 +1,7 @@
 import type { Context, MiddlewareHandler } from "hono";
 import { getConnInfo } from "hono/bun";
 import type { Logger } from "./logger";
+import { isRecord } from "./util";
 
 /** Per-request values set by `requestLog`. */
 export interface AppEnv {
@@ -133,4 +134,20 @@ export function requestLog(logger: Logger): MiddlewareHandler<AppEnv> {
       ms: Math.round(performance.now() - started),
     });
   };
+}
+
+/** The request body as a JSON object, or a 400. */
+export async function readJson(
+  request: Request,
+): Promise<Record<string, unknown>> {
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    throw new ApiError(400, "invalid_json", "Body must be valid JSON");
+  }
+  if (!isRecord(body)) {
+    throw new ApiError(400, "invalid_body", "Body must be an object");
+  }
+  return body;
 }

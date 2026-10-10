@@ -194,7 +194,7 @@ function hasControlCharacters(v: string): boolean {
 /** Characters in a code-point sense, matching Postgres `char_length`. */
 const length = (s: string) => [...s].length;
 
-function parseText(
+export function parseText(
   v: unknown,
   path: string,
   max: number,

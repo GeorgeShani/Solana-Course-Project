@@ -3,6 +3,7 @@ import { connect, migrate } from "./db";
 import { loadEnv } from "./env";
 import { createLogger } from "./logger";
 import { assertRpcMatchesNetwork } from "./network-check";
+import { createEvidenceService } from "./discovery/evidence";
 import { createDiscoveryService } from "./discovery/service";
 import { createChain } from "./services/chain";
 import { createFollowService } from "./services/follow";
@@ -53,11 +54,13 @@ const follow = createFollowService({
 });
 
 const discovery = createDiscoveryService({ env, db });
+const evidence = createEvidenceService({ env, db });
 
 const app = createApp({
   env,
   db,
   discovery,
+  evidence,
   plans,
   follow,
   prices,

@@ -1,6 +1,14 @@
-import type { Hono } from "hono";
+import type { Context, Hono } from "hono";
+import { getCookie, setCookie } from "hono/cookie";
+import type { Env } from "../env";
 import type { AppEnv } from "../middleware";
-import { ApiError } from "../middleware";
+import {
+  ApiError,
+  createRateLimiter,
+  rateLimit,
+  readJson,
+} from "../middleware";
+import type { EvidenceService, Visitor } from "./evidence";
 import {
   MAX_WATCH_TARGETS,
   type DiscoveryService,
@@ -95,4 +103,92 @@ export function mountDiscovery(app: Hono<AppEnv>, discovery: DiscoveryService) {
       ),
     ),
   );
+}
+
+const VISITOR_COOKIE = "relay_visitor";
+const VISITOR_COOKIE_SECONDS = 30 * 24 * 60 * 60;
+
+/**
+ * Evidence requests. A visitor is an anonymous browser session held in an HttpOnly cookie; it does
+ * not identify a person. There is deliberately NO route that reviews anything: a reviewer uses the
+ * internal command (scripts/review.ts), so nobody can approve their own request or submission.
+ *
+ *   POST /discovery/evidence-requests                        { ideaId, eventId?, question }
+ *   POST /discovery/evidence-requests/:id/submissions        { kind: "url"|"transaction", ref, explanation }
+ *   GET  /discovery/me/requests                              this browser's own requests and their state
+ */
+export function mountEvidence(
+  app: Hono<AppEnv>,
+  evidence: EvidenceService,
+  env: Pick<Env, "production">,
+) {
+  const requestLimit = createRateLimiter(10, 60_000);
+  const submissionLimit = createRateLimiter(10, 60_000);
+
+  /** The visitor behind this browser's cookie. With `create`, starts a session when there is none. */
+  async function visitorOf(c: Context<AppEnv>, create: true): Promise<Visitor>;
+  async function visitorOf(
+    c: Context<AppEnv>,
+    create: false,
+  ): Promise<Visitor | null>;
+  async function visitorOf(
+    c: Context<AppEnv>,
+    create: boolean,
+  ): Promise<Visitor | null> {
+    const visitor = await evidence.visitorFor(
+      getCookie(c, VISITOR_COOKIE),
+      create,
+    );
+    if (create && !visitor)
+      throw new ApiError(
+        503,
+        "no_session",
+        "Could not start a session. Try again.",
+      );
+    if (visitor?.newToken) {
+      setCookie(c, VISITOR_COOKIE, visitor.newToken, {
+        httpOnly: true,
+        sameSite: "Lax",
+        path: "/",
+        secure: env.production,
+        maxAge: VISITOR_COOKIE_SECONDS,
+      });
+    }
+    return visitor;
+  }
+
+  app.post(
+    "/discovery/evidence-requests",
+    rateLimit(requestLimit),
+    async (c) => {
+      const body = await readJson(c.req.raw);
+      const visitor = await visitorOf(c, true);
+      const { request, created } = await evidence.createRequest(visitor, body);
+      c.header("Cache-Control", "no-store");
+      return c.json({ request, created }, created ? 201 : 200);
+    },
+  );
+
+  app.post(
+    "/discovery/evidence-requests/:id/submissions",
+    rateLimit(submissionLimit),
+    async (c) => {
+      const body = await readJson(c.req.raw);
+      const visitor = await visitorOf(c, true);
+      const { submission, created } = await evidence.createSubmission(
+        visitor,
+        c.req.param("id"),
+        body,
+      );
+      c.header("Cache-Control", "no-store");
+      return c.json({ submission, created }, created ? 201 : 200);
+    },
+  );
+
+  app.get("/discovery/me/requests", async (c) => {
+    const visitor = await visitorOf(c, false);
+    c.header("Cache-Control", "no-store");
+    c.header("Vary", "Cookie");
+    return c.json({ items: visitor ? await evidence.myRequests(visitor) : [] });
+  });
 }

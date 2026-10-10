@@ -32,7 +32,17 @@ Discovery (read-only; sourced traders, their ideas and each idea's timeline; see
 | `GET`  | `/discovery/ideas/:id`                                                   | The original source (`publishedAt` as the source says it, `null` if unknown, and `retrievedAt` when Relay captured it; availability; the permitted excerpt, or a tombstone if removed) and the timeline: each event with its type, times, source or evidence, how it is tied to the idea, review state and hash. `chain.verified` says whether the stored hashes still match.                                                                                                                                                                                                                                                                          |
 | `GET`  | `/discovery/changes?watch=idea:<id>:<seq>&watch=trader:<id>:<seq>&limit` | "What changed since I last checked?" For up to 50 watched targets and the last event `seq` the reader has seen for each: the meaningful events after it, grouped under their idea (a sourced update, new evidence, a discrepancy, a reviewed response, an added source, a correction, a Relay plan, or the original source becoming unavailable). The first capture, plain on-chain activity and unreviewed responses are not changes. `latestSeq` is the newest event of any kind, so a reader that opens a target can store it as its cursor. The server never marks anything read. `coverage.lastRecordedAt` says how fresh the manual coverage is. |
 
-Everything is manual coverage: a person recorded it, and nothing is fetched from X, Telegram or any provider. Demo and live rows never mix: a server with `DEMO_MODE=true` serves only the fictional demo rows, any other server only live rows. `seq` is the global order of events and is what a reader keeps as its cursor, never a timestamp.
+Evidence requests (the reader asks, a reviewer decides; see the rules below):
+
+| Method | Path                                           | What it does                                                                                                                                                                                                                                                                                                          |
+| ------ | ---------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `POST` | `/discovery/evidence-requests`                 | `{ ideaId, eventId?, question }`. Asks a narrow question (10 to 280 characters, plain text, no links). Private until a reviewer approves it. Starts an anonymous browser session on first use (HttpOnly `relay_visitor` cookie). The same question from the same browser returns the same request (`200`, not `201`). |
+| `POST` | `/discovery/evidence-requests/:id/submissions` | `{ kind: "url" \| "transaction", ref, explanation }`. A supporting reference for a request a reviewer has opened. The link must be a public `https` URL (never fetched); the explanation (10 to 500 characters) is for reviewers only.                                                                                |
+| `GET`  | `/discovery/me/requests`                       | This browser's own requests and the state of each of its references (`pending_review`, `open`, `answered`, `closed_unresolved`, `rejected`). Nobody else's.                                                                                                                                                           |
+
+An approved request appears in the idea's timeline as "Evidence requested" and in `evidenceRequests` on `GET /discovery/ideas/:id`. An accepted reference appears as "Response added", written by the reviewer, with the validated link. **Nothing certifies a claim as true or false:** `answered` means a reviewer published a reference and how it relates to the idea; `closed_unresolved` means none was found, with the reviewer's reason.
+
+Everything is manual coverage: a person recorded it, and nothing is fetched from X, Telegram or any provider or from any link a visitor submits. Demo and live rows never mix: a server with `DEMO_MODE=true` serves only the fictional demo rows, any other server only live rows. `seq` is the global order of events and is what a reader keeps as its cursor, never a timestamp.
 
 Every state-changing request must come from the configured `APP_ORIGIN` (or be `Sec-Fetch-Site: same-origin`) with `Content-Type: application/json`. Bodies are limited to 16 KB and requests are rate limited per client (the right-most `X-Forwarded-For` entry, which the proxy appends).
 
@@ -52,6 +62,13 @@ Every state-changing request must come from the configured `APP_ORIGIN` (or be `
 | `JUPITER_BASE_URL`    | `https://api.jup.ag`                                     |                                                                                                                                                                                       |
 | `JUPITER_DEXES`       | none                                                     | Venue allowlist, only used on `localnet` (see `docs/spikes/surfpool-jupiter.md`).                                                                                                     |
 
+## Evidence requests: who can do what
+
+- **Visitors are anonymous browser sessions**, not people: a random token in an HttpOnly cookie, stored only as its SHA-256. It does not identify anyone and does not stop one person opening many, so every limit also applies per client address.
+- **Limits:** 5 questions and 10 references per browser per day, 3 references per browser per request, 25 items waiting per idea or request, 10 writes per minute per address, bodies up to 16 KB.
+- **Review is not an HTTP route.** `scripts/review.ts` needs database access, so nobody can approve their own request or reference. Accepting publishes the reviewer's own summary and the link, never the submitter's words. Open a submitted link yourself, in a browser, before accepting it: the server does not.
+- Request text, explanations and links are stored as plain text and returned as JSON strings. The server never renders or executes them.
+
 ## Operating it
 
 - **Logs** are one JSON object per line on stdout (`docker compose logs server`). Every request logs `request` with its `reqId`, method, path (no query string), status and duration; every response carries the same id in `X-Request-Id`, so a user report can be matched to a line. Errors log `api_error` with the code that stopped the request (`plan_expired`, `swaps_unavailable`, ...). Logs never hold bodies, headers, cookies, signatures, the client address, or any URL (provider keys live in URLs); fields with sensitive names are redacted and error text has URLs stripped.
@@ -68,6 +85,7 @@ docker compose -f compose.dev.yaml up -d      # Postgres on 127.0.0.1:5432
 bun run dev:server                            # applies migrations, then serves :3001
 bun run --cwd server seed                     # optional: real onchain demo plans with labelled fictional creators
 bun run --cwd server curate --demo            # optional: the fictional discovery demo (DEMO_MODE=true serves it)
+bun run --cwd server review list             # evidence requests and references waiting for a reviewer (also: approve-request, reject-request, close-request, accept, reject)
 bun run --cwd server curate --check           # validate server/curation/curated.json (the real traders; empty until the owner supplies them)
 bun run --cwd server test                     # needs the dev Postgres and a relay_test database
 ```

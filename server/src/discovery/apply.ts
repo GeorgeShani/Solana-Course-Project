@@ -227,7 +227,7 @@ async function applySource(
   }
 }
 
-interface EventRow {
+export interface EventRow {
   id: string;
   type: string;
   occurredAt: Date | null;
@@ -278,6 +278,47 @@ export function originEvent(
   };
 }
 
+/**
+ * Appends one event to an idea's timeline: chains it to the idea's previous event and inserts it.
+ * Callers hold the discovery write lock (so `seq` follows commit order). Used by the curation
+ * loader and by the evidence review commands, so the hash chain has exactly one writer.
+ */
+export async function insertEvent(
+  tx: TransactionSQL,
+  ideaId: string,
+  e: EventRow,
+  demo: boolean,
+  curator: string,
+  now: Date,
+): Promise<void> {
+  const last = await one(
+    tx`select event_hash from timeline_events where idea_id = ${ideaId} order by seq desc limit 1`,
+  );
+  const prevHash = last ? bytes(last, "event_hash") : null;
+  const hash = await eventHash({
+    ideaId,
+    id: e.id,
+    type: e.type,
+    occurredAt: e.occurredAt,
+    sourceRecordId: e.sourceId,
+    evidenceKind: e.evidenceKind,
+    evidenceRef: e.evidenceRef,
+    relationshipBasis: e.basis,
+    basisNote: e.basisNote,
+    revision: 1,
+    reviewState: e.reviewState,
+    summary: e.summary,
+    prevHash,
+  });
+  await tx`
+    insert into timeline_events (id, idea_id, event_type, occurred_at, recorded_at, source_record_id,
+                                 evidence_kind, evidence_ref, relationship_basis, basis_note, revision,
+                                 review_state, summary, dedupe_key, prev_hash, event_hash, curator, is_demo)
+    values (${e.id}, ${ideaId}, ${e.type}, ${e.occurredAt}, ${now}, ${e.sourceId}, ${e.evidenceKind},
+            ${e.evidenceRef}, ${e.basis}, ${e.basisNote}, 1, ${e.reviewState}, ${e.summary}, ${e.dedupe},
+            ${prevHash === null ? null : Buffer.from(prevHash)}, ${Buffer.from(hash)}, ${curator}, ${demo})`;
+}
+
 async function appendEvent(
   tx: Tx,
   ideaId: string,
@@ -310,32 +351,7 @@ async function appendEvent(
       );
     return;
   }
-  const last = await one(
-    tx`select event_hash from timeline_events where idea_id = ${ideaId} order by seq desc limit 1`,
-  );
-  const prevHash = last ? bytes(last, "event_hash") : null;
-  const hash = await eventHash({
-    ideaId,
-    id: e.id,
-    type: e.type,
-    occurredAt: e.occurredAt,
-    sourceRecordId: e.sourceId,
-    evidenceKind: e.evidenceKind,
-    evidenceRef: e.evidenceRef,
-    relationshipBasis: e.basis,
-    basisNote: e.basisNote,
-    revision: 1,
-    reviewState: e.reviewState,
-    summary: e.summary,
-    prevHash,
-  });
-  await tx`
-    insert into timeline_events (id, idea_id, event_type, occurred_at, recorded_at, source_record_id,
-                                 evidence_kind, evidence_ref, relationship_basis, basis_note, revision,
-                                 review_state, summary, dedupe_key, prev_hash, event_hash, curator, is_demo)
-    values (${e.id}, ${ideaId}, ${e.type}, ${e.occurredAt}, ${now}, ${e.sourceId}, ${e.evidenceKind},
-            ${e.evidenceRef}, ${e.basis}, ${e.basisNote}, 1, ${e.reviewState}, ${e.summary}, ${e.dedupe},
-            ${prevHash === null ? null : Buffer.from(prevHash)}, ${Buffer.from(hash)}, ${curator}, ${demo})`;
+  await insertEvent(tx, ideaId, e, demo, curator, now);
   report.events.appended++;
 }
 

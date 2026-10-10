@@ -11,16 +11,17 @@ import {
   createRateLimiter,
   originGuard,
   rateLimit,
+  readJson,
   requestLog,
   type AppEnv,
 } from "./middleware";
-import { mountDiscovery } from "./discovery/routes";
+import { mountDiscovery, mountEvidence } from "./discovery/routes";
+import type { EvidenceService } from "./discovery/evidence";
 import type { DiscoveryService } from "./discovery/service";
 import type { FollowService } from "./services/follow";
 import type { PlanService } from "./services/plans";
 import type { ChainReader, PriceSource } from "./services/types";
 import { parseRpcRequest, type RpcForward } from "./services/rpc-proxy";
-import { isRecord } from "./util";
 
 export interface AppDeps {
   env: Env;
@@ -32,6 +33,8 @@ export interface AppDeps {
   rpc: RpcForward;
   /** Sourced traders, ideas and timelines (read-only). */
   discovery: DiscoveryService;
+  /** Evidence requests and submissions (anonymous session; review is not reachable over HTTP). */
+  evidence: EvidenceService;
   /** Used by GET /health/ready to ask the RPC for its slot. */
   chain: Pick<ChainReader, "health">;
   /** Request lines and errors. Defaults to silent so tests and scripts stay quiet. */
@@ -39,19 +42,6 @@ export interface AppDeps {
 }
 
 const MAX_BODY_BYTES = 16 * 1024;
-
-async function readJson(request: Request): Promise<Record<string, unknown>> {
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch {
-    throw new ApiError(400, "invalid_json", "Body must be valid JSON");
-  }
-  if (!isRecord(body)) {
-    throw new ApiError(400, "invalid_body", "Body must be an object");
-  }
-  return body;
-}
 
 /**
  * The HTTP API. Everything is read-mostly: the Solana program is the authority, and the only
@@ -66,6 +56,7 @@ export function createApp({
   prices,
   rpc,
   discovery,
+  evidence,
   chain,
   logger = silentLogger,
 }: AppDeps) {
@@ -145,6 +136,7 @@ export function createApp({
   });
 
   mountDiscovery(app, discovery);
+  mountEvidence(app, evidence, env);
 
   app.get("/plans/:planPda", async (c) =>
     c.json(await plans.detail(c.req.param("planPda"))),

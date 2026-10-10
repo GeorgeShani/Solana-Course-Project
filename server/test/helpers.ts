@@ -31,6 +31,11 @@ import { createApp } from "../src/app";
 import { connect, migrate, type Db } from "../src/db";
 import { loadEnv, type Env } from "../src/env";
 import { silentLogger, type Logger } from "../src/logger";
+import {
+  createEvidenceService,
+  createReviewService,
+  type ReviewService,
+} from "../src/discovery/evidence";
 import { createDiscoveryService } from "../src/discovery/service";
 import { createFollowService } from "../src/services/follow";
 import type { BuildParams, JupiterClient } from "../src/services/jupiter";
@@ -254,12 +259,14 @@ export interface TestApp {
   jupiter: FakeJupiter;
   rpc: FakeRpc;
   env: Env;
+  /** Reviewer commands: the same code scripts/review.ts runs. Not reachable over HTTP. */
+  review: ReviewService;
   post: (
     path: string,
     body: unknown,
     headers?: Record<string, string>,
   ) => Promise<Response>;
-  get: (path: string) => Promise<Response>;
+  get: (path: string, headers?: Record<string, string>) => Promise<Response>;
 }
 
 /** Records forwarded RPC requests and answers each with a fixed result. */
@@ -308,10 +315,13 @@ export async function createTestApp(
   const follow = createFollowService({ env, db, chain, jupiter, logger });
   const rpc = new FakeRpc();
   const discovery = createDiscoveryService({ env, db });
+  const evidence = createEvidenceService({ env, db });
+  const review = createReviewService({ db });
   const app = createApp({
     env,
     db,
     discovery,
+    evidence,
     plans,
     follow,
     prices,
@@ -327,7 +337,8 @@ export async function createTestApp(
     jupiter,
     rpc,
     env,
-    get: async (path) => app.request(path),
+    review,
+    get: async (path, headers = {}) => app.request(path, { headers }),
     post: async (path, body, headers = {}) =>
       app.request(path, {
         method: "POST",

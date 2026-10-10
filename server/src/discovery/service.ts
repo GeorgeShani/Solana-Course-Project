@@ -96,8 +96,26 @@ export interface EventView {
   };
 }
 
+/** An approved question about an idea. Only reviewer-approved requests are public. */
+export interface PublicEvidenceRequest {
+  id: string;
+  question: string;
+  status: "open" | "answered" | "closed_unresolved";
+  /** When a reviewer approved it. */
+  approvedAt: string | null;
+  /** The event the question is about, if it is about one. */
+  aboutEventId: string | null;
+  /** The timeline event that published the question. */
+  publishedEventId: string | null;
+  /** The timeline events a reviewer published in answer. Empty means unanswered, not "false". */
+  responseEventIds: string[];
+  /** Why a reviewer closed it with no answer. Written by the reviewer. */
+  note: string | null;
+}
+
 export interface IdeaDetail extends IdeaSummary {
   events: EventView[];
+  evidenceRequests: PublicEvidenceRequest[];
   chain: { verified: boolean; checkedEvents: number };
 }
 
@@ -595,9 +613,38 @@ export function createDiscoveryService({ env, db }: DiscoveryServiceDeps) {
       const tb = Date.parse(b.occurredAt ?? b.recordedAt);
       return ta !== tb ? ta - tb : Number(BigInt(a.seq) - BigInt(b.seq));
     });
+    const requests = rows(
+      await db`
+        select r.id, r.question, r.status, r.event_id, r.published_event_id, r.reviewed_at, r.review_note,
+               array(select s.response_event_id from evidence_submissions s
+                      where s.request_id = r.id and s.status = 'accepted' and s.response_event_id is not null
+                      order by s.reviewed_at, s.id) as responses
+        from evidence_requests r
+        where r.idea_id = ${id} and r.status in ('open', 'answered', 'closed_unresolved')
+        order by r.reviewed_at, r.id`,
+    ).map((r): PublicEvidenceRequest => {
+      const status = text(r, "status");
+      return {
+        id: text(r, "id"),
+        question: text(r, "question"),
+        status:
+          status === "answered"
+            ? "answered"
+            : status === "closed_unresolved"
+              ? "closed_unresolved"
+              : "open",
+        approvedAt: dateOrNull(r, "reviewed_at"),
+        aboutEventId: textOrNull(r, "event_id"),
+        publishedEventId: textOrNull(r, "published_event_id"),
+        responseEventIds: list(r, "responses"),
+        note:
+          status === "closed_unresolved" ? textOrNull(r, "review_note") : null,
+      };
+    });
     return {
       ...summary,
       events,
+      evidenceRequests: requests,
       chain: { verified, checkedEvents: stored.length },
     };
   }
