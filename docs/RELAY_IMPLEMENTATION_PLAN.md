@@ -1330,19 +1330,32 @@ The work is split into small phases that can each be handed to one coding sessio
   - The "off-market fill" flag from section S is still to do (Phase 8 / analytics); `executions` already stores the effective price it needs.
   - Fees in the summary are estimates (network fee, priority fee, receipt rent). Token-account rent for a first-time buyer is not included yet.
 
-#### Phase 6: Frontend foundation and feed (≈ 10 h, depends on Phase 4)
+#### Phase 6: Frontend foundation and feed (≈ 10 h, depends on Phase 4): DONE
 - **Goal:** the visual identity and a browsable feed.
 - **Tasks:**
-  - [ ] impeccable `shape` with `PRODUCT.md` (Solana-theatre identity, section G).
-  - [ ] `tokens.css` and fonts.
-  - [ ] Providers: React Query, a `ClientOnly` wallet-adapter, and the burner wallet on localnet only.
-  - [ ] Tab bar.
-  - [ ] Vertical scroll-snap feed.
-  - [ ] `PlanCard` Layer 1: `StatusBlock`, `RangeBar`, evidence line, action row.
-  - [ ] Local watch list.
-  - [ ] The curtain intro and marquee logo.
+  - [x] impeccable `shape` with `PRODUCT.md` (Solana-theatre identity, section G).
+  - [x] `tokens.css` and fonts.
+  - [x] Providers: React Query. The wallet provider and localnet burner moved to Phase 7 (see the Result).
+  - [x] Tab bar.
+  - [x] Vertical scroll-snap feed.
+  - [x] `PlanCard` Layer 1: `StatusBlock`, `RangeBar`, evidence line, action row.
+  - [x] Local watch list.
+  - [x] The curtain intro and marquee logo.
 - **Files:** `app/src/routes/{__root,index}.tsx`, `app/src/components/feed/**`, `app/src/styles/**`, `app/src/lib/{wallet,watchlist,api}.ts`.
 - **Done when:** in Chrome at 390×844, the feed snaps card by card, statuses read correctly with their icons and words, watch works with no wallet, and reduced motion disables the animations.
+- **Result:** The feed is server-rendered from `GET /feed` (TanStack Start `createServerFn`), then React Query takes over with cursor paging and a 15 s refetch. New plans wait behind a "New plans" pill instead of reshuffling the card being read. Each card shows the exact status vocabulary (`in_range` "In plan range", with "· closes in N min" when closing soon; "Original entry passed"; "Below plan range"; "Plan expired"; "Closed by creator"; "Price may be outdated" after 60 s; "Price unavailable"). Status is computed live from `@relay/domain` `entryStatus`/`pricePosition`; money stays in bigint units. Each status has its own icon, words and ink, and the range bar puts a price marker on the plan band. Every state is truthful: SSR first page, loading more, empty, service unavailable (with dev setup steps), stale data, and Solana unreachable. The end-of-feed card closes the curtain with a status tally. Watching needs no wallet: `localStorage` via `useSyncExternalStore`, listed on `/me` ("Saved in this browser only"). Keyboard: j/k or arrows move, w watches, and `?plan=` deep-links and restores the card. 23 app tests (`bun test` in `app/`) cover the vocabulary, format, range bar, watch-list parsing, the API contract parser, live status, feed ordering and fixture labelling. Lint, `tsc -b` and the build are clean. Verified in Chrome at 390×844 and 1280×800: no card overflow, keyboard access, reduced motion (curtain off, bulbs static, no transitions), watch persists across reload, and rotation keeps the current card. The Impeccable finish review ran two rounds; the remaining drape finding was closed by the owner's amendment (flat velvet, no imagery). The design system is recorded in `DESIGN.md`.
+- **Deviations:**
+  - **Wallet deferred to Phase 7.** It will use Kit / Wallet Standard via `@solana/react` plus the localnet burner, instead of wallet-adapter. Phase 6 needs no wallet: Review trade shows its disabled reason ("Trade review isn't available in this build yet").
+  - **Styling:** global CSS (`app/src/styles/{tokens,base,theatre,feed}.css`) instead of CSS modules. `App.css`/`index.css` were removed.
+  - **No follower evidence yet.** `GET /feed` carries no follower results, so the evidence line states onchain commitment facts and says follower results are not in this view. Nothing is invented.
+  - **Placeholder tabs.** Search and Account are placeholder routes; My Plans (`/me`) lists the local watch list.
+  - **Fictional preview.** `?preview=fictional` (dev builds only) shows a fixture feed. Every card is badged FICTIONAL with `fictional-*` IDs and no hashes or signatures. By default an unreachable API shows the truthful "service unavailable" state.
+  - **Theatre frame is flat velvet.** The owner chose this at the finish review: no fold stripes, bead fringe or drape imagery. The spotlight is a stage-level beam spilling onto the wings.
+  - **Build config:** the app `tsconfig` lib is `ES2024` (`String.prototype.isWellFormed`). Impeccable artifacts live in `PRODUCT.md`, `DESIGN.md`, `.impeccable/` and `app/.impeccable/`.
+- **Local setup (macOS):**
+  - `server/.env`: `APP_ORIGIN=http://localhost:5175`, `SOLANA_CLUSTER=localnet`, `SOLANA_RPC_URL=http://127.0.0.1:8899`, `JUPITER_DEXES`.
+  - `app/.env.local`: `VITE_RPC_URL=http://127.0.0.1:8899`, `VITE_SOLANA_CLUSTER=localnet`.
+  - The feed needs Postgres (`docker compose -f compose.dev.yaml up -d`, so Docker Desktop must be installed), Surfpool on :8899, `bun run dev:server`, and a signed seed (`bun run --cwd server seed`).
 
 #### Phase 7: Frontend flows (≈ 12 h, depends on Phases 5 and 6)
 - **Goal:** the complete user journey in the UI.

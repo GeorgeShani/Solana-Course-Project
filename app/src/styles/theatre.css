@@ -1,0 +1,312 @@
+/*
+ * The theatre frame: marquee, stage, tab bar, opening curtain and the drapes at the wings.
+ * Expressive and on brand; none of it ever sits on top of financial data.
+ */
+
+.app {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  grid-template-rows: calc(var(--marquee-h) + env(safe-area-inset-top)) minmax(0, 1fr) calc(
+      var(--tabbar-h) + env(safe-area-inset-bottom)
+    );
+  background:
+    radial-gradient(120% 60% at 50% -10%, rgba(153, 69, 255, 0.16), transparent 60%),
+    var(--velvet);
+}
+
+.stage {
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ---------------------------------------------------------------- marquee */
+
+.marquee {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: env(safe-area-inset-top) var(--s4) 0;
+  background: linear-gradient(180deg, #120a22, var(--velvet));
+  border-bottom: 1px solid transparent;
+  border-image: var(--sol-edge) 1;
+}
+
+.marquee__sign {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 5px var(--s3);
+  border-radius: var(--r-sm);
+  color: var(--chalk);
+  text-decoration: none;
+}
+
+.marquee__word {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.625rem;
+  line-height: 0.9;
+  letter-spacing: 0.32em;
+  margin-right: -0.32em;
+  text-shadow:
+    0 0 14px rgba(153, 69, 255, 0.75),
+    0 0 2px rgba(243, 238, 255, 0.6);
+}
+
+.marquee__bulbs {
+  display: flex;
+  gap: 6px;
+}
+
+.marquee__bulb {
+  --lamp: var(--sol-purple-light);
+  --glow: rgba(153, 69, 255, 0.75);
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: radial-gradient(
+    circle at 45% 40%,
+    #fff 0 22%,
+    var(--lamp) 48%,
+    color-mix(in srgb, var(--lamp) 45%, #000) 100%
+  );
+  box-shadow:
+    inset 0 0 0 1px rgba(0, 0, 0, 0.35),
+    0 0 6px 1px var(--glow);
+}
+
+.marquee__bulb:nth-child(even) {
+  --lamp: #8af8c9;
+  --glow: rgba(20, 241, 149, 0.65);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .marquee__bulb {
+    animation: chase 2.7s steps(1) infinite;
+  }
+  .marquee__bulb:nth-child(3n + 2) {
+    animation-delay: 0.9s;
+  }
+  .marquee__bulb:nth-child(3n) {
+    animation-delay: 1.8s;
+  }
+}
+
+@keyframes chase {
+  0%,
+  66% {
+    opacity: 1;
+  }
+  67%,
+  100% {
+    background: radial-gradient(
+      circle at 45% 40%,
+      rgba(243, 238, 255, 0.28) 0 18%,
+      color-mix(in srgb, var(--lamp) 22%, #120a22) 60%,
+      #07040e 100%
+    );
+    box-shadow: inset 0 0 0 1px rgba(243, 238, 255, 0.12);
+  }
+}
+
+.marquee__cluster {
+  position: absolute;
+  right: var(--s4);
+  top: calc(env(safe-area-inset-top) + 50%);
+  transform: translateY(-50%);
+  padding: 3px var(--s2);
+  border-radius: 999px;
+  border: 1px solid var(--hairline-strong);
+  color: var(--haze);
+  font-size: var(--t-caption);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+/* ---------------------------------------------------------------- tab bar */
+
+.tabbar {
+  position: relative;
+  z-index: 10;
+  padding-bottom: env(safe-area-inset-bottom);
+  background: rgba(16, 10, 30, 0.82);
+  backdrop-filter: blur(14px) saturate(1.2);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  border-top: 1px solid var(--hairline);
+}
+
+.tabbar__list {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  height: var(--tabbar-h);
+}
+
+.tabbar__tab {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  color: var(--mute);
+  font-size: var(--t-caption);
+  font-weight: 600;
+  text-decoration: none;
+  transition: color var(--t-state) var(--ease-out);
+}
+
+.tabbar__tab:hover {
+  color: var(--haze);
+}
+
+.tabbar__tab[aria-current="page"] {
+  color: var(--chalk);
+}
+
+.tabbar__tab[aria-current="page"]::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: 28%;
+  right: 28%;
+  height: 2px;
+  border-radius: 0 0 2px 2px;
+  background: var(--sol-gradient);
+}
+
+.tabbar__tab:focus-visible {
+  outline-offset: -4px;
+  border-radius: var(--r-sm);
+}
+
+/* ---------------------------------------------------------------- opening curtain */
+
+.curtain {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+html[data-curtain="off"] .curtain {
+  display: none;
+}
+
+/* flat velvet, darkening to black at the outer edge; the meeting edge carries a single hairline */
+.curtain__half {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 51%;
+  animation: 1.05s var(--ease-curtain) 0.12s both;
+}
+
+.curtain__half--left {
+  left: 0;
+  transform-origin: left center;
+  background: linear-gradient(90deg, #000, var(--velvet-2));
+  box-shadow: inset -1px 0 0 var(--hairline);
+  animation-name: part-left;
+}
+
+.curtain__half--right {
+  right: 0;
+  transform-origin: right center;
+  background: linear-gradient(270deg, #000, var(--velvet-2));
+  box-shadow: inset 1px 0 0 var(--hairline);
+  animation-name: part-right;
+}
+
+.curtain__valance {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 44px;
+  z-index: 1;
+  background: var(--velvet);
+  box-shadow: inset 0 -1px 0 var(--hairline);
+  animation: lift 0.5s var(--ease-out) 0.7s both;
+}
+
+@keyframes part-left {
+  to {
+    transform: translateX(-104%) scaleX(0.7);
+  }
+}
+
+@keyframes part-right {
+  to {
+    transform: translateX(104%) scaleX(0.7);
+  }
+}
+
+@keyframes lift {
+  to {
+    transform: translateY(-110%);
+  }
+}
+
+/* ---------------------------------------------------------------- desktop: the stage between drapes */
+
+.feed-keys {
+  display: none;
+}
+
+@media (min-width: 900px) {
+  .app {
+    grid-template-columns: 1fr minmax(0, var(--column)) 1fr;
+  }
+  .app > * {
+    grid-column: 2;
+  }
+  .marquee {
+    grid-column: 1 / -1;
+  }
+  .stage {
+    z-index: 1;
+    overflow: visible;
+  }
+  .tabbar {
+    border-inline: 1px solid var(--hairline);
+  }
+
+  /* the wings: flat velvet falling to black, lit only by the follow spot */
+  .app::before,
+  .app::after {
+    content: "";
+    grid-row: 2 / 4;
+    pointer-events: none;
+  }
+  .app::before {
+    grid-column: 1;
+    background: linear-gradient(90deg, #000, transparent);
+  }
+  .app::after {
+    grid-column: 3;
+    background: linear-gradient(270deg, #000, transparent);
+  }
+
+  .feed-keys {
+    display: block;
+    position: fixed;
+    right: var(--s6);
+    bottom: var(--s6);
+    color: var(--mute);
+    font-size: var(--t-footnote);
+  }
+  .feed-keys kbd {
+    display: inline-block;
+    min-width: 1.6em;
+    padding: 1px 5px;
+    border-radius: 6px;
+    border: 1px solid var(--hairline-strong);
+    color: var(--haze);
+    text-align: center;
+  }
+}
