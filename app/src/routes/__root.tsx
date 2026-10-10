@@ -29,11 +29,11 @@ export const Route = createRootRoute({
       },
       { name: "theme-color", content: "#1b1035" },
       { name: "color-scheme", content: "dark" },
-      { title: "Relay — creator trade plans, checked against the chain" },
+      { title: "Relay — Solana traders' ideas and the evidence behind them" },
       {
         name: "description",
         content:
-          "A feed of Solana trade plans: see whether the creator's original entry still applies. Not a recommendation.",
+          "Discover Solana traders, explore their public ideas, and see the activity Relay can verify. Not financial advice.",
       },
     ],
     links: [
@@ -83,7 +83,7 @@ function NotFound() {
       <h1 className="page__title">Not on tonight's programme</h1>
       <p className="page__text">This page doesn't exist.</p>
       <Link to="/" className="btn btn--ghost">
-        Back to the feed
+        Back to Discover
       </Link>
     </section>
   );

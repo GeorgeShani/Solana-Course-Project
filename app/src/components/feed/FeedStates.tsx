@@ -141,9 +141,9 @@ export function EmptyState({
             <Icon name="refresh" />
             {refreshing ? "Checking…" : "Check again"}
           </button>
-          <Link to="/search" className="btn btn--glass">
-            <Icon name="search" />
-            Search plans
+          <Link to="/traders" className="btn btn--glass">
+            <Icon name="traders" />
+            Browse traders
           </Link>
         </>
       }
@@ -360,9 +360,9 @@ export function Finale({
           </div>
         )}
         <div className="finale__actions">
-          <Link to="/me" className="btn btn--primary">
-            <Icon name="plans" />
-            {watched.length > 0 ? "Review watched plans" : "My Plans"}
+          <Link to="/watchlist" className="btn btn--primary">
+            <Icon name="star" />
+            {watched.length > 0 ? "Review your Watchlist" : "Open Watchlist"}
           </Link>
           <button type="button" className="btn btn--glass" onClick={onReplay}>
             <Icon name="replay" />
@@ -370,7 +370,7 @@ export function Finale({
           </button>
         </div>
         <div className="finale__links">
-          <Link to="/search">Search plans</Link>
+          <Link to="/traders">Browse traders</Link>
           <button type="button" onClick={onRefresh} disabled={refreshing}>
             {refreshing ? "Refreshing…" : "Refresh the lineup"}
           </button>

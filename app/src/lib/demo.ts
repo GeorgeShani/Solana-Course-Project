@@ -30,6 +30,8 @@ export const DEMO_PLAN = {
   rationale:
     "Illustrative: SOL retests the 140 area after a breakout. Below 140 the idea is off.",
   exitThesis: "Illustrative: take profit near 160.",
+  /** A fictional public post that comes before the plan: an idea, not a trade. */
+  post: "Illustrative: SOL looks heavy into 140. I'd want it between 140 and 145.",
 } as const;
 
 export interface DemoStep {

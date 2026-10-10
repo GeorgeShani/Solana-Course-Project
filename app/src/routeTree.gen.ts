@@ -12,8 +12,13 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AccountRouteImport } from './routes/account'
 import { Route as DemoRouteImport } from './routes/demo'
+import { Route as HowItWorksRouteImport } from './routes/how-it-works'
 import { Route as MeRouteImport } from './routes/me'
 import { Route as SearchRouteImport } from './routes/search'
+import { Route as WatchlistRouteImport } from './routes/watchlist'
+import { Route as RecordsPlanPdaRouteImport } from './routes/records.$planPda'
+import { Route as TradersIndexRouteImport } from './routes/traders.index'
+import { Route as TradersAddressRouteImport } from './routes/traders.$address'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -30,6 +35,11 @@ const DemoRoute = DemoRouteImport.update({
   path: '/demo',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HowItWorksRoute = HowItWorksRouteImport.update({
+  id: '/how-it-works',
+  path: '/how-it-works',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MeRoute = MeRouteImport.update({
   id: '/me',
   path: '/me',
@@ -40,43 +50,114 @@ const SearchRoute = SearchRouteImport.update({
   path: '/search',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WatchlistRoute = WatchlistRouteImport.update({
+  id: '/watchlist',
+  path: '/watchlist',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RecordsPlanPdaRoute = RecordsPlanPdaRouteImport.update({
+  id: '/records/$planPda',
+  path: '/records/$planPda',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TradersIndexRoute = TradersIndexRouteImport.update({
+  id: '/traders/',
+  path: '/traders/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TradersAddressRoute = TradersAddressRouteImport.update({
+  id: '/traders/$address',
+  path: '/traders/$address',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/account': typeof AccountRoute
   '/demo': typeof DemoRoute
+  '/how-it-works': typeof HowItWorksRoute
   '/me': typeof MeRoute
   '/search': typeof SearchRoute
+  '/watchlist': typeof WatchlistRoute
+  '/records/$planPda': typeof RecordsPlanPdaRoute
+  '/traders/$address': typeof TradersAddressRoute
+  '/traders/': typeof TradersIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/account': typeof AccountRoute
   '/demo': typeof DemoRoute
+  '/how-it-works': typeof HowItWorksRoute
   '/me': typeof MeRoute
   '/search': typeof SearchRoute
+  '/watchlist': typeof WatchlistRoute
+  '/records/$planPda': typeof RecordsPlanPdaRoute
+  '/traders/$address': typeof TradersAddressRoute
+  '/traders': typeof TradersIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/account': typeof AccountRoute
   '/demo': typeof DemoRoute
+  '/how-it-works': typeof HowItWorksRoute
   '/me': typeof MeRoute
   '/search': typeof SearchRoute
+  '/watchlist': typeof WatchlistRoute
+  '/records/$planPda': typeof RecordsPlanPdaRoute
+  '/traders/$address': typeof TradersAddressRoute
+  '/traders/': typeof TradersIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/account' | '/demo' | '/me' | '/search'
+  fullPaths:
+    | '/'
+    | '/account'
+    | '/demo'
+    | '/how-it-works'
+    | '/me'
+    | '/search'
+    | '/watchlist'
+    | '/records/$planPda'
+    | '/traders/$address'
+    | '/traders/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/account' | '/demo' | '/me' | '/search'
-  id: '__root__' | '/' | '/account' | '/demo' | '/me' | '/search'
+  to:
+    | '/'
+    | '/account'
+    | '/demo'
+    | '/how-it-works'
+    | '/me'
+    | '/search'
+    | '/watchlist'
+    | '/records/$planPda'
+    | '/traders/$address'
+    | '/traders'
+  id:
+    | '__root__'
+    | '/'
+    | '/account'
+    | '/demo'
+    | '/how-it-works'
+    | '/me'
+    | '/search'
+    | '/watchlist'
+    | '/records/$planPda'
+    | '/traders/$address'
+    | '/traders/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AccountRoute: typeof AccountRoute
   DemoRoute: typeof DemoRoute
+  HowItWorksRoute: typeof HowItWorksRoute
   MeRoute: typeof MeRoute
   SearchRoute: typeof SearchRoute
+  WatchlistRoute: typeof WatchlistRoute
+  RecordsPlanPdaRoute: typeof RecordsPlanPdaRoute
+  TradersAddressRoute: typeof TradersAddressRoute
+  TradersIndexRoute: typeof TradersIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -102,6 +183,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DemoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/how-it-works': {
+      id: '/how-it-works'
+      path: '/how-it-works'
+      fullPath: '/how-it-works'
+      preLoaderRoute: typeof HowItWorksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/me': {
       id: '/me'
       path: '/me'
@@ -116,6 +204,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SearchRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/watchlist': {
+      id: '/watchlist'
+      path: '/watchlist'
+      fullPath: '/watchlist'
+      preLoaderRoute: typeof WatchlistRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/records/$planPda': {
+      id: '/records/$planPda'
+      path: '/records/$planPda'
+      fullPath: '/records/$planPda'
+      preLoaderRoute: typeof RecordsPlanPdaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/traders/': {
+      id: '/traders/'
+      path: '/traders'
+      fullPath: '/traders/'
+      preLoaderRoute: typeof TradersIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/traders/$address': {
+      id: '/traders/$address'
+      path: '/traders/$address'
+      fullPath: '/traders/$address'
+      preLoaderRoute: typeof TradersAddressRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -123,8 +239,13 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AccountRoute: AccountRoute,
   DemoRoute: DemoRoute,
+  HowItWorksRoute: HowItWorksRoute,
   MeRoute: MeRoute,
   SearchRoute: SearchRoute,
+  WatchlistRoute: WatchlistRoute,
+  RecordsPlanPdaRoute: RecordsPlanPdaRoute,
+  TradersAddressRoute: TradersAddressRoute,
+  TradersIndexRoute: TradersIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

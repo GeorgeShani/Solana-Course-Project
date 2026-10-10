@@ -1,5 +1,6 @@
 import type { EntryStatusResult } from "@relay/domain";
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
 import { useEffect, useRef, type MouseEvent } from "react";
 import {
   fetchPlanVersions,
@@ -174,8 +175,8 @@ export function ScriptSheet({
                 <h3 id="script-missed">The original entry passed</h3>
                 <p>
                   The price moved above {stageName(card)}'s range. Following now
-                  would not match the plan. Watching keeps it in My Plans; it
-                  never places a trade.
+                  would not match the plan. Watching keeps it in your Watchlist;
+                  it never places a trade.
                 </p>
               </div>
             </aside>
@@ -361,6 +362,22 @@ export function ScriptSheet({
                   Follower results aren't shown here yet.
                 </p>
               </section>
+              <p className="script__links">
+                <Link
+                  to="/records/$planPda"
+                  params={{ planPda: card.planPda }}
+                  className="btn btn--glass btn--small"
+                >
+                  Full record
+                </Link>
+                <Link
+                  to="/traders/$address"
+                  params={{ address: card.creator.address }}
+                  className="btn btn--glass btn--small"
+                >
+                  Trader profile
+                </Link>
+              </p>
             </>
           )}
         </div>

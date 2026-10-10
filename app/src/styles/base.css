@@ -777,6 +777,439 @@ kbd {
   }
 }
 
+/* ---------------------------------------------------------------- record kinds and evidence */
+
+/* Each kind keeps its own border so it never rests on color alone: a post is dashed (an idea, not
+   proof), a Relay plan is solid brass, on-chain activity is solid chalk, fiction is dotted ember. */
+.kind {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s1);
+  padding: 1px var(--s2) 1px 6px;
+  border: 1px solid var(--hairline-strong);
+  border-radius: 999px;
+  color: var(--chalk);
+  font-size: var(--t-caption);
+  font-weight: 600;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+.kind[data-kind="public_post"] {
+  border-style: dashed;
+  color: var(--haze);
+}
+
+.kind[data-kind="relay_plan"] {
+  border-color: rgba(214, 178, 106, 0.75);
+  color: var(--limelight);
+}
+
+.kind[data-kind="fictional"] {
+  border-style: dotted;
+  border-color: var(--st-above);
+  color: var(--st-above);
+}
+
+.badge--quiet {
+  border-color: var(--hairline-strong);
+  color: var(--haze);
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s1);
+  min-height: 44px;
+  margin-bottom: var(--s2);
+  margin-left: calc(-1 * var(--s2));
+  padding: 0 var(--s3) 0 var(--s1);
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--haze);
+  font: inherit;
+  font-size: var(--t-subhead);
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    color var(--t-state) var(--ease-out),
+    background-color var(--t-state) var(--ease-out);
+}
+
+@media (hover: hover) {
+  .back:hover {
+    color: var(--chalk);
+    background: rgba(246, 241, 255, 0.06);
+  }
+}
+
+.page > .back {
+  display: flex;
+  width: fit-content;
+  margin-left: max(calc(-1 * var(--s2)), calc((100% - 600px) / 2 - var(--s2)));
+}
+
+/* A missing-data or error message with Cue's helpful pose. */
+.notice {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  align-items: start;
+  gap: var(--s3);
+  margin-top: var(--s4);
+  padding: var(--s3) var(--s4) var(--s3) var(--s2);
+  border: 1px dashed rgba(214, 178, 106, 0.5);
+  border-radius: var(--r-md);
+  background: var(--velvet-2);
+}
+
+.notice--error {
+  border-color: rgba(255, 155, 115, 0.6);
+}
+
+.notice__cue {
+  width: 72px;
+}
+
+.notice .page__text {
+  font-size: var(--t-subhead);
+}
+
+.notice__body {
+  display: grid;
+  gap: var(--s1);
+}
+
+.notice__title {
+  font-size: var(--t-callout);
+  font-weight: 700;
+  color: var(--chalk);
+}
+
+.notice__body > .btn {
+  justify-self: start;
+  margin-top: var(--s1);
+}
+
+.notice__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s1) var(--s4);
+  font-size: var(--t-subhead);
+}
+
+.notice__links a,
+.notice__links button {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--limelight);
+  font: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.facts dd {
+  display: grid;
+  gap: 2px;
+  justify-items: start;
+}
+
+.facts dd a {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s1);
+  font-size: var(--t-footnote);
+}
+
+.facts__id {
+  font-size: var(--t-footnote);
+  overflow-wrap: anywhere;
+}
+
+.facts__note {
+  color: var(--haze);
+  font-size: var(--t-footnote);
+}
+
+.facts__missing {
+  color: var(--mute);
+  font-style: italic;
+}
+
+/* ---------------------------------------------------------------- traders */
+
+.traders {
+  display: grid;
+  gap: var(--s2);
+  margin-top: var(--s3);
+}
+
+.trader-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: var(--s3);
+  min-height: 72px;
+  padding: var(--s3) var(--s3) var(--s3) var(--s4);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-md);
+  background: var(--velvet-2);
+  color: var(--chalk);
+  text-decoration: none;
+  transition:
+    border-color var(--t-state) var(--ease-out),
+    background-color var(--t-state) var(--ease-out),
+    transform 100ms var(--ease-out);
+}
+
+@media (hover: hover) {
+  .trader-row:hover {
+    border-color: rgba(214, 178, 106, 0.55);
+    background: var(--velvet-3);
+  }
+}
+
+.trader-row:active {
+  transform: scale(0.99);
+}
+
+.trader-row__text {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.trader-row__name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s1) var(--s2);
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.trader-row__meta {
+  color: var(--haze);
+  font-size: var(--t-footnote);
+}
+
+.trader-row__chevron {
+  color: var(--haze);
+  rotate: -90deg;
+}
+
+.profile {
+  display: grid;
+  grid-template-columns: clamp(96px, 26vw, 148px) 1fr;
+  align-items: end;
+  gap: var(--s4);
+}
+
+.profile__portrait .portrait {
+  width: 100%;
+}
+
+.profile__who {
+  display: grid;
+  gap: var(--s2);
+  min-width: 0;
+}
+
+.profile__name {
+  margin-bottom: 0;
+  overflow-wrap: anywhere;
+}
+
+.profile__byline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s1) var(--s2);
+  color: var(--haze);
+  font-size: var(--t-footnote);
+}
+
+.profile__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+}
+
+.records,
+.gaps,
+.kinds {
+  display: grid;
+  gap: var(--s2);
+  margin-top: var(--s3);
+}
+
+.record-row {
+  display: grid;
+  gap: var(--s1);
+  justify-items: start;
+  padding: var(--s3) var(--s4);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-md);
+  background: var(--velvet-2);
+  color: var(--chalk);
+  text-decoration: none;
+}
+
+a.record-row {
+  transition:
+    border-color var(--t-state) var(--ease-out),
+    background-color var(--t-state) var(--ease-out),
+    transform 100ms var(--ease-out);
+}
+
+@media (hover: hover) {
+  a.record-row:hover {
+    border-color: rgba(214, 178, 106, 0.55);
+    background: var(--velvet-3);
+  }
+}
+
+a.record-row:active {
+  transform: scale(0.99);
+}
+
+.record-row__top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s1) var(--s2);
+}
+
+.record-row__time {
+  color: var(--haze);
+  font-size: var(--t-footnote);
+}
+
+.record-row__title {
+  font-weight: 700;
+}
+
+.record-row__terms {
+  color: var(--haze);
+  font-size: var(--t-footnote);
+}
+
+.gaps li,
+.kinds li {
+  display: grid;
+  gap: var(--s1);
+  justify-items: start;
+}
+
+.gaps li {
+  padding: var(--s3) var(--s4);
+  border: 1px dashed var(--hairline-strong);
+  border-radius: var(--r-md);
+  color: var(--haze);
+  font-size: var(--t-footnote);
+}
+
+.kinds li {
+  padding: var(--s3) 0;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.rules {
+  display: grid;
+  gap: var(--s2);
+  padding-left: var(--s5);
+  list-style: disc;
+  color: var(--haze);
+}
+
+.rules li::marker {
+  color: var(--brass);
+}
+
+.how__end {
+  margin-top: var(--s6);
+}
+
+/* ---------------------------------------------------------------- record page */
+
+.record__kinds {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+  margin-bottom: var(--s3);
+}
+
+.record__title {
+  margin-bottom: var(--s2);
+}
+
+.record__title-sub {
+  display: block;
+  margin-top: var(--s1);
+  color: var(--haze);
+  font-size: 0.55em;
+  letter-spacing: 0.02em;
+}
+
+.record__tagline {
+  color: var(--limelight);
+  font-size: var(--t-subhead);
+  font-weight: 600;
+}
+
+.record__byline {
+  margin-top: var(--s1);
+  color: var(--haze);
+  font-size: var(--t-footnote);
+}
+
+.record__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+  margin-top: var(--s4);
+}
+
+.page .status {
+  margin-top: var(--s2);
+}
+
+.versions {
+  display: grid;
+  gap: var(--s2);
+}
+
+.versions li {
+  display: grid;
+  gap: 2px;
+  padding: var(--s2) 0 var(--s2) var(--s3);
+  border-left: 1px solid rgba(214, 178, 106, 0.5);
+}
+
+.versions__head {
+  font-weight: 600;
+}
+
+.versions__meta {
+  color: var(--haze);
+  font-size: var(--t-footnote);
+}
+
+.watchlist__status[data-tone="new"] {
+  color: var(--limelight);
+}
+
+.demo__records {
+  margin-bottom: var(--s5);
+}
+
 @media (max-width: 520px) {
   .watchlist__item {
     grid-template-columns: auto 1fr auto;

@@ -111,6 +111,13 @@
   box-shadow: 0 16px 40px rgba(7, 2, 15, 0.6);
 }
 
+.watch-toast--page {
+  position: fixed;
+  top: calc(var(--valance-h) + env(safe-area-inset-top) + var(--s3));
+  max-width: none;
+  margin: 0;
+}
+
 .watch-toast__cue {
   width: 76px;
   margin: -14px -6px -10px 0;
@@ -236,10 +243,43 @@
   font-weight: 600;
 }
 
-.act__version {
+.act__trader {
   display: inline-flex;
   align-items: center;
-  gap: var(--s1);
+  min-height: 32px;
+  padding: 0 var(--s2);
+  margin: -6px 0;
+  border-radius: 999px;
+  color: var(--chalk);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: rgba(214, 178, 106, 0.6);
+  text-underline-offset: 4px;
+  transition:
+    color var(--t-state) var(--ease-out),
+    background-color var(--t-state) var(--ease-out);
+}
+
+@media (hover: hover) {
+  .act__trader:hover {
+    color: var(--limelight);
+    background: rgba(246, 241, 255, 0.06);
+  }
+}
+
+.script__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+  margin-top: var(--s4);
+}
+
+.act__version {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s1) var(--s2);
   font-size: var(--t-caption);
   color: var(--haze);
 }

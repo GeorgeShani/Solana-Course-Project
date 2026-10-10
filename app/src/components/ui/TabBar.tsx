@@ -1,19 +1,16 @@
 import { Link } from "@tanstack/react-router";
-import { Icon, type IconName } from "./Icon";
+import { NAV } from "../../lib/nav";
+import { Icon } from "./Icon";
 
-const TABS: { to: "/" | "/search" | "/me" | "/account"; label: string; icon: IconName }[] = [
-  { to: "/", label: "Feed", icon: "feed" },
-  { to: "/search", label: "Search", icon: "search" },
-  { to: "/me", label: "My Plans", icon: "plans" },
-  { to: "/account", label: "Account", icon: "account" },
-];
-
-/** Bottom navigation inside the safe area. Publishing is an action, not a tab. */
+/**
+ * Bottom navigation on phones, inside the safe area. Hidden during the welcome and on desktop,
+ * where the header carries the same links.
+ */
 export function TabBar() {
   return (
     <nav className="tabbar" aria-label="Main">
       <ul className="tabbar__list">
-        {TABS.map((t) => (
+        {NAV.map((t) => (
           <li key={t.to}>
             <Link
               to={t.to}

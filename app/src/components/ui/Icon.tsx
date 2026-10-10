@@ -23,7 +23,12 @@ export type IconName =
   | "arrow-up"
   | "script"
   | "replay"
-  | "close";
+  | "close"
+  | "traders"
+  | "post"
+  | "fictional"
+  | "back"
+  | "external";
 
 const PATHS: Record<IconName, ReactNode> = {
   feed: (
@@ -145,6 +150,32 @@ const PATHS: Record<IconName, ReactNode> = {
     </>
   ),
   close: <path d="M18 6 6 18M6 6l12 12" />,
+  traders: (
+    <>
+      <circle cx="9" cy="9" r="3.25" />
+      <path d="M3.5 19c.9-2.8 2.9-4.25 5.5-4.25s4.6 1.45 5.5 4.25" />
+      <path d="M15 6.2a3.25 3.25 0 0 1 0 5.6M17 14.9c1.6.6 2.8 2 3.5 4.1" />
+    </>
+  ),
+  post: (
+    <>
+      <path d="M5 5.5h14a1.5 1.5 0 0 1 1.5 1.5v8a1.5 1.5 0 0 1-1.5 1.5h-7l-4.5 3.5v-3.5H5A1.5 1.5 0 0 1 3.5 15V7A1.5 1.5 0 0 1 5 5.5z" />
+      <path d="M8 9.5h8M8 12.5h5" />
+    </>
+  ),
+  fictional: (
+    <>
+      <path d="M4.5 5.5c4.8 1.6 10.2 1.6 15 0v6a7.5 7.5 0 0 1-15 0z" />
+      <path d="M8 10.5h2M14 10.5h2M9 14.5c1.8 1.4 4.2 1.4 6 0" />
+    </>
+  ),
+  back: <path d="M15 5 8 12l7 7" />,
+  external: (
+    <>
+      <path d="M14 4.5h5.5V10M19.5 4.5 11 13" />
+      <path d="M17.5 14v4a1.5 1.5 0 0 1-1.5 1.5H6A1.5 1.5 0 0 1 4.5 18V8A1.5 1.5 0 0 1 6 6.5h4" />
+    </>
+  ),
 };
 
 export function Icon({

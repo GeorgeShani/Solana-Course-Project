@@ -31,7 +31,7 @@ import { creatorName, planLabel } from "../../lib/labels";
 import { chainNowMs, liveEntry } from "../../lib/live-status";
 import { useMounted } from "../../lib/mounted";
 import { STATUS_HEADLINE } from "../../lib/status";
-import { toggleWatched, useWatchList } from "../../lib/watchlist";
+import { snapshotOf, toggleWatched, useWatchList } from "../../lib/watchlist";
 import { Icon } from "../ui/Icon";
 import { Banner, EmptyState, Finale, UnavailableState } from "./FeedStates";
 import { PlanCard } from "./PlanCard";
@@ -236,15 +236,11 @@ export function Feed({
   const onToggleWatch = (card: PlanCardView) => {
     const status = (liveById.get(card.planPda) ?? liveEntry(card, nowMs))
       .status;
-    const result = toggleWatched(card.planPda, planLabel(card), {
-      status,
-      version: card.version.version,
-      priceUnits: card.entry.price?.units ?? null,
-      quoteDecimals: card.pair.quoteDecimals,
-      entryLow: card.version.entryLow,
-      entryHigh: card.version.entryHigh,
-      expiresAt: card.version.expiresAt,
-    });
+    const result = toggleWatched(
+      card.planPda,
+      planLabel(card),
+      snapshotOf(card, status),
+    );
     const subject = `${creatorName(card)}'s ${card.pair.baseSymbol} plan`;
     setAnnouncement(
       result === null

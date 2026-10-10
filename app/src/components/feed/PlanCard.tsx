@@ -1,4 +1,5 @@
 import type { EntryStatusResult } from "@relay/domain";
+import { Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import type { Ref } from "react";
 import type { PlanCardView } from "../../lib/api";
@@ -7,10 +8,12 @@ import {
   formatClock,
   formatDuration,
   formatUsdText,
+  shortAddress,
 } from "../../lib/format";
 import { creatorName, planLabel, stageName } from "../../lib/labels";
 import { Portrait } from "../theatre/Portrait";
 import { Icon } from "../ui/Icon";
+import { KindBadge } from "../ui/KindBadge";
 import { ActionRow } from "./ActionRow";
 import { EvidenceLine } from "./EvidenceLine";
 import { StatusBlock } from "./StatusBlock";
@@ -92,16 +95,35 @@ export function PlanCard({
           </Portrait>
         </motion.div>
         <p className="act__byline">
-          {card.creator.handle && (
-            <span className="act__handle">@{card.creator.handle}</span>
-          )}
           {card.fictionalPreview ? (
-            <span className="badge">Fictional preview</span>
+            <>
+              {card.creator.handle && (
+                <span className="act__handle">@{card.creator.handle}</span>
+              )}
+              <span className="badge">Fictional preview</span>
+            </>
           ) : (
-            card.creator.isDemo && <span className="badge">Demo creator</span>
+            <>
+              <Link
+                to="/traders/$address"
+                params={{ address: card.creator.address }}
+                className="act__trader"
+                aria-label={`Trader profile: ${creatorName(card)}`}
+              >
+                {card.creator.handle
+                  ? `@${card.creator.handle}`
+                  : shortAddress(card.creator.address)}
+              </Link>
+              {card.creator.isDemo && (
+                <span className="badge">Demo creator</span>
+              )}
+            </>
           )}
         </p>
         <p className="act__version">
+          <KindBadge
+            kind={card.fictionalPreview ? "fictional" : "relay_plan"}
+          />
           {card.versionCount > 1 ? (
             <>
               <Icon name="updated" size={14} />

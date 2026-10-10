@@ -182,6 +182,8 @@ All candidates were read from `~/.agents/skills/*/SKILL.md`. No Solana-specific 
 
 ## D. Product definition
 
+> **Owner clarification (2026-10-10):** Relay connects people with Solana traders' public ideas and verifiable activity in one scrolling experience, starting with 10 selected traders (never described as the best, verified partners or trustworthy without evidence). Four kinds of content stay distinct: public idea or post (with original source and timestamp; not proof of a trade), verified on-chain activity (a wallet is tied to a person only when supported), plan published through Relay (the only kind that can be reviewed as a trade), and fictional demo. Missing data stays missing. Imported posts never become executable plans; there is no Binance or copy-trading promise. Relay-native plans keep "Follow the plan. See the proof." and everything below. The backend is preserved; trader sources, post ingestion and wallet-activity indexing are planned, not built (see the Phase 7 discovery result and `PRODUCT.md`).
+
 - **Target user:** an adult Solana spot trader who already follows trade ideas on X or Telegram. Second user: a creator who wants a track record that can be checked.
 - **Problem:** "Creator made +20%" says nothing about whether a follower could have entered at a similar price, before expiry, at their size, after fees. Screenshots hide timing, slippage, liquidity, and losing or edited calls.
 - **Central insight:** the unit of truth is **the follower's own execution against a specific, immutable plan version**, not the creator's PnL.
@@ -236,6 +238,8 @@ All candidates were read from `~/.agents/skills/*/SKILL.md`. No Solana-specific 
 ## E. UX architecture
 
 ### Navigation
+> **Owner decision (2026-10-10), supersedes the list below:** Discover `/`, Traders `/traders`, Watchlist `/watchlist`, Account `/account`. Phones: bottom tab bar inside the app only, never on the welcome. Desktop: the same destinations plus How it works in the header. `/me` and `/search` redirect.
+
 Bottom tab bar, about 56 px, inside the safe area:
 - **Feed** `/`
 - **Search** `/search`
@@ -245,7 +249,7 @@ Bottom tab bar, about 56 px, inside the safe area:
 Creators get a "Publish" action on their profile and in the empty states. It is not a fifth tab.
 
 ### Onboarding
-> **Owner decision (2026-10-10), supersedes the paragraph below:** first-time visitors to the feed land on a closed-curtain welcome with Cue, Relay's usher mascot. It shows RELAY, "Follow the plan. See the proof.", one paragraph, "Explore the plans" and a separate "Try a demo". The curtains open only on that click. Deep links (`?plan=`), the fictional preview and returning visitors skip it; `?welcome` (Account → "Meet Cue again") replays it. See the Phase 7 mascot result.
+> **Owner decision (2026-10-10), supersedes the paragraph below:** first-time visitors to the feed land on a closed-curtain welcome with Cue, Relay's usher mascot. It shows RELAY, "Follow the plan. See the proof.", one paragraph, "Explore the plans" and a separate "Try a demo". The curtains open only on that click. *Copy revised the same day: "Meet the traders. Follow the evidence.", "Explore traders", "Try the demo"; no tab bar on the welcome (see the Phase 7 discovery result).* Deep links (`?plan=`), the fictional preview and returning visitors skip it; `?welcome` (Account → "Meet Cue again") replays it. See the Phase 7 mascot result.
 
 There is none before the first card. The first card is a one-time, dismissible "How Relay works" card with three lines:
 - what "In plan range" means;
@@ -1431,6 +1435,18 @@ The work is split into small phases that can each be handed to one coding sessio
     - "Original entry passed" with real data has not been seen live; it is shown with the labelled fictional preview and the demo.
     - No plan page `/p/$planPda`.
     - Verified closed outcomes don't exist yet (no exit flow).
+- **Result (2026-10-10, discovery direction):** the frontend follows the owner's clarified direction (section D): traders' public ideas and verifiable activity, with four labelled kinds of content. Backend unchanged.
+  - **Welcome.** An introduction, not the feed. Headline "Meet the traders. Follow the evidence.", the lede "Discover Solana traders, explore their public ideas, and see the activity we can verify.", "Explore traders" and "Try the demo". The RELAY sign is now the brand (smaller, quieter glow) and the h1 is the headline. No tab bar on the welcome. Desktop gets a compact header (Explore, which opens the curtains through a `relay:enter` event; How it works; Watchlist); phones get the bare valance. The scene covers the tab-bar row and scrolls instead of cropping; below 700 px high Cue and the sign shrink.
+  - **Shell.** Discover `/`, Traders `/traders`, Watchlist `/watchlist`, Account `/account`. Phones use the bottom tab bar inside the app only; desktop hides it and the valance becomes the header (the same links plus How it works). A `--tabbar-space` variable sizes the grid row, drapes and floor, so nothing sits under the bar. `/me` → `/watchlist` and `/search` → `/traders` redirect. A Back control uses history, or a named fallback on a direct visit.
+  - **Traders and profiles.** `/traders` says plainly that the 10 selected traders aren't connected yet, and lists none of them. Below that, "Publishing through Relay" groups the feed's plans by signing wallet (`lib/traders.ts`, up to 10 feed pages), with demo creators badged and bare wallets marked "Wallet only". `/traders/$address` shows identity with its basis (the wallet is "linked by signature" because it signed the plans; name only from the Relay profile; public sources "None connected"; no explorer link on the local fork), the plans as records, and a "Not connected yet" list for public posts and other on-chain activity.
+  - **Records.** `/records/$planPda` is the Layer 3 page: kind and demo badges, "Follow the plan. See the proof.", what was posted (terms and text, or "Unavailable" with the reason), when (chain time), status now on the real plaque, evidence (program, full plan and version accounts, terms and text hashes, and "Followers: not shown per plan yet"), version history, and following. The plan sheet links to it and to the profile.
+  - **Kinds.** Public post (dashed), On-chain activity (solid), Published through Relay (brass), Fictional demo (dotted ember) appear on feed acts, records, the demo and How it works (`/how-it-works`, which also lists what is connected today).
+  - **Watchlist.** Traders can be watched without a wallet (`relay:watched-traders`, newest plan remembered), and the Watchlist shows "N new plans since you watched". Watched records open their record page. Cue's bookmark pose confirms watching on the feed, the profile and the record page.
+  - **Demo.** `/demo` adds Mika's two fictional records, a public post and a Relay plan, each labelled, with "An idea, not proof of a trade."
+  - **Pointer.** In the app, the resting drapes drift up to 4 px and the feed spotlight up to 18 px with the pointer. It uses the same fine-pointer, reduced-motion-off springs, and everything returns to rest when the pointer leaves.
+  - **Code and plan differ:** section M names `c.$address.tsx` and `p.$planPda.tsx`; the routes are `traders.$address.tsx` and `records.$planPda.tsx` to match the new navigation. `GET /creators/:address` and `GET /search?q=` (section L) still don't exist; profiles are derived from `/feed` on the client until they do.
+  - **Verification:** 48 app tests (9 new: trader grouping and order, address-only names, trader-watch parsing, explorer links, kind wording, watch snapshots), lint, `tsc -b` and build pass. A CDP script ran 39 behaviour checks, all passing: welcome and no tab bar, Tab to Explore and Enter, the header's Explore, every tab and header link with its current state, content ending above the tab bar, watch toast, a watched trader persisting after reload, Back, both redirects, kind labels, short-phone fit, pupils bounded and reset on leave, controls not moving, reduced motion with no gaze, and no runtime errors. Screenshots at 390×844, 390×640 and 1440×900 are in `.impeccable/review/cue/v2/`.
+  - **Still planned, not connected:** selected traders and their sources; public-post ingestion; on-chain activity beyond Relay plans; linked-wallet proofs (Phase 16); per-plan follower receipts; wallet connection, quote, review and signing in the UI; Surfpool is down locally, so every real plan reads expired and the feed shows "Can't reach Solana right now".
 
 #### Phase 8: Demo slice (≈ 8 h, depends on Phase 7)
 - **Goal:** make the core insight visible in about 4 minutes (section X).
