@@ -245,6 +245,8 @@ Bottom tab bar, about 56 px, inside the safe area:
 Creators get a "Publish" action on their profile and in the empty states. It is not a fifth tab.
 
 ### Onboarding
+> **Owner decision (2026-10-10), supersedes the paragraph below:** first-time visitors to the feed land on a closed-curtain welcome with Cue, Relay's usher mascot. It shows RELAY, "Follow the plan. See the proof.", one paragraph, "Explore the plans" and a separate "Try a demo". The curtains open only on that click. Deep links (`?plan=`), the fictional preview and returning visitors skip it; `?welcome` (Account → "Meet Cue again") replays it. See the Phase 7 mascot result.
+
 There is none before the first card. The first card is a one-time, dismissible "How Relay works" card with three lines:
 - what "In plan range" means;
 - that it is not advice;
@@ -259,7 +261,7 @@ Watching never asks for a wallet.
 ### Prototype UX: keep / refine / remove / replace
 | Prototype element | Decision | Why |
 |---|---|---|
-| Curtain | **REFINE** (owner decision: theatre identity stays) | It becomes a one-time, skippable session intro (≤ 1.2 s) recolored in the Solana gradient. It no longer gates the feed. |
+| Curtain | **REFINE** (owner decision: theatre identity stays) | It becomes a one-time, skippable session intro (≤ 1.2 s) recolored in the Solana gradient. It no longer gates the feed. *Superseded 2026-10-10 by owner decision: first visits open on a closed-curtain welcome with Cue that waits for "Explore the plans" (see Onboarding).* |
 | Marquee with chasing bulbs | **REFINE** | It becomes the RELAY header logo, with bulbs in Solana purple and green. It moves slowly and stops under reduced motion. |
 | Spotlight and stage floor | **KEEP → card backdrop** | A low-opacity purple→green cone behind the active card. It sits behind the data, never on it. |
 | Lobby gate | **REPLACE** | Its seat-picker filters (assets, open-only) move to a filter sheet. The feed opens straight onto card 1. |
@@ -1403,11 +1405,32 @@ The work is split into small phases that can each be handed to one coding sessio
   - [x] Details sheet (Layer 2) with the version timeline: shipped early as the theatre script sheet (Phase 6 redesign).
   - [ ] Publish composer (v1; v2 in the UI if time allows, otherwise by script).
   - [ ] Review sheet with `follow-machine.ts` and the client-side rebuild-and-check.
-  - [ ] My Plans (Followed).
+  - [ ] My Plans (Followed). Partly done: a read-only lookup of any wallet's verified receipts and failed attempts from `GET /me/executions`. Linking it to a connected wallet waits for the wallet work.
   - [ ] Plan page `/p/$planPda` (Layer 3).
-  - [ ] Error and empty states (section E).
+  - [x] Error and empty states (section E) for the feed, plan sheet and My Plans: loading, empty, expired, stale price, Solana unreachable, service unavailable (with retry and a separate demo), per-row plan errors.
 - **Files:** `app/src/components/{sheets,plan}/**`, `app/src/routes/{publish,me,p.$planPda}.tsx`, `app/src/lib/follow-machine.ts`.
 - **Done when:** with the burner wallet you can publish, follow → Recorded, and see the receipt in My Plans and on the plan page.
+- **Mascot-led experience (2026-10-10, owner request), in progress toward this phase:**
+  - **Cue artwork.** The seven poses (welcome, discover, saved, missed, unavailable, bow, mascot) are the owner's Figma vectors (file `ZwWGrYQ2vMcS0ochnyAEKR`, nodes 605-16452 … 605-16868), exported individually as SVG into `app/assets/cue/`. `app/scripts/cue-art.ts` turns them into data (`app/src/components/cue/cue-art.ts`) rendered by `Cue.tsx` with `createElement`, not `innerHTML`. Character-sheet backdrops and Figma's bounds stubs are stripped and clip ids are made unique per instance. Nothing is redrawn: proportions, colours and expressions are the source paths. The pupils and glints are tagged so they can move.
+  - **Welcome and opening.** The closed curtains, Cue's welcome pose and the brass sign stay up until "Explore the plans". On click Cue switches to the discover pose with a hop (0.36 s), the drapes gather to the wings (0.3 s delay, 0.9 s, ease `[0.33,1,0.68,1]`) and hand over to the global drapes, then focus moves to the first plan. Reduced motion: an instant pose change and a 0.2 s fade. `localStorage relay:entered` marks a returning visitor, who gets the short session opening instead.
+  - **Pointer.** Fine pointers only, never touch or reduced motion: `useStagePointer` springs (one write per frame, no React state) drive a slight limelight shift, a ±3° lean, ±7 px drape parallax and pupils bounded to 5 × 3.5 SVG units. Buttons and the cursor never move or change.
+  - **Cue in the flow:** discover pose on the empty feed and Search; the bookmark pose in the watch toast ("Saved to My Plans. Watching … doesn't place a trade.", top of the stage so plan controls stay clear, auto-dismisses after 5 s, and the same text goes to the live region); the "Missed this entry" pose in the plan sheet and My Plans when the original entry has passed; the cable pose on service unavailable and Not Found; and the bow in the closing scene (drapes close, Cue bows, "That's tonight's lineup.", then Review watched plans / Explore again / Search / Refresh).
+  - **Plan sheet.** It gains "Following this plan": choose an amount, get a fresh quote checked against the range and window, connect a wallet, approve yourself. It says honestly that review isn't in this build, or that an ended plan can't be followed.
+  - **My Plans.** Watching now stores a snapshot (status, version, price, range, expiry) taken when the plan was watched. Each row fetches `GET /plans/:pda` and shows the live status, the check time, and what changed since watching (status, version, price); per-row errors offer a retry. Older entries without a snapshot say so. **Followed:** a public wallet lookup (base58 check, remembered locally) lists verified receipts (spent, received, entry price, receipt, slot, transaction), failed attempts kept as failures, an *estimated* open result (base received × current reference price − spent, bigint, labelled as an estimate without exit fees), and "Verified closed outcomes: none yet". Block times outside 2020–2100 are hidden because the local fork reports `blockTime` 1791571 for slots near plan time 1791570936.
+  - **Demo (`/demo`).** One fictional walkthrough: Mika, "fictional demo profile", SOL/USDC, entry $140–$145. Price $143 ("In plan range"), Watch (Cue: saved), then the explicit "Advance demo · 20 minutes" sets the price to $148 ("Original entry passed"). Cue holds the ticket and says "The price moved above Mika's original range. Watching saved the plan; it did not place a trade." Original and now are shown side by side; a second advance passes the window and Cue bows. A sticky "Fictional demo · simulated prices · no real trades" banner stays on screen. Statuses come from the same `entryStatus`. The demo has no API calls and no storage, uses a component-local watch, and has no receipts and no results (tested).
+  - **502 diagnosis (again).** `/api/feed` 502 means the Vite proxy found nothing on :3001. The dev "Development setup" note now says so. With the API running, `localhost:5175/api/feed` and `:3001/feed` both return 200 with eight real plans.
+  - **Verification:**
+    - App: 39 tests (13 new: art integrity, demo scenario and isolation, snapshots, changes, estimate math, block-time guard, address check, execution parser), lint, `tsc -b` (now including `app/scripts`) and build pass.
+    - Chrome at 390×844 and 1440×900/960×700: welcome, opening mid-frame, populated feed, watch toast, plan sheet (real, plus the labelled preview for "Original entry passed"), closing scene, demo before/after, My Plans with a real price change since watching and the real follower `966bBK…` receipt and failed attempt, and service unavailable (a second Vite pointed at a dead API port).
+    - Keyboard: Tab reaches Skip, Explore, Try a demo; Enter opens; focus lands on the first plan; `j` and `w` work; the watch persists to `/me`; a return visit skips the welcome.
+    - Reduced motion: the reveal takes 250 ms and nothing leans.
+    - Screenshots are in `.impeccable/review/cue/`.
+  - **Not done, stated plainly:**
+    - No wallet connection, quote, review or signing in the app, so Follow can't be completed from the UI.
+    - Surfpool is not running, so every real plan is expired and the feed shows "Can't reach Solana right now".
+    - "Original entry passed" with real data has not been seen live; it is shown with the labelled fictional preview and the demo.
+    - No plan page `/p/$planPda`.
+    - Verified closed outcomes don't exist yet (no exit flow).
 
 #### Phase 8: Demo slice (≈ 8 h, depends on Phase 7)
 - **Goal:** make the core insight visible in about 4 minutes (section X).

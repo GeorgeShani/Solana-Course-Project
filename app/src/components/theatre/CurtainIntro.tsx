@@ -1,13 +1,18 @@
 import { useEffect, type ReactNode } from "react";
 import { MarqueeSign } from "./Marquee";
 
-const SEEN_KEY = "relay:curtain-seen";
+export const SEEN_KEY = "relay:curtain-seen";
+/** Set once a visitor has walked through the welcome scene; returning visitors skip it. */
+export const ENTERED_KEY = "relay:entered";
 
 /**
- * Runs in <head> before first paint. The curtain opens only when the feed is the first page of the
- * session; reduced motion, a later visit, another landing page or a storage failure skip it.
+ * Runs in <head> before first paint and picks the stage's first state:
+ * - data-welcome="on": a first visit to the feed (or `?welcome`), with the curtains closed and Cue
+ *   in front until the visitor chooses to enter. Deep links (`?plan=`) and the preview skip it.
+ * - data-curtain="on": a returning visitor's first feed of the session gets the short opening.
+ * Reduced motion keeps the welcome (it is content) but drops the opening; storage failures skip both.
  */
-export const CURTAIN_BOOT_SCRIPT = `(function(){var d=document.documentElement;try{if(location.pathname!=="/"||sessionStorage.getItem("${SEEN_KEY}")||matchMedia("(prefers-reduced-motion: reduce)").matches){d.dataset.curtain="off"}else{sessionStorage.setItem("${SEEN_KEY}","1");d.dataset.curtain="on"}}catch(e){d.dataset.curtain="off"}})();`;
+export const CURTAIN_BOOT_SCRIPT = `(function(){var d=document.documentElement;d.dataset.welcome="off";d.dataset.curtain="off";try{if(location.pathname!=="/")return;var q=new URLSearchParams(location.search);if(q.has("welcome")||(!localStorage.getItem("${ENTERED_KEY}")&&!q.has("plan")&&!q.has("preview"))){d.dataset.welcome="on";return}if(!sessionStorage.getItem("${SEEN_KEY}")&&!matchMedia("(prefers-reduced-motion: reduce)").matches){sessionStorage.setItem("${SEEN_KEY}","1");d.dataset.curtain="on"}}catch(e){}})();`;
 
 /** The opening is done after 1.2 s; past this the drapes simply rest at the wings. */
 const OPENING_MS = 1200;

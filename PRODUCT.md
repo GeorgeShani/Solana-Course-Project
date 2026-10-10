@@ -43,7 +43,9 @@ The unit of truth is the follower's own execution against a specific, immutable 
 - **Theatre identity, recolored in Solana colors** (owner decision 2026-10-09): opening curtain, the RELAY marquee with chasing bulbs, a restrained spotlight behind the active card, and a closing-curtain / end-of-feed moment.
 - The original showcase reference is the `curtain-sol` prototype (theatre components in `app/components/theatre/*`). Its interaction model (lobby gate, Stories swipe, auto-advance, particle burst) is replaced; its identity stays.
 - Spectacle frames the data and never decorates it. Financial information stays flat, calm and readable.
-- The intro is short, skippable, once per session, never gates the feed, and is off under reduced motion.
+- **First visit: a closed-curtain welcome** (owner decision 2026-10-10, replaces "never gates the feed"). Cue, Relay's usher, greets the visitor with RELAY, "Follow the plan. See the proof.", one paragraph, "Explore the plans" and a separate "Try a demo". The curtains open only on that click. Deep links and returning visitors skip it; returning visitors get the short once-per-session opening, which is off under reduced motion.
+- **Cue, the usher mascot:** a purple gecko in a burgundy usher jacket, always drawn from the owner's Figma poses, never redrawn. Cue leads the storytelling moments (welcome, end of feed, demo, empty and error states) and stays small and supportive around plans and trades. Cue never says a trade is good, never celebrates a result, and never appears with invented numbers.
+- **Demo vs real:** the only fictional walkthrough is `/demo` (Mika, simulated prices), always bannered "Fictional demo · simulated prices · no real trades". It never writes to the real watch list or calls the API.
 
 ## Evidence on Hand
 

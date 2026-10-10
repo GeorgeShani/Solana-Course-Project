@@ -1,3 +1,4 @@
+import type { EntryStatus } from "@relay/domain";
 import { useSyncExternalStore } from "react";
 
 /**
@@ -7,12 +8,82 @@ import { useSyncExternalStore } from "react";
  */
 export const WATCH_KEY = "relay:watched";
 
+/** What the plan looked like at the moment it was watched, so My Plans can show what changed. */
+export interface WatchSnapshot {
+  status: EntryStatus;
+  version: number;
+  /** Reference price in quote base units, or null when there was none. */
+  priceUnits: string | null;
+  quoteDecimals: number;
+  entryLow: string;
+  entryHigh: string;
+  /** Unix seconds. */
+  expiresAt: number;
+}
+
 export interface WatchedPlan {
   planPda: string;
   /** e.g. "SOL / USDC · Mika Tan" */
   label: string;
   /** Wall-clock ms when it was watched. */
   savedAt: number;
+  /** Missing for plans watched before snapshots existed. */
+  snapshot?: WatchSnapshot;
+}
+
+const STATUSES: readonly EntryStatus[] = [
+  "in_range",
+  "above_range",
+  "below_range",
+  "expired",
+  "closed",
+  "price_stale",
+  "price_unavailable",
+];
+
+function isStatus(v: unknown): v is EntryStatus {
+  return STATUSES.some((s) => s === v);
+}
+
+const isInt = (v: unknown): v is number =>
+  typeof v === "number" && Number.isSafeInteger(v);
+const isDecimal = (v: unknown): v is string =>
+  typeof v === "string" && /^\d{1,20}(\.\d{1,18})?$/.test(v);
+
+export function parseSnapshot(v: unknown): WatchSnapshot | undefined {
+  if (typeof v !== "object" || v === null) return undefined;
+  const status: unknown = Reflect.get(v, "status");
+  const version: unknown = Reflect.get(v, "version");
+  const priceUnits: unknown = Reflect.get(v, "priceUnits");
+  const quoteDecimals: unknown = Reflect.get(v, "quoteDecimals");
+  const entryLow: unknown = Reflect.get(v, "entryLow");
+  const entryHigh: unknown = Reflect.get(v, "entryHigh");
+  const expiresAt: unknown = Reflect.get(v, "expiresAt");
+  if (
+    !isStatus(status) ||
+    !isInt(version) ||
+    !(
+      priceUnits === null ||
+      (typeof priceUnits === "string" && /^\d{1,30}$/.test(priceUnits))
+    ) ||
+    !isInt(quoteDecimals) ||
+    quoteDecimals < 0 ||
+    quoteDecimals > 18 ||
+    !isDecimal(entryLow) ||
+    !isDecimal(entryHigh) ||
+    !isInt(expiresAt)
+  ) {
+    return undefined;
+  }
+  return {
+    status,
+    version,
+    priceUnits,
+    quoteDecimals,
+    entryLow,
+    entryHigh,
+    expiresAt,
+  };
 }
 
 const EMPTY: readonly WatchedPlan[] = [];
@@ -42,11 +113,13 @@ export function parseWatchList(raw: string | null): WatchedPlan[] {
     if (typeof planPda !== "string" || planPda === "" || seen.has(planPda))
       continue;
     seen.add(planPda);
+    const snapshot = parseSnapshot(Reflect.get(item, "snapshot"));
     out.push({
       planPda,
       label: typeof label === "string" ? label.slice(0, 120) : planPda,
       savedAt:
         typeof savedAt === "number" && Number.isFinite(savedAt) ? savedAt : 0,
+      ...(snapshot ? { snapshot } : {}),
     });
   }
   return out;
@@ -97,12 +170,24 @@ function write(list: readonly WatchedPlan[]): boolean {
 }
 
 /** Adds or removes a plan. Returns the new watching state, or null when storage is unavailable. */
-export function toggleWatched(planPda: string, label: string): boolean | null {
+export function toggleWatched(
+  planPda: string,
+  label: string,
+  snapshot?: WatchSnapshot,
+): boolean | null {
   const list = read();
   const watching = list.some((w) => w.planPda === planPda);
   const next = watching
     ? list.filter((w) => w.planPda !== planPda)
-    : [...list, { planPda, label, savedAt: Date.now() }];
+    : [
+        ...list,
+        {
+          planPda,
+          label,
+          savedAt: Date.now(),
+          ...(snapshot ? { snapshot } : {}),
+        },
+      ];
   return write(next) ? !watching : null;
 }
 

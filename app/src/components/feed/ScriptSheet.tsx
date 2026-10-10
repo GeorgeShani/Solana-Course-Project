@@ -17,6 +17,7 @@ import {
 } from "../../lib/format";
 import { stageName } from "../../lib/labels";
 import { statusHeadline } from "../../lib/status";
+import { Cue } from "../cue/Cue";
 import { Avatar } from "../theatre/Portrait";
 import { Icon } from "../ui/Icon";
 
@@ -166,6 +167,20 @@ export function ScriptSheet({
             </button>
           </header>
 
+          {live?.status === "above_range" && (
+            <aside className="script__callout" aria-labelledby="script-missed">
+              <Cue pose="missed" className="script__callout-cue" />
+              <div>
+                <h3 id="script-missed">The original entry passed</h3>
+                <p>
+                  The price moved above {stageName(card)}'s range. Following now
+                  would not match the plan. Watching keeps it in My Plans; it
+                  never places a trade.
+                </p>
+              </div>
+            </aside>
+          )}
+
           <dl className="script__terms">
             <div>
               <dt>Entry status</dt>
@@ -277,6 +292,24 @@ export function ScriptSheet({
               available.
             </p>
           )}
+
+          <section className="script__section" aria-labelledby="script-follow">
+            <h3 id="script-follow">Following this plan</h3>
+            <ol className="script__steps">
+              <li>Choose how much to spend.</li>
+              <li>
+                Get a fresh quote, checked against the plan's entry range and
+                window.
+              </li>
+              <li>Connect your wallet.</li>
+              <li>Approve the trade yourself. Relay never trades for you.</li>
+            </ol>
+            <p className="script__note">
+              {live && (live.status === "expired" || live.status === "closed")
+                ? "This plan's entry window has ended, so it can't be followed."
+                : "Reviewing and approving a trade isn't available in this build yet, so nothing here can be signed."}
+            </p>
+          </section>
 
           {card.fictionalPreview ? (
             <p className="evidence" data-kind="fictional">

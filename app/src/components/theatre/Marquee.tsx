@@ -11,12 +11,24 @@ function Bulbs({ count }: { count: number }) {
   );
 }
 
-/** The full lit sign from the curtain-sol stage door, shown while the curtain parts. */
-export function MarqueeSign({ sub }: { sub: ReactNode }) {
+/** The full lit sign from the curtain-sol stage door: the welcome scene and the opening. */
+export function MarqueeSign({
+  sub,
+  titleId,
+  heading = false,
+}: {
+  sub: ReactNode;
+  titleId?: string;
+  /** The welcome scene's sign is the page heading; the opening's is decoration. */
+  heading?: boolean;
+}) {
+  const Title = heading ? "h1" : "p";
   return (
     <div className="sign">
       <Bulbs count={11} />
-      <p className="sign__title">RELAY</p>
+      <Title id={titleId} className="sign__title">
+        RELAY
+      </Title>
       <p className="sign__sub">{sub}</p>
       <Bulbs count={11} />
     </div>

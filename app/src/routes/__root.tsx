@@ -6,6 +6,7 @@ import {
 } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { Providers } from "../components/Providers";
+import { Cue } from "../components/cue/Cue";
 import {
   CURTAIN_BOOT_SCRIPT,
   Drapes,
@@ -78,6 +79,7 @@ function RootDocument({ children }: { children: ReactNode }) {
 function NotFound() {
   return (
     <section className="page">
+      <Cue pose="unavailable" className="page__cue cue--lit" />
       <h1 className="page__title">Not on tonight's programme</h1>
       <p className="page__text">This page doesn't exist.</p>
       <Link to="/" className="btn btn--ghost">
