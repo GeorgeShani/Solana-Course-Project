@@ -22,6 +22,8 @@ export interface VersionView {
     exitThesis: string;
     exitTarget: string | null;
     invalidation: string | null;
+    /** The price the creator saw when publishing, as recorded in the committed text. */
+    refPrice: null | { display: string; source: string };
   };
 }
 
@@ -148,6 +150,10 @@ function parseVersion(v: unknown, path: string): VersionView {
     r.text === null || r.text === undefined
       ? null
       : rec(r.text, `${path}.text`);
+  const ref =
+    text === null || text.refPrice === null || text.refPrice === undefined
+      ? null
+      : rec(text.refPrice, `${path}.text.refPrice`);
   return {
     version: num(r.version, `${path}.version`),
     versionPda: str(r.versionPda, `${path}.versionPda`),
@@ -165,6 +171,10 @@ function parseVersion(v: unknown, path: string): VersionView {
       exitThesis: str(text.exitThesis, `${path}.text.exitThesis`),
       exitTarget: strOrNull(text.exitTarget, `${path}.text.exitTarget`),
       invalidation: strOrNull(text.invalidation, `${path}.text.invalidation`),
+      refPrice: ref && {
+        display: str(ref.display, `${path}.text.refPrice.display`),
+        source: str(ref.source, `${path}.text.refPrice.source`),
+      },
     },
   };
 }
@@ -240,9 +250,28 @@ export async function fetchFeedPage(
   cursor?: string | null,
   init?: RequestInit,
 ): Promise<FeedPage> {
+  return parseFeedPage(await getJson(`${base}${feedPath(cursor)}`, init));
+}
+
+/** Every committed version of one plan, oldest first, from `${base}/plans/:pda`. */
+export async function fetchPlanVersions(
+  base: string,
+  planPda: string,
+  init?: RequestInit,
+): Promise<VersionView[]> {
+  const r = rec(
+    await getJson(`${base}/plans/${encodeURIComponent(planPda)}`, init),
+    "plan",
+  );
+  if (!Array.isArray(r.versions))
+    throw new ApiContractError("plan.versions must be an array");
+  return r.versions.map((v, i) => parseVersion(v, `plan.versions[${i}]`));
+}
+
+async function getJson(url: string, init?: RequestInit): Promise<unknown> {
   let res: Response;
   try {
-    res = await fetch(`${base}${feedPath(cursor)}`, {
+    res = await fetch(url, {
       ...init,
       headers: { accept: "application/json" },
     });
@@ -267,5 +296,5 @@ export async function fetchFeedPage(
         : `Request failed (${res.status})`;
     throw new ApiContractError(message);
   }
-  return parseFeedPage(body);
+  return body;
 }

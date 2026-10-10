@@ -20,7 +20,10 @@ export type IconName =
   | "refresh"
   | "alert"
   | "chain"
-  | "arrow-up";
+  | "arrow-up"
+  | "script"
+  | "replay"
+  | "close";
 
 const PATHS: Record<IconName, ReactNode> = {
   feed: (
@@ -62,7 +65,7 @@ const PATHS: Record<IconName, ReactNode> = {
       <circle cx="12" cy="12" r="9" fill="currentColor" stroke="none" />
       <path
         d="m8 12.3 2.7 2.7L16.2 9.5"
-        stroke="var(--icon-knockout, #0b0716)"
+        stroke="var(--icon-knockout, #1b1035)"
         strokeWidth="2.25"
       />
     </>
@@ -128,6 +131,20 @@ const PATHS: Record<IconName, ReactNode> = {
     </>
   ),
   "arrow-up": <path d="M12 19V5M6 11l6-6 6 6" />,
+  script: (
+    <>
+      <path d="M15 12h-5M15 8h-5" />
+      <path d="M19 17V5a2 2 0 0 0-2-2H4" />
+      <path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3" />
+    </>
+  ),
+  replay: (
+    <>
+      <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+      <path d="M3 3v5h5" />
+    </>
+  ),
+  close: <path d="M18 6 6 18M6 6l12 12" />,
 };
 
 export function Icon({

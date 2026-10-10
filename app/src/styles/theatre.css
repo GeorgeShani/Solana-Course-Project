@@ -1,165 +1,385 @@
 /*
- * The theatre frame: marquee, stage, tab bar, opening curtain and the drapes at the wings.
- * Expressive and on brand; none of it ever sits on top of financial data.
+ * The theatre frame, ported from curtain-sol's app/theatre.css: a purple stage under a warm
+ * radial, burgundy drapes in repeating folds gathered at the wings with a brass hem and bead
+ * fringe, a scalloped valance, chasing marquee bulbs, a limelight cone and a perspective floor.
+ * Data never sits on these materials; it sits on flat velvet plaques (feed.css).
  */
+
+.theatre {
+  background: radial-gradient(
+    120% 80% at 50% 0%,
+    #2a1752,
+    var(--velvet) 55%,
+    var(--velvet-deep)
+  );
+}
 
 .app {
   position: fixed;
   inset: 0;
   display: grid;
-  grid-template-rows: calc(var(--marquee-h) + env(safe-area-inset-top)) minmax(
-      0,
-      1fr
-    ) calc(var(--tabbar-h) + env(safe-area-inset-bottom));
-  background:
-    radial-gradient(
-      120% 60% at 50% -10%,
-      rgba(153, 69, 255, 0.16),
-      transparent 60%
-    ),
-    var(--velvet);
+  grid-template-rows:
+    calc(var(--valance-h) + env(safe-area-inset-top))
+    minmax(0, 1fr)
+    calc(var(--tabbar-h) + env(safe-area-inset-bottom));
+  overflow: hidden;
+  isolation: isolate;
 }
 
+/* No z-index here: the opening sign must stack above the drapes and valance. */
 .stage {
   position: relative;
   min-height: 0;
-  overflow: hidden;
 }
 
-/* ---------------------------------------------------------------- marquee */
+/* ---------------------------------------------------------------- valance and marquee */
 
-.marquee {
+.valance {
   position: relative;
-  z-index: 10;
+  z-index: 35;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: env(safe-area-inset-top) var(--s4) 0;
-  background: linear-gradient(180deg, #120a22, var(--velvet));
-  border-bottom: 1px solid transparent;
-  border-image: var(--sol-edge) 1;
+  padding-top: env(safe-area-inset-top);
+  background: radial-gradient(
+      ellipse 36px 30px at 36px 0,
+      var(--curtain-light),
+      var(--curtain) 60%,
+      var(--curtain-dark)
+    )
+    0 0 / 72px 100% repeat-x;
+  border-bottom: 3px solid var(--brass);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
 }
 
-.marquee__sign {
-  display: inline-flex;
+.valance__sign {
+  display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
   gap: 3px;
-  padding: 5px var(--s3);
+  padding: 4px 10px;
+  border: 2px solid var(--brass);
   border-radius: var(--r-sm);
-  color: var(--chalk);
+  background: rgba(18, 9, 31, 0.92);
+  box-shadow:
+    0 4px 18px -6px rgba(0, 0, 0, 0.7),
+    0 0 28px -10px rgba(255, 217, 138, 0.6);
+  color: var(--limelight);
   text-decoration: none;
 }
 
-.marquee__word {
+.valance__word {
   font-family: var(--font-display);
   font-weight: 800;
-  font-size: 1.625rem;
-  line-height: 0.9;
-  letter-spacing: 0.32em;
-  margin-right: -0.32em;
-  text-shadow:
-    0 0 14px rgba(153, 69, 255, 0.75),
-    0 0 2px rgba(243, 238, 255, 0.6);
+  font-size: 1.375rem;
+  line-height: 0.88;
+  letter-spacing: 0.14em;
+  padding-left: 0.14em;
+  text-align: center;
+  text-shadow: 0 0 14px rgba(255, 217, 138, 0.5);
 }
 
-.marquee__bulbs {
-  display: flex;
-  gap: 6px;
+.valance__sign .bulbs {
+  padding: 0 2px;
 }
 
-.marquee__bulb {
-  --lamp: var(--sol-purple-light);
-  --glow: rgba(153, 69, 255, 0.75);
-  width: 6px;
-  height: 6px;
-  border-radius: 999px;
-  background: radial-gradient(
-    circle at 45% 40%,
-    #fff 0 22%,
-    var(--lamp) 48%,
-    color-mix(in srgb, var(--lamp) 45%, #000) 100%
-  );
-  box-shadow:
-    inset 0 0 0 1px rgba(0, 0, 0, 0.35),
-    0 0 6px 1px var(--glow);
+.valance__sign .bulb {
+  width: 5px;
+  height: 5px;
+  box-shadow: 0 0 4px 1px rgba(255, 217, 138, 0.8);
 }
 
-.marquee__bulb:nth-child(even) {
-  --lamp: #8af8c9;
-  --glow: rgba(20, 241, 149, 0.65);
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .marquee__bulb {
-    animation: chase 2.7s steps(1) infinite;
-  }
-  .marquee__bulb:nth-child(3n + 2) {
-    animation-delay: 0.9s;
-  }
-  .marquee__bulb:nth-child(3n) {
-    animation-delay: 1.8s;
-  }
-}
-
-@keyframes chase {
-  0%,
-  66% {
-    opacity: 1;
-  }
-  67%,
-  100% {
-    background: radial-gradient(
-      circle at 45% 40%,
-      rgba(243, 238, 255, 0.28) 0 18%,
-      color-mix(in srgb, var(--lamp) 22%, #120a22) 60%,
-      #07040e 100%
-    );
-    box-shadow: inset 0 0 0 1px rgba(243, 238, 255, 0.12);
-  }
-}
-
-.marquee__cluster {
+.valance__cluster {
   position: absolute;
-  right: var(--s4);
-  top: calc(env(safe-area-inset-top) + 50%);
-  transform: translateY(-50%);
-  padding: 3px var(--s2);
+  right: var(--s3);
+  bottom: 10px;
+  padding: 2px var(--s2);
+  border: 1px solid rgba(214, 178, 106, 0.6);
   border-radius: 999px;
-  border: 1px solid var(--hairline-strong);
-  color: var(--haze);
+  background: rgba(15, 8, 32, 0.85);
+  color: var(--limelight);
   font-size: var(--t-caption);
   font-weight: 600;
-  letter-spacing: 0.02em;
+}
+
+.bulbs {
+  display: flex;
+  justify-content: space-between;
+}
+
+.bulb {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--bulb);
+  box-shadow: 0 0 6px 2px rgba(255, 217, 138, 0.85);
+  animation: bulb-chase 1.6s steps(1) infinite;
+}
+
+.bulb:nth-child(3n + 2) {
+  animation-delay: 0.53s;
+}
+
+.bulb:nth-child(3n + 3) {
+  animation-delay: 1.06s;
+}
+
+@keyframes bulb-chase {
+  0% {
+    opacity: 1;
+  }
+  33% {
+    opacity: 0.25;
+  }
+}
+
+/* The full sign shown during the opening (curtain-sol Marquee). */
+.sign {
+  width: min(86vw, 420px);
+  padding: var(--s3) 0;
+  border: 2px solid var(--brass);
+  border-radius: var(--r-lg);
+  background: rgba(18, 9, 31, 0.9);
+  box-shadow: 0 0 60px -10px rgba(255, 217, 138, 0.55);
+}
+
+.sign .bulbs {
+  padding: 0 var(--s3);
+}
+
+.sign__title {
+  padding: var(--s2) 0;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(4rem, 22vw, 6rem);
+  line-height: 0.88;
+  letter-spacing: 0.04em;
+  text-align: center;
+  color: var(--limelight);
+  text-shadow: 0 0 24px rgba(255, 217, 138, 0.55);
+}
+
+.sign__sub {
+  padding-bottom: var(--s2);
+  font-size: var(--t-subhead);
+  font-weight: 600;
+  text-align: center;
+  color: var(--chalk);
+}
+
+/* ---------------------------------------------------------------- drapes */
+
+.drapes {
+  position: absolute;
+  inset: calc(var(--valance-h) + env(safe-area-inset-top) - 3px) 0
+    calc(var(--tabbar-h) + env(safe-area-inset-bottom)) 0;
+  z-index: 30;
+  pointer-events: none;
+}
+
+/* The shadow the gathered drapes cast onto the stage. */
+.drapes::before,
+.drapes::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: calc(var(--wing) + 28px);
+}
+
+.drapes::before {
+  left: 0;
+  background: linear-gradient(90deg, rgba(8, 3, 18, 0.55), transparent);
+}
+
+.drapes::after {
+  right: 0;
+  background: linear-gradient(270deg, rgba(8, 3, 18, 0.55), transparent);
+}
+
+.drape {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 51%;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(0, 0, 0, 0.35),
+      transparent 18%,
+      transparent 78%,
+      rgba(0, 0, 0, 0.55)
+    ),
+    repeating-linear-gradient(
+      90deg,
+      var(--curtain-dark) 0px,
+      var(--curtain) 14px,
+      var(--curtain-light) 26px,
+      var(--curtain) 40px,
+      var(--curtain-dark) 56px
+    );
+  box-shadow: inset 0 -6px 0 var(--brass);
+  will-change: transform;
+}
+
+.drape::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -10px;
+  height: 14px;
+  background: radial-gradient(
+      circle at 7px 0,
+      var(--brass) 5px,
+      transparent 6px
+    )
+    0 0 / 14px 14px repeat-x;
+}
+
+.drape--left {
+  left: 0;
+  transform-origin: top left;
+  transform: scaleX(0.14) skewY(2deg);
+}
+
+.drape--right {
+  right: 0;
+  transform-origin: top right;
+  transform: scaleX(0.14) skewY(-2deg);
+}
+
+/* ---------------------------------------------------------------- opening (≤ 1.2 s, once per session) */
+
+.opening {
+  display: none;
+}
+
+html[data-curtain="on"] .opening {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  animation: sign-rise 0.55s cubic-bezier(0.4, 0, 1, 1) 0.55s both;
+}
+
+html[data-curtain="on"] .drapes > .drape--left {
+  animation: drape-gather-left 1.05s cubic-bezier(0.33, 1, 0.68, 1) 0.1s both;
+}
+
+html[data-curtain="on"] .drapes > .drape--right {
+  animation: drape-gather-right 1.05s cubic-bezier(0.33, 1, 0.68, 1) 0.1s both;
+}
+
+html[data-curtain="on"] .valance__sign {
+  animation: sign-settle 0.4s var(--ease-out) 0.75s both;
+}
+
+@keyframes drape-gather-left {
+  from {
+    transform: scaleX(1) skewY(0);
+  }
+  to {
+    transform: scaleX(0.14) skewY(2deg);
+  }
+}
+
+@keyframes drape-gather-right {
+  from {
+    transform: scaleX(1) skewY(0);
+  }
+  to {
+    transform: scaleX(0.14) skewY(-2deg);
+  }
+}
+
+@keyframes sign-rise {
+  to {
+    opacity: 0;
+    transform: translateY(-38vh) scale(0.32);
+  }
+}
+
+@keyframes sign-settle {
+  from {
+    opacity: 0;
+    transform: scale(1.4);
+  }
+}
+
+/* ---------------------------------------------------------------- light and floor */
+
+.spotlight {
+  position: absolute;
+  inset: -10% 0 0 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      40% 22% at 50% 38%,
+      rgba(255, 217, 138, 0.22),
+      transparent 70%
+    ),
+    conic-gradient(
+      from 0deg at 50% -4%,
+      transparent 162deg,
+      rgba(255, 217, 138, 0.16) 170deg,
+      rgba(255, 217, 138, 0.24) 180deg,
+      rgba(255, 217, 138, 0.16) 190deg,
+      transparent 198deg
+    );
+  filter: blur(8px);
+}
+
+.stage-floor {
+  position: absolute;
+  left: -20%;
+  right: -20%;
+  bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom));
+  height: 20%;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      50% 40% at 50% 0%,
+      rgba(255, 217, 138, 0.14),
+      transparent 70%
+    ),
+    linear-gradient(180deg, #24123a, #120a22);
+  border-top: 1px solid rgba(214, 178, 106, 0.22);
+  transform: perspective(600px) rotateX(38deg);
+  transform-origin: top;
 }
 
 /* ---------------------------------------------------------------- tab bar */
 
 .tabbar {
   position: relative;
-  z-index: 10;
+  z-index: 40;
   padding-bottom: env(safe-area-inset-bottom);
-  background: rgba(16, 10, 30, 0.82);
-  backdrop-filter: blur(14px) saturate(1.2);
-  -webkit-backdrop-filter: blur(14px) saturate(1.2);
-  border-top: 1px solid var(--hairline);
+  background: rgba(15, 8, 32, 0.96);
+  border-top: 1px solid rgba(214, 178, 106, 0.32);
 }
 
 .tabbar__list {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
+  max-width: 560px;
   height: var(--tabbar-h);
+  margin: 0 auto;
 }
 
 .tabbar__tab {
   position: relative;
-  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 2px;
-  color: var(--mute);
+  height: 100%;
+  color: var(--haze);
   font-size: var(--t-caption);
   font-weight: 600;
   text-decoration: none;
@@ -167,7 +387,7 @@
 }
 
 .tabbar__tab:hover {
-  color: var(--haze);
+  color: var(--chalk);
 }
 
 .tabbar__tab[aria-current="page"] {
@@ -187,131 +407,12 @@
 
 .tabbar__tab:focus-visible {
   outline-offset: -4px;
-  border-radius: var(--r-sm);
 }
 
-/* ---------------------------------------------------------------- opening curtain */
+/* ---------------------------------------------------------------- reduced motion */
 
-.curtain {
-  position: fixed;
-  inset: 0;
-  z-index: 60;
-  pointer-events: none;
-  overflow: hidden;
-}
-
-html[data-curtain="off"] .curtain {
-  display: none;
-}
-
-/* flat velvet, darkening to black at the outer edge; the meeting edge carries a single hairline */
-.curtain__half {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 51%;
-  animation: 1.05s var(--ease-curtain) 0.12s both;
-}
-
-.curtain__half--left {
-  left: 0;
-  transform-origin: left center;
-  background: linear-gradient(90deg, #000, var(--velvet-2));
-  box-shadow: inset -1px 0 0 var(--hairline);
-  animation-name: part-left;
-}
-
-.curtain__half--right {
-  right: 0;
-  transform-origin: right center;
-  background: linear-gradient(270deg, #000, var(--velvet-2));
-  box-shadow: inset 1px 0 0 var(--hairline);
-  animation-name: part-right;
-}
-
-.curtain__valance {
-  position: absolute;
-  inset: 0 0 auto;
-  height: 44px;
-  z-index: 1;
-  background: var(--velvet);
-  box-shadow: inset 0 -1px 0 var(--hairline);
-  animation: lift 0.5s var(--ease-out) 0.7s both;
-}
-
-@keyframes part-left {
-  to {
-    transform: translateX(-104%) scaleX(0.7);
-  }
-}
-
-@keyframes part-right {
-  to {
-    transform: translateX(104%) scaleX(0.7);
-  }
-}
-
-@keyframes lift {
-  to {
-    transform: translateY(-110%);
-  }
-}
-
-/* ---------------------------------------------------------------- desktop: the stage between drapes */
-
-.feed-keys {
-  display: none;
-}
-
-@media (min-width: 900px) {
-  .app {
-    grid-template-columns: 1fr minmax(0, var(--column)) 1fr;
-  }
-  .app > * {
-    grid-column: 2;
-  }
-  .marquee {
-    grid-column: 1 / -1;
-  }
-  .stage {
-    z-index: 1;
-    overflow: visible;
-  }
-  .tabbar {
-    border-inline: 1px solid var(--hairline);
-  }
-
-  /* the wings: flat velvet falling to black, lit only by the follow spot */
-  .app::before,
-  .app::after {
-    content: "";
-    grid-row: 2 / 4;
-    pointer-events: none;
-  }
-  .app::before {
-    grid-column: 1;
-    background: linear-gradient(90deg, #000, transparent);
-  }
-  .app::after {
-    grid-column: 3;
-    background: linear-gradient(270deg, #000, transparent);
-  }
-
-  .feed-keys {
-    display: block;
-    position: fixed;
-    right: var(--s6);
-    bottom: var(--s6);
-    color: var(--mute);
-    font-size: var(--t-footnote);
-  }
-  .feed-keys kbd {
-    display: inline-block;
-    min-width: 1.6em;
-    padding: 1px 5px;
-    border-radius: 6px;
-    border: 1px solid var(--hairline-strong);
-    color: var(--haze);
-    text-align: center;
+@media (prefers-reduced-motion: reduce) {
+  .bulb {
+    animation: none;
   }
 }

@@ -1350,17 +1350,57 @@ The work is split into small phases that can each be handed to one coding sessio
   - **No follower evidence yet.** `GET /feed` carries no follower results, so the evidence line states onchain commitment facts and says follower results are not in this view. Nothing is invented.
   - **Placeholder tabs.** Search and Account are placeholder routes; My Plans (`/me`) lists the local watch list.
   - **Fictional preview.** `?preview=fictional` (dev builds only) shows a fixture feed. Every card is badged FICTIONAL with `fictional-*` IDs and no hashes or signatures. By default an unreachable API shows the truthful "service unavailable" state.
-  - **Theatre frame is flat velvet.** The owner chose this at the finish review: no fold stripes, bead fringe or drape imagery. The spotlight is a stage-level beam spilling onto the wings.
+  - **Theatre frame:** the earlier flat-velvet amendment is superseded by the theatre redesign below. The owner pinned the curtain-sol reference as the visual authority.
   - **Build config:** the app `tsconfig` lib is `ES2024` (`String.prototype.isWellFormed`). Impeccable artifacts live in `PRODUCT.md`, `DESIGN.md`, `.impeccable/` and `app/.impeccable/`.
 - **Local setup (macOS):**
   - `server/.env`: `APP_ORIGIN=http://localhost:5175`, `SOLANA_CLUSTER=localnet`, `SOLANA_RPC_URL=http://127.0.0.1:8899`, `JUPITER_DEXES`.
   - `app/.env.local`: `VITE_RPC_URL=http://127.0.0.1:8899`, `VITE_SOLANA_CLUSTER=localnet`.
-  - The feed needs Postgres (`docker compose -f compose.dev.yaml up -d`, so Docker Desktop must be installed), Surfpool on :8899, `bun run dev:server`, and a signed seed (`bun run --cwd server seed`).
+  - The feed needs the API (`bun run dev:server`, port 3001) with a reachable `DATABASE_URL`: the hosted Neon database in `server/.env`, or a local Postgres (`docker compose -f compose.dev.yaml up -d`, or Homebrew `postgresql@17`). It also needs Surfpool on :8899 for live chain status, and a signed seed (`bun run --cwd server seed`) for new plans.
+  - Server tests use `postgres://relay:relay_local_only@127.0.0.1:5432/relay_test`. Create that database once (for example `createdb -h 127.0.0.1 -U relay relay_test`).
+- **Theatre redesign (2026-10-10):** The feed was rebuilt on the owner's curtain-sol prototype as the authoritative visual reference. Its `app/theatre.css` and theatre components were studied, and the prototype was run locally for side-by-side screenshots. Presentation was ported only: no Next.js app, backend, wallet setup or older SDKs. All data is still the real onchain feed.
+  - **Ported from the reference:**
+    - Palette: velvet `#1b1035`/`#0f0820`, curtain burgundy, brass, limelight, chalk and haze.
+    - Type: the Apple text scale, Big Shoulders Display 800, and the system text stack (Schibsted Grotesk was removed).
+    - Spacing and radii.
+    - Drapes: burgundy repeating folds with a brass hem and bead fringe, gathered to the wings (`scaleX(.14) skewY(±2°)`) under a scalloped valance.
+    - The brass marquee sign with chasing bulbs, the limelight conic spotlight, and the perspective stage floor.
+    - Arched brass portraits with a name plate, and round avatars.
+    - The sigil generator; two of its inks are now Solana green and purple.
+    - Atoms: limelight primary, glass ghost, 44px star button, and brass badge.
+    - The act composition: portrait, byline, pair, quote, then status and actions in the thumb zone.
+    - The script sheet as Layer 2.
+    - The "Fin." closing scene: drapes close, curtain call, tally.
+    - Motion via `motion/react` with the reference's ease `[0.16,1,0.3,1]`: the spotlight swings in from the scroll direction (±14°, 0.9 s), the portrait rises into the light on activation, the finale drapes close (1.1 s), and the curtain call bounces.
+  - **Adapted:**
+    - The opening keeps the reference's closed curtain and lit sign. It runs as CSS keyed by the head boot script, so it starts before hydration, stays ≤1.2 s, plays once per session and only when the feed is the landing page, and any key, tap, wheel or touch skips it.
+    - Native vertical scroll-snap replaces the 12 s auto-advance, tap zones and horizontal navigation.
+    - A flat status plaque (pill shape plus icon plus words, hint, range bar, "Now $X · updated") replaces the reference's gauge, so plan terms are never on a gradient.
+    - No portraits of people: every creator is their sigil in the arch. Seeded demo creators carry a "Demo creator" badge, and the "(demo)" suffix moves from the plate to that badge.
+    - Desktop (≥900 px) is a two-column stage standing on the floor horizon.
+    - The ticker, burst, lobby gate, cast profiles, record dots and portrait float were not ported.
+  - **New in this pass:**
+    - "View plan" opens the script sheet, a native modal `<dialog>`. It shows the plan text, the reference price at publish, the onchain record, and the real version history from `GET /plans/:pda` (oldest-first parser, with "entry range changed / window extended / text changed" between versions).
+    - The `d` key opens it.
+    - The finale lists watched plans as jump-back chips, with Replay, Search plans, My Plans and Refresh.
+    - A route-level loading state ("Setting the stage").
+    - Hydration-safe reduced motion (`useCalmMotion`).
+  - **`/api/feed` 502 root cause:**
+    - Nothing was listening on :3001: the Vite proxy forwards `/api` to `127.0.0.1:3001`, and the API server wasn't running.
+    - Postgres was not the cause; `server/.env` points at a hosted Neon database. Starting `bun run dev:server` restored a real HTTP 200 with eight onchain plans.
+    - Stopping the API again shows the truthful "Relay's service is unavailable" state with "answered 502".
+  - **Verification:**
+    - App: 26 tests, lint, `tsc -b` and build pass. Server: 65 tests pass against a local `relay_test`.
+    - Chrome at 390×844, 1440×900 and 1280×720: opening frames at 0.12, 0.45 and 0.8 s; the real populated feed (all eight plans currently expired, so in-range is shown via the labelled dev preview); the script sheet; the closing scene; loading, empty (stub API) and server-error (API stopped).
+    - No act overflows at 390×844, even with a warning banner.
+    - Keyboard (Tab focus ring in limelight, `j`/`k`, `w`, `d`); reduced motion (no curtain, no spotlight swing, no bulb chase, no hydration mismatch).
+    - The Impeccable detector reports no anti-patterns.
+    - The finish review returned "fix" (desktop portrait shrink under a banner, mid-word name breaks, floor horizon crossing text, sigil size), then "pass" after one fix batch.
+    - `DESIGN.md` and `.impeccable/design.json` were rewritten from the shipped build.
 
 #### Phase 7: Frontend flows (≈ 12 h, depends on Phases 5 and 6)
 - **Goal:** the complete user journey in the UI.
 - **Tasks:**
-  - [ ] Details sheet (Layer 2) with the version timeline.
+  - [x] Details sheet (Layer 2) with the version timeline: shipped early as the theatre script sheet (Phase 6 redesign).
   - [ ] Publish composer (v1; v2 in the UI if time allows, otherwise by script).
   - [ ] Review sheet with `follow-machine.ts` and the client-side rebuild-and-check.
   - [ ] My Plans (Followed).

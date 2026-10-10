@@ -10,63 +10,55 @@ export function ActionRow({
   status,
   watching,
   onToggleWatch,
-  detailsOpen,
-  detailsAvailable,
-  onToggleDetails,
-  detailsId,
+  onOpenScript,
+  reviewId,
   label,
 }: {
   status: EntryStatus;
   watching: boolean;
   onToggleWatch: () => void;
-  detailsOpen: boolean;
-  detailsAvailable: boolean;
-  onToggleDetails: () => void;
-  detailsId: string;
+  onOpenScript: () => void;
+  reviewId: string;
   label: string;
 }) {
   const reason = reviewUnavailableReason(status);
   return (
     <div className="actions">
-      <button
-        type="button"
-        className="btn btn--ghost"
-        aria-pressed={watching}
-        aria-label={watching ? `Stop watching ${label}` : `Watch ${label}`}
-        onClick={onToggleWatch}
-        data-on={watching}
-      >
-        <Icon name={watching ? "star-filled" : "star"} />
-        {watching ? "Watching" : "Watch"}
-      </button>
-      <button
-        type="button"
-        className="btn btn--ghost"
-        aria-expanded={detailsOpen}
-        aria-controls={detailsId}
-        disabled={!detailsAvailable}
-        onClick={onToggleDetails}
-      >
-        <Icon name="details" className="btn__chevron" />
-        {detailsOpen ? "Less" : "Details"}
-      </button>
-      {status === "in_range" ? (
-        <div className="actions__review">
+      <div className="actions__row">
+        <button
+          type="button"
+          className="btn btn--glass btn--watch"
+          aria-pressed={watching}
+          aria-label={watching ? `Stop watching ${label}` : `Watch ${label}`}
+          onClick={onToggleWatch}
+          data-on={watching}
+        >
+          <Icon name={watching ? "star-filled" : "star"} size={22} />
+          <span className="btn__label">{watching ? "Watching" : "Watch"}</span>
+        </button>
+        <button
+          type="button"
+          className="btn btn--glass"
+          onClick={onOpenScript}
+          aria-haspopup="dialog"
+        >
+          <Icon name="script" size={20} />
+          View plan
+        </button>
+        {status === "in_range" && (
           <button
             type="button"
             className="btn btn--primary"
             disabled
-            aria-describedby={`${detailsId}-review`}
+            aria-describedby={reviewId}
           >
             Review trade
           </button>
-          <p id={`${detailsId}-review`} className="actions__reason">
-            {reason}
-          </p>
-        </div>
-      ) : (
-        <p className="actions__reason actions__reason--slot">{reason}</p>
-      )}
+        )}
+      </div>
+      <p id={reviewId} className="actions__reason">
+        {reason}
+      </p>
     </div>
   );
 }

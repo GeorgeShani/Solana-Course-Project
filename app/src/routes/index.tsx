@@ -1,6 +1,8 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Feed } from "../components/feed/Feed";
+import { FeedLoading } from "../components/feed/FeedStates";
+import { CurtainIntro } from "../components/theatre/CurtainIntro";
 import { getChainStatus } from "../lib/chain";
 import { getFirstFeedPage, type FeedLoad } from "../lib/feed-server";
 import { fictionalPreviewFeed } from "../lib/fixtures";
@@ -41,6 +43,7 @@ export const Route = createFileRoute("/")({
     return { feed, chainOk: chain.ok, preview: false };
   },
   component: FeedRoute,
+  pendingComponent: FeedLoading,
 });
 
 function FeedRoute() {
@@ -65,14 +68,26 @@ function FeedRoute() {
   );
   useEffect(() => () => clearTimeout(timer.current), []);
 
+  const count = feed.ok ? feed.page.items.length : 0;
   return (
-    <Feed
-      key={preview ? "preview" : "live"}
-      initial={feed}
-      preview={preview}
-      chainOk={chainOk}
-      initialPlan={initialPlan}
-      onActiveChange={onActiveChange}
-    />
+    <>
+      <CurtainIntro
+        sub={
+          !feed.ok
+            ? "Tonight's lineup"
+            : preview
+              ? "Fictional preview"
+              : `Tonight · ${count}${feed.page.nextCursor ? "+" : ""} ${count === 1 ? "plan" : "plans"}`
+        }
+      />
+      <Feed
+        key={preview ? "preview" : "live"}
+        initial={feed}
+        preview={preview}
+        chainOk={chainOk}
+        initialPlan={initialPlan}
+        onActiveChange={onActiveChange}
+      />
+    </>
   );
 }

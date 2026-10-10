@@ -248,7 +248,12 @@ function card(spec: Spec, nowMs: number): PlanCardView {
       contentHash: "",
       termsHash: "",
       prevTermsHash: "",
-      text: spec.text && { ...spec.text, exitTarget: null, invalidation: null },
+      text: spec.text && {
+        ...spec.text,
+        exitTarget: null,
+        invalidation: null,
+        refPrice: null,
+      },
     },
     versionCount: spec.versions,
     entry: {

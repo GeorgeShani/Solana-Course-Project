@@ -8,9 +8,9 @@ import type { ReactNode } from "react";
 import { Providers } from "../components/Providers";
 import {
   CURTAIN_BOOT_SCRIPT,
-  CurtainIntro,
+  Drapes,
 } from "../components/theatre/CurtainIntro";
-import { Marquee } from "../components/theatre/Marquee";
+import { Valance } from "../components/theatre/Marquee";
 import { TabBar } from "../components/ui/TabBar";
 import { CLUSTER, CLUSTER_LABEL } from "../lib/config";
 import baseCss from "../styles/base.css?url";
@@ -26,7 +26,7 @@ export const Route = createRootRoute({
         name: "viewport",
         content: "width=device-width, initial-scale=1, viewport-fit=cover",
       },
-      { name: "theme-color", content: "#0b0716" },
+      { name: "theme-color", content: "#1b1035" },
       { name: "color-scheme", content: "dark" },
       { title: "Relay — creator trade plans, checked against the chain" },
       {
@@ -58,13 +58,14 @@ function RootDocument({ children }: { children: ReactNode }) {
         <a className="skip-link" href="#main">
           Skip to content
         </a>
-        <CurtainIntro />
         <Providers>
-          <div className="app">
-            <Marquee clusterLabel={CLUSTER_LABEL[CLUSTER]} />
+          <div className="app theatre">
+            <div className="stage-floor" aria-hidden="true" />
+            <Valance clusterLabel={CLUSTER_LABEL[CLUSTER]} />
             <main id="main" className="stage">
               {children}
             </main>
+            <Drapes />
             <TabBar />
           </div>
         </Providers>

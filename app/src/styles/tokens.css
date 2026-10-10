@@ -1,84 +1,81 @@
 @import "@fontsource-variable/big-shoulders-display";
-@import "@fontsource-variable/schibsted-grotesk";
 
 /*
- * Relay design tokens: a theatre stage lit in Solana colors.
- * The brand gradient belongs to the frame (curtain, marquee, spotlight, active tab, primary button);
- * data sits on flat velvet surfaces. Text pairs are WCAG AA on --velvet-2 and darker.
+ * Relay design tokens: the curtain-sol theatre (burgundy velvet, brass, limelight on a purple stage)
+ * with Solana purple and green as accents that carry meaning. Type follows the Apple text-style scale;
+ * spacing is an 8pt grid with 4pt half-steps. Text pairs are WCAG AA on --velvet and --velvet-2.
  */
 :root {
   color-scheme: dark;
 
   /* stage */
-  --velvet: #0b0716;
-  --velvet-2: #140d24;
-  --velvet-3: #1c1430;
-  --velvet-4: #271d40;
-  --chalk: #f3eeff;
-  --haze: #b9afd6;
-  --mute: #9d93bf;
-  --hairline: rgba(243, 238, 255, 0.12);
-  --hairline-strong: rgba(243, 238, 255, 0.22);
+  --velvet: #1b1035;
+  --velvet-deep: #0f0820;
+  --velvet-2: #1d1236;
+  --velvet-3: #251746;
+  --velvet-4: #2f1e57;
+  --ink-well: #12091f;
+  --glass: rgba(36, 22, 70, 0.72);
+  --chalk: #f6f1ff;
+  --haze: #b9aed8;
+  --mute: #a297c8;
+  --hairline: rgba(246, 241, 255, 0.14);
+  --hairline-strong: rgba(246, 241, 255, 0.26);
 
-  /* Solana brand (frame only) */
+  /* theatre materials */
+  --curtain: #8a1734;
+  --curtain-dark: #3d0718;
+  --curtain-light: #c2304f;
+  --brass: #d6b26a;
+  --limelight: #ffd98a;
+  --bulb: #fff3cf;
+
+  /* Solana accents (meaning, not decoration) */
   --sol-purple: #9945ff;
   --sol-purple-light: #b98cff;
   --sol-green: #14f195;
-  --sol-gradient: linear-gradient(
-    100deg,
-    #b57bff 0%,
-    #8f7dff 40%,
-    #3fe0b6 80%,
-    #14f195 100%
-  );
-  --sol-edge: linear-gradient(
-    140deg,
-    rgba(153, 69, 255, 0.6),
-    rgba(153, 69, 255, 0.12) 45%,
-    rgba(20, 241, 149, 0.35)
-  );
+  --sol-gradient: linear-gradient(90deg, #9945ff, #14f195);
 
   /* entry status inks (always paired with an icon, a shape and words) */
   --st-in: #14f195;
-  --st-above: #f6bd55;
+  --st-above: #ff9b73;
   --st-below: #62d3f5;
-  --st-ended: #b3aacd;
-  --st-unknown: #c9c0e6;
+  --st-ended: #b9aed8;
+  --st-unknown: #d9d1f2;
   --danger: #ff7a86;
 
-  /* type */
+  /* type: Apple text styles */
   --font-display:
-    "Big Shoulders Display Variable", "Big Shoulders Display", "Arial Narrow",
-    sans-serif;
+    "Big Shoulders Display Variable", "Big Shoulders Display", sans-serif;
   --font-ui:
-    "Schibsted Grotesk Variable", "Schibsted Grotesk", system-ui, -apple-system,
-    "Segoe UI", sans-serif;
-  --t-caption: 0.75rem;
+    -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, "Segoe UI",
+    Roboto, sans-serif;
+  --t-large: 2.125rem;
+  --t-title1: 1.75rem;
+  --t-title2: 1.375rem;
+  --t-title3: 1.25rem;
+  --t-body: 1.0625rem;
+  --t-callout: 1rem;
+  --t-subhead: 0.9375rem;
   --t-footnote: 0.8125rem;
-  --t-small: 0.875rem;
-  --t-body: 0.9375rem;
-  --t-lead: 1rem;
-  --t-status: 1.25rem;
-  --t-pair: 2.125rem;
+  --t-caption: 0.75rem;
 
-  /* space (4/8 grid), radius, motion */
+  /* space, radius, motion */
   --s1: 4px;
   --s2: 8px;
   --s3: 12px;
   --s4: 16px;
-  --s5: 20px;
-  --s6: 24px;
-  --s7: 32px;
-  --s8: 48px;
+  --s5: 24px;
+  --s6: 32px;
+  --s7: 48px;
   --r-sm: 10px;
-  --r-md: 14px;
-  --r-lg: 20px;
+  --r-md: 16px;
+  --r-lg: 24px;
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-  --ease-curtain: cubic-bezier(0.7, 0, 0.25, 1);
-  --t-state: 220ms;
+  --t-state: 200ms;
 
   /* chrome */
-  --marquee-h: 56px;
+  --valance-h: 56px;
   --tabbar-h: 56px;
-  --column: 440px;
+  --wing: 7.5%;
 }

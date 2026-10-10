@@ -1,4 +1,5 @@
 import type { EntryStatus } from "@relay/domain";
+import type { ReactNode } from "react";
 import { formatAge, formatUsd, formatUsdText } from "../../lib/format";
 import { STATUS_TONE, statusHeadline, statusHint } from "../../lib/status";
 import { Icon, type IconName } from "../ui/Icon";
@@ -15,8 +16,9 @@ const STATUS_ICON: Record<EntryStatus, IconName> = {
 };
 
 /**
- * The entry status: icon, words and shape together, never color alone. The data sits on a flat
- * surface; no glow or gradient behind numbers.
+ * The programme plaque: the entry status as icon, words and pill shape together (filled only for
+ * "In plan range", outlined otherwise, dashed when the price is unknown), never color alone. The
+ * plaque is flat velvet; no glow or gradient sits behind numbers.
  */
 export function StatusBlock({
   status,
@@ -31,6 +33,7 @@ export function StatusBlock({
   price,
   priceAgeMs,
   headingId,
+  window,
 }: {
   status: EntryStatus;
   closingSoon: boolean;
@@ -44,21 +47,25 @@ export function StatusBlock({
   price: { units: string } | null;
   priceAgeMs: number | null;
   headingId: string;
+  /** The entry-window pill, shown beside the status like curtain-sol's badge and countdown. */
+  window: ReactNode;
 }) {
   const copy = { status, closingSoon, msUntilExpiry, expiresAt, priceAgeMs };
   const priceUnits = price ? BigInt(price.units) : null;
-  const tone = STATUS_TONE[status];
   return (
-    <section className="status" data-tone={tone} aria-labelledby={headingId}>
+    <section
+      className="status"
+      data-tone={STATUS_TONE[status]}
+      aria-labelledby={headingId}
+    >
       <div className="status__head">
-        <Icon name={STATUS_ICON[status]} size={24} className="status__icon" />
-        <h3 id={headingId} className="status__headline">
+        <h3 id={headingId} className="status__pill">
+          <Icon name={STATUS_ICON[status]} size={20} className="status__icon" />
           {statusHeadline(copy)}
-          {status === "in_range" && closingSoon && (
-            <Icon name="clock" size={18} className="status__clock" />
-          )}
         </h3>
+        {window}
       </div>
+      <p className="status__hint">{statusHint(copy)}</p>
       <RangeBar
         low={BigInt(entryLowUnits)}
         high={BigInt(entryHighUnits)}
@@ -72,12 +79,13 @@ export function StatusBlock({
         ) : (
           <>
             Now{" "}
-            <span className="num">{formatUsd(priceUnits, quoteDecimals)}</span>
+            <span className="num status__now">
+              {formatUsd(priceUnits, quoteDecimals)}
+            </span>
             {priceAgeMs !== null && <> · updated {formatAge(priceAgeMs)}</>}
           </>
         )}
       </p>
-      <p className="status__hint">{statusHint(copy)}</p>
     </section>
   );
 }

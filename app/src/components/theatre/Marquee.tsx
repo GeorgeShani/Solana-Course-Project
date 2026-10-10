@@ -1,27 +1,41 @@
 import { Link } from "@tanstack/react-router";
+import type { ReactNode } from "react";
 
-const BULBS = 13;
-
-function Bulbs() {
+function Bulbs({ count }: { count: number }) {
   return (
-    <span className="marquee__bulbs" aria-hidden="true">
-      {Array.from({ length: BULBS }, (_, i) => (
-        <span key={i} className="marquee__bulb" />
+    <span className="bulbs" aria-hidden="true">
+      {Array.from({ length: count }, (_, i) => (
+        <span key={i} className="bulb" />
       ))}
     </span>
   );
 }
 
-/** The lit RELAY sign over the stage. The bulbs chase slowly and stop under reduced motion. */
-export function Marquee({ clusterLabel }: { clusterLabel: string | null }) {
+/** The full lit sign from the curtain-sol stage door, shown while the curtain parts. */
+export function MarqueeSign({ sub }: { sub: ReactNode }) {
   return (
-    <header className="marquee">
-      <Link to="/" className="marquee__sign" aria-label="Relay, go to the feed">
-        <Bulbs />
-        <span className="marquee__word">RELAY</span>
-        <Bulbs />
+    <div className="sign">
+      <Bulbs count={11} />
+      <p className="sign__title">RELAY</p>
+      <p className="sign__sub">{sub}</p>
+      <Bulbs count={11} />
+    </div>
+  );
+}
+
+/**
+ * The valance over the stage: scalloped burgundy with a brass hem, carrying the small RELAY sign.
+ * The bulbs chase slowly and stop under reduced motion.
+ */
+export function Valance({ clusterLabel }: { clusterLabel: string | null }) {
+  return (
+    <header className="valance">
+      <Link to="/" className="valance__sign" aria-label="Relay, go to the feed">
+        <Bulbs count={7} />
+        <span className="valance__word">RELAY</span>
+        <Bulbs count={7} />
       </Link>
-      {clusterLabel && <span className="marquee__cluster">{clusterLabel}</span>}
+      {clusterLabel && <span className="valance__cluster">{clusterLabel}</span>}
     </header>
   );
 }
