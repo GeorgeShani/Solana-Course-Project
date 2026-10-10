@@ -8,7 +8,7 @@ The plan is the source of truth for what to build and why. Phases marked `DONE` 
 
 If code and plan disagree, say so and ask rather than silently picking one.
 
-Current work is **Stage 3** of the plan (owner amendment 2026-10-10). Also read the team brief it is based on, [docs/RELAY_HANDOFF_2026-10-10.md](docs/RELAY_HANDOFF_2026-10-10.md).
+Current work is **Stage 3** of the plan (owner amendment 2026-10-10). **Start with [docs/CONTINUE.md](docs/CONTINUE.md)**: what is done, what is next, and the owner's decisions. Also read the team brief it is based on, [docs/RELAY_HANDOFF_2026-10-10.md](docs/RELAY_HANDOFF_2026-10-10.md).
 
 ## What this is
 
