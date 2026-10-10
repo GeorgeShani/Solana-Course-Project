@@ -1,0 +1,150 @@
+import type { ReactNode } from "react";
+
+/** One stroke family for every glyph: 24 grid, 1.75 stroke, round caps and joins. */
+export type IconName =
+  | "feed"
+  | "search"
+  | "plans"
+  | "account"
+  | "star"
+  | "star-filled"
+  | "details"
+  | "in-range"
+  | "above"
+  | "below"
+  | "expired"
+  | "closed"
+  | "unknown"
+  | "clock"
+  | "updated"
+  | "refresh"
+  | "alert"
+  | "chain"
+  | "arrow-up";
+
+const PATHS: Record<IconName, ReactNode> = {
+  feed: (
+    <>
+      <rect x="5" y="3.5" width="14" height="10" rx="2" />
+      <path d="M7 17.5h10M9 20.5h6" />
+    </>
+  ),
+  search: (
+    <>
+      <circle cx="11" cy="11" r="6.5" />
+      <path d="m16 16 4.5 4.5" />
+    </>
+  ),
+  plans: (
+    <>
+      <path d="M4 7.5a2 2 0 0 0 2-2h12a2 2 0 0 0 2 2v9a2 2 0 0 0-2 2H6a2 2 0 0 0-2-2z" />
+      <path d="M9 10h6M9 14h4" />
+    </>
+  ),
+  account: (
+    <>
+      <circle cx="12" cy="9" r="3.5" />
+      <path d="M5 19.5c1.4-3 4-4.5 7-4.5s5.6 1.5 7 4.5" />
+    </>
+  ),
+  star: <path d="m12 3.8 2.5 5.1 5.6.8-4 4 .9 5.6-5-2.7-5 2.7.9-5.6-4-4 5.6-.8z" />,
+  "star-filled": (
+    <path d="m12 3.8 2.5 5.1 5.6.8-4 4 .9 5.6-5-2.7-5 2.7.9-5.6-4-4 5.6-.8z" fill="currentColor" />
+  ),
+  details: <path d="m7 10 5 5 5-5" />,
+  "in-range": (
+    <>
+      <circle cx="12" cy="12" r="9" fill="currentColor" stroke="none" />
+      <path d="m8 12.3 2.7 2.7L16.2 9.5" stroke="var(--icon-knockout, #0b0716)" strokeWidth="2.25" />
+    </>
+  ),
+  above: (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M9 15 15 9M10 9h5v5" />
+    </>
+  ),
+  below: (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M9 9l6 6M15 10v5h-5" />
+    </>
+  ),
+  expired: (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7v5l3 2M5.5 5.5l13 13" />
+    </>
+  ),
+  closed: (
+    <>
+      <rect x="5.5" y="10.5" width="13" height="9" rx="2" />
+      <path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" />
+    </>
+  ),
+  unknown: (
+    <>
+      <circle cx="12" cy="12" r="9" strokeDasharray="3 3" />
+      <path d="M12 8v5M12 16h.01" />
+    </>
+  ),
+  clock: (
+    <>
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="M12 7.5V12l3 1.8" />
+    </>
+  ),
+  updated: (
+    <>
+      <path d="M19 12a7 7 0 1 1-2.1-5" />
+      <path d="M19 4.5V8h-3.5" />
+    </>
+  ),
+  refresh: (
+    <>
+      <path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3" />
+      <path d="M19.5 4v4h-4" />
+    </>
+  ),
+  alert: (
+    <>
+      <path d="M12 4 21 19.5H3z" />
+      <path d="M12 10v4M12 17h.01" />
+    </>
+  ),
+  chain: (
+    <>
+      <path d="M10 14a3.5 3.5 0 0 0 5 0l3-3a3.5 3.5 0 0 0-5-5l-1 1" />
+      <path d="M14 10a3.5 3.5 0 0 0-5 0l-3 3a3.5 3.5 0 0 0 5 5l1-1" />
+    </>
+  ),
+  "arrow-up": <path d="M12 19V5M6 11l6-6 6 6" />,
+};
+
+export function Icon({
+  name,
+  size = 20,
+  className,
+}: {
+  name: IconName;
+  size?: number;
+  className?: string;
+}) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width={size}
+      height={size}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.75"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+      className={className}
+    >
+      {PATHS[name]}
+    </svg>
+  );
+}
