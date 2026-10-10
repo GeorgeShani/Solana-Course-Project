@@ -2,8 +2,14 @@
  * The theatre frame, ported from curtain-sol's app/theatre.css: a purple stage under a warm
  * radial, burgundy drapes in repeating folds gathered at the wings with a brass hem and bead
  * fringe, a scalloped valance, chasing marquee bulbs, a limelight cone and a perspective floor.
- * Data never sits on these materials; it sits on flat velvet plaques (feed.css).
+ * Data never sits on these materials; it sits on flat velvet plaques (feed.css, screens.css).
  */
+
+@property --fold {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 56px;
+}
 
 .theatre {
   background: radial-gradient(
@@ -44,15 +50,16 @@
   min-height: 0;
 }
 
-/* ---------------------------------------------------------------- valance and marquee */
+/* ---------------------------------------------------------------- valance: the header */
 
 .valance {
   position: relative;
   z-index: 35;
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  justify-content: center;
-  padding-top: env(safe-area-inset-top);
+  gap: var(--s3);
+  padding: env(safe-area-inset-top) calc(var(--wing) + var(--s2)) 0;
   background: radial-gradient(
       ellipse 36px 30px at 36px 0,
       var(--curtain-light),
@@ -65,6 +72,7 @@
 }
 
 .valance__sign {
+  grid-column: 2;
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -102,17 +110,18 @@
 }
 
 .valance__end {
-  position: absolute;
-  right: var(--s3);
-  bottom: 10px;
+  grid-column: 3;
+  justify-self: end;
   display: flex;
   align-items: center;
-  gap: var(--s3);
+  gap: var(--s2);
 }
 
-/* Desktop header navigation: links sit on a dark brass-edged rail so they read over the scallops. */
+/* Desktop navigation: one brass-edged rail so the links read over the scallops. */
 .topnav {
   display: none;
+  grid-column: 1;
+  justify-self: start;
 }
 
 .topnav__list {
@@ -122,12 +131,14 @@
   padding: 3px;
   border: 1px solid rgba(214, 178, 106, 0.4);
   border-radius: 999px;
-  background: rgba(15, 8, 32, 0.86);
+  background: rgba(15, 8, 32, 0.88);
 }
 
 .topnav__link {
+  position: relative;
   display: inline-flex;
   align-items: center;
+  gap: 6px;
   min-height: 36px;
   padding: 0 var(--s3);
   border: 0;
@@ -156,7 +167,7 @@
 }
 
 .topnav__link[aria-current="page"] {
-  background: rgba(255, 217, 138, 0.14);
+  background: rgba(255, 217, 138, 0.16);
   color: var(--limelight);
 }
 
@@ -164,38 +175,89 @@
   outline-offset: 1px;
 }
 
+/* Small header controls: the cursor switch and the wallet. */
+.hdr-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s2);
+  min-height: 40px;
+  padding: 0 var(--s3);
+  border: 1px solid rgba(214, 178, 106, 0.45);
+  border-radius: 999px;
+  background: rgba(15, 8, 32, 0.88);
+  color: var(--chalk);
+  font-size: var(--t-footnote);
+  font-weight: 600;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    border-color var(--t-state) var(--ease-out),
+    background-color var(--t-state) var(--ease-out);
+}
+
+@media (hover: hover) {
+  .hdr-btn:hover {
+    border-color: var(--brass);
+    background: rgba(36, 22, 70, 0.95);
+  }
+}
+
+.hdr-btn--icon {
+  width: 40px;
+  padding: 0;
+}
+
+.hdr-btn--icon .cue {
+  width: 30px;
+}
+
+.hdr-btn[aria-pressed="false"] .cue {
+  filter: grayscale(1) brightness(0.8);
+  opacity: 0.7;
+}
+
+.hdr-btn[aria-current="page"] {
+  border-color: var(--limelight);
+}
+
+.hdr-btn--cursor,
+.hdr-btn--account {
+  display: none;
+}
+
 @media (min-width: 900px) {
   .valance {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    align-items: center;
     gap: var(--s4);
-    padding-inline: calc(var(--wing) + var(--s3));
   }
 
-  .valance__sign {
-    grid-column: 2;
-  }
-
-  .topnav--app {
+  .topnav {
     display: block;
-    grid-column: 1;
-    justify-self: start;
   }
 
-  .valance__end {
-    position: static;
-    grid-column: 3;
-    justify-self: end;
+  .hdr-btn--account {
+    display: inline-flex;
   }
 
-  html[data-welcome="on"] .topnav--app {
+  /* The switch only matters where a mouse drives the pointer. */
+  @media (hover: hover) and (pointer: fine) {
+    .hdr-btn--cursor {
+      display: inline-flex;
+    }
+  }
+}
+
+@media (max-width: 899px) {
+  .valance__end .wallet-btn {
     display: none;
   }
+}
 
-  html[data-welcome="on"] .topnav--welcome {
-    display: block;
-  }
+/* The welcome is an introduction, not the app: no navigation and no controls until the curtains open. */
+html[data-welcome="on"] .topnav,
+html[data-welcome="on"] .valance__end {
+  display: none;
 }
 
 .valance__cluster {
@@ -206,6 +268,7 @@
   color: var(--limelight);
   font-size: var(--t-caption);
   font-weight: 600;
+  white-space: nowrap;
 }
 
 .bulbs {
@@ -290,20 +353,22 @@
   position: absolute;
   top: 0;
   bottom: 0;
-  width: calc(var(--wing) + 28px);
+  width: calc(var(--wing) + 24px);
 }
 
 .drapes::before {
   left: 0;
-  background: linear-gradient(90deg, rgba(8, 3, 18, 0.55), transparent);
+  background: linear-gradient(90deg, rgba(8, 3, 18, 0.5), transparent);
 }
 
 .drapes::after {
   right: 0;
-  background: linear-gradient(270deg, rgba(8, 3, 18, 0.55), transparent);
+  background: linear-gradient(270deg, rgba(8, 3, 18, 0.5), transparent);
 }
 
+/* --fold is one pleat. Open drapes hang in wide folds; gathered ones bunch into narrow ones. */
 .drape {
+  --fold: 56px;
   position: absolute;
   top: 0;
   bottom: 0;
@@ -319,10 +384,10 @@
     repeating-linear-gradient(
       90deg,
       var(--curtain-dark) 0px,
-      var(--curtain) 14px,
-      var(--curtain-light) 26px,
-      var(--curtain) 40px,
-      var(--curtain-dark) 56px
+      var(--curtain) calc(var(--fold) * 0.25),
+      var(--curtain-light) calc(var(--fold) * 0.46),
+      var(--curtain) calc(var(--fold) * 0.71),
+      var(--curtain-dark) var(--fold)
     );
   box-shadow: inset 0 -6px 0 var(--brass);
   will-change: transform;
@@ -346,13 +411,24 @@
 .drape--left {
   left: 0;
   transform-origin: top left;
-  transform: scaleX(0.14) skewY(2deg);
 }
 
 .drape--right {
   right: 0;
   transform-origin: top right;
-  transform: scaleX(0.14) skewY(-2deg);
+}
+
+.drapes > .drape {
+  --fold: 10px;
+  width: var(--wing);
+}
+
+.drapes > .drape--left {
+  transform: skewY(2deg);
+}
+
+.drapes > .drape--right {
+  transform: skewY(-2deg);
 }
 
 /* ---------------------------------------------------------------- opening (≤ 1.2 s, once per session) */
@@ -371,33 +447,19 @@ html[data-curtain="on"] .opening {
   animation: sign-rise 0.55s cubic-bezier(0.4, 0, 1, 1) 0.55s both;
 }
 
-html[data-curtain="on"] .drapes > .drape--left {
-  animation: drape-gather-left 1.05s cubic-bezier(0.33, 1, 0.68, 1) 0.1s both;
-}
-
-html[data-curtain="on"] .drapes > .drape--right {
-  animation: drape-gather-right 1.05s cubic-bezier(0.33, 1, 0.68, 1) 0.1s both;
+html[data-curtain="on"] .drapes > .drape {
+  animation: drape-gather 1.05s cubic-bezier(0.33, 1, 0.68, 1) 0.1s both;
 }
 
 html[data-curtain="on"] .valance__sign {
   animation: sign-settle 0.4s var(--ease-out) 0.75s both;
 }
 
-@keyframes drape-gather-left {
+@keyframes drape-gather {
   from {
-    transform: scaleX(1) skewY(0);
-  }
-  to {
-    transform: scaleX(0.14) skewY(2deg);
-  }
-}
-
-@keyframes drape-gather-right {
-  from {
-    transform: scaleX(1) skewY(0);
-  }
-  to {
-    transform: scaleX(0.14) skewY(-2deg);
+    --fold: 56px;
+    width: 51%;
+    transform: none;
   }
 }
 
@@ -502,7 +564,7 @@ html[data-curtain="on"] .valance__sign {
 }
 
 .tabbar__tab[aria-current="page"] {
-  color: var(--chalk);
+  color: var(--limelight);
 }
 
 .tabbar__tab[aria-current="page"]::before {
@@ -513,7 +575,7 @@ html[data-curtain="on"] .valance__sign {
   right: 28%;
   height: 2px;
   border-radius: 0 0 2px 2px;
-  background: var(--sol-gradient);
+  background: var(--limelight);
 }
 
 .tabbar__tab:focus-visible {
@@ -524,7 +586,6 @@ html[data-curtain="on"] .valance__sign {
   background: rgba(246, 241, 255, 0.06);
 }
 
-/* The welcome is an introduction, not the app: no tab bar until the curtains open. */
 html[data-welcome="on"] .tabbar {
   visibility: hidden;
 }
@@ -572,6 +633,89 @@ html[data-welcome="opening"] .tabbar {
     drop-shadow(0 10px 24px rgba(0, 0, 0, 0.45));
 }
 
+/* ---------------------------------------------------------------- Cue as the pointer */
+
+/*
+ * The arrow is replaced only while CueCursor reports that the pointer is over open stage (not
+ * text, not a control, not a form) and Cue has rendered. Everywhere else the native cursor stays.
+ */
+html[data-cue-cursor="show"],
+html[data-cue-cursor="show"] * {
+  cursor: none;
+}
+
+.cue-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 90;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 140ms var(--ease-out);
+}
+
+.cue-cursor[data-state="show"] {
+  opacity: 1;
+}
+
+/* The hotspot: a brass tip exactly at the pointer, so aiming never depends on Cue's outline. */
+.cue-cursor__tip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 12px;
+  height: 12px;
+  margin: -1px 0 0 -1px;
+  background: var(--limelight);
+  clip-path: polygon(0 0, 100% 45%, 45% 100%);
+  filter: drop-shadow(0 1px 1px rgba(7, 2, 15, 0.9));
+}
+
+/* Cue trails just below and right of the tip, so he never covers what the tip points at. */
+.cue-cursor__body {
+  position: absolute;
+  top: 8px;
+  left: 6px;
+  width: 34px;
+}
+
+.cue-cursor__body .cue {
+  width: 34px;
+  filter: drop-shadow(0 3px 4px rgba(7, 2, 15, 0.7));
+  transition: transform 160ms var(--ease-out);
+}
+
+.cue-cursor[data-state="hide"] .cue {
+  transform: scale(0.6) translateY(6px);
+}
+
+/* After a save Cue pops up beside the native pointer with the bookmark, then leaves. */
+.cue-cursor[data-state="react"] {
+  opacity: 1;
+}
+
+.cue-cursor[data-state="react"] .cue-cursor__tip {
+  visibility: hidden;
+}
+
+.cue-cursor[data-state="react"] .cue-cursor__body {
+  top: 14px;
+  left: 14px;
+}
+
+.cue-cursor[data-state="react"] .cue {
+  animation: cue-react 420ms var(--ease-out);
+}
+
+@keyframes cue-react {
+  from {
+    transform: scale(0.5) translateY(8px);
+  }
+  60% {
+    transform: scale(1.15) translateY(-3px);
+  }
+}
+
 /* ---------------------------------------------------------------- welcome (first visit) */
 
 .welcome {
@@ -606,6 +750,11 @@ html[data-welcome="opening"] .valance__sign {
   animation: sign-settle 0.4s var(--ease-out) 0.75s both;
 }
 
+html[data-welcome="opening"] .topnav,
+html[data-welcome="opening"] .valance__end {
+  animation: tabbar-in 0.4s var(--ease-out) 0.8s both;
+}
+
 .welcome__drape {
   position: fixed;
   top: calc(var(--valance-h) + env(safe-area-inset-top) - 3px);
@@ -620,10 +769,10 @@ html[data-welcome="opening"] .valance__sign {
   z-index: 0;
   pointer-events: none;
   background: radial-gradient(
-    80% 62% at 50% 54%,
-    rgba(15, 8, 32, 0.86),
-    rgba(15, 8, 32, 0.6) 55%,
-    rgba(15, 8, 32, 0.12)
+    70% 60% at 50% 52%,
+    rgba(15, 8, 32, 0.88),
+    rgba(15, 8, 32, 0.62) 55%,
+    rgba(15, 8, 32, 0.1)
   );
 }
 
@@ -640,17 +789,16 @@ html[data-welcome="opening"] .welcome::after {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: var(--s3);
-  padding: var(--s4) calc(var(--wing) + var(--s3))
+  gap: var(--s4);
+  padding: var(--s4) calc(var(--wing) + var(--s4))
     calc(var(--s5) + env(safe-area-inset-bottom));
   text-align: center;
 }
 
-/* The sign is the brand, not the message: smaller than the opening's, with a quieter glow. */
 .welcome .sign {
-  width: min(68vw, 300px);
+  width: min(72vw, 320px);
   padding: var(--s2) 0;
-  box-shadow: 0 0 36px -14px rgba(255, 217, 138, 0.5);
+  box-shadow: 0 0 40px -14px rgba(255, 217, 138, 0.55);
 }
 
 .welcome .sign .bulb {
@@ -661,18 +809,8 @@ html[data-welcome="opening"] .welcome::after {
 
 .welcome .sign__title {
   padding: var(--s1) 0;
-  font-size: clamp(2.75rem, 13vw, 4rem);
+  font-size: clamp(3.25rem, 16vw, 4.5rem);
   text-shadow: 0 0 18px rgba(255, 217, 138, 0.4);
-}
-
-.welcome__title {
-  max-width: 16ch;
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: clamp(2.25rem, 10vw, 3rem);
-  line-height: 0.92;
-  letter-spacing: 0.01em;
-  text-wrap: balance;
 }
 
 .welcome__stage {
@@ -707,65 +845,59 @@ html[data-welcome="opening"] .welcome::after {
 }
 
 .welcome__stage .cue {
-  width: min(58vw, 28dvh, 280px);
-  margin: -9% 0 -11%;
+  width: min(64vw, 32dvh, 300px);
+  margin: -8% 0 -10%;
 }
 
-.welcome__lede {
-  max-width: 34ch;
-  font-size: var(--t-callout);
-  line-height: 1.45;
+.welcome__line {
+  max-width: 30ch;
+  font-size: var(--t-body);
+  font-weight: 600;
+  line-height: 1.4;
   color: var(--chalk);
-  text-wrap: pretty;
+  text-wrap: balance;
 }
 
-/* Short phones: Cue and the sign give up height so the message and both actions stay in view. */
+.welcome__actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--s3);
+  width: min(100%, 360px);
+}
+
+.welcome__actions .btn {
+  min-height: var(--ctl);
+  padding: 0 var(--s3);
+}
+
+/* Short phones: Cue and the sign give up height so the line and both actions stay in view. */
 @media (max-height: 700px) and (max-width: 899px) {
   .welcome__scene {
-    gap: var(--s2);
+    gap: var(--s3);
     padding-top: var(--s3);
   }
 
   .welcome .sign__title {
-    font-size: clamp(2.25rem, 11vw, 3rem);
+    font-size: clamp(2.5rem, 12vw, 3.25rem);
   }
 
   .welcome__stage .cue {
-    width: min(48vw, 22dvh, 220px);
+    width: min(50vw, 26dvh, 220px);
   }
-
-  .welcome__title {
-    font-size: clamp(2rem, 9vw, 2.5rem);
-  }
-}
-
-.welcome__actions {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: var(--s3);
-}
-
-.welcome__note {
-  max-width: 34ch;
-  font-size: var(--t-footnote);
-  color: var(--haze);
 }
 
 @media (min-width: 900px) {
   .welcome__scene {
     display: grid;
-    grid-template-columns: min(34vw, 56dvh, 460px) min(30rem, 44vw);
+    grid-template-columns: min(34vw, 56dvh, 460px) 380px;
     grid-template-areas:
       "cue sign"
-      "cue title"
-      "cue lede"
-      "cue actions"
-      "cue note";
+      "cue line"
+      "cue actions";
     align-content: center;
     justify-content: center;
-    column-gap: clamp(var(--s6), 5vw, 80px);
-    row-gap: var(--s4);
+    column-gap: clamp(var(--s6), 6vw, 96px);
+    row-gap: var(--s5);
     max-width: 1120px;
     margin: 0 auto;
     text-align: left;
@@ -773,20 +905,15 @@ html[data-welcome="opening"] .welcome::after {
 
   .welcome__sign {
     grid-area: sign;
+    align-self: end;
   }
 
   .welcome .sign {
-    width: 300px;
+    width: 380px;
   }
 
   .welcome .sign__title {
-    font-size: 4rem;
-  }
-
-  .welcome__title {
-    grid-area: title;
-    max-width: 14ch;
-    font-size: clamp(3.25rem, 5.4vw, 4.5rem);
+    font-size: 5.5rem;
   }
 
   .welcome__stage {
@@ -798,19 +925,16 @@ html[data-welcome="opening"] .welcome::after {
     width: min(34vw, 56dvh, 460px);
   }
 
-  .welcome__lede {
-    grid-area: lede;
-    max-width: 44ch;
-    font-size: var(--t-body);
+  .welcome__line {
+    grid-area: line;
+    max-width: 32ch;
+    font-size: 1.125rem;
   }
 
   .welcome__actions {
     grid-area: actions;
-    justify-content: flex-start;
-  }
-
-  .welcome__note {
-    grid-area: note;
+    align-self: start;
+    width: 100%;
   }
 }
 

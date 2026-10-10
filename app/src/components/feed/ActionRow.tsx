@@ -1,4 +1,5 @@
 import type { EntryStatus } from "@relay/domain";
+import { Link } from "@tanstack/react-router";
 import { reviewUnavailableReason } from "../../lib/status";
 import { Icon } from "../ui/Icon";
 
@@ -7,6 +8,7 @@ import { Icon } from "../ui/Icon";
  * reason instead. Nothing here signs or trades.
  */
 export function ActionRow({
+  planPda,
   status,
   watching,
   onToggleWatch,
@@ -14,6 +16,8 @@ export function ActionRow({
   reviewId,
   label,
 }: {
+  /** Null for the fictional preview, which has no record to review. */
+  planPda: string | null;
   status: EntryStatus;
   watching: boolean;
   onToggleWatch: () => void;
@@ -45,15 +49,16 @@ export function ActionRow({
           <Icon name="script" size={20} />
           View plan
         </button>
-        {status === "in_range" && (
-          <button
-            type="button"
+        {status === "in_range" && planPda && (
+          <Link
+            to="/records/$planPda"
+            params={{ planPda }}
+            hash="follow"
             className="btn btn--primary"
-            disabled
             aria-describedby={reviewId}
           >
             Review trade
-          </button>
+          </Link>
         )}
       </div>
       <p id={reviewId} className="actions__reason">

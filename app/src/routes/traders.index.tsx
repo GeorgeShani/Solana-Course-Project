@@ -2,7 +2,13 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import { Cue } from "../components/cue/Cue";
 import { Avatar } from "../components/theatre/Portrait";
 import { Icon } from "../components/ui/Icon";
+import { KindBadge } from "../components/ui/KindBadge";
+import { PairIcon } from "../components/ui/TokenIcon";
+import { cueReact } from "../lib/cue-cursor";
 import { formatAge, shortAddress } from "../lib/format";
+import { liveEntry } from "../lib/live-status";
+import { STATUS_HEADLINE, STATUS_TONE } from "../lib/status";
+import { toggleWatchedTrader, useWatchedTraders } from "../lib/trader-watch";
 import { traderName, useTraderIndex, type TraderView } from "../lib/traders";
 
 export const Route = createFileRoute("/traders/")({
@@ -12,45 +18,46 @@ export const Route = createFileRoute("/traders/")({
 
 function Traders() {
   const q = useTraderIndex();
+  const watched = useWatchedTraders();
   return (
-    <section className="page" aria-labelledby="traders-title">
-      <h1 id="traders-title" className="page__title">
-        Traders
-      </h1>
-      <p className="page__text">
-        Relay is starting with 10 selected Solana traders: their public ideas,
-        each linked to its original source and time, beside the activity we can
-        verify.
-      </p>
-
-      <aside className="notice" aria-labelledby="selected-title">
-        <Cue pose="unavailable" className="notice__cue" />
-        <div className="notice__body">
-          <h2 id="selected-title" className="notice__title">
-            Selected traders aren't connected yet
-          </h2>
-          <p className="page__text">
-            None of their public sources is connected, so no selected trader is
-            listed. Relay won't fill the gap with made-up profiles.
-          </p>
-          <p className="notice__links">
-            <Link to="/demo">See the fictional walkthrough</Link>
-            <Link to="/how-it-works">How Relay labels evidence</Link>
+    <section
+      className="page page--wide"
+      aria-labelledby="traders-title"
+      data-cursor-zone
+    >
+      <header className="page__head">
+        <div>
+          <h1 id="traders-title" className="page__title">
+            Traders
+          </h1>
+          <p className="page__lede">
+            Wallets that signed plans on Solana through Relay.
           </p>
         </div>
+      </header>
+
+      <aside className="callout" aria-labelledby="selected-title">
+        <Cue pose="unavailable" className="callout__cue" />
+        <div className="callout__body">
+          <h2 id="selected-title" className="callout__title">
+            The 10 selected traders aren't connected yet
+          </h2>
+          <p className="callout__text">
+            Their public sources aren't linked, so they aren't listed. Relay
+            won't fill the gap with made-up profiles.
+          </p>
+        </div>
+        <Link to="/how-it-works" className="btn btn--ghost btn--small">
+          How evidence works
+        </Link>
       </aside>
 
-      <h2 className="page__section">Publishing through Relay</h2>
-      <p className="page__text page__text--quiet">
-        Wallets that signed a plan on Solana through Relay. A wallet is not a
-        person: a name shows only when the wallet has a Relay profile, and
-        seeded demo profiles are marked.
-      </p>
-
       {q.isPending ? (
-        <p className="page__text" aria-busy="true">
-          Reading the wallets behind tonight's plans…
-        </p>
+        <ul className="tgrid" aria-busy="true" aria-label="Loading traders">
+          {[0, 1, 2].map((i) => (
+            <li key={i} className="tcard tcard--ghost" />
+          ))}
+        </ul>
       ) : q.isError ? (
         <div className="notice notice--error" role="status">
           <Cue pose="unavailable" className="notice__cue" />
@@ -73,53 +80,124 @@ function Traders() {
         </p>
       ) : (
         <>
-          <ul className="traders">
+          <ul className="tgrid">
             {q.data.traders.map((t) => (
-              <TraderRow key={t.address} t={t} nowMs={q.data.nowMs} />
+              <TraderCard
+                key={t.address}
+                t={t}
+                nowMs={q.data.nowMs}
+                watching={watched.some((w) => w.address === t.address)}
+              />
             ))}
           </ul>
-          {q.data.truncated && (
-            <p className="page__text page__text--quiet">
-              Showing wallets from the newest plans only.
-            </p>
-          )}
+          <p className="page__text page__text--quiet tgrid__foot">
+            A wallet is not a person. Names come only from a Relay profile;
+            seeded demo profiles are marked.
+            {q.data.truncated && " Showing wallets from the newest plans only."}
+          </p>
         </>
       )}
     </section>
   );
 }
 
-function TraderRow({ t, nowMs }: { t: TraderView; nowMs: number }) {
+function TraderCard({
+  t,
+  nowMs,
+  watching,
+}: {
+  t: TraderView;
+  nowMs: number;
+  watching: boolean;
+}) {
   const named = t.displayName !== null || t.handle !== null;
+  const latest = t.plans[0];
+  const status = latest ? liveEntry(latest, nowMs).status : null;
+  const name = traderName(t);
+  const count = t.plans.length;
+
   return (
-    <li>
-      <Link
-        to="/traders/$address"
-        params={{ address: t.address }}
-        className="trader-row"
-      >
-        <Avatar seed={t.address} size={44} />
-        <span className="trader-row__text">
-          <span className="trader-row__name">
-            {traderName(t)}
+    <li className="tcard lift">
+      <div className="tcard__head">
+        <Avatar seed={t.address} size={56} />
+        <div className="tcard__who">
+          <Link
+            to="/traders/$address"
+            params={{ address: t.address }}
+            className="tcard__link"
+          >
+            {name}
+          </Link>
+          <p className="tcard__meta">
+            {named && t.handle && <>@{t.handle} · </>}
+            <span className="num">{shortAddress(t.address)}</span>
+          </p>
+          <p className="tcard__badges">
             {t.isDemo ? (
               <span className="badge">Demo creator</span>
             ) : (
               !named && <span className="badge badge--quiet">Wallet only</span>
             )}
-          </span>
-          <span className="trader-row__meta">
-            {named && t.handle && <>@{t.handle} · </>}
-            <span className="num">{shortAddress(t.address)}</span>
-          </span>
-          <span className="trader-row__meta">
-            <span className="num">{t.plans.length}</span>{" "}
-            {t.plans.length === 1 ? "plan" : "plans"} · latest{" "}
-            {formatAge(Math.max(0, nowMs - t.latestPublishedAt * 1000))}
-          </span>
+          </p>
+        </div>
+      </div>
+
+      <p className="tcard__basis">
+        <KindBadge kind="relay_plan" />
+        <span className="tcard__meta">
+          Signed <span className="num">{count}</span>{" "}
+          {count === 1 ? "plan" : "plans"}
         </span>
-        <Icon name="details" size={18} className="trader-row__chevron" />
-      </Link>
+      </p>
+
+      {latest && status && (
+        <div className="tcard__latest">
+          <PairIcon
+            base={latest.pair.baseSymbol}
+            quote={latest.pair.quoteSymbol}
+            size={28}
+          />
+          <div className="tcard__latest-text">
+            <p className="tcard__latest-title">{latest.pair.label} buy plan</p>
+            <p className="tcard__latest-now">
+              <span
+                className="watchlist__status"
+                data-tone={STATUS_TONE[status]}
+              >
+                {STATUS_HEADLINE[status]}
+              </span>
+              <span className="tcard__meta">
+                {formatAge(Math.max(0, nowMs - t.latestPublishedAt * 1000))}
+              </span>
+            </p>
+          </div>
+        </div>
+      )}
+
+      <div className="tcard__actions">
+        <button
+          type="button"
+          className="btn btn--glass btn--small"
+          aria-pressed={watching}
+          data-on={watching}
+          aria-label={watching ? `Stop watching ${name}` : `Watch ${name}`}
+          onClick={() => {
+            const on = toggleWatchedTrader(
+              t.address,
+              name,
+              t.latestPublishedAt,
+            );
+            if (on) cueReact();
+          }}
+        >
+          <Icon name={watching ? "star-filled" : "star"} size={16} />
+          {watching ? "Watching" : "Watch"}
+        </button>
+        <span className="tcard__open" aria-hidden="true">
+          Profile
+          <Icon name="next" size={16} />
+        </span>
+      </div>
     </li>
   );
 }

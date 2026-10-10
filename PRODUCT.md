@@ -40,11 +40,13 @@ The unit of truth is the follower's own execution against a specific, immutable 
 ## Operating Context
 
 - Discovery flow: browse trader activity (Discover) → open a trader profile with source links and supported identity → open a record to see what was posted, when, and what evidence exists → watch a trader or record without a wallet → return to the Watchlist for updates → connect a wallet only when a supported action needs it.
-- Navigation (owner decision 2026-10-10): Discover, Traders, Watchlist, Account. On phones a bottom tab bar inside the app only (never on the welcome); on desktop the same destinations plus How it works in the header. Old `/me` and `/search` links redirect to `/watchlist` and `/traders`. Publishing is an action, not a tab.
+- Navigation (owner decision 2026-10-10): Discover, Traders, Watchlist, Account. On phones a bottom tab bar inside the app only (never on the welcome). On desktop a compact header with Discover, Traders, Watchlist and How it works, a clear active state, the network chip, the Cue cursor switch, an Account link and the wallet control. Old `/me` and `/search` links redirect to `/watchlist` and `/traders`. Publishing is an action, not a tab.
 - Discover is a vertical, card-by-card feed (no auto-advance).
-- Watching a trader or a record needs no wallet; it is stored in the browser.
-- A wallet is requested only to review a trade or publish a plan.
-- The demo runs on a local Surfpool mainnet fork in desktop Chrome at a 390×844 viewport with a labelled local burner wallet.
+- Watching a trader or a record needs no wallet; it is stored in the browser and labelled "Stored in this browser only".
+- Watchlist has three tabs: Traders, Records, and History (a public wallet lookup of verified receipts, prefilled from a connected wallet).
+- A wallet is requested only to follow a plan or publish one. Wallets connect through the Wallet Standard (no SDK): choose → connecting → connected, cancelled or failed, with install steps when none is found. Connecting shares the address only and never asks for a signature.
+- Following happens on the record page in a Jupiter-clear panel: amount → fresh quote → review the guaranteed minimum, fees, quote expiry and the plan's range and window → explicit approval in the wallet (sign only) → Relay sends it to this build's network itself → pending → a verified receipt or a failure that stays a failure. The network is named before signing.
+- The demo runs on a local Surfpool mainnet fork in desktop Chrome at a 390×844 viewport with a test wallet.
 
 ## Capabilities and Constraints
 
@@ -60,13 +62,14 @@ The unit of truth is the follower's own execution against a specific, immutable 
 - **Theatre identity, recolored in Solana colors** (owner decision 2026-10-09): opening curtain, the RELAY marquee with chasing bulbs, a restrained spotlight behind the active card, and a closing-curtain / end-of-feed moment.
 - The original showcase reference is the `curtain-sol` prototype (theatre components in `app/components/theatre/*`). Its interaction model (lobby gate, Stories swipe, auto-advance, particle burst) is replaced; its identity stays.
 - Spectacle frames the data and never decorates it. Financial information stays flat, calm and readable.
-- **First visit: a closed-curtain welcome** (owner decisions 2026-10-10, replaces "never gates the feed"). It is an introduction, not the feed: no tab bar; a compact desktop header (Explore, How it works, Watchlist); a minimal phone header. Cue greets the visitor beside the RELAY marquee with "Meet the traders. Follow the evidence.", "Discover Solana traders, explore their public ideas, and see the activity we can verify.", "Explore traders" and a separate "Try the demo". The curtains open only on Explore. On short screens it scrolls rather than crops. Deep links and returning visitors skip it; returning visitors get the short once-per-session opening, which is off under reduced motion. "Follow the plan. See the proof." stays with Relay-native plan sections.
+- **First visit: a closed-curtain welcome** (owner decisions 2026-10-10, replaces "never gates the feed"). It is an introduction, not the feed: no tab bar, no app navigation, no wallet. Cue greets the visitor beside the RELAY marquee with one line, "Discover Solana traders. Explore their ideas. Check the evidence.", then "Explore traders" and a separate "Try the demo". Cue reacts and the curtains open only on Explore; they never replay on a route change. On short screens it scrolls rather than crops. Deep links and returning visitors skip it; returning visitors get the short once-per-session opening, which is off under reduced motion. "Follow the plan. See the proof." stays with Relay-native plan sections.
 - **Cue, the usher mascot:** a purple gecko in a burgundy usher jacket, always drawn from the owner's Figma poses, never redrawn. Cue leads the storytelling moments (welcome, end of feed, demo, empty and error states) and stays small and supportive around plans and trades. Cue never says a trade is good, never celebrates a result, and never appears with invented numbers.
+- **Cue cursor** (owner request 2026-10-10): on desktop with a mouse, a tiny Cue (34 px) trails a limelight tip that marks the exact hotspot, over open stage only. Text, controls, inputs, financial forms and dialogs keep the native cursor; touch and reduced motion always do. It never takes pointer events, reacts briefly when something is watched, and can be switched off in the header or Account.
 - **Demo vs real:** the only fictional walkthrough is `/demo` (Mika, simulated prices), always bannered "Fictional demo · simulated prices · no real trades". It shows a fictional public post beside a fictional Relay plan, each labelled, so the difference is visible. It never writes to the real watch list or calls the API. Until real trader sources exist, Relay shows no selected-trader profiles at all rather than ten real-looking ones.
 
 ## Evidence on Hand
 
-- **Connected:** onchain plans, versions and hashes from the Relay program on a Surfpool fork (`GET /feed`, `GET /plans/:pda`); verified follow receipts and failed attempts by wallet (`GET /me/executions`); advisory prices (`GET /prices`).
+- **Connected:** onchain plans, versions and hashes from the Relay program on a Surfpool fork (`GET /feed`, `GET /plans/:pda`); verified follow receipts and failed attempts by wallet (`GET /me/executions`); advisory prices (`GET /prices`); follow quotes and verification (`POST /follow/quote`, `POST /follow/verify`) from the record page's follow panel.
 - **Derived in the app:** the Traders list and profiles group the feed's plans by the wallet that signed them (the server has no creator or search route yet).
 - **Not connected yet:** the 10 selected traders and their public sources (no ingestion, no source table); public posts; other on-chain activity for a wallet; linked-wallet proofs (Phase 16); follower receipts per plan; public explorer links on the local fork.
 - Fictional: demo creators created by `server/scripts/seed-demo.ts` are flagged `is_demo` and must be badged. A dev-only preview fixture feed (`?preview=fictional`) is allowed, badged FICTIONAL PREVIEW on every card, and contains no signatures, receipts or follower results.
@@ -83,4 +86,5 @@ The unit of truth is the follower's own execution against a specific, immutable 
 
 - WCAG AA text contrast on the dark stage; status never relies on color alone.
 - Full keyboard use of the feed; ARIA feed pattern; polite announcements for status changes on the active card only.
-- `prefers-reduced-motion` turns off the curtain, bulb chase, spotlight easing and smooth scrolling.
+- `prefers-reduced-motion` turns off the curtain, bulb chase, spotlight easing, smooth scrolling, scene slides and the Cue cursor.
+- Tabs and the How it works walkthrough work with arrow keys; moving to a new scene moves focus to its title.

@@ -7,15 +7,18 @@ import {
 import type { ReactNode } from "react";
 import { Providers } from "../components/Providers";
 import { Cue } from "../components/cue/Cue";
+import { CueCursor } from "../components/cue/CueCursor";
 import {
   CURTAIN_BOOT_SCRIPT,
   Drapes,
 } from "../components/theatre/CurtainIntro";
 import { Valance } from "../components/theatre/Marquee";
 import { TabBar } from "../components/ui/TabBar";
+import { WalletDialog } from "../components/wallet/WalletDialog";
 import { CLUSTER, CLUSTER_LABEL } from "../lib/config";
 import baseCss from "../styles/base.css?url";
 import feedCss from "../styles/feed.css?url";
+import screensCss from "../styles/screens.css?url";
 import theatreCss from "../styles/theatre.css?url";
 import tokensCss from "../styles/tokens.css?url";
 
@@ -42,6 +45,7 @@ export const Route = createRootRoute({
       { rel: "stylesheet", href: baseCss },
       { rel: "stylesheet", href: theatreCss },
       { rel: "stylesheet", href: feedCss },
+      { rel: "stylesheet", href: screensCss },
     ],
   }),
   shellComponent: RootDocument,
@@ -69,6 +73,8 @@ function RootDocument({ children }: { children: ReactNode }) {
             <Drapes />
             <TabBar />
           </div>
+          <WalletDialog />
+          <CueCursor />
         </Providers>
         <Scripts />
       </body>
@@ -78,11 +84,11 @@ function RootDocument({ children }: { children: ReactNode }) {
 
 function NotFound() {
   return (
-    <section className="page">
+    <section className="page page--center" data-cursor-zone>
       <Cue pose="unavailable" className="page__cue cue--lit" />
       <h1 className="page__title">Not on tonight's programme</h1>
       <p className="page__text">This page doesn't exist.</p>
-      <Link to="/" className="btn btn--ghost">
+      <Link to="/" className="btn btn--primary btn--large">
         Back to Discover
       </Link>
     </section>

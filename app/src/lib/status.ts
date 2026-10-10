@@ -72,7 +72,7 @@ export function statusHint(input: StatusCopyInput): string {
 export function reviewUnavailableReason(status: EntryStatus): string {
   switch (status) {
     case "in_range":
-      return "Trade review isn't available in this build yet";
+      return "Review a fresh quote, then approve in your wallet";
     case "above_range":
       return "Original entry passed — no Relay entry available";
     case "below_range":

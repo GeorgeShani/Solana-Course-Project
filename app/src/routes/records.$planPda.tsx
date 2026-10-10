@@ -4,9 +4,11 @@ import { useState } from "react";
 import { Cue } from "../components/cue/Cue";
 import { StatusBlock } from "../components/feed/StatusBlock";
 import { WatchToast } from "../components/feed/WatchToast";
+import { TradePanel } from "../components/trade/TradePanel";
 import { BackLink } from "../components/ui/BackLink";
 import { Icon } from "../components/ui/Icon";
 import { KindBadge } from "../components/ui/KindBadge";
+import { PairIcon } from "../components/ui/TokenIcon";
 import {
   ApiUnavailableError,
   fetchPlan,
@@ -36,17 +38,15 @@ function RecordPage() {
   });
 
   return (
-    <section className="page" aria-labelledby="record-title">
+    <section className="page page--wide" aria-labelledby="record-title">
       <BackLink fallback="/" label="Discover" />
       {q.isPending ? (
-        <>
+        <div className="skeleton-block" aria-busy="true">
           <h1 id="record-title" className="page__title">
             Record
           </h1>
-          <p className="page__text" aria-busy="true">
-            Reading the record and its evidence…
-          </p>
-        </>
+          <p className="page__text">Reading the record and its evidence…</p>
+        </div>
       ) : q.isError ? (
         <div className="notice notice--error" role="status">
           <Cue pose="unavailable" className="notice__cue" />
@@ -61,12 +61,19 @@ function RecordPage() {
               {q.error instanceof ApiUnavailableError &&
                 " Relay's service may be down, or no plan exists at this address."}
             </p>
-            <p className="notice__links">
-              <button type="button" onClick={() => void q.refetch()}>
+            <div className="notice__actions">
+              <button
+                type="button"
+                className="btn btn--glass btn--small"
+                onClick={() => void q.refetch()}
+              >
+                <Icon name="refresh" size={16} />
                 Try again
               </button>
-              <Link to="/">Discover</Link>
-            </p>
+              <Link to="/" className="btn btn--ghost btn--small">
+                Discover
+              </Link>
+            </div>
           </div>
         </div>
       ) : (
@@ -120,235 +127,274 @@ function Record({
   return (
     <>
       <WatchToast toast={toast} onDismiss={() => setToast(null)} onPage />
-      <p className="record__kinds">
-        <KindBadge kind="relay_plan" />
-        {card.creator.isDemo && <span className="badge">Demo creator</span>}
-      </p>
-      <h1 id="record-title" className="page__title record__title">
-        {card.pair.label} <span className="record__title-sub">Buy plan</span>
-      </h1>
-      <p className="record__tagline">Follow the plan. See the proof.</p>
-      <p className="record__byline">
-        By{" "}
-        <Link to="/traders/$address" params={{ address: card.creator.address }}>
-          {creatorName(card)}
-        </Link>{" "}
-        · published <time>{formatTimestamp(v.publishedAt)}</time> (chain time)
-      </p>
-      <div className="record__actions">
-        <button
-          type="button"
-          className="btn btn--glass"
-          data-on={watching}
-          aria-pressed={watching}
-          onClick={toggle}
-        >
-          <Icon name={watching ? "star-filled" : "star"} size={18} />
-          {watching ? "Watching" : "Watch"}
-        </button>
-        <Link to="/" search={{ plan: card.planPda }} className="btn btn--glass">
-          Open in Discover
-        </Link>
-      </div>
+      <header className="record-hero">
+        <PairIcon
+          base={card.pair.baseSymbol}
+          quote={card.pair.quoteSymbol}
+          size={40}
+        />
+        <div className="record-hero__text">
+          <p className="record__kinds">
+            <KindBadge kind="relay_plan" />
+            {card.creator.isDemo && <span className="badge">Demo creator</span>}
+          </p>
+          <h1 id="record-title" className="page__title record__title">
+            {card.pair.label}
+            <span className="record__title-sub">Buy plan</span>
+          </h1>
+          <p className="record__byline">
+            By{" "}
+            <Link
+              to="/traders/$address"
+              params={{ address: card.creator.address }}
+            >
+              {creatorName(card)}
+            </Link>{" "}
+            · published <time>{formatTimestamp(v.publishedAt)}</time> (chain
+            time)
+          </p>
+        </div>
+        <div className="record__actions">
+          <button
+            type="button"
+            className="btn btn--glass"
+            data-on={watching}
+            aria-pressed={watching}
+            onClick={toggle}
+          >
+            <Icon name={watching ? "star-filled" : "star"} size={18} />
+            {watching ? "Watching" : "Watch"}
+          </button>
+          <Link
+            to="/"
+            search={{ plan: card.planPda }}
+            className="btn btn--ghost"
+          >
+            Open in Discover
+          </Link>
+        </div>
+      </header>
       {storageError && (
         <p className="watchlist__error" role="alert">
           Couldn't save: this browser is blocking local storage.
         </p>
       )}
 
-      <h2 className="page__section">What was posted</h2>
-      <dl className="facts">
-        <div>
-          <dt>Entry range</dt>
-          <dd className="num">
-            {formatUsdText(v.entryLow)} – {formatUsdText(v.entryHigh)}
-          </dd>
-        </div>
-        <div>
-          <dt>Window</dt>
-          <dd>
-            Until <time>{formatTimestamp(v.expiresAt)}</time>
-          </dd>
-        </div>
-        {v.text ? (
-          <>
-            <div>
-              <dt>Why</dt>
-              <dd>“{v.text.rationale}”</dd>
-            </div>
-            <div>
-              <dt>Exit idea</dt>
-              <dd>
-                {v.text.exitThesis}
-                {v.text.exitTarget && (
-                  <span className="facts__note">
-                    Target{" "}
-                    <span className="num">
-                      {formatUsdText(v.text.exitTarget)}
-                    </span>
-                  </span>
-                )}
-              </dd>
-            </div>
-            <div>
-              <dt>Off if</dt>
-              <dd>
-                {v.text.invalidation ?? (
-                  <span className="facts__missing">Not stated.</span>
-                )}
-              </dd>
-            </div>
-            <div>
-              <dt>Price seen</dt>
-              <dd>
-                {v.text.refPrice ? (
-                  <>
-                    <span className="num">
-                      {formatUsdText(v.text.refPrice.display)}
-                    </span>
-                    <span className="facts__note">
-                      As the creator recorded it, from {v.text.refPrice.source}.
-                    </span>
-                  </>
-                ) : (
-                  <span className="facts__missing">Not recorded.</span>
-                )}
-              </dd>
-            </div>
-          </>
-        ) : (
-          <div>
-            <dt>Text</dt>
-            <dd>
-              <span className="facts__missing">Unavailable.</span>
-              <span className="facts__note">
-                Only the terms and the text's hash are on Solana; the text
-                itself hasn't reached Relay.
-              </span>
-            </dd>
-          </div>
-        )}
-      </dl>
-      <p className="page__text page__text--quiet">
-        An exit idea is not a stop-loss order. Nothing is sold for you.
-      </p>
-
-      <h2 className="page__section">Status now</h2>
-      <StatusBlock
-        status={live.status}
-        closingSoon={live.closingSoon}
-        msUntilExpiry={live.msUntilExpiry}
-        expiresAt={v.expiresAt}
-        entryLowUnits={v.entryLowUnits}
-        entryHighUnits={v.entryHighUnits}
-        entryLow={v.entryLow}
-        entryHigh={v.entryHigh}
-        quoteDecimals={card.pair.quoteDecimals}
-        price={card.entry.price}
-        priceAgeMs={priceAgeMs}
-        headingId="record-status"
-        window={
-          <span className="chip">
-            <Icon name="clock" size={15} />
-            {live.msUntilExpiry > 0 && live.status !== "closed" ? (
-              <>
-                Closes in{" "}
-                <span className="num">
-                  {formatDuration(live.msUntilExpiry)}
+      <div className="record-grid">
+        <div className="record-main">
+          <section aria-labelledby="record-status">
+            <StatusBlock
+              status={live.status}
+              closingSoon={live.closingSoon}
+              msUntilExpiry={live.msUntilExpiry}
+              expiresAt={v.expiresAt}
+              entryLowUnits={v.entryLowUnits}
+              entryHighUnits={v.entryHighUnits}
+              entryLow={v.entryLow}
+              entryHigh={v.entryHigh}
+              quoteDecimals={card.pair.quoteDecimals}
+              price={card.entry.price}
+              priceAgeMs={priceAgeMs}
+              headingId="record-status"
+              window={
+                <span className="chip">
+                  <Icon name="clock" size={15} />
+                  {live.msUntilExpiry > 0 && live.status !== "closed" ? (
+                    <>
+                      Closes in{" "}
+                      <span className="num">
+                        {formatDuration(live.msUntilExpiry)}
+                      </span>
+                    </>
+                  ) : (
+                    "Window ended"
+                  )}
                 </span>
-              </>
-            ) : (
-              "Window ended"
-            )}
-          </span>
-        }
-      />
+              }
+            />
+          </section>
 
-      <h2 className="page__section">Evidence</h2>
-      <dl className="facts">
-        <div>
-          <dt>Source</dt>
-          <dd>
-            Relay's program on Solana ({CLUSTER_LABEL[card.cluster]})
-            <span className="facts__note">
-              The creator's wallet signed this plan; the server re-read it from
-              the chain.
-            </span>
-          </dd>
-        </div>
-        <div>
-          <dt>Plan account</dt>
-          <dd>
-            <span className="num facts__id">{card.planPda}</span>
-            {planExplorer ? (
-              <a href={planExplorer} target="_blank" rel="noreferrer">
-                View on Solana Explorer
-                <Icon name="external" size={14} />
-              </a>
-            ) : (
-              <span className="facts__note">
-                No public explorer for the local fork.
-              </span>
-            )}
-          </dd>
-        </div>
-        <div>
-          <dt>Version {v.version}</dt>
-          <dd className="num facts__id">{v.versionPda}</dd>
-        </div>
-        <div>
-          <dt>Terms hash</dt>
-          <dd className="num facts__id">{v.termsHash}</dd>
-        </div>
-        <div>
-          <dt>Text hash</dt>
-          <dd>
-            <span className="num facts__id">{v.contentHash}</span>
-            <span className="facts__note">
-              {v.text
-                ? "The text above matches this hash."
-                : "No text to check against it yet."}
-            </span>
-          </dd>
-        </div>
-        <div>
-          <dt>Followers</dt>
-          <dd>
-            <span className="facts__missing">Not shown per plan yet.</span>
-            <span className="facts__note">
-              Verified receipts can be looked up by wallet in the{" "}
-              <Link to="/watchlist">Watchlist</Link>.
-            </span>
-          </dd>
-        </div>
-      </dl>
+          <section className="panel" aria-labelledby="posted-title">
+            <h2 id="posted-title" className="panel__title">
+              What was posted
+            </h2>
+            <dl className="facts">
+              <div>
+                <dt>Entry</dt>
+                <dd className="num">
+                  {formatUsdText(v.entryLow)} – {formatUsdText(v.entryHigh)}
+                </dd>
+              </div>
+              <div>
+                <dt>Window</dt>
+                <dd>
+                  Until <time>{formatTimestamp(v.expiresAt)}</time>
+                </dd>
+              </div>
+              {v.text ? (
+                <>
+                  <div>
+                    <dt>Why</dt>
+                    <dd>“{v.text.rationale}”</dd>
+                  </div>
+                  <div>
+                    <dt>Exit idea</dt>
+                    <dd>
+                      {v.text.exitThesis}
+                      {v.text.exitTarget && (
+                        <span className="facts__note">
+                          Target{" "}
+                          <span className="num">
+                            {formatUsdText(v.text.exitTarget)}
+                          </span>
+                          . Not a stop order: nothing is sold for you.
+                        </span>
+                      )}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Off if</dt>
+                    <dd>
+                      {v.text.invalidation ?? (
+                        <span className="facts__missing">Not stated.</span>
+                      )}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Price seen</dt>
+                    <dd>
+                      {v.text.refPrice ? (
+                        <>
+                          <span className="num">
+                            {formatUsdText(v.text.refPrice.display)}
+                          </span>
+                          <span className="facts__note">
+                            Recorded by the creator, from{" "}
+                            {v.text.refPrice.source}.
+                          </span>
+                        </>
+                      ) : (
+                        <span className="facts__missing">Not recorded.</span>
+                      )}
+                    </dd>
+                  </div>
+                </>
+              ) : (
+                <div>
+                  <dt>Text</dt>
+                  <dd>
+                    <span className="facts__missing">Unavailable.</span>
+                    <span className="facts__note">
+                      Only the terms and the text's hash are on Solana.
+                    </span>
+                  </dd>
+                </div>
+              )}
+            </dl>
+          </section>
 
-      <h2 className="page__section">Version history</h2>
-      <ol className="versions">
-        {versions.map((x) => (
-          <li key={x.versionPda}>
-            <span className="versions__head">
-              Version {x.version}
-              {x.version === v.version && " · current"}
-            </span>
-            <span className="versions__meta">
-              <time>{formatTimestamp(x.publishedAt)}</time> · entry{" "}
-              <span className="num">
-                {formatUsdText(x.entryLow)} – {formatUsdText(x.entryHigh)}
-              </span>
-            </span>
-          </li>
-        ))}
-      </ol>
+          <section className="panel" aria-labelledby="evidence-title">
+            <h2 id="evidence-title" className="panel__title">
+              Evidence
+            </h2>
+            <dl className="facts">
+              <div>
+                <dt>Source</dt>
+                <dd>
+                  Relay's program on Solana ({CLUSTER_LABEL[card.cluster]})
+                  <span className="facts__note">
+                    Signed by the creator's wallet, re-read from the chain.
+                  </span>
+                </dd>
+              </div>
+              <div>
+                <dt>Plan account</dt>
+                <dd>
+                  <span className="num facts__id">{card.planPda}</span>
+                  {planExplorer ? (
+                    <a href={planExplorer} target="_blank" rel="noreferrer">
+                      View on Solana Explorer
+                      <Icon name="external" size={14} />
+                    </a>
+                  ) : (
+                    <span className="facts__note">
+                      No public explorer for the local fork.
+                    </span>
+                  )}
+                </dd>
+              </div>
+              <div>
+                <dt>Terms hash</dt>
+                <dd className="num facts__id">{v.termsHash}</dd>
+              </div>
+              <div>
+                <dt>Text hash</dt>
+                <dd>
+                  <span className="num facts__id">{v.contentHash}</span>
+                  <span className="facts__note">
+                    {v.text
+                      ? "The text above matches this hash."
+                      : "No text to check against it yet."}
+                  </span>
+                </dd>
+              </div>
+              <div>
+                <dt>Followers</dt>
+                <dd>
+                  <span className="facts__missing">
+                    Not shown per plan yet.
+                  </span>
+                  <span className="facts__note">
+                    Look up verified receipts by wallet in the{" "}
+                    <Link to="/watchlist" search={{ tab: "history" }}>
+                      Watchlist
+                    </Link>
+                    .
+                  </span>
+                </dd>
+              </div>
+            </dl>
+            <details className="disclosure">
+              <summary>
+                Version history · {versions.length}
+                <Icon name="details" size={16} />
+              </summary>
+              <ol className="versions">
+                {versions.map((x) => (
+                  <li key={x.versionPda}>
+                    <span className="versions__head">
+                      Version {x.version}
+                      {x.version === v.version && " · current"}
+                    </span>
+                    <span className="versions__meta">
+                      <time>{formatTimestamp(x.publishedAt)}</time> · entry{" "}
+                      <span className="num">
+                        {formatUsdText(x.entryLow)} –{" "}
+                        {formatUsdText(x.entryHigh)}
+                      </span>
+                    </span>
+                    <span className="versions__meta num facts__id">
+                      {x.versionPda}
+                    </span>
+                  </li>
+                ))}
+              </ol>
+            </details>
+          </section>
+        </div>
 
-      <h2 className="page__section">Following this plan</h2>
-      <p className="page__text">
-        {live.status === "expired" || live.status === "closed"
-          ? "The entry window has ended, so this plan can't be followed."
-          : live.status === "in_range"
-            ? "Following means a fresh quote checked against this plan's range and window, approved in your own wallet. Reviewing a trade isn't available in this build yet."
-            : "Following opens only while the price is inside the plan's range. Watching never trades."}
-      </p>
+        <aside
+          className="record-side"
+          id="follow"
+          aria-label="Follow this plan"
+        >
+          <TradePanel
+            card={card}
+            status={live.status}
+            msUntilExpiry={live.msUntilExpiry}
+          />
+        </aside>
+      </div>
     </>
   );
 }

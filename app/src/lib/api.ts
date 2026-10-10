@@ -352,6 +352,189 @@ export async function fetchExecutions(
   return r.items.map((v, i) => parseExecution(v, `executions.items[${i}]`));
 }
 
+/** A request the server understood and refused (4xx), with its error code. */
+export class ApiRequestError extends Error {
+  readonly status: number;
+  readonly code: string;
+  constructor(status: number, code: string, message: string) {
+    super(message);
+    this.name = "ApiRequestError";
+    this.status = status;
+    this.code = code;
+  }
+}
+
+interface Amount {
+  units: string;
+  display: string;
+  symbol: string;
+}
+
+/** The server's review of one follow: what it costs, what it gets, and how to rebuild the transaction. */
+export interface QuoteView {
+  summary: {
+    planPda: string;
+    version: number;
+    follower: string;
+    pay: Amount;
+    receive: Amount;
+    minimumReceive: Amount;
+    effectivePrice: { units: string; display: string };
+    entryRange: { low: string; high: string };
+    check: "ok" | "may_fail_near_upper_bound";
+    routeLabels: string[];
+    fees: {
+      networkLamports: string;
+      priorityLamports: string;
+      receiptRentLamports: string;
+    };
+    planExpiresAt: number;
+    quoteExpiresAtMs: number;
+  };
+  compose: {
+    /** Jupiter's build response; the domain parser checks it before anything is composed. */
+    build: unknown;
+    blockhash: string;
+    lastValidBlockHeight: string;
+    nonce: string;
+    computeUnitLimit: number;
+    maxQuoteIn: string;
+  };
+}
+
+function amount(v: unknown, path: string): Amount {
+  const r = rec(v, path);
+  return {
+    units: digits(r.units, `${path}.units`),
+    display: str(r.display, `${path}.display`),
+    symbol: str(r.symbol, `${path}.symbol`),
+  };
+}
+
+export function parseQuote(v: unknown): QuoteView {
+  const r = rec(v, "quote");
+  const s = rec(r.summary, "quote.summary");
+  const c = rec(r.compose, "quote.compose");
+  const price = rec(s.effectivePrice, "quote.summary.effectivePrice");
+  const range = rec(s.entryRange, "quote.summary.entryRange");
+  const fees = rec(s.fees, "quote.summary.fees");
+  const check = s.check;
+  if (check !== "ok" && check !== "may_fail_near_upper_bound")
+    throw new ApiContractError("quote.summary.check is not a known check");
+  if (!Array.isArray(s.routeLabels))
+    throw new ApiContractError("quote.summary.routeLabels must be an array");
+  return {
+    summary: {
+      planPda: str(s.planPda, "quote.summary.planPda"),
+      version: num(s.version, "quote.summary.version"),
+      follower: str(s.follower, "quote.summary.follower"),
+      pay: amount(s.pay, "quote.summary.pay"),
+      receive: amount(s.receive, "quote.summary.receive"),
+      minimumReceive: amount(s.minimumReceive, "quote.summary.minimumReceive"),
+      effectivePrice: {
+        units: digits(price.units, "quote.summary.effectivePrice.units"),
+        display: str(price.display, "quote.summary.effectivePrice.display"),
+      },
+      entryRange: {
+        low: str(range.low, "quote.summary.entryRange.low"),
+        high: str(range.high, "quote.summary.entryRange.high"),
+      },
+      check,
+      routeLabels: s.routeLabels.map((l, i) =>
+        str(l, `quote.summary.routeLabels[${i}]`),
+      ),
+      fees: {
+        networkLamports: digits(fees.networkLamports, "fees.networkLamports"),
+        priorityLamports: digits(
+          fees.priorityLamports,
+          "fees.priorityLamports",
+        ),
+        receiptRentLamports: digits(
+          fees.receiptRentLamports,
+          "fees.receiptRentLamports",
+        ),
+      },
+      planExpiresAt: num(s.planExpiresAt, "quote.summary.planExpiresAt"),
+      quoteExpiresAtMs: num(
+        s.quoteExpiresAtMs,
+        "quote.summary.quoteExpiresAtMs",
+      ),
+    },
+    compose: {
+      build: c.build,
+      blockhash: str(c.blockhash, "quote.compose.blockhash"),
+      lastValidBlockHeight: digits(
+        c.lastValidBlockHeight,
+        "quote.compose.lastValidBlockHeight",
+      ),
+      nonce: digits(c.nonce, "quote.compose.nonce"),
+      computeUnitLimit: num(
+        c.computeUnitLimit,
+        "quote.compose.computeUnitLimit",
+      ),
+      maxQuoteIn: digits(c.maxQuoteIn, "quote.compose.maxQuoteIn"),
+    },
+  };
+}
+
+/** Asks the server for a fresh, simulated follow transaction. Nothing is signed or sent. */
+export async function fetchQuote(
+  base: string,
+  input: {
+    planPda: string;
+    follower: string;
+    version: number;
+    quoteAmount: string;
+  },
+): Promise<QuoteView> {
+  return parseQuote(await postJson(`${base}/follow/quote`, input));
+}
+
+/** Has the server re-read a landed transaction from the chain and record what it finds. */
+export async function verifyFollow(
+  base: string,
+  signature: string,
+): Promise<ExecutionView> {
+  return parseExecution(await postJson(`${base}/follow/verify`, { signature }));
+}
+
+async function postJson(url: string, body: unknown): Promise<unknown> {
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      method: "POST",
+      headers: {
+        accept: "application/json",
+        "content-type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+  } catch {
+    throw new ApiUnavailableError("Relay's service did not respond");
+  }
+  let parsed: unknown = null;
+  try {
+    parsed = await res.json();
+  } catch {
+    if (res.ok)
+      throw new ApiUnavailableError(
+        "Relay's service sent an unreadable response",
+      );
+  }
+  if (res.ok) return parsed;
+  const err = isRec(parsed) && isRec(parsed.error) ? parsed.error : null;
+  const message =
+    err && typeof err.message === "string"
+      ? err.message
+      : `Request failed (${res.status})`;
+  if (res.status >= 500) throw new ApiUnavailableError(message);
+  throw new ApiRequestError(
+    res.status,
+    err && typeof err.code === "string" ? err.code : "request_failed",
+    message,
+  );
+}
+
 async function getJson(url: string, init?: RequestInit): Promise<unknown> {
   let res: Response;
   try {

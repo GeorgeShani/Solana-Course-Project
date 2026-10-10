@@ -6,6 +6,7 @@ import { Portrait } from "../components/theatre/Portrait";
 import { BackLink } from "../components/ui/BackLink";
 import { Icon } from "../components/ui/Icon";
 import { KindBadge } from "../components/ui/KindBadge";
+import { PairIcon } from "../components/ui/TokenIcon";
 import type { PlanCardView } from "../lib/api";
 import { useWallClock } from "../lib/clock";
 import { CLUSTER, CLUSTER_LABEL } from "../lib/config";
@@ -28,7 +29,11 @@ function TraderProfile() {
   const trader = q.data?.traders.find((t) => t.address === address);
 
   return (
-    <section className="page" aria-labelledby="trader-title">
+    <section
+      className="page page--wide"
+      aria-labelledby="trader-title"
+      data-cursor-zone
+    >
       <BackLink fallback="/traders" label="Traders" />
       {!isAddress(address) ? (
         <Missing
@@ -166,86 +171,108 @@ function Profile({
         </div>
       </header>
 
-      <h2 className="page__section">Identity</h2>
-      <dl className="facts">
-        <div>
-          <dt>Wallet</dt>
-          <dd>
-            <span className="num facts__id">{t.address}</span>
-            <span className="facts__note">
-              Linked by signature: this wallet signed the{" "}
-              {t.plans.length === 1 ? "plan" : "plans"} below on Solana.
-            </span>
-          </dd>
-        </div>
-        <div>
-          <dt>Name</dt>
-          <dd>
-            {t.isDemo ? (
-              <>
-                {name}
-                <span className="facts__note">
-                  Seeded demo profile: the name is fictional. The plans are real
-                  records on the {CLUSTER_LABEL[CLUSTER]} cluster.
+      <div className="profile-grid">
+        <section
+          className="profile-grid__main"
+          aria-labelledby="activity-title"
+        >
+          <h2 id="activity-title" className="page__section">
+            Activity
+            <span className="page__section-count num">{t.plans.length}</span>
+          </h2>
+          <ul className="records">
+            {t.plans.map((card) => (
+              <RecordRow key={card.planPda} card={card} nowMs={nowMs} />
+            ))}
+          </ul>
+        </section>
+
+        <aside className="profile-grid__side">
+          <section className="panel" aria-labelledby="identity-title">
+            <h2 id="identity-title" className="panel__title">
+              Identity
+            </h2>
+            <dl className="facts">
+              <div>
+                <dt>Wallet</dt>
+                <dd>
+                  <span className="num facts__id">{t.address}</span>
+                  <span className="facts__note">
+                    Linked by signature: this wallet signed the{" "}
+                    {t.plans.length === 1 ? "plan" : "plans"} in Activity on
+                    Solana.
+                  </span>
+                </dd>
+              </div>
+              <div>
+                <dt>Name</dt>
+                <dd>
+                  {t.isDemo ? (
+                    <>
+                      {name}
+                      <span className="facts__note">
+                        Seeded demo profile: the name is fictional. The plans
+                        are real records on the {CLUSTER_LABEL[CLUSTER]}{" "}
+                        cluster.
+                      </span>
+                    </>
+                  ) : t.displayName || t.handle ? (
+                    name
+                  ) : (
+                    <span className="facts__missing">
+                      None. This wallet has no Relay profile.
+                    </span>
+                  )}
+                </dd>
+              </div>
+              <div>
+                <dt>Public sources</dt>
+                <dd>
+                  <span className="facts__missing">None connected.</span>
+                  <span className="facts__note">
+                    Relay links an account such as X or Telegram only when the
+                    trader shows it's theirs.
+                  </span>
+                </dd>
+              </div>
+              <div>
+                <dt>Explorer</dt>
+                <dd>
+                  {explorer ? (
+                    <a href={explorer} target="_blank" rel="noreferrer">
+                      View wallet on Solana Explorer
+                      <Icon name="external" size={14} />
+                    </a>
+                  ) : (
+                    <span className="facts__missing">
+                      No public explorer for the local fork.
+                    </span>
+                  )}
+                </dd>
+              </div>
+            </dl>
+          </section>
+
+          <section className="panel" aria-labelledby="gaps-title">
+            <h2 id="gaps-title" className="panel__title">
+              Not connected yet
+            </h2>
+            <ul className="gaps">
+              <li>
+                <KindBadge kind="public_post" />
+                <span>No source connected for this wallet's public ideas.</span>
+              </li>
+              <li>
+                <KindBadge kind="onchain" />
+                <span>
+                  Other on-chain activity isn't indexed yet. Only plans
+                  published through Relay are shown.
                 </span>
-              </>
-            ) : t.displayName || t.handle ? (
-              name
-            ) : (
-              <span className="facts__missing">
-                None. This wallet has no Relay profile.
-              </span>
-            )}
-          </dd>
-        </div>
-        <div>
-          <dt>Public sources</dt>
-          <dd>
-            <span className="facts__missing">None connected.</span>
-            <span className="facts__note">
-              Relay links an account such as X or Telegram only when the trader
-              shows it's theirs.
-            </span>
-          </dd>
-        </div>
-        <div>
-          <dt>Explorer</dt>
-          <dd>
-            {explorer ? (
-              <a href={explorer} target="_blank" rel="noreferrer">
-                View wallet on Solana Explorer
-                <Icon name="external" size={14} />
-              </a>
-            ) : (
-              <span className="facts__missing">
-                No public explorer for the local fork.
-              </span>
-            )}
-          </dd>
-        </div>
-      </dl>
-
-      <h2 className="page__section">Records</h2>
-      <ul className="records">
-        {t.plans.map((card) => (
-          <RecordRow key={card.planPda} card={card} nowMs={nowMs} />
-        ))}
-      </ul>
-
-      <h2 className="page__section">Not connected yet</h2>
-      <ul className="gaps">
-        <li>
-          <KindBadge kind="public_post" />
-          <span>No source connected for this wallet's public ideas.</span>
-        </li>
-        <li>
-          <KindBadge kind="onchain" />
-          <span>
-            Other on-chain activity isn't indexed yet. Only plans published
-            through Relay are shown.
-          </span>
-        </li>
-      </ul>
+              </li>
+            </ul>
+          </section>
+        </aside>
+      </div>
     </>
   );
 }
@@ -258,25 +285,35 @@ function RecordRow({ card, nowMs }: { card: PlanCardView; nowMs: number }) {
       <Link
         to="/records/$planPda"
         params={{ planPda: card.planPda }}
-        className="record-row"
+        className="record-row record-row--rich lift"
       >
-        <span className="record-row__top">
-          <KindBadge kind="relay_plan" />
-          <span className="record-row__time">
-            {formatTimestamp(v.publishedAt)}
+        <PairIcon
+          base={card.pair.baseSymbol}
+          quote={card.pair.quoteSymbol}
+          size={36}
+        />
+        <span className="record-row__body">
+          <span className="record-row__top">
+            <KindBadge kind="relay_plan" />
+            <span className="record-row__time">
+              {formatTimestamp(v.publishedAt)}
+            </span>
+          </span>
+          <span className="record-row__title">
+            {card.pair.label} · Buy plan
+          </span>
+          <span className="record-row__terms">
+            Entry{" "}
+            <span className="num">
+              {formatUsdText(v.entryLow)} – {formatUsdText(v.entryHigh)}
+            </span>
+            {card.versionCount > 1 && <> · version {v.version}</>}
+          </span>
+          <span className="watchlist__status" data-tone={STATUS_TONE[status]}>
+            {STATUS_HEADLINE[status]}
           </span>
         </span>
-        <span className="record-row__title">{card.pair.label} · Buy plan</span>
-        <span className="record-row__terms">
-          Entry{" "}
-          <span className="num">
-            {formatUsdText(v.entryLow)} – {formatUsdText(v.entryHigh)}
-          </span>
-          {card.versionCount > 1 && <> · version {v.version}</>}
-        </span>
-        <span className="watchlist__status" data-tone={STATUS_TONE[status]}>
-          {STATUS_HEADLINE[status]}
-        </span>
+        <Icon name="next" size={18} className="record-row__chevron" />
       </Link>
     </li>
   );

@@ -220,6 +220,7 @@ export function PlanCard({
         />
 
         <ActionRow
+          planPda={card.fictionalPreview ? null : card.planPda}
           status={live.status}
           watching={watching}
           onToggleWatch={onToggleWatch}
