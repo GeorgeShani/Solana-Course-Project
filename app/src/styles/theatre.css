@@ -7,11 +7,16 @@
   position: fixed;
   inset: 0;
   display: grid;
-  grid-template-rows: calc(var(--marquee-h) + env(safe-area-inset-top)) minmax(0, 1fr) calc(
-      var(--tabbar-h) + env(safe-area-inset-bottom)
-    );
+  grid-template-rows: calc(var(--marquee-h) + env(safe-area-inset-top)) minmax(
+      0,
+      1fr
+    ) calc(var(--tabbar-h) + env(safe-area-inset-bottom));
   background:
-    radial-gradient(120% 60% at 50% -10%, rgba(153, 69, 255, 0.16), transparent 60%),
+    radial-gradient(
+      120% 60% at 50% -10%,
+      rgba(153, 69, 255, 0.16),
+      transparent 60%
+    ),
     var(--velvet);
 }
 

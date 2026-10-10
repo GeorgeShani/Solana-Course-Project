@@ -1,12 +1,33 @@
 import type { EntryStatus } from "@relay/domain";
 import { describe, expect, test } from "bun:test";
-import { ApiContractError, parseFeedPage, type FeedPage, type PlanCardView } from "../src/lib/api";
-import { initialOrder, reconcileOrder, showNewest, visibleCards } from "../src/lib/feed-order";
+import {
+  ApiContractError,
+  parseFeedPage,
+  type FeedPage,
+  type PlanCardView,
+} from "../src/lib/api";
+import {
+  initialOrder,
+  reconcileOrder,
+  showNewest,
+  visibleCards,
+} from "../src/lib/feed-order";
 import { fictionalPreviewFeed } from "../src/lib/fixtures";
-import { formatAge, formatDuration, formatUsd, formatUsdText, shortAddress } from "../src/lib/format";
+import {
+  formatAge,
+  formatDuration,
+  formatUsd,
+  formatUsdText,
+  shortAddress,
+} from "../src/lib/format";
 import { chainNowMs, liveEntry } from "../src/lib/live-status";
 import { rangeGeometry } from "../src/lib/range";
-import { STATUS_HEADLINE, reviewUnavailableReason, statusHeadline, statusHint } from "../src/lib/status";
+import {
+  STATUS_HEADLINE,
+  reviewUnavailableReason,
+  statusHeadline,
+  statusHint,
+} from "../src/lib/status";
 import { parseWatchList } from "../src/lib/watchlist";
 
 const NOW = 1_800_000_000_000;
@@ -27,7 +48,11 @@ function card(overrides: Partial<PlanCardView> = {}): PlanCardView {
 }
 
 function page(ids: string[], nextCursor: string | null = null): FeedPage {
-  return { items: ids.map((planPda) => card({ planPda })), nextCursor, nowMs: NOW };
+  return {
+    items: ids.map((planPda) => card({ planPda })),
+    nextCursor,
+    nowMs: NOW,
+  };
 }
 
 describe("status vocabulary", () => {
@@ -41,13 +66,24 @@ describe("status vocabulary", () => {
       price_stale: "Price may be outdated",
       price_unavailable: "Price unavailable",
     });
-    expect(Object.values(STATUS_HEADLINE).join(" ").toLowerCase()).not.toContain("eligible");
+    expect(
+      Object.values(STATUS_HEADLINE).join(" ").toLowerCase(),
+    ).not.toContain("eligible");
   });
 
   test("closing soon is appended only to in-range", () => {
-    const input = { closingSoon: true, msUntilExpiry: 7 * 60_000, expiresAt: 0, priceAgeMs: null };
-    expect(statusHeadline({ ...input, status: "in_range" })).toBe("In plan range · closes in 7 min");
-    expect(statusHeadline({ ...input, status: "above_range" })).toBe("Original entry passed");
+    const input = {
+      closingSoon: true,
+      msUntilExpiry: 7 * 60_000,
+      expiresAt: 0,
+      priceAgeMs: null,
+    };
+    expect(statusHeadline({ ...input, status: "in_range" })).toBe(
+      "In plan range · closes in 7 min",
+    );
+    expect(statusHeadline({ ...input, status: "above_range" })).toBe(
+      "Original entry passed",
+    );
   });
 
   test("stale hint names the price age", () => {
@@ -58,12 +94,17 @@ describe("status vocabulary", () => {
       expiresAt: 0,
       priceAgeMs: 125_000,
     });
-    expect(hint).toBe("Last price 2 min ago. Status will update when data returns.");
+    expect(hint).toBe(
+      "Last price 2 min ago. Status will update when data returns.",
+    );
   });
 
   test("a missing review always comes with a reason", () => {
-    for (const s of ALL_STATUSES) expect(reviewUnavailableReason(s).length).toBeGreaterThan(0);
-    expect(reviewUnavailableReason("above_range")).toBe("Original entry passed — no Relay entry available");
+    for (const s of ALL_STATUSES)
+      expect(reviewUnavailableReason(s).length).toBeGreaterThan(0);
+    expect(reviewUnavailableReason("above_range")).toBe(
+      "Original entry passed — no Relay entry available",
+    );
   });
 });
 
@@ -87,7 +128,9 @@ describe("format", () => {
   });
 
   test("short address", () => {
-    expect(shortAddress("7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU")).toBe("7xKX…gAsU");
+    expect(shortAddress("7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU")).toBe(
+      "7xKX…gAsU",
+    );
     expect(shortAddress("short")).toBe("short");
   });
 });
@@ -166,7 +209,9 @@ describe("api contract", () => {
     expect(() => parseFeedPage(badStatus)).toThrow(ApiContractError);
     const badUnits = wire();
     badUnits.items[1].version.entryLowUnits = "1.5";
-    expect(() => parseFeedPage(badUnits)).toThrow("feed.items[1].version.entryLowUnits");
+    expect(() => parseFeedPage(badUnits)).toThrow(
+      "feed.items[1].version.entryLowUnits",
+    );
   });
 });
 
@@ -197,11 +242,18 @@ describe("feed order", () => {
 
   test("later pages append; cards that drop out stay visible", () => {
     const first = initialOrder([page(["a", "b"], "c1")]);
-    const more = reconcileOrder(first, [page(["a", "b"], "c1"), page(["c", "a"])]);
+    const more = reconcileOrder(first, [
+      page(["a", "b"], "c1"),
+      page(["c", "a"]),
+    ]);
     expect(more.order).toEqual(["a", "b", "c"]);
     expect(more.pending).toEqual([]);
     const dropped = reconcileOrder(more, [page(["a"])]);
-    expect(visibleCards(dropped).map((c) => c.planPda)).toEqual(["a", "b", "c"]);
+    expect(visibleCards(dropped).map((c) => c.planPda)).toEqual([
+      "a",
+      "b",
+      "c",
+    ]);
   });
 
   test("an empty first load adopts the first data that arrives", () => {

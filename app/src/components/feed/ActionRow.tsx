@@ -52,7 +52,12 @@ export function ActionRow({
       </button>
       {status === "in_range" ? (
         <div className="actions__review">
-          <button type="button" className="btn btn--primary" disabled aria-describedby={`${detailsId}-review`}>
+          <button
+            type="button"
+            className="btn btn--primary"
+            disabled
+            aria-describedby={`${detailsId}-review`}
+          >
             Review trade
           </button>
           <p id={`${detailsId}-review`} className="actions__reason">

@@ -1,11 +1,29 @@
 import type { EntryStatus } from "@relay/domain";
 import { useInfiniteQuery, type InfiniteData } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
-import { ApiContractError, fetchFeedPage, type FeedPage, type PlanCardView } from "../../lib/api";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type KeyboardEvent,
+} from "react";
+import {
+  ApiContractError,
+  fetchFeedPage,
+  type FeedPage,
+  type PlanCardView,
+} from "../../lib/api";
 import { useWallClock } from "../../lib/clock";
 import { API_URL } from "../../lib/config";
-import { initialOrder, reconcileOrder, showNewest as adoptNewest, visibleCards } from "../../lib/feed-order";
+import {
+  initialOrder,
+  reconcileOrder,
+  showNewest as adoptNewest,
+  visibleCards,
+} from "../../lib/feed-order";
 import type { FeedLoad } from "../../lib/feed-server";
 import { fictionalPreviewFeed } from "../../lib/fixtures";
 import { formatAge } from "../../lib/format";
@@ -35,11 +53,17 @@ const STATUS_ORDER: EntryStatus[] = [
 ];
 
 function prefersReducedMotion(): boolean {
-  return typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  return (
+    typeof window !== "undefined" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  );
 }
 
 function isTypingTarget(t: EventTarget | null): boolean {
-  return t instanceof HTMLElement && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName));
+  return (
+    t instanceof HTMLElement &&
+    (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))
+  );
 }
 
 export function Feed({
@@ -58,13 +82,23 @@ export function Feed({
   // Without first-page data, wait until after hydration to fetch so server and client render the same.
   const mounted = useMounted();
 
-  const query = useInfiniteQuery<FeedPage, Error, InfiniteData<FeedPage, string | null>, string[], string | null>({
+  const query = useInfiniteQuery<
+    FeedPage,
+    Error,
+    InfiniteData<FeedPage, string | null>,
+    string[],
+    string | null
+  >({
     queryKey: ["feed", preview ? "fictional-preview" : "live"],
     queryFn: ({ pageParam }) =>
-      preview ? Promise.resolve(fictionalPreviewFeed(Date.now())) : fetchFeedPage(API_URL, pageParam),
+      preview
+        ? Promise.resolve(fictionalPreviewFeed(Date.now()))
+        : fetchFeedPage(API_URL, pageParam),
     initialPageParam: null,
     getNextPageParam: (last) => last.nextCursor,
-    initialData: initial.ok ? { pages: [initial.page], pageParams: [null] } : undefined,
+    initialData: initial.ok
+      ? { pages: [initial.page], pageParams: [null] }
+      : undefined,
     initialDataUpdatedAt: initial.receivedAt,
     enabled: initial.ok || mounted,
     staleTime: preview ? Infinity : 10_000,
@@ -80,15 +114,23 @@ export function Feed({
 
   const wall = useWallClock();
   const firstPage = pages[0];
-  const nowMs = firstPage ? chainNowMs(firstPage.nowMs, query.dataUpdatedAt, wall) : 0;
-  const clockSkewed = !preview && !!firstPage && Math.abs(firstPage.nowMs - query.dataUpdatedAt) > SKEW_LABEL_MS;
+  const nowMs = firstPage
+    ? chainNowMs(firstPage.nowMs, query.dataUpdatedAt, wall)
+    : 0;
+  const clockSkewed =
+    !preview &&
+    !!firstPage &&
+    Math.abs(firstPage.nowMs - query.dataUpdatedAt) > SKEW_LABEL_MS;
   const offline = query.isError && !!query.data;
 
   const cards = visibleCards(view);
   const liveById = new Map(cards.map((c) => [c.planPda, liveEntry(c, nowMs)]));
 
   const watchList = useWatchList();
-  const watched = useMemo(() => new Set(watchList.map((w) => w.planPda)), [watchList]);
+  const watched = useMemo(
+    () => new Set(watchList.map((w) => w.planPda)),
+    [watchList],
+  );
 
   // ------------------------------------------------------------------ active act and URL
 
@@ -136,28 +178,50 @@ export function Feed({
     restored.current = true;
     const el = nodes.current.get(initialPlan);
     const feed = feedRef.current;
-    if (el && feed) feed.scrollTo({ top: el.offsetTop - feed.offsetTop, behavior: "instant" });
+    if (el && feed)
+      feed.scrollTo({
+        top: el.offsetTop - feed.offsetTop,
+        behavior: "instant",
+      });
   }, [initialPlan, cards.length]);
 
   // ------------------------------------------------------------------ paging
 
-  const activeIndex = activeId === FINALE_ID ? cards.length : cards.findIndex((c) => c.planPda === activeId);
+  const activeIndex =
+    activeId === FINALE_ID
+      ? cards.length
+      : cards.findIndex((c) => c.planPda === activeId);
   const { hasNextPage, isFetchingNextPage, fetchNextPage } = query;
   useEffect(() => {
-    if (hasNextPage && !isFetchingNextPage && activeIndex >= cards.length - 3) void fetchNextPage();
-  }, [activeIndex, cards.length, hasNextPage, isFetchingNextPage, fetchNextPage]);
+    if (hasNextPage && !isFetchingNextPage && activeIndex >= cards.length - 3)
+      void fetchNextPage();
+  }, [
+    activeIndex,
+    cards.length,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+  ]);
 
   // ------------------------------------------------------------------ announcements
 
   const [announcement, setAnnouncement] = useState("");
   const activeCard = cards.find((c) => c.planPda === activeId);
-  const activeStatus = activeCard ? liveById.get(activeCard.planPda)?.status : undefined;
+  const activeStatus = activeCard
+    ? liveById.get(activeCard.planPda)?.status
+    : undefined;
   const lastActive = useRef<{ id: string; status: EntryStatus } | null>(null);
   useEffect(() => {
     if (!activeCard || !activeStatus) return;
     const prev = lastActive.current;
-    if (prev && prev.id === activeCard.planPda && prev.status !== activeStatus) {
-      setAnnouncement(`${creatorName(activeCard)}'s ${activeCard.pair.baseSymbol} plan: ${STATUS_HEADLINE[activeStatus].toLowerCase()}`);
+    if (
+      prev &&
+      prev.id === activeCard.planPda &&
+      prev.status !== activeStatus
+    ) {
+      setAnnouncement(
+        `${creatorName(activeCard)}'s ${activeCard.pair.baseSymbol} plan: ${STATUS_HEADLINE[activeStatus].toLowerCase()}`,
+      );
     }
     lastActive.current = { id: activeCard.planPda, status: activeStatus };
   }, [activeCard, activeStatus]);
@@ -179,14 +243,20 @@ export function Feed({
   const goTo = useCallback((id: string) => {
     const el = nodes.current.get(id);
     if (!el) return;
-    el.scrollIntoView({ block: "start", behavior: prefersReducedMotion() ? "auto" : "smooth" });
+    el.scrollIntoView({
+      block: "start",
+      behavior: prefersReducedMotion() ? "auto" : "smooth",
+    });
     el.focus({ preventScroll: true });
   }, []);
 
   const ids = [...cards.map((c) => c.planPda), FINALE_ID];
   const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
     if (e.altKey || e.ctrlKey || e.metaKey || isTypingTarget(e.target)) return;
-    const holder = e.target instanceof HTMLElement ? e.target.closest<HTMLElement>("[data-plan]") : null;
+    const holder =
+      e.target instanceof HTMLElement
+        ? e.target.closest<HTMLElement>("[data-plan]")
+        : null;
     const currentId = holder?.dataset.plan ?? activeId ?? ids[0];
     const i = Math.max(0, ids.indexOf(currentId));
     const key = e.key;
@@ -207,19 +277,31 @@ export function Feed({
 
   const showNewest = () => {
     setView(adoptNewest);
-    feedRef.current?.scrollTo({ top: 0, behavior: prefersReducedMotion() ? "auto" : "smooth" });
+    feedRef.current?.scrollTo({
+      top: 0,
+      behavior: prefersReducedMotion() ? "auto" : "smooth",
+    });
   };
 
   // ------------------------------------------------------------------ render
 
   if (!query.data) {
     if (!initial.ok && initial.kind === "contract" && !query.isFetching) {
-      return <UnavailableState kind="contract" message={initial.message} checking={false} onRetry={() => void query.refetch()} />;
+      return (
+        <UnavailableState
+          kind="contract"
+          message={initial.message}
+          checking={false}
+          onRetry={() => void query.refetch()}
+        />
+      );
     }
     const message = query.error?.message ?? (initial.ok ? "" : initial.message);
     return (
       <UnavailableState
-        kind={query.error instanceof ApiContractError ? "contract" : "unavailable"}
+        kind={
+          query.error instanceof ApiContractError ? "contract" : "unavailable"
+        }
         message={message}
         checking={query.isFetching}
         onRetry={() => void query.refetch()}
@@ -228,7 +310,12 @@ export function Feed({
   }
 
   if (cards.length === 0) {
-    return <EmptyState refreshing={query.isFetching} onRefresh={() => void query.refetch()} />;
+    return (
+      <EmptyState
+        refreshing={query.isFetching}
+        onRefresh={() => void query.refetch()}
+      />
+    );
   }
 
   const tally = STATUS_ORDER.map((s): [string, number] => [
@@ -242,18 +329,24 @@ export function Feed({
       <div className="feed-banners">
         {preview && (
           <Banner tone="preview">
-            <strong>Fictional preview — not live data.</strong> Creators, prices and plans are invented to show the
-            layout. Nothing here is onchain. <Link to="/">Leave preview</Link>
+            <strong>Fictional preview — not live data.</strong> Creators, prices
+            and plans are invented to show the layout. Nothing here is onchain.{" "}
+            <Link to="/">Leave preview</Link>
           </Banner>
         )}
         {offline && (
           <Banner tone="warn">
-            <strong>Can't reach Relay right now.</strong> Showing plans from {formatAge(Math.max(0, (wall ?? query.dataUpdatedAt) - query.dataUpdatedAt))}; statuses may be out of date.
+            <strong>Can't reach Relay right now.</strong> Showing plans from{" "}
+            {formatAge(
+              Math.max(0, (wall ?? query.dataUpdatedAt) - query.dataUpdatedAt),
+            )}
+            ; statuses may be out of date.
           </Banner>
         )}
         {!preview && !chainOk && (
           <Banner tone="warn">
-            <strong>Can't reach Solana right now.</strong> Statuses may be out of date.
+            <strong>Can't reach Solana right now.</strong> Statuses may be out
+            of date.
           </Banner>
         )}
         {pending.length > 0 && (
@@ -308,7 +401,8 @@ export function Feed({
         {announcement}
       </p>
       <p className="feed-keys" aria-hidden="true">
-        <kbd>J</kbd>/<kbd>K</kbd> or <kbd>↑</kbd>/<kbd>↓</kbd> move · <kbd>W</kbd> watch
+        <kbd>J</kbd>/<kbd>K</kbd> or <kbd>↑</kbd>/<kbd>↓</kbd> move ·{" "}
+        <kbd>W</kbd> watch
       </p>
     </div>
   );

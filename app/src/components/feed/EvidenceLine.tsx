@@ -28,10 +28,13 @@ export function EvidenceLine({
     <div className="evidence">
       <p>
         <Icon name="chain" size={16} />
-        Committed onchain · v{version} · terms <span className="num">{shortHash(termsHash)}</span>
+        Committed onchain · v{version} · terms{" "}
+        <span className="num">{shortHash(termsHash)}</span>
         {textVerified ? " · text matches hash" : " · text unavailable"}
       </p>
-      <p className="evidence__absent">Follower results aren't shown in the feed yet.</p>
+      <p className="evidence__absent">
+        Follower results aren't shown in the feed yet.
+      </p>
     </div>
   );
 }

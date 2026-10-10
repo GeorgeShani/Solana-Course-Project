@@ -19,11 +19,18 @@ export function RangeBar({
 }) {
   const g = rangeGeometry(low, high, price);
   return (
-    <div className="range" data-has-price={g.marker !== null} aria-hidden="true">
+    <div
+      className="range"
+      data-has-price={g.marker !== null}
+      aria-hidden="true"
+    >
       <div className="range__track">
         <div
           className="range__band"
-          style={{ left: `${g.bandStart}%`, width: `${g.bandEnd - g.bandStart}%` }}
+          style={{
+            left: `${g.bandStart}%`,
+            width: `${g.bandEnd - g.bandStart}%`,
+          }}
         />
         {g.marker !== null && (
           <div

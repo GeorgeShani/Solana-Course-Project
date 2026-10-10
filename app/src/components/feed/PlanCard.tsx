@@ -1,7 +1,12 @@
 import type { EntryStatusResult } from "@relay/domain";
 import { useState, type Ref } from "react";
 import type { PlanCardView } from "../../lib/api";
-import { formatAge, formatClock, formatDuration, formatUsdText } from "../../lib/format";
+import {
+  formatAge,
+  formatClock,
+  formatDuration,
+  formatUsdText,
+} from "../../lib/format";
 import { creatorName, planLabel } from "../../lib/labels";
 import { Sigil } from "../theatre/Sigil";
 import { Icon } from "../ui/Icon";
@@ -43,7 +48,9 @@ export function PlanCard({
   const v = card.version;
   const nowSec = Math.floor(nowMs / 1000);
   const publishedAgo = Math.max(0, nowMs - v.publishedAt * 1000);
-  const priceAgeMs = card.entry.price ? Math.max(0, nowMs - card.entry.price.observedAtMs) : null;
+  const priceAgeMs = card.entry.price
+    ? Math.max(0, nowMs - card.entry.price.observedAtMs)
+    : null;
   const isDemo = card.creator.isDemo || card.fictionalPreview === true;
 
   return (
@@ -68,8 +75,8 @@ export function PlanCard({
               {card.creator.handle && <>@{card.creator.handle} · </>}
               {card.versionCount > 1 ? (
                 <span className="act__updated">
-                  <Icon name="updated" size={14} />
-                  v{v.version} updated {formatAge(publishedAgo)}
+                  <Icon name="updated" size={14} />v{v.version} updated{" "}
+                  {formatAge(publishedAgo)}
                 </span>
               ) : (
                 <span className="act__age">
@@ -94,7 +101,10 @@ export function PlanCard({
           <span className="act__side">Buy plan</span>
         </div>
         <p className="act__range">
-          Entry <span className="num">{formatUsdText(v.entryLow)} – {formatUsdText(v.entryHigh)}</span>
+          Entry{" "}
+          <span className="num">
+            {formatUsdText(v.entryLow)} – {formatUsdText(v.entryHigh)}
+          </span>
         </p>
 
         <div id={`${id}-status`}>
@@ -118,16 +128,19 @@ export function PlanCard({
           <Icon name="clock" size={16} />
           {live.status === "closed" ? (
             <>
-              No new entries · window was until <span className="num">{formatClock(v.expiresAt, nowSec)}</span>
+              No new entries · window was until{" "}
+              <span className="num">{formatClock(v.expiresAt, nowSec)}</span>
             </>
           ) : live.msUntilExpiry > 0 ? (
             <>
-              Window closes <span className="num">{formatClock(v.expiresAt, nowSec)}</span> (in{" "}
-              {formatDuration(live.msUntilExpiry)})
+              Window closes{" "}
+              <span className="num">{formatClock(v.expiresAt, nowSec)}</span>{" "}
+              (in {formatDuration(live.msUntilExpiry)})
             </>
           ) : (
             <>
-              Window closed <span className="num">{formatClock(v.expiresAt, nowSec)}</span>
+              Window closed{" "}
+              <span className="num">{formatClock(v.expiresAt, nowSec)}</span>
             </>
           )}
           {clockSkewed && <span className="act__chainclock">chain clock</span>}
@@ -139,25 +152,32 @@ export function PlanCard({
               <p className="act__rationale">{v.text.rationale}</p>
               {detailsOpen && (
                 <>
-                <dl className="act__more">
-                  <div>
-                    <dt>Exit thesis</dt>
-                    <dd>{v.text.exitThesis}</dd>
-                  </div>
-                  {v.text.exitTarget && (
+                  <dl className="act__more">
                     <div>
-                      <dt>Exit target</dt>
-                      <dd className="num">{formatUsdText(v.text.exitTarget)}</dd>
+                      <dt>Exit thesis</dt>
+                      <dd>{v.text.exitThesis}</dd>
                     </div>
-                  )}
-                  {v.text.invalidation && (
-                    <div>
-                      <dt>Invalidation</dt>
-                      <dd className="num">{formatUsdText(v.text.invalidation)}</dd>
-                    </div>
-                  )}
-                </dl>
-                <p className="act__note">An exit thesis is not a stop-loss order. Nothing is sold for you.</p>
+                    {v.text.exitTarget && (
+                      <div>
+                        <dt>Exit target</dt>
+                        <dd className="num">
+                          {formatUsdText(v.text.exitTarget)}
+                        </dd>
+                      </div>
+                    )}
+                    {v.text.invalidation && (
+                      <div>
+                        <dt>Invalidation</dt>
+                        <dd className="num">
+                          {formatUsdText(v.text.invalidation)}
+                        </dd>
+                      </div>
+                    )}
+                  </dl>
+                  <p className="act__note">
+                    An exit thesis is not a stop-loss order. Nothing is sold for
+                    you.
+                  </p>
                 </>
               )}
             </>

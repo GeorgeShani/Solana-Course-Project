@@ -45,15 +45,28 @@ export function UnavailableState({
     <StageMessage
       tone="error"
       busy={checking}
-      title={kind === "contract" ? "Relay sent data this app can't read" : "Relay's service is unavailable"}
+      title={
+        kind === "contract"
+          ? "Relay sent data this app can't read"
+          : "Relay's service is unavailable"
+      }
       actions={
         <>
-          <button type="button" className="btn btn--primary" onClick={onRetry} disabled={checking}>
+          <button
+            type="button"
+            className="btn btn--primary"
+            onClick={onRetry}
+            disabled={checking}
+          >
             <Icon name="refresh" />
             {checking ? "Checking…" : "Try again"}
           </button>
           {DEV && (
-            <Link to="/" search={{ preview: "fictional" }} className="btn btn--ghost">
+            <Link
+              to="/"
+              search={{ preview: "fictional" }}
+              className="btn btn--ghost"
+            >
               Open fictional preview
             </Link>
           )}
@@ -70,8 +83,10 @@ export function UnavailableState({
         <details className="stage-msg__dev">
           <summary>Development setup</summary>
           <p>
-            The server needs Postgres (<code>docker compose -f compose.dev.yaml up -d</code>), then{" "}
-            <code>bun run dev:server</code>. Plans come from the Relay program on the local fork.
+            The server needs Postgres (
+            <code>docker compose -f compose.dev.yaml up -d</code>), then{" "}
+            <code>bun run dev:server</code>. Plans come from the Relay program
+            on the local fork.
           </p>
         </details>
       )}
@@ -79,28 +94,50 @@ export function UnavailableState({
   );
 }
 
-export function EmptyState({ onRefresh, refreshing }: { onRefresh: () => void; refreshing: boolean }) {
+export function EmptyState({
+  onRefresh,
+  refreshing,
+}: {
+  onRefresh: () => void;
+  refreshing: boolean;
+}) {
   return (
     <StageMessage
       title="No open plans right now"
       busy={refreshing}
       actions={
-        <button type="button" className="btn btn--ghost" onClick={onRefresh} disabled={refreshing}>
+        <button
+          type="button"
+          className="btn btn--ghost"
+          onClick={onRefresh}
+          disabled={refreshing}
+        >
           <Icon name="refresh" />
           {refreshing ? "Checking…" : "Check again"}
         </button>
       }
     >
       <p className="stage-msg__text">
-        Plans appear here once a creator commits one onchain. Expired and closed plans stay listed with their history.
+        Plans appear here once a creator commits one onchain. Expired and closed
+        plans stay listed with their history.
       </p>
     </StageMessage>
   );
 }
 
-export function Banner({ tone, children }: { tone: "warn" | "preview"; children: ReactNode }) {
+export function Banner({
+  tone,
+  children,
+}: {
+  tone: "warn" | "preview";
+  children: ReactNode;
+}) {
   return (
-    <div className="banner" data-tone={tone} role={tone === "warn" ? "status" : undefined}>
+    <div
+      className="banner"
+      data-tone={tone}
+      role={tone === "warn" ? "status" : undefined}
+    >
       <Icon name="alert" size={18} />
       <div>{children}</div>
     </div>
@@ -143,7 +180,9 @@ export function Finale({
         data-plan="__finale"
         tabIndex={-1}
       >
-        <p className="finale__loading">{loadingMore ? "Loading more plans…" : "More plans below"}</p>
+        <p className="finale__loading">
+          {loadingMore ? "Loading more plans…" : "More plans below"}
+        </p>
       </section>
     );
   }
@@ -179,7 +218,12 @@ export function Finale({
           )}
         </ul>
         <div className="finale__actions">
-          <button type="button" className="btn btn--ghost" onClick={onRefresh} disabled={refreshing}>
+          <button
+            type="button"
+            className="btn btn--ghost"
+            onClick={onRefresh}
+            disabled={refreshing}
+          >
             <Icon name="refresh" />
             {refreshing ? "Refreshing…" : "Refresh lineup"}
           </button>

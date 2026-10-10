@@ -16,16 +16,28 @@ const URL_WRITE_DELAY_MS = 350;
 
 export const Route = createFileRoute("/")({
   validateSearch: (search: Record<string, unknown>): FeedSearch => ({
-    plan: typeof search.plan === "string" && search.plan.length <= 64 ? search.plan : undefined,
+    plan:
+      typeof search.plan === "string" && search.plan.length <= 64
+        ? search.plan
+        : undefined,
     preview: search.preview === "fictional" ? "fictional" : undefined,
   }),
   loaderDeps: ({ search }) => ({ preview: search.preview }),
-  loader: async ({ deps }): Promise<{ feed: FeedLoad; chainOk: boolean; preview: boolean }> => {
+  loader: async ({
+    deps,
+  }): Promise<{ feed: FeedLoad; chainOk: boolean; preview: boolean }> => {
     if (deps.preview === "fictional" && import.meta.env.DEV) {
       const now = Date.now();
-      return { feed: { ok: true, page: fictionalPreviewFeed(now), receivedAt: now }, chainOk: true, preview: true };
+      return {
+        feed: { ok: true, page: fictionalPreviewFeed(now), receivedAt: now },
+        chainOk: true,
+        preview: true,
+      };
     }
-    const [feed, chain] = await Promise.all([getFirstFeedPage(), getChainStatus()]);
+    const [feed, chain] = await Promise.all([
+      getFirstFeedPage(),
+      getChainStatus(),
+    ]);
     return { feed, chainOk: chain.ok, preview: false };
   },
   component: FeedRoute,

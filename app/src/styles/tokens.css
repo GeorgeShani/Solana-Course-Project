@@ -24,8 +24,19 @@
   --sol-purple: #9945ff;
   --sol-purple-light: #b98cff;
   --sol-green: #14f195;
-  --sol-gradient: linear-gradient(100deg, #b57bff 0%, #8f7dff 40%, #3fe0b6 80%, #14f195 100%);
-  --sol-edge: linear-gradient(140deg, rgba(153, 69, 255, 0.6), rgba(153, 69, 255, 0.12) 45%, rgba(20, 241, 149, 0.35));
+  --sol-gradient: linear-gradient(
+    100deg,
+    #b57bff 0%,
+    #8f7dff 40%,
+    #3fe0b6 80%,
+    #14f195 100%
+  );
+  --sol-edge: linear-gradient(
+    140deg,
+    rgba(153, 69, 255, 0.6),
+    rgba(153, 69, 255, 0.12) 45%,
+    rgba(20, 241, 149, 0.35)
+  );
 
   /* entry status inks (always paired with an icon, a shape and words) */
   --st-in: #14f195;
@@ -36,8 +47,12 @@
   --danger: #ff7a86;
 
   /* type */
-  --font-display: "Big Shoulders Display Variable", "Big Shoulders Display", "Arial Narrow", sans-serif;
-  --font-ui: "Schibsted Grotesk Variable", "Schibsted Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display:
+    "Big Shoulders Display Variable", "Big Shoulders Display", "Arial Narrow",
+    sans-serif;
+  --font-ui:
+    "Schibsted Grotesk Variable", "Schibsted Grotesk", system-ui, -apple-system,
+    "Segoe UI", sans-serif;
   --t-caption: 0.75rem;
   --t-footnote: 0.8125rem;
   --t-small: 0.875rem;

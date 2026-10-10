@@ -47,15 +47,24 @@ const PATHS: Record<IconName, ReactNode> = {
       <path d="M5 19.5c1.4-3 4-4.5 7-4.5s5.6 1.5 7 4.5" />
     </>
   ),
-  star: <path d="m12 3.8 2.5 5.1 5.6.8-4 4 .9 5.6-5-2.7-5 2.7.9-5.6-4-4 5.6-.8z" />,
+  star: (
+    <path d="m12 3.8 2.5 5.1 5.6.8-4 4 .9 5.6-5-2.7-5 2.7.9-5.6-4-4 5.6-.8z" />
+  ),
   "star-filled": (
-    <path d="m12 3.8 2.5 5.1 5.6.8-4 4 .9 5.6-5-2.7-5 2.7.9-5.6-4-4 5.6-.8z" fill="currentColor" />
+    <path
+      d="m12 3.8 2.5 5.1 5.6.8-4 4 .9 5.6-5-2.7-5 2.7.9-5.6-4-4 5.6-.8z"
+      fill="currentColor"
+    />
   ),
   details: <path d="m7 10 5 5 5-5" />,
   "in-range": (
     <>
       <circle cx="12" cy="12" r="9" fill="currentColor" stroke="none" />
-      <path d="m8 12.3 2.7 2.7L16.2 9.5" stroke="var(--icon-knockout, #0b0716)" strokeWidth="2.25" />
+      <path
+        d="m8 12.3 2.7 2.7L16.2 9.5"
+        stroke="var(--icon-knockout, #0b0716)"
+        strokeWidth="2.25"
+      />
     </>
   ),
   above: (

@@ -35,16 +35,36 @@ function design(seed: string) {
 export function Sigil({ seed, size = 40 }: { seed: string; size?: number }) {
   const { ink, cells, clip } = design(seed);
   return (
-    <svg viewBox="0 0 100 100" width={size} height={size} aria-hidden="true" focusable="false">
+    <svg
+      viewBox="0 0 100 100"
+      width={size}
+      height={size}
+      aria-hidden="true"
+      focusable="false"
+    >
       <defs>
         <clipPath id={clip}>
           <circle cx="50" cy="50" r="46" />
         </clipPath>
       </defs>
-      <circle cx="50" cy="50" r="48" fill="#1C1430" stroke={ink} strokeWidth="2.5" />
+      <circle
+        cx="50"
+        cy="50"
+        r="48"
+        fill="#1C1430"
+        stroke={ink}
+        strokeWidth="2.5"
+      />
       <g clipPath={`url(#${clip})`} fill={ink}>
         {cells.map(({ x, y }) => (
-          <rect key={`${x}-${y}`} x={15 + x * 14} y={15 + y * 14} width="13" height="13" rx="3" />
+          <rect
+            key={`${x}-${y}`}
+            x={15 + x * 14}
+            y={15 + y * 14}
+            width="13"
+            height="13"
+            rx="3"
+          />
         ))}
       </g>
     </svg>
