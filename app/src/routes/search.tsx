@@ -12,8 +12,8 @@ function Search() {
         Search
       </h1>
       <p className="page__text">
-        Searching creators and pairs isn't available yet. Every open plan is in the feed, ranked by entry status, never
-        by claimed return.
+        Searching creators and pairs isn't available yet. Every open plan is in
+        the feed, ranked by entry status, never by claimed return.
       </p>
       <Link to="/" className="btn btn--ghost">
         Browse the feed

@@ -18,14 +18,17 @@ function MyPlans() {
       </h1>
 
       <h2 className="page__section">Watching</h2>
-      <p className="page__text page__text--quiet">Saved in this browser only. No wallet or account needed.</p>
+      <p className="page__text page__text--quiet">
+        Saved in this browser only. No wallet or account needed.
+      </p>
       {!mounted ? (
         <p className="page__text" aria-busy="true">
           Reading your watch list…
         </p>
       ) : watching.length === 0 ? (
         <p className="page__text">
-          Nothing watched yet. Tap <strong>Watch</strong> on a plan in the feed to keep it here.
+          Nothing watched yet. Tap <strong>Watch</strong> on a plan in the feed
+          to keep it here.
         </p>
       ) : (
         <ul className="watchlist">
@@ -46,7 +49,11 @@ function MyPlans() {
                   </p>
                 )}
               </div>
-              <Link to="/" search={{ plan: w.planPda }} className="btn btn--ghost btn--small">
+              <Link
+                to="/"
+                search={{ plan: w.planPda }}
+                className="btn btn--ghost btn--small"
+              >
                 Open
               </Link>
               <button
@@ -64,8 +71,8 @@ function MyPlans() {
 
       <h2 className="page__section">Followed</h2>
       <p className="page__text">
-        Trades you review and approve yourself appear here with their onchain receipts. Reviewing a trade isn't
-        available in this build yet.
+        Trades you review and approve yourself appear here with their onchain
+        receipts. Reviewing a trade isn't available in this build yet.
       </p>
     </section>
   );
