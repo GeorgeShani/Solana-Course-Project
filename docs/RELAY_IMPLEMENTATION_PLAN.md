@@ -1668,16 +1668,22 @@ Source: the team brief [RELAY_HANDOFF_2026-10-10.md](RELAY_HANDOFF_2026-10-10.md
   - **Verification:** domain 60, app 61, server 74 tests, root lint, `tsc` clean. The server started on mainnet settings: `/health/ready` reports `mainnet`, `/prices` returned live Jupiter SOL and JUP prices, `/feed` is empty and truthful (no plans exist on mainnet, the program is not deployed), `/rpc` returned a real mainnet slot for `getSlot` and 403 for `getProgramAccounts`.
   - **Not done:** the app production build with `VITE_SOLANA_CLUSTER=mainnet` and the full Docker images have not been built here; the Relay program does not exist on mainnet yet (P2), so a follow cannot be completed.
 
-#### P2: program mainnet release (prepared by the agent, run by the owner)
+#### P2: program mainnet release (prepared by the agent, run by the owner): PREPARED 2026-10-10
 
 - **Goal:** a reviewed, reproducible build and a checklist the owner can follow.
 - **Tasks:**
-  - [ ] Internal security pass on `program/programs/relay` (signers, PDA seeds, layout introspection, u128 math, token program and mint checks, rent, upgrade risk). Findings fixed or recorded.
-  - [ ] Confirm every mainnet constant: Jupiter program ID, USDC/wSOL/JUP mints, program ID.
-  - [ ] Verifiable build (`anchor build --verifiable` or `solana-verify`) and a recorded program hash.
-  - [ ] `docs/MAINNET_RELEASE.md`: cost estimate, the owner's deploy steps, moving the upgrade authority to a Squads multisig, verifying the deployed hash, and rollback/freeze options.
+  - [x] Internal security pass on `program/programs/relay` (signers, PDA seeds, layout introspection, u128 math, token program and mint checks, rent, upgrade risk). Findings fixed or recorded.
+  - [x] Confirm every mainnet constant (JUP mint to re-check before a JUP plan): Jupiter program ID, USDC/wSOL/JUP mints, program ID.
+  - [ ] Verifiable build (`anchor build --verifiable` or `solana-verify`) and a recorded program hash. **Owner step**: needs Docker and `solana-verify`, which the agent did not install. A local reference hash is in the release doc.
+  - [x] `docs/MAINNET_RELEASE.md`: cost estimate, the owner's deploy steps, moving the upgrade authority to a Squads multisig, verifying the deployed hash, and rollback/freeze options.
 - **Risk recorded:** `begin_follow` and `finish_follow` receive the follower as a signer. Whoever holds the upgrade authority could ship a program that moves a follower's funds inside that transaction. The authority must sit on a multisig, and making the program immutable after the pilot should be considered.
 - **Done when:** the owner has the checklist and a verified build hash. The deploy itself is the owner's action.
+- **Result:**
+  - **No program change is needed for the brief or for mainnet.** All 12 source files were read; no exploitable defect was found; 45 Rust tests pass (24 follow, 19 plan, 2 vectors). The reasons for not changing the program (exit receipts, padding, closing accounts) and the remaining risks are in [MAINNET_RELEASE.md](MAINNET_RELEASE.md).
+  - **Mainnet check:** a live read-only `/swap/v2/build` call on 2026-10-10 returned `JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4` as the swap program, with only the associated token account program in setup and no tip, other or cleanup instructions.
+  - **Decision needed before showing follower statistics:** a user can stage an in-range fill through their own pool; the off-chain "off-market fill" flag from section S is not built, so follower counts, medians and "creator observed entry" stay hidden until it is.
+  - **New tool:** `scripts/set-program-id.ts <address>` rewrites `declare_id!` and `Anchor.toml` (and adds `[programs.mainnet]`); it never touches a keypair. The owner generates a fresh program keypair for mainnet.
+  - **Still the owner's:** keypair, verifiable build, funding (about 1.85 SOL rent, about 4 SOL during the deploy), the deploy, and moving the upgrade authority to a multisig.
 
 #### P3: AWS EC2 production runbook
 
