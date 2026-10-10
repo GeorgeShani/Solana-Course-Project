@@ -85,38 +85,38 @@ export class ApiContractError extends Error {
 
 type Rec = Record<string, unknown>;
 
-function isRec(v: unknown): v is Rec {
+export function isRec(v: unknown): v is Rec {
   return typeof v === "object" && v !== null && !Array.isArray(v);
 }
 
-function rec(v: unknown, path: string): Rec {
+export function rec(v: unknown, path: string): Rec {
   if (!isRec(v)) throw new ApiContractError(`${path} must be an object`);
   return v;
 }
 
-function str(v: unknown, path: string): string {
+export function str(v: unknown, path: string): string {
   if (typeof v !== "string")
     throw new ApiContractError(`${path} must be a string`);
   return v;
 }
 
-function strOrNull(v: unknown, path: string): string | null {
+export function strOrNull(v: unknown, path: string): string | null {
   return v === null || v === undefined ? null : str(v, path);
 }
 
-function num(v: unknown, path: string): number {
+export function num(v: unknown, path: string): number {
   if (typeof v !== "number" || !Number.isFinite(v))
     throw new ApiContractError(`${path} must be a finite number`);
   return v;
 }
 
-function bool(v: unknown, path: string): boolean {
+export function bool(v: unknown, path: string): boolean {
   if (typeof v !== "boolean")
     throw new ApiContractError(`${path} must be a boolean`);
   return v;
 }
 
-function digits(v: unknown, path: string): string {
+export function digits(v: unknown, path: string): string {
   const s = str(v, path);
   if (!/^\d+$/.test(s))
     throw new ApiContractError(`${path} must be an unsigned integer string`);
@@ -504,7 +504,7 @@ export async function verifyFollow(
   return parseExecution(await postJson(`${base}/follow/verify`, { signature }));
 }
 
-async function postJson(url: string, body: unknown): Promise<unknown> {
+export async function postJson(url: string, body: unknown): Promise<unknown> {
   let res: Response;
   try {
     res = await fetch(url, {
@@ -541,7 +541,10 @@ async function postJson(url: string, body: unknown): Promise<unknown> {
   );
 }
 
-async function getJson(url: string, init?: RequestInit): Promise<unknown> {
+export async function getJson(
+  url: string,
+  init?: RequestInit,
+): Promise<unknown> {
   let res: Response;
   try {
     res = await fetch(url, {

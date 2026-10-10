@@ -8,6 +8,7 @@ import {
   type KeyboardEvent,
   type ReactNode,
 } from "react";
+import { ChangesTab } from "../components/discovery/ChangesTab";
 import { Cue } from "../components/cue/Cue";
 import { Avatar } from "../components/theatre/Portrait";
 import { Icon } from "../components/ui/Icon";
@@ -21,6 +22,7 @@ import {
 } from "../lib/api";
 import { useWallClock } from "../lib/clock";
 import { API_URL } from "../lib/config";
+import { useDiscoveryWatch } from "../lib/discovery-watch";
 import { formatClock, formatUsd, shortAddress } from "../lib/format";
 import { planLabel } from "../lib/labels";
 import { liveEntry } from "../lib/live-status";
@@ -45,9 +47,10 @@ import {
   type WatchedPlan,
 } from "../lib/watchlist";
 
-const TABS = ["traders", "records", "history"] as const;
+const TABS = ["changes", "traders", "records", "history"] as const;
 type Tab = (typeof TABS)[number];
 const TAB_LABEL: Record<Tab, string> = {
+  changes: "Changes",
   traders: "Traders",
   records: "Records",
   history: "History",
@@ -96,8 +99,12 @@ function Watchlist() {
   const mounted = useMounted();
   const watching = useWatchList();
   const traders = useWatchedTraders();
+  const ideas = useDiscoveryWatch();
   const navigate = useNavigate({ from: "/watchlist" });
-  const tab = Route.useSearch().tab ?? "traders";
+  // Someone who watches ideas lands on what changed in them; everyone else keeps the old default.
+  const tab =
+    Route.useSearch().tab ??
+    (mounted && ideas.length > 0 ? "changes" : "traders");
   const tabRefs = useRef<Partial<Record<Tab, HTMLButtonElement | null>>>({});
 
   const select = (t: Tab, focus = false) => {
@@ -123,6 +130,7 @@ function Watchlist() {
   };
 
   const count: Record<Tab, number | null> = {
+    changes: mounted ? ideas.length : null,
     traders: mounted ? traders.length : null,
     records: mounted ? watching.length : null,
     history: null,
@@ -185,6 +193,8 @@ function Watchlist() {
           <p className="page__text" aria-busy="true">
             Reading your watchlist…
           </p>
+        ) : tab === "changes" ? (
+          <ChangesTab />
         ) : tab === "traders" ? (
           traders.length === 0 ? (
             <Empty>Watch a trader to see their new plans here.</Empty>

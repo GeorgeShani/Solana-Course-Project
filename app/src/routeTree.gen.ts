@@ -16,6 +16,9 @@ import { Route as HowItWorksRouteImport } from './routes/how-it-works'
 import { Route as MeRouteImport } from './routes/me'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as WatchlistRouteImport } from './routes/watchlist'
+import { Route as IdeasIndexRouteImport } from './routes/ideas.index'
+import { Route as IdeasIdeaIdRouteImport } from './routes/ideas.$ideaId'
+import { Route as ProfilesTraderIdRouteImport } from './routes/profiles.$traderId'
 import { Route as RecordsPlanPdaRouteImport } from './routes/records.$planPda'
 import { Route as TradersIndexRouteImport } from './routes/traders.index'
 import { Route as TradersAddressRouteImport } from './routes/traders.$address'
@@ -55,6 +58,21 @@ const WatchlistRoute = WatchlistRouteImport.update({
   path: '/watchlist',
   getParentRoute: () => rootRouteImport,
 } as any)
+const IdeasIndexRoute = IdeasIndexRouteImport.update({
+  id: '/ideas/',
+  path: '/ideas/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IdeasIdeaIdRoute = IdeasIdeaIdRouteImport.update({
+  id: '/ideas/$ideaId',
+  path: '/ideas/$ideaId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfilesTraderIdRoute = ProfilesTraderIdRouteImport.update({
+  id: '/profiles/$traderId',
+  path: '/profiles/$traderId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RecordsPlanPdaRoute = RecordsPlanPdaRouteImport.update({
   id: '/records/$planPda',
   path: '/records/$planPda',
@@ -79,8 +97,11 @@ export interface FileRoutesByFullPath {
   '/me': typeof MeRoute
   '/search': typeof SearchRoute
   '/watchlist': typeof WatchlistRoute
+  '/ideas/$ideaId': typeof IdeasIdeaIdRoute
+  '/profiles/$traderId': typeof ProfilesTraderIdRoute
   '/records/$planPda': typeof RecordsPlanPdaRoute
   '/traders/$address': typeof TradersAddressRoute
+  '/ideas/': typeof IdeasIndexRoute
   '/traders/': typeof TradersIndexRoute
 }
 export interface FileRoutesByTo {
@@ -91,8 +112,11 @@ export interface FileRoutesByTo {
   '/me': typeof MeRoute
   '/search': typeof SearchRoute
   '/watchlist': typeof WatchlistRoute
+  '/ideas/$ideaId': typeof IdeasIdeaIdRoute
+  '/profiles/$traderId': typeof ProfilesTraderIdRoute
   '/records/$planPda': typeof RecordsPlanPdaRoute
   '/traders/$address': typeof TradersAddressRoute
+  '/ideas': typeof IdeasIndexRoute
   '/traders': typeof TradersIndexRoute
 }
 export interface FileRoutesById {
@@ -104,8 +128,11 @@ export interface FileRoutesById {
   '/me': typeof MeRoute
   '/search': typeof SearchRoute
   '/watchlist': typeof WatchlistRoute
+  '/ideas/$ideaId': typeof IdeasIdeaIdRoute
+  '/profiles/$traderId': typeof ProfilesTraderIdRoute
   '/records/$planPda': typeof RecordsPlanPdaRoute
   '/traders/$address': typeof TradersAddressRoute
+  '/ideas/': typeof IdeasIndexRoute
   '/traders/': typeof TradersIndexRoute
 }
 export interface FileRouteTypes {
@@ -118,8 +145,11 @@ export interface FileRouteTypes {
     | '/me'
     | '/search'
     | '/watchlist'
+    | '/ideas/$ideaId'
+    | '/profiles/$traderId'
     | '/records/$planPda'
     | '/traders/$address'
+    | '/ideas/'
     | '/traders/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -130,8 +160,11 @@ export interface FileRouteTypes {
     | '/me'
     | '/search'
     | '/watchlist'
+    | '/ideas/$ideaId'
+    | '/profiles/$traderId'
     | '/records/$planPda'
     | '/traders/$address'
+    | '/ideas'
     | '/traders'
   id:
     | '__root__'
@@ -142,8 +175,11 @@ export interface FileRouteTypes {
     | '/me'
     | '/search'
     | '/watchlist'
+    | '/ideas/$ideaId'
+    | '/profiles/$traderId'
     | '/records/$planPda'
     | '/traders/$address'
+    | '/ideas/'
     | '/traders/'
   fileRoutesById: FileRoutesById
 }
@@ -155,8 +191,11 @@ export interface RootRouteChildren {
   MeRoute: typeof MeRoute
   SearchRoute: typeof SearchRoute
   WatchlistRoute: typeof WatchlistRoute
+  IdeasIdeaIdRoute: typeof IdeasIdeaIdRoute
+  ProfilesTraderIdRoute: typeof ProfilesTraderIdRoute
   RecordsPlanPdaRoute: typeof RecordsPlanPdaRoute
   TradersAddressRoute: typeof TradersAddressRoute
+  IdeasIndexRoute: typeof IdeasIndexRoute
   TradersIndexRoute: typeof TradersIndexRoute
 }
 
@@ -211,6 +250,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WatchlistRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ideas/': {
+      id: '/ideas/'
+      path: '/ideas'
+      fullPath: '/ideas/'
+      preLoaderRoute: typeof IdeasIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ideas/$ideaId': {
+      id: '/ideas/$ideaId'
+      path: '/ideas/$ideaId'
+      fullPath: '/ideas/$ideaId'
+      preLoaderRoute: typeof IdeasIdeaIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profiles/$traderId': {
+      id: '/profiles/$traderId'
+      path: '/profiles/$traderId'
+      fullPath: '/profiles/$traderId'
+      preLoaderRoute: typeof ProfilesTraderIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/records/$planPda': {
       id: '/records/$planPda'
       path: '/records/$planPda'
@@ -243,8 +303,11 @@ const rootRouteChildren: RootRouteChildren = {
   MeRoute: MeRoute,
   SearchRoute: SearchRoute,
   WatchlistRoute: WatchlistRoute,
+  IdeasIdeaIdRoute: IdeasIdeaIdRoute,
+  ProfilesTraderIdRoute: ProfilesTraderIdRoute,
   RecordsPlanPdaRoute: RecordsPlanPdaRoute,
   TradersAddressRoute: TradersAddressRoute,
+  IdeasIndexRoute: IdeasIndexRoute,
   TradersIndexRoute: TradersIndexRoute,
 }
 export const routeTree = rootRouteImport

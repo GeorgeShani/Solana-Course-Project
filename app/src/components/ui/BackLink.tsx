@@ -6,7 +6,7 @@ export function BackLink({
   fallback,
   label,
 }: {
-  fallback: "/" | "/traders" | "/watchlist";
+  fallback: "/" | "/ideas" | "/traders" | "/watchlist";
   label: string;
 }) {
   const router = useRouter();

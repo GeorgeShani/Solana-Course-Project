@@ -1,10 +1,12 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
+import { SourcedTraderCard } from "../components/discovery/Cards";
 import { Cue } from "../components/cue/Cue";
 import { Avatar } from "../components/theatre/Portrait";
 import { Icon } from "../components/ui/Icon";
 import { KindBadge } from "../components/ui/KindBadge";
 import { PairIcon } from "../components/ui/TokenIcon";
 import { cueReact } from "../lib/cue-cursor";
+import { useSourcedTraders } from "../lib/discovery-queries";
 import { formatAge, shortAddress } from "../lib/format";
 import { liveEntry } from "../lib/live-status";
 import { STATUS_HEADLINE, STATUS_TONE } from "../lib/status";
@@ -18,7 +20,9 @@ export const Route = createFileRoute("/traders/")({
 
 function Traders() {
   const q = useTraderIndex();
+  const sourced = useSourcedTraders();
   const watched = useWatchedTraders();
+  const sourcedList = sourced.data?.pages.flatMap((p) => p.items) ?? [];
   return (
     <section
       className="page page--wide"
@@ -31,26 +35,66 @@ function Traders() {
             Traders
           </h1>
           <p className="page__lede">
-            Wallets that signed plans on Solana through Relay.
+            Traders whose public ideas Relay has recorded, and wallets that
+            signed plans on Solana through Relay.
           </p>
         </div>
       </header>
 
-      <aside className="callout" aria-labelledby="selected-title">
-        <Cue pose="unavailable" className="callout__cue" />
-        <div className="callout__body">
-          <h2 id="selected-title" className="callout__title">
-            The 10 selected traders aren't connected yet
-          </h2>
-          <p className="callout__text">
-            Their public sources aren't linked, so they aren't listed. Relay
-            won't fill the gap with made-up profiles.
+      <section aria-labelledby="sourced-title" className="sourced">
+        <h2 id="sourced-title" className="page__subsection">
+          Traders with sourced ideas
+        </h2>
+        {sourced.isPending ? (
+          <ul className="tgrid" aria-busy="true" aria-label="Loading profiles">
+            <li className="tcard tcard--ghost" />
+          </ul>
+        ) : sourced.isError ? (
+          <p className="watchlist__error" role="status">
+            Couldn't load sourced profiles. {sourced.error.message}.{" "}
+            <button type="button" onClick={() => void sourced.refetch()}>
+              Try again
+            </button>
           </p>
-        </div>
-        <Link to="/how-it-works" className="btn btn--ghost btn--small">
-          How evidence works
-        </Link>
-      </aside>
+        ) : sourcedList.length === 0 ? (
+          <aside className="callout" aria-labelledby="selected-title">
+            <Cue pose="unavailable" className="callout__cue" />
+            <div className="callout__body">
+              <h3 id="selected-title" className="callout__title">
+                No sourced traders yet
+              </h3>
+              <p className="callout__text">
+                A profile appears here only after a person at Relay has linked a
+                real public source for it. Relay won't fill the gap with made-up
+                profiles.
+              </p>
+            </div>
+            <Link to="/how-it-works" className="btn btn--ghost btn--small">
+              How evidence works
+            </Link>
+          </aside>
+        ) : (
+          <>
+            <ul className="tgrid">
+              {sourcedList.map((t) => (
+                <SourcedTraderCard key={t.id} trader={t} />
+              ))}
+            </ul>
+            {sourced.hasNextPage && (
+              <button
+                type="button"
+                className="btn btn--glass btn--small"
+                disabled={sourced.isFetchingNextPage}
+                onClick={() => void sourced.fetchNextPage()}
+              >
+                {sourced.isFetchingNextPage ? "Loading…" : "Show more"}
+              </button>
+            )}
+          </>
+        )}
+      </section>
+
+      <h2 className="page__subsection">Wallets that signed plans</h2>
 
       {q.isPending ? (
         <ul className="tgrid" aria-busy="true" aria-label="Loading traders">

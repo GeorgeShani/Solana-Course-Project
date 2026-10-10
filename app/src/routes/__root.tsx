@@ -17,6 +17,7 @@ import { TabBar } from "../components/ui/TabBar";
 import { WalletDialog } from "../components/wallet/WalletDialog";
 import { CLUSTER, CLUSTER_LABEL } from "../lib/config";
 import baseCss from "../styles/base.css?url";
+import discoveryCss from "../styles/discovery.css?url";
 import feedCss from "../styles/feed.css?url";
 import screensCss from "../styles/screens.css?url";
 import theatreCss from "../styles/theatre.css?url";
@@ -46,6 +47,7 @@ export const Route = createRootRoute({
       { rel: "stylesheet", href: theatreCss },
       { rel: "stylesheet", href: feedCss },
       { rel: "stylesheet", href: screensCss },
+      { rel: "stylesheet", href: discoveryCss },
     ],
   }),
   shellComponent: RootDocument,
