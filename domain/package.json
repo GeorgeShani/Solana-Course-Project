@@ -10,7 +10,7 @@
   "scripts": {
     "test": "bun test",
     "typecheck": "tsc -p tsconfig.json",
-    "vectors": "bun run scripts/gen-vectors.ts",
+    "vectors": "bun run scripts/gen-vectors.ts && bun run scripts/gen-venue-vectors.ts",
     "demo:follow": "bun run scripts/follow-demo.ts"
   },
   "devDependencies": {

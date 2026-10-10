@@ -1,3 +1,6 @@
+#![cfg(not(feature = "devnet"))]
+// These tests are written for the default (test fork) build. `tests/devnet.rs` covers `--features devnet`.
+
 mod common;
 
 use {

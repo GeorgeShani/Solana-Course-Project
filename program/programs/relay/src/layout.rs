@@ -4,7 +4,7 @@
 //! anything if nothing else could have changed the follower's balances between the two snapshots.
 //! These checks pin the transaction to exactly:
 //!
-//!   ... begin_follow, <one Jupiter swap signed only by the follower>, finish_follow ...
+//!   ... begin_follow, <one swap signed only by the follower>, finish_follow ...
 //!
 //! Plain English: `begin_follow` photographs the follower's two token balances, exactly one swap
 //! runs, `finish_follow` photographs them again. We refuse any transaction where anything else
@@ -94,13 +94,14 @@ pub fn verify_follow_layout(ix_sysvar: &AccountInfo, a: &FollowAccounts) -> Resu
         RelayError::InvalidInstructionLayout
     );
 
-    // 4. The single instruction between them is one Jupiter swap that only the follower signs and
-    //    that touches the follower's own base and quote accounts. This is what stops a second
-    //    wallet from swapping into the follower's account to fake an in-range price.
+    // 4. The single instruction between them is one swap, through an allowed swap program (Jupiter
+    //    on the test fork, the simulated venue on devnet), that only the follower signs and that
+    //    touches the follower's own base and quote accounts. This is what stops a second wallet
+    //    from swapping into the follower's account to fake an in-range price.
     let swap = load_instruction_at_checked(current + 1, ix_sysvar)
         .map_err(|_| error!(RelayError::InvalidInstructionLayout))?;
     require!(
-        JUPITER_PROGRAM_IDS.contains(&swap.program_id),
+        SWAP_PROGRAM_IDS.contains(&swap.program_id),
         RelayError::UnexpectedInstructionBetweenSnapshots
     );
     let mut follower_signs = false;

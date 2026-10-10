@@ -18,7 +18,10 @@ use {
     solana_transaction::versioned::VersionedTransaction,
 };
 
-pub use relay::{JUP_MINT, USDC_MINT, WSOL_MINT};
+pub use relay::{USDC_MINT, WSOL_MINT};
+// JUP only exists in the default (test fork) build; devnet has no JUP market.
+#[cfg(not(feature = "devnet"))]
+pub use relay::JUP_MINT;
 
 /// "Now" for every test unless a test warps the clock.
 pub const T0: i64 = 1_790_000_000;
@@ -49,11 +52,23 @@ pub fn mint_account(svm: &LiteSVM, decimals: u8) -> Account {
 impl Env {
     pub fn new() -> Self {
         let mut svm = LiteSVM::new();
+        // The default build is `target/deploy/relay.so` (anchor build); the devnet build is made by
+        // the Anchor.toml test script into `target/deploy-devnet/relay.so`.
+        #[cfg(not(feature = "devnet"))]
         let bytes = include_bytes!(concat!(env!("CARGO_TARGET_TMPDIR"), "/../deploy/relay.so"));
+        #[cfg(feature = "devnet")]
+        let bytes = include_bytes!(concat!(
+            env!("CARGO_TARGET_TMPDIR"),
+            "/../deploy-devnet/relay.so"
+        ));
         svm.add_program(relay::id(), bytes).unwrap();
         let creator = Keypair::new();
         svm.airdrop(&creator.pubkey(), 10_000_000_000).unwrap();
-        for (mint, decimals) in [(WSOL_MINT, 9u8), (JUP_MINT, 6), (USDC_MINT, 6)] {
+        #[cfg(not(feature = "devnet"))]
+        let mints = [(WSOL_MINT, 9u8), (JUP_MINT, 6), (USDC_MINT, 6)];
+        #[cfg(feature = "devnet")]
+        let mints = [(WSOL_MINT, 9u8), (USDC_MINT, 6)];
+        for (mint, decimals) in mints {
             let acc = mint_account(&svm, decimals);
             svm.set_account(mint, acc).unwrap();
         }

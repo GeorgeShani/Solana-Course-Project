@@ -11,6 +11,9 @@ name = "relay"
 
 [features]
 default = []
+# Build for Solana devnet: devnet USDC, one pair, and the simulated swap venue instead of Jupiter.
+# Never combine with the default (test fork) build in one deployment.
+devnet = []
 cpi = ["no-entrypoint"]
 no-entrypoint = []
 no-log-ix-name = []

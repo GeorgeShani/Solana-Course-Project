@@ -29,6 +29,7 @@ import {
 } from "@solana/kit";
 import { concat, u32le } from "../bytes";
 import type { JupiterBuild, JupiterInstruction } from "../jupiter";
+import type { Network } from "../networks";
 import {
   ATA_PROGRAM_ADDRESS,
   COMPUTE_BUDGET_PROGRAM_ADDRESS,
@@ -42,10 +43,22 @@ import {
   beginFollowInstruction,
   finishFollowInstruction,
 } from "./instructions";
+import { SIMULATED_VENUE_PROGRAM_ADDRESS, assertVenueSwap } from "./venue";
 
 export const JUPITER_PROGRAM_ADDRESSES: readonly Address[] = [
   address("JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4"),
 ];
+
+/**
+ * The swap programs a follow may route through on a network. Jupiter on the local test fork (which
+ * copies its programs); the simulated venue on devnet. The Relay program enforces its own list,
+ * chosen when it is built, so this is the client-side half of the same rule.
+ */
+export function swapProgramsFor(network: Network): readonly Address[] {
+  return network === "devnet"
+    ? [SIMULATED_VENUE_PROGRAM_ADDRESS]
+    : JUPITER_PROGRAM_ADDRESSES;
+}
 
 const SET_COMPUTE_UNIT_LIMIT = 2;
 const SET_COMPUTE_UNIT_PRICE = 3;
@@ -123,17 +136,23 @@ function computeBudgetInstructions(
 }
 
 /**
- * Checks Jupiter's swap instruction against the same rules the program enforces: a known Jupiter
- * program, the follower as its ONLY signer, and the follower's base and quote accounts present.
+ * Checks the swap instruction against the same rules the program enforces: an allowed swap program
+ * (Jupiter unless told otherwise), the follower as its ONLY signer, and the follower's base and
+ * quote accounts present.
  */
 export function assertSwapInstruction(
   swap: JupiterInstruction,
   follower: Address,
   followerBase: Address,
   followerQuote: Address,
+  allowedPrograms: readonly Address[] = JUPITER_PROGRAM_ADDRESSES,
 ): void {
-  if (!JUPITER_PROGRAM_ADDRESSES.some((a) => a === swap.programId))
-    throw new Error("Swap is not routed through Jupiter");
+  if (!allowedPrograms.some((a) => a === swap.programId))
+    throw new Error(
+      allowedPrograms.includes(SIMULATED_VENUE_PROGRAM_ADDRESS)
+        ? "Swap is not routed through the simulated venue"
+        : "Swap is not routed through Jupiter",
+    );
   const signers = swap.accounts.filter((a) => a.isSigner);
   if (signers.length === 0 || signers.some((s) => s.pubkey !== follower)) {
     throw new Error("The swap must be signed by the follower only");
@@ -161,6 +180,8 @@ export interface ComposeFollowInput {
   computeUnitLimit?: number;
   /** Reject priority fees above this many micro-lamports per compute unit. */
   computeUnitPriceCap: bigint;
+  /** Swap programs allowed on this network (see `swapProgramsFor`). Jupiter when omitted. */
+  swapPrograms?: readonly Address[];
 }
 
 export interface ComposedFollowTx {
@@ -204,7 +225,18 @@ export async function composeFollowTx(
     follower,
     followerBase,
     followerQuote,
+    input.swapPrograms,
   );
+  // The simulated venue's instruction is simple enough to check byte for byte, so do: the follower's
+  // own accounts, a vault pair that belongs to the named pool, and no more than the approved amount.
+  if (build.swapInstruction.programId === SIMULATED_VENUE_PROGRAM_ADDRESS) {
+    await assertVenueSwap(build.swapInstruction, {
+      follower,
+      baseMint: input.baseMint,
+      quoteMint: input.quoteMint,
+      maxQuoteIn: input.maxQuoteIn,
+    });
+  }
 
   const planVersion = await getVersionAddress(plan, input.version);
   const receipt = await getReceiptAddress(planVersion, follower, input.nonce);

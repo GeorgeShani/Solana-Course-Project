@@ -7,7 +7,9 @@ resolution = true
 skip-lint = false
 
 [workspace]
-# Only relay is an Anchor program. mock_swap and cpi_attacker are test-only helpers built by `test`.
+# Only relay is an Anchor program. mock_swap and cpi_attacker are test-only helpers built by `test`;
+# simulated_venue is the devnet swap venue (a plain Solana program), built by `test` and, for a
+# deployment, with `cargo build-sbf --manifest-path programs/simulated_venue/Cargo.toml`.
 members = ["programs/relay"]
 
 [programs.localnet]
@@ -18,6 +20,6 @@ cluster = "localnet"
 wallet = "~/.config/solana/id.json"
 
 [scripts]
-test = "cargo build-sbf --manifest-path programs/mock_swap/Cargo.toml && cargo build-sbf --manifest-path programs/cpi_attacker/Cargo.toml && cargo test"
+test = "cargo build-sbf --manifest-path programs/mock_swap/Cargo.toml && cargo build-sbf --manifest-path programs/cpi_attacker/Cargo.toml && cargo build-sbf --manifest-path programs/simulated_venue/Cargo.toml && cargo build-sbf --manifest-path programs/relay/Cargo.toml --features devnet --sbf-out-dir ${CARGO_TARGET_DIR:-target}/deploy-devnet && cargo test && cargo test -p relay --features devnet"
 
 [hooks]

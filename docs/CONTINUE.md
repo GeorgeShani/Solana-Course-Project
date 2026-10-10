@@ -22,8 +22,9 @@ Written 2026-10-10. This is the short, current "what to do next" for an agent th
 
 - Branch `feat/relay-continuation` (based on `main` at `b22b7ca`, the teammate's UI). Commits on it, oldest first: C0 (plan amendment), P1 (network config, RPC proxy), P2 (program review, `scripts/set-program-id.ts`), work plan, devnet-only change. Run `git log --oneline main..HEAD`.
 - **Done:** C0, P1, P2 (review only), P3 (EC2 runbook), **W1** (redone in the cloud session on 2026-10-10; the local agent's worktree branch never reached the repository; see its Result note in the plan). Checks after W1: domain 65, server 121, app 62 tests, root lint, `tsc` and the app build pass.
-- **Not started:** D1, F1, F2, F3, W2 to W7, C-phase screens.
-- **Cloud environment limits:** the cloud session's network policy blocks `api.devnet.solana.com` (add it under Network access > Allowed domains in the environment settings); there is no Docker daemon (a local Postgres 16 runs with `service postgresql start`, roles and databases `relay` and `relay_test`); Anchor and the Solana CLI are not installed, so `bun run program:build` and `program:test` cannot run until they are.
+- **In progress:** D1 part 1 (program `devnet` feature, the `simulated_venue` crate, the domain venue client; see the plan). Part 2 (server and app wiring, the owner's pool tool, docs) is not done. `bun run program:test` has not been run for it: the cloud session cannot build SBF programs.
+- **Not started:** F1, F2, F3, W2 to W7, C-phase screens.
+- **Cloud environment limits:** the cloud session's network policy blocks `api.devnet.solana.com` (add it under Network access > Allowed domains in the environment settings); there is no Docker daemon (a local Postgres 16 runs with `service postgresql start`, roles and databases `relay` and `relay_test`); Anchor and the Solana CLI (and so `cargo build-sbf`) are not installed and cannot be fetched there (release hosts return 403), so `program:build` and `program:test` cannot run. Native `cargo check`, `cargo test -p simulated_venue --lib` and `cargo test -p relay --test vectors` do run.
 - **Figma:** the Figma plugin (MCP server and skills) was offered to the owner on 2026-10-10 and is not connected yet.
 - Two files show as modified only because of line endings: `app/src/routeTree.gen.ts` and `server/test/follow.test.ts`. Do not commit them.
 

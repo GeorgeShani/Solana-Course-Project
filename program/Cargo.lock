@@ -2460,6 +2460,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "simulated_venue"
+version = "0.1.0"
+dependencies = [
+ "anchor-lang",
+ "anchor-spl",
+ "hex",
+ "serde_json",
+ "solana-sysvar",
+]
+
+[[package]]
 name = "slab"
 version = "0.4.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"

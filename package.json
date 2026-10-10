@@ -12,6 +12,7 @@
     "build:app": "bun run --cwd app build",
     "sync-idl": "bun run scripts/sync-idl.ts",
     "program:build": "bun run scripts/anchor.ts build",
+    "program:build:devnet": "bun run scripts/anchor.ts build -- --features devnet",
     "program:test": "bun run scripts/anchor.ts test",
     "program:deploy": "bun run scripts/anchor.ts deploy",
     "typecheck:scripts": "tsc -p tsconfig.json",
