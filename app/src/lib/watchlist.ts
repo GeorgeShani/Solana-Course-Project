@@ -17,7 +17,10 @@ export interface WatchedPlan {
 
 const EMPTY: readonly WatchedPlan[] = [];
 const listeners = new Set<() => void>();
-let cache: { raw: string | null; list: readonly WatchedPlan[] } = { raw: null, list: EMPTY };
+let cache: { raw: string | null; list: readonly WatchedPlan[] } = {
+  raw: null,
+  list: EMPTY,
+};
 
 /** Parses the stored JSON defensively: anything unexpected is dropped, never thrown. */
 export function parseWatchList(raw: string | null): WatchedPlan[] {
@@ -36,12 +39,14 @@ export function parseWatchList(raw: string | null): WatchedPlan[] {
     const planPda: unknown = Reflect.get(item, "planPda");
     const label: unknown = Reflect.get(item, "label");
     const savedAt: unknown = Reflect.get(item, "savedAt");
-    if (typeof planPda !== "string" || planPda === "" || seen.has(planPda)) continue;
+    if (typeof planPda !== "string" || planPda === "" || seen.has(planPda))
+      continue;
     seen.add(planPda);
     out.push({
       planPda,
       label: typeof label === "string" ? label.slice(0, 120) : planPda,
-      savedAt: typeof savedAt === "number" && Number.isFinite(savedAt) ? savedAt : 0,
+      savedAt:
+        typeof savedAt === "number" && Number.isFinite(savedAt) ? savedAt : 0,
     });
   }
   return out;
