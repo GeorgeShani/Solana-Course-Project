@@ -216,6 +216,19 @@ describe("api contract", () => {
     );
   });
 
+  test("carries the feed policy flag, and refuses a response without it", () => {
+    const unlisted = wire();
+    unlisted.items[1].listed = false;
+    const parsed = parseFeedPage(unlisted);
+    expect(parsed.items.map((c) => c.listed)).toEqual([true, false]);
+    const missing = wire();
+    delete missing.items[0].listed;
+    expect(() => parseFeedPage(missing)).toThrow("feed.items[0].listed");
+    const notBool = wire();
+    notBool.items[0].listed = "yes";
+    expect(() => parseFeedPage(notBool)).toThrow(ApiContractError);
+  });
+
   test("keeps the committed reference price, and null when the text has none", () => {
     const withRef = wire();
     withRef.items[0].version.text.refPrice = {

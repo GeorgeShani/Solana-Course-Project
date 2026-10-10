@@ -17,6 +17,7 @@ import {
 } from "@relay/domain";
 import type { Db } from "../db";
 import type { Env } from "../env";
+import { safeMessage, silentLogger, type Logger } from "../logger";
 import { ApiError } from "../middleware";
 import { isRecord } from "../util";
 import { decodeCursor, encodeCursor, rankFeed } from "./feed-rank";
@@ -73,6 +74,12 @@ export interface PlanCardView {
     quoteDecimals: number;
   };
   planStatus: "open" | "closed";
+  /**
+   * Feed policy. False when a creator allowlist is configured and this plan's creator is not on it:
+   * the plan is real and reachable by its link, but it is not shown in the feed. Always true when no
+   * allowlist is set.
+   */
+  listed: boolean;
   /** Latest known version. */
   version: VersionView;
   versionCount: number;
@@ -104,9 +111,12 @@ export interface PlanServiceDeps {
   db: Db;
   chain: ChainReader;
   prices: PriceSource;
+  logger?: Logger;
 }
 
 const SYNC_MIN_INTERVAL_MS = 5_000;
+/** A failing sync is logged at most this often, so an RPC outage is one line a minute, not a flood. */
+const SYNC_LOG_EVERY_MS = 60_000;
 const REF_PRICE_WINDOW_SEC = 300;
 
 const bi = (v: unknown) => BigInt(String(v));
@@ -202,8 +212,14 @@ function versionView(v: VersionRow, quoteDecimals: number): VersionView {
 
 export function createPlanService(deps: PlanServiceDeps) {
   const { env, db, chain, prices } = deps;
+  const logger = deps.logger ?? silentLogger;
   let lastSyncAt = 0;
+  let lastSyncLogAt = 0;
   let syncing: Promise<void> | undefined;
+
+  const allowlist = new Set(env.creatorAllowlist);
+  const isListed = (creator: string) =>
+    allowlist.size === 0 || allowlist.has(creator);
 
   // ---------------------------------------------------------------------------- chain -> database
 
@@ -509,6 +525,7 @@ export function createPlanService(deps: PlanServiceDeps) {
         quoteDecimals: pair.quote.decimals,
       },
       planStatus: row.status,
+      listed: isListed(row.creator_address),
       version: versionView(latest, pair.quote.decimals),
       versionCount: versions.length,
       entry: {
@@ -532,7 +549,14 @@ export function createPlanService(deps: PlanServiceDeps) {
     pairId?: string;
     limit?: number;
   }): Promise<FeedPage> {
-    await sync().catch(() => undefined); // a chain hiccup must not take the feed down; stale rows still serve
+    // A chain hiccup must not take the feed down: stale rows still serve, and the failure is logged.
+    await sync().catch((e: unknown) => {
+      const now = Date.now();
+      if (now - lastSyncLogAt >= SYNC_LOG_EVERY_MS) {
+        lastSyncLogAt = now;
+        logger.warn("chain_sync_failed", { error: safeMessage(e) });
+      }
+    });
     const nowMs = await chain.nowMs().catch(() => Date.now());
     const offsetMs = nowMs - Date.now();
     const pair = opts.pairId
@@ -547,6 +571,7 @@ export function createPlanService(deps: PlanServiceDeps) {
       from plans p left join creators cr on cr.address = p.creator_address
       where p.cluster = ${env.cluster}
         and exists (select 1 from plan_versions v where v.plan_pda = p.plan_pda)
+        ${allowlist.size > 0 ? db`and p.creator_address in ${db([...allowlist])}` : db``}
         ${pair ? db`and p.base_mint = ${pair.base.mint}` : db``}`;
     const versions = await loadVersions(rows.map((r) => r.plan_pda));
     const priceByMint = await currentPrices(rows, offsetMs);

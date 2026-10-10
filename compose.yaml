@@ -62,6 +62,9 @@ services:
       # the upstream of /api/rpc, and never reaches the browser.
       SOLANA_RPC_URL: ${SOLANA_RPC_URL:-}
       JUPITER_API_KEY: ${JUPITER_API_KEY:-}
+      # Wallets whose plans are listed in the feed (comma separated). Empty lists every plan, which on
+      # a public network includes spam; plans from other wallets stay reachable by link, marked unlisted.
+      CREATOR_ALLOWLIST: ${CREATOR_ALLOWLIST:-}
     depends_on:
       postgres:
         condition: service_healthy

@@ -1724,6 +1724,20 @@ Order matters because the real-data pieces feed the screens. Backend packages (W
 3. The 2-3 traders, their links and consent (blocks W2).
 4. Figma link and authorization (blocks F3 only).
 
+#### W1: production hardening of the backend: DONE 2026-10-10
+
+Redone from this plan in the cloud session: the earlier agent's worktree branch never reached the repository.
+
+- **Feed policy.** `CREATOR_ALLOWLIST` (comma-separated wallet addresses; a value that is not an address stops the start). With it set, `GET /feed` lists only those creators' plans. Every plan card carries `listed`; any other plan stays reachable by `GET /plans/:planPda` and the record page, which shows an "Unlisted" badge and says why. Empty means no policy (every plan listed); a production start with it empty logs a `feed_unfiltered` warning. The sync still stores every plan the program holds, so a direct link to an unlisted plan works.
+- **Readiness.** `GET /health/ready` asks the database and the Solana RPC (`ChainReader.health()`, one real call per 5 s) and answers `503` with `checks: { database, rpc }` when either is down. `/health`, which the container healthcheck uses, does not depend on Solana.
+- **Request ids and logs.** `server/src/logger.ts`: one JSON object per line. Every response has `X-Request-Id` (a caller's id is kept only if it matches `[A-Za-z0-9_-]{8,64}`); each request logs method, path without query, status and duration; `api_error` logs the code that stopped a request; `follow_quote` logs route labels and compute units. Logs never hold bodies, headers, cookies, signatures, client addresses or URLs: fields with sensitive names are redacted and error text has URLs and long opaque strings removed.
+- **Failure handling.** Every RPC call times out (10 s). The Jupiter price source backs off after a failure (2 s doubling to 60 s, or `Retry-After`, capped) and serves the last good price with its old time, so the app reads "Price may be outdated". The route client maps Jupiter failures to `no_route` (422), `rate_limited` (429) or `route_unavailable` (502, also for a rejected key, which is logged for the operator and not shown). A failing feed sync still serves stored plans and logs `chain_sync_failed` at most once a minute.
+- **Swap venue guard.** `POST /follow/quote` answers `422 swaps_unavailable` when `NETWORKS[network].swapsAvailable` is false (today devnet), before any work. Replaced by the venue path in D1.
+- **Network check.** `bun run --cwd server check-network` (`server/scripts/check-network.ts`, logic in `src/network-report.ts`): right network, program deployed, supported tokens present with the right decimals and token program, price source, swap venue, feed policy. Read-only; prints PASS/WARN/FAIL and never the RPC URL.
+- **Database.** Migration `003_devnet_only.sql` removes `mainnet` from the allowed `cluster` values (`NOT VALID`, so an old development database still migrates).
+- **Verification:** domain 65, server 121 (42 new: allowlist parsing and feed policy, readiness, request ids and log hygiene, price backoff, route failures, `swaps_unavailable`, RPC timeout against a server that never answers, network report, the database rule), app 62 (1 new: the `listed` contract), root lint, `tsc` and the app build pass. Mutation checks confirmed the allowlist and backoff tests fail when those features are removed.
+- **Not done, stated plainly:** `check-network` has only run against fake RPC answers. This cloud environment's network policy blocks `api.devnet.solana.com`, so it has not been run against real devnet. The feed's chain sync still lists every program account on each sync (acceptable for a pilot; W7 covers an indexer). A `Bun.sql` query is lazy, so `expect(query).rejects` spins; tests wrap queries in an async function.
+
 #### C1: real source → timeline (backend first)
 
 - [ ] Migrations: `traders`, `trader_links` (X/Telegram/website/wallet with an identity basis), `source_records`, `ideas`, `timeline_events` (a global sequence for cursors, relationship basis, review state). Kept separate from plans and receipts; demo data has its own provenance flag.

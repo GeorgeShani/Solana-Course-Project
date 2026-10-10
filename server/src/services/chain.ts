@@ -27,14 +27,23 @@ import type {
 const base64 = getBase64Encoder();
 const base58 = getBase58Encoder();
 
-export function createChain(rpcUrl: string, cluster: Cluster): ChainReader {
+/** No RPC call may hang a request: a stuck provider turns into an error the routes already map. */
+const DEFAULT_RPC_TIMEOUT_MS = 10_000;
+
+export function createChain(
+  rpcUrl: string,
+  cluster: Cluster,
+  options: { timeoutMs?: number } = {},
+): ChainReader {
   const rpc = createSolanaRpc(rpcUrl);
+  const timeoutMs = options.timeoutMs ?? DEFAULT_RPC_TIMEOUT_MS;
+  const timeout = () => ({ abortSignal: AbortSignal.timeout(timeoutMs) });
 
   /** Fetches an account; null if absent. Throws if it is not owned by the Relay program. */
   async function fetchOwned(addr: Address): Promise<Uint8Array | null> {
     const { value } = await rpc
       .getAccountInfo(addr, { encoding: "base64", commitment: "confirmed" })
-      .send();
+      .send(timeout());
     if (!value) return null;
     if (value.owner !== RELAY_PROGRAM_ADDRESS) {
       throw new Error("Account is not owned by the Relay program");
@@ -49,7 +58,7 @@ export function createChain(rpcUrl: string, cluster: Cluster): ChainReader {
         commitment: "confirmed",
         filters: [{ dataSize: BigInt(size) }],
       })
-      .send();
+      .send(timeout());
   }
 
   // Chain clock. On a Surfpool fork the clock can be moved by time travel, so the server must
@@ -61,7 +70,7 @@ export function createChain(rpcUrl: string, cluster: Cluster): ChainReader {
     if (!clockSample || t - clockSample.at > 2000) {
       const { value } = await rpc
         .getAccountInfo(CLOCK_SYSVAR_ADDRESS, { encoding: "base64" })
-        .send();
+        .send(timeout());
       if (!value) throw new Error("Clock sysvar unavailable");
       const bytes = Uint8Array.from(base64.encode(value.data[0]));
       // Clock layout: slot u64, epoch_start_timestamp i64, epoch u64, leader_schedule_epoch u64, unix_timestamp i64
@@ -73,8 +82,21 @@ export function createChain(rpcUrl: string, cluster: Cluster): ChainReader {
     return clockSample.chainMs + (t - clockSample.at);
   }
 
+  // Readiness probes arrive every few seconds; one real RPC call per window is enough.
+  let healthSample: { slot: bigint; at: number } | undefined;
+
   return {
     programId: RELAY_PROGRAM_ADDRESS,
+    async health() {
+      const t = Date.now();
+      if (healthSample && t - healthSample.at < 5_000)
+        return { slot: healthSample.slot };
+      const slot = await rpc
+        .getSlot({ commitment: "confirmed" })
+        .send(timeout());
+      healthSample = { slot, at: t };
+      return { slot };
+    },
     nowMs,
     async getPlan(planPda) {
       const data = await fetchOwned(address(planPda));
@@ -104,7 +126,7 @@ export function createChain(rpcUrl: string, cluster: Cluster): ChainReader {
     async getLatestBlockhash() {
       const { value } = await rpc
         .getLatestBlockhash({ commitment: "confirmed" })
-        .send();
+        .send(timeout());
       return value;
     },
     async simulate(transaction): Promise<SimulationResult> {
@@ -115,7 +137,7 @@ export function createChain(rpcUrl: string, cluster: Cluster): ChainReader {
           replaceRecentBlockhash: true,
           commitment: "confirmed",
         })
-        .send();
+        .send(timeout());
       return {
         ok: value.err === null,
         unitsConsumed:
@@ -133,7 +155,7 @@ export function createChain(rpcUrl: string, cluster: Cluster): ChainReader {
           maxSupportedTransactionVersion: 0,
           commitment: "confirmed",
         })
-        .send();
+        .send(timeout());
       if (!tx?.meta) return null;
       // Instruction account indexes cover the static keys, then loaded lookup-table addresses.
       const keys: Address[] = [

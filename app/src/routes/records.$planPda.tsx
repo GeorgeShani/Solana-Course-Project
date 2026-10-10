@@ -137,6 +137,7 @@ function Record({
           <p className="record__kinds">
             <KindBadge kind="relay_plan" />
             {card.creator.isDemo && <span className="badge">Demo creator</span>}
+            {!card.listed && <span className="badge">Unlisted</span>}
           </p>
           <h1 id="record-title" className="page__title record__title">
             {card.pair.label}
@@ -153,6 +154,13 @@ function Record({
             · published <time>{formatTimestamp(v.publishedAt)}</time> (chain
             time)
           </p>
+          {!card.listed && (
+            <p className="record__byline">
+              Unlisted: this plan is real and on chain, but it is not shown in
+              Relay&apos;s feed. Anyone can publish a plan to the program; Relay
+              lists plans from selected creators only.
+            </p>
+          )}
         </div>
         <div className="record__actions">
           <button

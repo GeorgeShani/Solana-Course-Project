@@ -1,5 +1,11 @@
 import type { Context, MiddlewareHandler } from "hono";
 import { getConnInfo } from "hono/bun";
+import type { Logger } from "./logger";
+
+/** Per-request values set by `requestLog`. */
+export interface AppEnv {
+  Variables: { reqId: string };
+}
 
 /** A request problem that maps to a JSON error response. Never carries secrets. */
 export class ApiError extends Error {
@@ -95,5 +101,36 @@ export function originGuard(appOrigin: string): MiddlewareHandler {
       );
     }
     await next();
+  };
+}
+
+/** A caller-supplied request id is kept only if it cannot forge or split a log line. */
+const SAFE_REQUEST_ID = /^[A-Za-z0-9_-]{8,64}$/;
+
+/**
+ * Gives every request an id (returned in `X-Request-Id`, so a user report can be matched to a log
+ * line) and writes one structured line per request when it finishes. The line holds the method,
+ * the path WITHOUT its query string, the status and the duration. It never holds headers, cookies,
+ * bodies or the client address.
+ */
+export function requestLog(logger: Logger): MiddlewareHandler<AppEnv> {
+  return async (c, next) => {
+    const supplied = c.req.header("x-request-id");
+    const reqId =
+      supplied !== undefined && SAFE_REQUEST_ID.test(supplied)
+        ? supplied
+        : crypto.randomUUID();
+    c.set("reqId", reqId);
+    c.header("X-Request-Id", reqId);
+    const started = performance.now();
+    await next();
+    // Each request path is a fixed route or carries a plan address; both are public chain data.
+    logger.info("request", {
+      reqId,
+      method: c.req.method,
+      path: c.req.path,
+      status: c.res.status,
+      ms: Math.round(performance.now() - started),
+    });
   };
 }

@@ -236,6 +236,7 @@ function card(spec: Spec, nowMs: number): PlanCardView {
     },
     pair,
     planStatus: spec.closed ? "closed" : "open",
+    listed: true,
     version: {
       version: spec.versions,
       versionPda: "",

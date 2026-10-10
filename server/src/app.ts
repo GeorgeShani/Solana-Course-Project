@@ -4,16 +4,19 @@ import { secureHeaders } from "hono/secure-headers";
 import { SUPPORTED_PAIRS, formatUnits } from "@relay/domain";
 import type { Db } from "./db";
 import type { Env } from "./env";
+import { safeMessage, shortAddress, silentLogger, type Logger } from "./logger";
 import {
   ApiError,
   clientKey,
   createRateLimiter,
   originGuard,
   rateLimit,
+  requestLog,
+  type AppEnv,
 } from "./middleware";
 import type { FollowService } from "./services/follow";
 import type { PlanService } from "./services/plans";
-import type { PriceSource } from "./services/types";
+import type { ChainReader, PriceSource } from "./services/types";
 import { parseRpcRequest, type RpcForward } from "./services/rpc-proxy";
 import { isRecord } from "./util";
 
@@ -25,6 +28,10 @@ export interface AppDeps {
   prices: PriceSource;
   /** Upstream of POST /rpc (the server's SOLANA_RPC_URL). */
   rpc: RpcForward;
+  /** Used by GET /health/ready to ask the RPC for its slot. */
+  chain: Pick<ChainReader, "health">;
+  /** Request lines and errors. Defaults to silent so tests and scripts stay quiet. */
+  logger?: Logger;
 }
 
 const MAX_BODY_BYTES = 16 * 1024;
@@ -47,9 +54,19 @@ async function readJson(request: Request): Promise<Record<string, unknown>> {
  * write is `POST /plans/:planPda/confirm`, which stores plan text after checking it against the
  * hash committed onchain. Mutating requests need the configured Origin and a JSON body.
  */
-export function createApp({ env, db, plans, follow, prices, rpc }: AppDeps) {
-  const app = new Hono();
+export function createApp({
+  env,
+  db,
+  plans,
+  follow,
+  prices,
+  rpc,
+  chain,
+  logger = silentLogger,
+}: AppDeps) {
+  const app = new Hono<AppEnv>();
 
+  app.use("*", requestLog(logger));
   app.use("*", secureHeaders());
   app.use(
     "*",
@@ -76,9 +93,35 @@ export function createApp({ env, db, plans, follow, prices, rpc }: AppDeps) {
 
   app.get("/health", (c) => c.json({ ok: true }));
 
+  /**
+   * Readiness, for an operator or a monitor (the container's own healthcheck uses /health, which
+   * must not depend on Solana). It answers 503 when the database or the Solana RPC cannot answer,
+   * and says which, so "the feed is empty" can be told apart from "the RPC key is wrong".
+   */
   app.get("/health/ready", async (c) => {
-    await db`select 1`;
-    return c.json({ ok: true, cluster: env.cluster });
+    const check = async (run: () => Promise<unknown>): Promise<"ok" | "down"> =>
+      run().then(
+        () => "ok",
+        (e: unknown) => {
+          logger.warn("readiness_check_failed", { error: safeMessage(e) });
+          return "down";
+        },
+      );
+    const [database, rpcState] = await Promise.all([
+      check(() => db`select 1`),
+      check(() => chain.health()),
+    ]);
+    const ok = database === "ok" && rpcState === "ok";
+    return c.json(
+      {
+        ok,
+        network: env.cluster,
+        // Kept for older clients: the same value as `network`.
+        cluster: env.cluster,
+        checks: { database, rpc: rpcState },
+      },
+      ok ? 200 : 503,
+    );
   });
 
   app.get("/feed", async (c) => {
@@ -129,7 +172,18 @@ export function createApp({ env, db, plans, follow, prices, rpc }: AppDeps) {
         "Too many requests. Try again in a moment.",
       );
     }
-    return c.json(await follow.quote(body));
+    const result = await follow.quote(body);
+    // One structured line per follow attempt (plan section V): what was routed, how heavy it is.
+    logger.info("follow_quote", {
+      reqId: c.get("reqId"),
+      planPda: result.summary.planPda,
+      version: result.summary.version,
+      follower: shortAddress(result.summary.follower),
+      routeLabels: result.summary.routeLabels,
+      computeUnits: result.compose.computeUnitLimit,
+      check: result.summary.check,
+    });
+    return c.json(result);
   });
 
   /** Records the outcome of a follow by re-reading the chain. The client supplies only a signature. */
@@ -191,12 +245,25 @@ export function createApp({ env, db, plans, follow, prices, rpc }: AppDeps) {
 
   app.onError((err, c) => {
     if (err instanceof ApiError) {
+      // The code is the "error code" of the attempt: it says which check stopped it.
+      logger[err.status >= 500 ? "warn" : "info"]("api_error", {
+        reqId: c.get("reqId"),
+        method: c.req.method,
+        path: c.req.path,
+        status: err.status,
+        code: err.code,
+      });
       return c.json(
         { error: { code: err.code, message: err.message } },
         err.status,
       );
     }
-    console.error("unhandled error", err);
+    logger.error("unhandled_error", {
+      reqId: c.get("reqId"),
+      method: c.req.method,
+      path: c.req.path,
+      error: safeMessage(err),
+    });
     return c.json(
       { error: { code: "internal", message: "Something went wrong" } },
       500,

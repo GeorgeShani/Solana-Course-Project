@@ -21,16 +21,17 @@ Written 2026-10-10. This is the short, current "what to do next" for an agent th
 ## State of the repo
 
 - Branch `feat/relay-continuation` (based on `main` at `b22b7ca`, the teammate's UI). Commits on it, oldest first: C0 (plan amendment), P1 (network config, RPC proxy), P2 (program review, `scripts/set-program-id.ts`), work plan, devnet-only change. Run `git log --oneline main..HEAD`.
-- **Done:** C0, P1, P2 (review only), P3 (EC2 runbook). Checks at the last commit: domain 65, server 79, app 61 tests, root lint, `tsc` and the app build pass.
-- **In flight:** a backend agent works package **W1** in its own git worktree (`.claude/worktrees/agent-*`, a branch named like `worktree-agent-*`; `git branch -a`). It was told: devnet only; allowlist; readiness checks RPC; request IDs and logs without secrets; failure handling; `server/scripts/check-network.ts`; `/follow/quote` returns 422 `swaps_unavailable` when `NETWORKS[env.cluster].swapsAvailable` is false. **Merge by hand:** it adds one `creatorAllowlist` field to `server/src/env.ts` and a `listed` field the app's contract parser (`app/src/lib/api.ts`) must accept. If its branch is missing, redo W1 from the plan.
+- **Done:** C0, P1, P2 (review only), P3 (EC2 runbook), **W1** (redone in the cloud session on 2026-10-10; the local agent's worktree branch never reached the repository; see its Result note in the plan). Checks after W1: domain 65, server 121, app 62 tests, root lint, `tsc` and the app build pass.
 - **Not started:** D1, F1, F2, F3, W2 to W7, C-phase screens.
+- **Cloud environment limits:** the cloud session's network policy blocks `api.devnet.solana.com` (add it under Network access > Allowed domains in the environment settings); there is no Docker daemon (a local Postgres 16 runs with `service postgresql start`, roles and databases `relay` and `relay_test`); Anchor and the Solana CLI are not installed, so `bun run program:build` and `program:test` cannot run until they are.
+- **Figma:** the Figma plugin (MCP server and skills) was offered to the owner on 2026-10-10 and is not connected yet.
 - Two files show as modified only because of line endings: `app/src/routeTree.gen.ts` and `server/test/follow.test.ts`. Do not commit them.
 
 ## Next steps, in order
 
-### 1. Merge W1
+### 1. W1: done
 
-Review the agent's diff, merge into `feat/relay-continuation` (keep history linear: rebase or cherry-pick its single `W1:` commit), reconcile `env.ts`, `index.ts` and `server/test/units.test.ts` with the devnet-only versions on this branch, then run every check below.
+See the plan's W1 Result. Nothing left except running `check-network` against real devnet once the host is reachable.
 
 ### 2. D1: devnet program build and simulated swap venue (blocks following on devnet)
 

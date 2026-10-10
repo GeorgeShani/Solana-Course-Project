@@ -45,6 +45,11 @@ export interface PlanCardView {
     quoteDecimals: number;
   };
   planStatus: "open" | "closed";
+  /**
+   * False when Relay's feed policy leaves this plan out of the feed (its creator is not on the
+   * allowlist). The plan is real and reachable by link; it is just not listed.
+   */
+  listed: boolean;
   version: VersionView;
   versionCount: number;
   entry: {
@@ -207,6 +212,7 @@ export function parsePlanCard(v: unknown, path = "card"): PlanCardView {
       quoteDecimals: num(pair.quoteDecimals, `${path}.pair.quoteDecimals`),
     },
     planStatus: planStatusOf(r.planStatus, `${path}.planStatus`),
+    listed: bool(r.listed, `${path}.listed`),
     version: parseVersion(r.version, `${path}.version`),
     versionCount: num(r.versionCount, `${path}.versionCount`),
     entry: {

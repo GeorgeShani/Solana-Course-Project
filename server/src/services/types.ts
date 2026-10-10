@@ -42,6 +42,8 @@ export interface ChainTransaction {
 /** Everything the server needs from Solana. Tests inject a fake. */
 export interface ChainReader {
   readonly programId: Address;
+  /** Asks the RPC for its current slot. Throws when the RPC cannot answer (used by readiness). */
+  health(): Promise<{ slot: bigint }>;
   /** Cluster time in ms. On a fork this follows time travel; elsewhere it is the wall clock. */
   nowMs(): Promise<number>;
   /** Null when the account does not exist. Throws if it exists but is not a Relay Plan account. */

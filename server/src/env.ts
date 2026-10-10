@@ -1,4 +1,9 @@
-import { NETWORKS, parseNetwork, type Network } from "@relay/domain";
+import {
+  NETWORKS,
+  decodeAddress,
+  parseNetwork,
+  type Network,
+} from "@relay/domain";
 
 /**
  * Typed environment. Fails fast on values that would silently break security
@@ -38,6 +43,13 @@ export interface Env {
   jupiterDexes: string | undefined;
   /** Labels fictional demo creators and allows demo-only behaviour. */
   demoMode: boolean;
+  /**
+   * Creator wallets whose plans are LISTED in the feed (feed policy, `CREATOR_ALLOWLIST`). Empty
+   * means no policy: every plan the program holds is listed. Any other plan stays reachable by its
+   * direct link and is marked unlisted. Public networks let anyone publish a plan, so a deployment
+   * that is open to the internet should set this.
+   */
+  creatorAllowlist: readonly string[];
 }
 
 function parseCluster(source: Record<string, string | undefined>): Cluster {
@@ -75,6 +87,24 @@ function parseRpcUrl(v: string): string {
   if (url.protocol !== "https:" && url.protocol !== "http:")
     throw new Error(`SOLANA_RPC_URL must be an http(s) URL`);
   return v;
+}
+
+/** Comma or whitespace separated wallet addresses. A typo must stop the start, not hide a creator. */
+function parseAllowlist(value: string | undefined): readonly string[] {
+  if (!value) return [];
+  const out: string[] = [];
+  for (const item of value.split(/[\s,]+/)) {
+    if (item === "") continue;
+    try {
+      decodeAddress(item); // throws unless it is a base58 string of 32 bytes
+    } catch {
+      throw new Error(
+        `CREATOR_ALLOWLIST must list wallet addresses separated by commas ("${item.slice(0, 12)}…" is not one)`,
+      );
+    }
+    if (!out.includes(item)) out.push(item);
+  }
+  return out;
 }
 
 /** Throws with every missing or unsafe production setting at once, so a deploy fails in one go. */
@@ -124,5 +154,6 @@ export function loadEnv(
     jupiterDexes:
       cluster === "localnet" ? source.JUPITER_DEXES || undefined : undefined,
     demoMode: source.DEMO_MODE === "true",
+    creatorAllowlist: parseAllowlist(source.CREATOR_ALLOWLIST),
   };
 }

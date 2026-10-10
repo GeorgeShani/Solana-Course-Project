@@ -1,4 +1,5 @@
 import {
+  NETWORKS,
   USDC,
   effectivePriceCeil,
   fillPosition,
@@ -29,6 +30,12 @@ import {
 } from "@solana/kit";
 import type { Db } from "../db";
 import type { Env } from "../env";
+import {
+  safeMessage,
+  shortAddress,
+  silentLogger,
+  type Logger,
+} from "../logger";
 import { ApiError } from "../middleware";
 import { isRecord } from "../util";
 import { friendlyFollowError } from "./follow-errors";
@@ -54,6 +61,7 @@ export interface FollowServiceDeps {
   db: Db;
   chain: ChainReader;
   jupiter: JupiterClient;
+  logger?: Logger;
 }
 
 export interface QuoteResponse {
@@ -166,6 +174,7 @@ function parseAddress(value: unknown, field: string): Address {
 
 export function createFollowService(deps: FollowServiceDeps) {
   const { env, db, chain, jupiter } = deps;
+  const logger = deps.logger ?? silentLogger;
 
   async function loadPlan(planPda: Address): Promise<OnchainPlan> {
     let plan: OnchainPlan | null;
@@ -198,6 +207,14 @@ export function createFollowService(deps: FollowServiceDeps) {
   async function quote(input: unknown): Promise<QuoteResponse> {
     if (!isRecord(input))
       throw new ApiError(400, "invalid_input", "Body must be an object");
+    // Without a swap venue there is nothing to route through. Say so plainly, before any work.
+    if (!NETWORKS[env.cluster].swapsAvailable) {
+      throw new ApiError(
+        422,
+        "swaps_unavailable",
+        `Swaps are not available on ${NETWORKS[env.cluster].label} yet, so this plan can be read but not followed.`,
+      );
+    }
     const planPda = parseAddress(input.planPda, "planPda");
     const follower = parseAddress(input.follower, "follower");
     const version = input.version;
@@ -328,16 +345,18 @@ export function createFollowService(deps: FollowServiceDeps) {
     // Dry-run it. A transaction that would fail is never handed out for signing.
     const sim = await chain.simulate(composed.transaction);
     if (!sim.ok) {
-      console.error(
-        "follow simulation failed:",
-        JSON.stringify(sim.error, (_k, v) =>
-          typeof v === "bigint" ? v.toString() : v,
-        ),
-        sim.logs.slice(-6),
-      );
       const name =
         parseAnchorErrorName(sim.logs) ??
         relayErrorByCode(customErrorCode(sim.error) ?? -1)?.name;
+      logger.warn("follow_simulation_failed", {
+        planPda,
+        version,
+        follower: shortAddress(follower),
+        errorName: name ?? null,
+        simulationError: sim.error,
+        // The last log lines name the failing instruction. They hold addresses and amounts only.
+        logs: sim.logs.slice(-6),
+      });
       reject(name ?? "SwapWouldFail");
     }
     const limit = Math.min(
@@ -448,10 +467,7 @@ export function createFollowService(deps: FollowServiceDeps) {
       });
     } catch (e) {
       // composeFollowTx fails closed on anything it does not recognise. Keep the detail in logs.
-      console.error(
-        "follow route rejected:",
-        e instanceof Error ? e.message : e,
-      );
+      logger.warn("follow_route_rejected", { error: safeMessage(e) });
       throw new ApiError(
         502,
         "route_rejected",

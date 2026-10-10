@@ -30,6 +30,7 @@ import {
 import { createApp } from "../src/app";
 import { connect, migrate, type Db } from "../src/db";
 import { loadEnv, type Env } from "../src/env";
+import { silentLogger, type Logger } from "../src/logger";
 import { createFollowService } from "../src/services/follow";
 import type { BuildParams, JupiterClient } from "../src/services/jupiter";
 import { createPlanService } from "../src/services/plans";
@@ -73,6 +74,11 @@ export class FakeChain implements ChainReader {
   };
   simulated: Transaction[] = [];
   readonly fixedBlockhash = blockhash("11111111111111111111111111111111");
+
+  async health() {
+    if (this.down) throw new Error("rpc down");
+    return { slot: 1n };
+  }
 
   async getLatestBlockhash() {
     return {
@@ -273,13 +279,22 @@ export async function resetDatabase(db: Db): Promise<void> {
   await migrate(db);
 }
 
+export interface TestAppOptions {
+  /** Extra settings on top of the test defaults (for example CREATOR_ALLOWLIST or NETWORK). */
+  env?: Record<string, string>;
+  logger?: Logger;
+}
+
 export async function createTestApp(
   jupiterBody: unknown = null,
+  options: TestAppOptions = {},
 ): Promise<TestApp> {
+  const logger = options.logger ?? silentLogger;
   const env = loadEnv({
     APP_ORIGIN: ORIGIN,
     SOLANA_CLUSTER: "localnet",
     DATABASE_URL: TEST_DATABASE_URL,
+    ...options.env,
   });
   const db = connect(TEST_DATABASE_URL);
   await resetDatabase(db);
@@ -288,10 +303,19 @@ export async function createTestApp(
   prices.prices.set(SOL.mint, { units: 183_000_000n, ageMs: 1000 });
   prices.prices.set(JUP.mint, { units: 350_000n, ageMs: 1000 });
   const jupiter = new FakeJupiter(jupiterBody);
-  const plans = createPlanService({ env, db, chain, prices });
-  const follow = createFollowService({ env, db, chain, jupiter });
+  const plans = createPlanService({ env, db, chain, prices, logger });
+  const follow = createFollowService({ env, db, chain, jupiter, logger });
   const rpc = new FakeRpc();
-  const app = createApp({ env, db, plans, follow, prices, rpc: rpc.forward });
+  const app = createApp({
+    env,
+    db,
+    plans,
+    follow,
+    prices,
+    rpc: rpc.forward,
+    chain,
+    logger,
+  });
   return {
     app,
     db,
