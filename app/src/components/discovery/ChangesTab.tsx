@@ -3,7 +3,7 @@ import { Cue } from "../cue/Cue";
 import { Icon } from "../ui/Icon";
 import {
   RELATIONSHIP_LABEL,
-  eventLabel,
+  eventKind,
   formatWhen,
   safeHref,
   type ChangesResponse,
@@ -200,9 +200,7 @@ function TargetCard({ t, w }: { t: TargetChanges; w: WatchedItem }) {
                   return (
                     <li key={e.id}>
                       <p className="chg__head">
-                        <span className="tl__label">
-                          {eventLabel(e.type).label}
-                        </span>
+                        <span className="tl__label">{eventKind(e).label}</span>
                         {e.relationship.basis !== "original" && (
                           <span className="badge badge--quiet">
                             {RELATIONSHIP_LABEL[e.relationship.basis]}

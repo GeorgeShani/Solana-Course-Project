@@ -11,7 +11,7 @@ import { WatchButton } from "../components/discovery/WatchButton";
 import { Cue } from "../components/cue/Cue";
 import { BackLink } from "../components/ui/BackLink";
 import { Icon } from "../components/ui/Icon";
-import { DiscoveryNotFoundError } from "../lib/discovery";
+import { CURATION_NOTE, DiscoveryNotFoundError } from "../lib/discovery";
 import { useIdea } from "../lib/discovery-queries";
 import {
   markSeen,
@@ -138,6 +138,7 @@ function IdeaView({ ideaId }: { ideaId: string }) {
       </section>
 
       <SourceCard source={data.original} />
+      <p className="page__text page__text--quiet">{CURATION_NOTE}</p>
 
       <section aria-labelledby="timeline-title" className="idea__timeline">
         <h2 id="timeline-title" className="page__subsection">

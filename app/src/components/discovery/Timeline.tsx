@@ -4,7 +4,7 @@ import { SourceCard } from "./SourceCard";
 import { CLUSTER } from "../../lib/config";
 import {
   RELATIONSHIP_LABEL,
-  eventLabel,
+  eventKind,
   formatWhen,
   safeHref,
   type EventView,
@@ -112,7 +112,7 @@ export function Timeline({
   return (
     <ol className="tl" aria-label="Timeline">
       {events.map((e) => {
-        const kind = eventLabel(e.type);
+        const kind = eventKind(e);
         const isOrigin = e.relationship.basis === "original";
         const asked = requests.filter((r) => r.aboutEventId === e.id).length;
         const fresh = highlight?.(e) ?? false;

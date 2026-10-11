@@ -1,3 +1,209 @@
 {
-  "traders": []
+  "curator": "Relay editorial curation (drafted with Claude Code)",
+  "traders": [
+    {
+      "id": "arthur-hayes",
+      "displayName": "Arthur Hayes",
+      "markets": ["crypto", "macro"],
+      "attributionBasis": "Investor and essayist. Arthur Hayes publishes the Crypto Trader Digest essays on Substack under his own byline (@cryptohayes); each record below links the exact essay.",
+      "participation": "public_source_only",
+      "coverageLimits": "Relay recorded a few public essays by hand. It does not follow his X account, interviews, or anything behind a paywall, and no wallet is linked to him. Summaries are Relay's paraphrase, not his words.",
+      "ownerConfirmed": { "by": "Relay project owner", "at": "2026-10-11" },
+      "links": [
+        {
+          "kind": "website",
+          "value": "https://cryptohayes.substack.com",
+          "identityBasis": "editorially_associated",
+          "basisNote": "His Substack publication; every essay carries the byline Arthur Hayes."
+        }
+      ],
+      "sources": [
+        {
+          "id": "hayes-this-is-fine",
+          "provider": "website",
+          "url": "https://cryptohayes.substack.com/p/this-is-fine",
+          "recordType": "article",
+          "publishedAt": "2026-02-17T23:01:07Z",
+          "retrievedAt": "2026-10-11T16:30:00Z",
+          "displayedContent": "Essay \"This Is Fine\" on his Substack. Hayes argues that AI-driven job losses among knowledge workers could cause consumer-credit and mortgage defaults and a deflationary credit crisis, which he expects the Fed to answer by printing money. He says Bitcoin may already have bottomed near $60,000 or could fall through it, and that he would add risk heavily only after a Fed \"all-clear\". He writes that his firm is long ZEC and HYPE. Paraphrased by Relay.",
+          "availability": [
+            { "state": "available", "observedAt": "2026-10-11T16:30:00Z" }
+          ]
+        },
+        {
+          "id": "hayes-no-trade-zone",
+          "provider": "website",
+          "url": "https://cryptohayes.substack.com/p/no-trade-zone",
+          "recordType": "article",
+          "publishedAt": "2026-04-15T23:01:14Z",
+          "retrievedAt": "2026-10-11T16:30:00Z",
+          "displayedContent": "Essay \"No Trade Zone\" on his Substack. Hayes says his fund is in a \"no-trade zone\" for long-only positions, apart from slowly adding to a HYPE long, and refers back to \"This Is Fine\" for the AI-deflation scenario. He hopes Bitcoin holds $60,000 in a wider financial crash, would favour adding risk if it tests and holds that level a second time, and names gold and HYPE as the only assets he would add. Paraphrased by Relay.",
+          "availability": [
+            { "state": "available", "observedAt": "2026-10-11T16:30:00Z" }
+          ]
+        }
+      ],
+      "ideas": [
+        {
+          "id": "hayes-ai-credit-deflation",
+          "sourceId": "hayes-this-is-fine",
+          "title": "AI-driven credit deflation: add risk only after a Fed \"all-clear\"",
+          "assets": ["BTC", "HYPE", "ZEC"],
+          "market": "crypto",
+          "statedConditions": "Relay's paraphrase: Hayes would add risk heavily only once the Fed responds with money printing. Until then he expects Bitcoin could break below $60,000. No entry, target or expiry is stated.",
+          "events": [
+            {
+              "id": "hayes-no-trade-zone-update",
+              "type": "update_published",
+              "occurredAt": "2026-04-15T23:01:14Z",
+              "sourceId": "hayes-no-trade-zone",
+              "relationshipBasis": "creator_confirmed",
+              "basisNote": "The author links the two himself: in \"No Trade Zone\" he writes \"I wrote about this in my essay, \"This Is Fine\".\"",
+              "summary": "Two months later Hayes describes his fund as being in a no-trade zone, apart from slowly adding HYPE, and says he would favour adding risk if Bitcoin tests and holds $60,000 a second time."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "peter-brandt",
+      "displayName": "Peter Brandt",
+      "markets": ["futures", "commodities", "crypto"],
+      "attributionBasis": "Trader. Peter L. Brandt posts market commentary under his own byline on peterlbrandt.com (Factor LLC). Interviews are published by the interviewer, not by him, and are labelled that way.",
+      "participation": "public_source_only",
+      "coverageLimits": "Relay recorded a few public items by hand. It does not follow his X account or his member-only Factor reports, and no wallet is linked to him. Summaries are Relay's paraphrase, not his words.",
+      "ownerConfirmed": { "by": "Relay project owner", "at": "2026-10-11" },
+      "links": [
+        {
+          "kind": "website",
+          "value": "https://www.peterlbrandt.com",
+          "identityBasis": "editorially_associated",
+          "basisNote": "His site (Factor LLC); its posts carry the byline Peter Brandt."
+        },
+        {
+          "kind": "x",
+          "value": "https://twitter.com/PeterLBrandt",
+          "identityBasis": "editorially_associated",
+          "basisNote": "Linked from peterlbrandt.com. Relay does not follow this account."
+        }
+      ],
+      "sources": [
+        {
+          "id": "brandt-ct-bottom-oct-4",
+          "provider": "website",
+          "url": "https://cointelegraph.com/magazine/peter-brandt-says-bitcoins-bear-market-isnt-over-predicts-final-bottom-in-october",
+          "recordType": "article",
+          "publishedAt": "2026-07-20T13:30:00Z",
+          "retrievedAt": "2026-10-11T16:30:00Z",
+          "displayedContent": "Interview published by Cointelegraph Magazine (Trade Secrets, written by Ciaran Lyons), not by Brandt himself. Brandt told the interviewer he would \"go out on a limb\" and expects Bitcoin's cycle bottom on October 4, 2026, and that Bitcoin could first fall below $50,000, possibly into the high $40,000s. Paraphrased by Relay.",
+          "availability": [
+            { "state": "available", "observedAt": "2026-10-11T16:30:00Z" }
+          ]
+        },
+        {
+          "id": "brandt-ct-podcast-wrong-bottom",
+          "provider": "website",
+          "url": "https://cointelegraph.com/podcasts/trade-secrets/peter-brandt-was-wrong-about-bitcoins-bottom-heres-what-he-sees-now",
+          "recordType": "video",
+          "publishedAt": "2026-09-25T16:26:56Z",
+          "retrievedAt": "2026-10-11T16:30:00Z",
+          "displayedContent": "Podcast episode published by Cointelegraph (Trade Secrets, hosted by Ciaran Lyons), titled \"Peter Brandt Was Wrong About Bitcoin's Bottom — Here's What He Sees Now\". The publisher's summary says Brandt discusses the risk of another drop toward $60,000–$70,000 and a long-term $300,000–$600,000 outlook. Relay has not checked the recording itself.",
+          "availability": [
+            { "state": "available", "observedAt": "2026-10-11T16:30:00Z" }
+          ]
+        },
+        {
+          "id": "brandt-my-focus-is-bitcoin",
+          "provider": "website",
+          "url": "https://www.peterlbrandt.com/my-focus-is-bitcoin/",
+          "recordType": "post",
+          "publishedAt": "2026-09-19T21:44:27Z",
+          "retrievedAt": "2026-10-11T16:30:00Z",
+          "displayedContent": "Post \"My focus is Bitcoin\" on his own site. Despite the title, it charts the total crypto market value excluding Bitcoin (TOTAL2). Brandt says he does not trade altcoins, sees a cup-with-handle pattern since November 2021 with resistance near $1.17 trillion, and a daily pennant pointing to $1.36 trillion; a fall below the August low would send him \"back to the drawing board\". Paraphrased by Relay.",
+          "availability": [
+            { "state": "available", "observedAt": "2026-10-11T16:30:00Z" }
+          ]
+        }
+      ],
+      "ideas": [
+        {
+          "id": "brandt-btc-bottom-oct-4",
+          "sourceId": "brandt-ct-bottom-oct-4",
+          "title": "Bitcoin's cycle bottom expected on 4 October 2026",
+          "assets": ["BTC"],
+          "market": "crypto",
+          "statedConditions": "Relay's paraphrase of the interview: a cycle bottom on October 4, 2026, possibly after a fall below $50,000 into the high $40,000s. A forecast in an interview, not a trade.",
+          "events": [
+            {
+              "id": "brandt-ct-podcast-later",
+              "type": "update_published",
+              "occurredAt": "2026-09-25T16:26:56Z",
+              "sourceId": "brandt-ct-podcast-wrong-bottom",
+              "relationshipBasis": "uncertain",
+              "basisNote": "Same interviewer and topic. The title, written by Cointelegraph, says Brandt was wrong about Bitcoin's bottom but does not say which earlier call it means, and Relay has not checked the recording. Not treated as Brandt's own update to this forecast.",
+              "summary": "A later Cointelegraph episode on Bitcoin's bottom. Its summary mentions the risk of another drop toward $60,000–$70,000."
+            }
+          ]
+        },
+        {
+          "id": "brandt-total2-cup-handle",
+          "sourceId": "brandt-my-focus-is-bitcoin",
+          "title": "Crypto market excluding Bitcoin (TOTAL2): a cup-with-handle chart",
+          "assets": ["TOTAL2"],
+          "market": "crypto",
+          "statedConditions": "Relay's paraphrase: resistance near $1.17 trillion; a daily pennant pointing to $1.36 trillion; a fall below the August low invalidates the reading. A chart reading, not a trade.",
+          "events": []
+        }
+      ]
+    },
+    {
+      "id": "benjamin-cowen",
+      "displayName": "Benjamin Cowen",
+      "markets": ["crypto", "macro"],
+      "attributionBasis": "Analyst. Benjamin Cowen publishes market analysis videos on his YouTube channel (Into The Cryptoverse); YouTube names him as the uploader of each video recorded here.",
+      "participation": "public_source_only",
+      "coverageLimits": "Relay recorded one public video by hand, from its title, date and the chapter list Cowen published with it; Relay has not checked every statement in the video. It does not cover his premium content, newsletter or X account, and no wallet is linked to him.",
+      "ownerConfirmed": { "by": "Relay project owner", "at": "2026-10-11" },
+      "links": [
+        {
+          "kind": "youtube",
+          "value": "https://www.youtube.com/@benjaminjcowen",
+          "identityBasis": "editorially_associated",
+          "basisNote": "The channel YouTube shows as the uploader, named Benjamin Cowen."
+        },
+        {
+          "kind": "website",
+          "value": "https://intothecryptoverse.com",
+          "identityBasis": "editorially_associated",
+          "basisNote": "Into The Cryptoverse, linked from his video descriptions."
+        }
+      ],
+      "sources": [
+        {
+          "id": "cowen-btc-line-in-the-sand",
+          "provider": "youtube",
+          "providerId": "aEd5onhPxUs",
+          "url": "https://www.youtube.com/watch?v=aEd5onhPxUs",
+          "recordType": "video",
+          "publishedAt": "2026-10-07T15:10:30Z",
+          "retrievedAt": "2026-10-11T16:30:00Z",
+          "displayedContent": "Video \"Bitcoin: The Line in the Sand\" on his YouTube channel (about 54 minutes). Its chapter list compares the current rally with Bitcoin in 2019, discusses monetary policy, rising yields and a potential post-midterms top, and closes with scenarios and a \"final $83K thesis\" for Bitcoin. Summarised by Relay from the published chapter list.",
+          "availability": [
+            { "state": "available", "observedAt": "2026-10-11T16:30:00Z" }
+          ]
+        }
+      ],
+      "ideas": [
+        {
+          "id": "cowen-btc-83k-line",
+          "sourceId": "cowen-btc-line-in-the-sand",
+          "title": "Bitcoin: \"The Line in the Sand\" and an $83K thesis",
+          "assets": ["BTC"],
+          "market": "crypto",
+          "statedConditions": null,
+          "events": []
+        }
+      ]
+    }
+  ]
 }

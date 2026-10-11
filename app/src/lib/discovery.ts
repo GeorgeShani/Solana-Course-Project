@@ -793,9 +793,39 @@ export function eventLabel(type: string): { label: string; meaning: string } {
   );
 }
 
+/**
+ * The label for one timeline entry. A later statement is called an update to the idea only when
+ * the author links it to the original; anything else is later analysis on the same topic, which
+ * says nothing about whether the author changed position.
+ */
+export function eventKind(event: {
+  type: string;
+  relationship: { basis: RelationshipBasis };
+}): { label: string; meaning: string } {
+  if (event.type === "update_published")
+    return event.relationship.basis === "creator_confirmed"
+      ? {
+          label: "Update to this idea",
+          meaning:
+            "A later statement the author links to this idea. A statement is not proof that a trade happened.",
+        }
+      : {
+          label: "Later analysis on the same topic",
+          meaning:
+            "A later item on the same subject that the author has not linked to this idea. It does not mean the author changed or withdrew the idea.",
+        };
+  if (event.type === "source_added" && event.relationship.basis === "original")
+    return {
+      label: "Original source",
+      meaning:
+        "The public statement this idea comes from. The link opens the exact item.",
+    };
+  return eventLabel(event.type);
+}
+
 export const RELATIONSHIP_LABEL: Record<RelationshipBasis, string> = {
   original: "Original statement",
-  creator_confirmed: "Confirmed by the trader",
+  creator_confirmed: "Linked by the author",
   editorially_associated: "Linked by Relay's curator",
   uncertain: "Link uncertain",
 };
@@ -830,6 +860,24 @@ export function formatWhen(iso: string | null): string {
   })} UTC`;
 }
 
+/** Shown wherever curated records appear: the coverage is manual and nothing updates on its own. */
+export const CURATION_NOTE =
+  "Editorially curated from public sources; automatic updates are not connected.";
+
+export const RECORD_TYPE_LABEL: Record<string, string> = {
+  post: "Post",
+  thread: "Thread",
+  article: "Article",
+  video: "Video",
+  other: "Other",
+};
+
+/** The site a source link opens, so a reader can tell an author's own site from a publisher's. */
+export function sourceHost(url: string): string | null {
+  const href = safeHref(url);
+  return href === null ? null : new URL(href).host.replace(/^www\./, "");
+}
+
 export const PROVIDER_LABEL: Record<string, string> = {
   x: "X",
   telegram: "Telegram",
@@ -843,7 +891,7 @@ export const PARTICIPATION_LABEL: Record<
   string
 > = {
   confirmed_participating: "Agreed to take part",
-  public_source_only: "Public sources only. Not a partner or endorsement",
+  public_source_only: "Public-source profile · Not claimed by the author",
 };
 
 // -------------------------------------------------------------------------- form validation

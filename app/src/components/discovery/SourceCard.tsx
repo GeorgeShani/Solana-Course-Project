@@ -2,6 +2,8 @@ import { Icon } from "../ui/Icon";
 import {
   AVAILABILITY_LABEL,
   PROVIDER_LABEL,
+  RECORD_TYPE_LABEL,
+  sourceHost,
   formatWhen,
   safeHref,
   type SourceView,
@@ -28,7 +30,10 @@ export function SourceCard({
     <figure className="source" data-availability={source.availability.state}>
       <figcaption className="source__head">
         <span className="source__heading">{heading}</span>
-        <span className="source__provider">{provider}</span>
+        <span className="source__provider">
+          {RECORD_TYPE_LABEL[source.recordType] ?? source.recordType} ·{" "}
+          {sourceHost(source.url) ?? provider}
+        </span>
         <span className="badge badge--quiet">Manual coverage</span>
       </figcaption>
 

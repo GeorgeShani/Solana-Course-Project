@@ -37,9 +37,10 @@ function Ideas() {
             Manual coverage, not a live feed
           </h2>
           <p className="callout__text">
-            A person at Relay recorded each entry by hand from public sources.
-            Relay does not watch these accounts, so something may have changed
-            since. A statement is not proof that a trade happened.
+            Editorially curated from public sources; automatic updates are not
+            connected. A person at Relay recorded each entry by hand. Relay does
+            not watch these accounts, so something may have changed since. A
+            statement is not proof that a trade happened.
           </p>
         </div>
         <Link to="/how-it-works" className="btn btn--ghost btn--small">

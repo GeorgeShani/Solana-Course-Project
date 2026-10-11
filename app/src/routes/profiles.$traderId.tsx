@@ -6,6 +6,7 @@ import { BackLink } from "../components/ui/BackLink";
 import { Icon } from "../components/ui/Icon";
 import {
   DiscoveryNotFoundError,
+  CURATION_NOTE,
   PARTICIPATION_LABEL,
   PROVIDER_LABEL,
   RELATIONSHIP_LABEL,
@@ -79,6 +80,9 @@ function ProfilePage() {
       <header className="idea__head">
         <p className="icard__badges">
           {t.isDemo && <DemoBadge />}
+          <span className="badge badge--quiet">
+            {PARTICIPATION_LABEL[t.participation]}
+          </span>
           <span className="badge badge--quiet">Manual coverage</span>
         </p>
         <h1 id="profile-title" className="page__title">
@@ -88,7 +92,6 @@ function ProfilePage() {
           <span>
             {t.markets.length > 0 ? t.markets.join(", ") : "Market not stated"}
           </span>
-          <span>{PARTICIPATION_LABEL[t.participation]}</span>
         </p>
         <WatchButton
           type="trader"
@@ -103,6 +106,7 @@ function ProfilePage() {
           Why this profile is here
         </h2>
         <p className="page__text">{t.attributionBasis}</p>
+        <p className="page__text page__text--quiet">{CURATION_NOTE}</p>
         <p className="page__text">
           <strong>What this does not cover.</strong> {t.coverageLimits}
         </p>
