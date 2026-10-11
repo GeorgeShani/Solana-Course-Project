@@ -50,6 +50,12 @@ export interface Env {
    * that is open to the internet should set this.
    */
   creatorAllowlist: readonly string[];
+  /** Google OAuth 2.0 client ID (from Google Cloud Console). */
+  googleClientId: string | undefined;
+  /** Google OAuth 2.0 client secret (server-side only). */
+  googleClientSecret: string | undefined;
+  /** The registered redirect URI for Google OAuth callbacks. */
+  googleRedirectUri: string | undefined;
 }
 
 function parseCluster(source: Record<string, string | undefined>): Cluster {
@@ -155,5 +161,8 @@ export function loadEnv(
       cluster === "localnet" ? source.JUPITER_DEXES || undefined : undefined,
     demoMode: source.DEMO_MODE === "true",
     creatorAllowlist: parseAllowlist(source.CREATOR_ALLOWLIST),
+    googleClientId: source.GOOGLE_CLIENT_ID || undefined,
+    googleClientSecret: source.GOOGLE_CLIENT_SECRET || undefined,
+    googleRedirectUri: source.GOOGLE_REDIRECT_URI || undefined,
   };
 }

@@ -22,6 +22,7 @@ import type { FollowService } from "./services/follow";
 import type { PlanService } from "./services/plans";
 import type { ChainReader, PriceSource } from "./services/types";
 import { parseRpcRequest, type RpcForward } from "./services/rpc-proxy";
+import { mountGoogleAuth } from "./auth/google";
 
 export interface AppDeps {
   env: Env;
@@ -137,6 +138,7 @@ export function createApp({
 
   mountDiscovery(app, discovery);
   mountEvidence(app, evidence, env);
+  mountGoogleAuth(app, env, db);
 
   app.get("/plans/:planPda", async (c) =>
     c.json(await plans.detail(c.req.param("planPda"))),

@@ -32,7 +32,7 @@ export const Route = createFileRoute("/")({
   loader: async ({
     deps,
   }): Promise<{ feed: FeedLoad; chainOk: boolean; preview: boolean }> => {
-    if (deps.preview === "fictional" && import.meta.env.DEV) {
+    if (deps.preview === "fictional") {
       const now = Date.now();
       return {
         feed: { ok: true, page: fictionalPreviewFeed(now), receivedAt: now },
