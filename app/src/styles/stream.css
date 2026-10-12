@@ -47,7 +47,7 @@
   transition: width 0.4s var(--ease-out);
 }
 
-/* The people, as pictures, and the reader's title: one bar, centred at the top. */
+/* Profile filter: one bar, centred at the top. */
 .stream__top {
   position: absolute;
   z-index: 20;
@@ -55,34 +55,19 @@
   left: 50%;
   translate: -50% 0;
   display: flex;
+  justify-content: center;
   align-items: center;
-  gap: var(--s2);
-  max-width: calc(100% - 2 * var(--wing) - 120px);
+  max-width: calc(100% - 2 * var(--wing) - 48px);
 }
 
 .stream__people {
   display: flex;
+  justify-content: center;
   gap: var(--s2);
   padding: var(--s1);
   border-radius: 999px;
   background: rgba(15, 8, 32, 0.8);
   backdrop-filter: blur(6px);
-}
-
-.level {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  min-height: 32px;
-  margin: 0;
-  padding: 0 var(--s3);
-  border: 1px solid var(--hairline-strong);
-  border-radius: 999px;
-  background: rgba(15, 8, 32, 0.8);
-  color: var(--limelight);
-  font-size: var(--t-footnote);
-  font-weight: 800;
-  white-space: nowrap;
 }
 
 .ring {
@@ -190,9 +175,10 @@
   flex-shrink: 0;
 }
 
+/* Arrow keys focus the screen for assistive tech; the active ticket already shows where you are. */
+.scr:focus,
 .scr:focus-visible {
-  outline-offset: -6px;
-  border-radius: var(--r-lg);
+  outline: none;
 }
 
 /* The author colour, as a soft light behind the face. */
@@ -615,113 +601,15 @@
   }
 }
 
-/* ------------------------------------------------------------------ the audience below the line */
-
-.aud {
-  position: absolute;
-  z-index: 11;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 20vh;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-.aud__row {
-  position: absolute;
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: space-around;
-  align-items: flex-end;
-}
-
-.aud__row--back {
-  bottom: 38%;
-  padding: 0 4%;
-}
-
-.aud__row--front {
-  bottom: -14%;
-  padding: 0 9%;
-}
-
-.aud__p {
-  flex: none;
-  fill: #0b0618;
-  stroke: color-mix(in srgb, var(--accent, var(--limelight)) 55%, transparent);
-  stroke-width: 1.2;
-  transition: stroke 0.6s var(--ease-out);
-}
-
-.aud__row--back .aud__p {
-  width: clamp(26px, 3.4vw, 44px);
-  opacity: 0.8;
-}
-
-.aud__row--front .aud__p {
-  width: clamp(40px, 5.4vw, 72px);
-}
-
-/* A little life: heads sway out of step; they applaud when something is watched. */
-@media (prefers-reduced-motion: no-preference) {
-  .aud__p {
-    animation: aud-sway 4.5s ease-in-out infinite alternate;
-  }
-
-  .aud__row > :nth-child(3n) {
-    animation-delay: -1.2s;
-  }
-
-  .aud__row > :nth-child(3n + 1) {
-    animation-delay: -2.6s;
-    animation-duration: 5.4s;
-  }
-
-  .aud[data-clap="true"] .aud__p {
-    animation: aud-clap 0.36s ease-in-out 5;
-  }
-
-  .aud[data-clap="true"] .aud__row > :nth-child(odd) {
-    animation-delay: 0.1s;
-  }
-}
-
-@keyframes aud-sway {
-  to {
-    transform: translateY(-3px) rotate(1.5deg);
-  }
-}
-
-@keyframes aud-clap {
-  50% {
-    transform: translateY(-9px) scale(1.04);
-  }
-}
-
-@media (max-width: 600px) {
-  .aud__row > :nth-child(even) {
-    display: none;
-  }
-}
+/* Audience / house styles live in audience.css (loaded after this file). */
 
 @media (max-width: 460px) {
   .stream__top {
-    max-width: calc(100% - 2 * var(--wing) - 76px);
-    left: calc(50% + 28px);
-    gap: 6px;
+    max-width: calc(100% - 2 * var(--wing) - 32px);
   }
 
   .stream__top .ring {
     width: 34px;
     height: 34px;
-  }
-
-  .level {
-    flex-shrink: 0;
-    padding-inline: 8px;
-    font-size: 0.75rem;
-    white-space: nowrap;
   }
 }

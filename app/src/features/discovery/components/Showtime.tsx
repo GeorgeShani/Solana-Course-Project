@@ -1,6 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { Icon } from "../../../components/ui/Icon";
-import { levelOf, totalStamps, useStamps } from "../stamps";
+import { isCaughtUp, totalNew } from "../changes";
+import { useChanges } from "../queries";
+import { toTargets, useDiscoveryWatch } from "../watch";
 import { Avatar } from "./Avatar";
 
 /** The four steps, each drawn as a small scene. Nothing here is data; it is the product in pictures. */
@@ -98,9 +100,9 @@ const SCENES = [
 
 /**
  * Showtime: the curtains close over the stream, the house cheers, and the whole journey plays as
- * four small scenes with the reader's stamp book underneath. Opens by itself once after the third
- * ticket, or when the reader pulls the cord. The reader's title and stamps are their own actions,
- * kept in this browser; they say nothing about any idea, trade or result.
+ * four small scenes. Underneath, a live strip shows what this browser is actually watching and
+ * how many updates are waiting — never a game score. Opens after the third ticket, at the end of
+ * the stream, or when the reader pulls the cord.
  */
 export function Showtime({
   open,
@@ -110,20 +112,29 @@ export function Showtime({
   onClose: () => void;
 }) {
   const go = useRef<HTMLButtonElement>(null);
-  const [round, setRound] = useState(0);
-  const book = useStamps();
-  const total = totalStamps(book);
-  const level = levelOf(total);
-  const has = (k: "seen" | "sourced" | "watched") =>
-    Object.values(book).filter((s) => s.includes(k)).length;
-  const pct =
-    level.toNext === null
-      ? 100
-      : Math.min(100, (total / (total + level.toNext)) * 100);
+  const watched = useDiscoveryWatch();
+  const targets = useMemo(() => toTargets(watched), [watched]);
+  const changes = useChanges(targets);
+  const ideas = watched.filter((w) => w.type === "idea").length;
+  const profiles = watched.filter((w) => w.type === "trader").length;
+  const watching = watched.length;
+  const updates = changes.data !== undefined ? totalNew(changes.data) : null;
+  const caughtUp =
+    changes.data !== undefined ? isCaughtUp(changes.data) : false;
+  const updatesPending = watching > 0 && changes.isPending && updates === null;
+  const updatesUnavailable =
+    watching > 0 && changes.isError && updates === null;
+  const statusLabel =
+    watching === 0
+      ? "Nothing watched yet"
+      : caughtUp
+        ? "Caught up"
+        : updates !== null
+          ? `${updates} new update${updates === 1 ? "" : "s"}`
+          : `Watching ${watching}`;
 
   useEffect(() => {
     if (!open) return;
-    setRound(0);
     // The curtains take a moment to close; focus the way out once they have.
     const t = window.setTimeout(() => go.current?.focus(), 1100);
     const onKey = (e: KeyboardEvent) => {
@@ -148,9 +159,8 @@ export function Showtime({
     >
       <div className="showtime__drape showtime__drape--l" />
       <div className="showtime__drape showtime__drape--r" />
-      <div className="showtime__valance" />
 
-      <div className="showtime__stage" key={round}>
+      <div className="showtime__stage">
         <p className="interval">
           <Icon name="star-filled" size={16} /> Interval
         </p>
@@ -169,37 +179,48 @@ export function Showtime({
 
         <div
           className="book"
-          aria-label={`Your stamps: ${total}, ${level.name}`}
+          aria-label={`${statusLabel}. Ideas ${ideas}, profiles ${profiles}${
+            updates === null ? "" : `, updates ${updates}`
+          }. Stored in this browser only.`}
         >
           <span className="book__level">
-            <Icon name="star-filled" size={14} /> {level.name}
-            <b>{total}</b>
-          </span>
-          <span className="book__bar" aria-hidden="true">
-            <i style={{ width: `${pct}%` }} />
+            <Icon name="star-filled" size={14} />
+            {watching === 0 ? "Not watching" : "Watching"}
+            <b>{watching}</b>
           </span>
           <ul className="book__counts">
-            <li title="Looked at">
-              <Icon name="post" size={16} /> {has("seen")}
+            <li title="Ideas saved in this browser">
+              <Icon name="post" size={16} /> {ideas}
             </li>
-            <li title="Opened the source">
-              <Icon name="external" size={16} /> {has("sourced")}
+            <li title="Profiles saved in this browser">
+              <Icon name="traders" size={16} /> {profiles}
             </li>
-            <li title="Watched">
-              <Icon name="star" size={16} /> {has("watched")}
+            <li
+              title={
+                watching === 0
+                  ? "Watch something to follow later updates"
+                  : updatesUnavailable
+                    ? "Couldn't check for updates"
+                    : updatesPending
+                      ? "Checking for updates"
+                      : caughtUp
+                        ? "No new updates"
+                        : "New timeline entries since you last looked"
+              }
+            >
+              <Icon name="updated" size={16} />{" "}
+              {watching === 0 || updatesUnavailable
+                ? "—"
+                : updatesPending
+                  ? "…"
+                  : caughtUp
+                    ? "0"
+                    : (updates ?? "—")}
             </li>
           </ul>
         </div>
 
         <div className="showtime__actions">
-          <button
-            type="button"
-            className="orb"
-            onClick={() => setRound((r) => r + 1)}
-            aria-label="Play the scenes again"
-          >
-            <Icon name="replay" size={24} />
-          </button>
           <button
             ref={go}
             type="button"
