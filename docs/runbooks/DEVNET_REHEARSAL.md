@@ -50,4 +50,4 @@ Old plans remain in history. No automatic renewal or trading. Pool funding is to
 
 The separate `/demo` offers Entry passes, Wait for the range, and Return to the range. It is visibly fictional, advances only on button presses, uses no API or real watchlist, and creates no trades or receipts. In-range conditions never mean safe or profitable.
 
-Local implementation checks pass. Owner-signed setup, real Google sign-in and a verified follow remain required before the recording rehearsal is complete.
+Rehearsed 2026-10-13: three plans published, pool funded, real Google sign-in persisted after reload, and one explicitly owner-authorized CLI follow recorded a real receipt (1 devnet USDC → 0.01 SOL). The receipt is visible in Watchlist → Receipts by looking up the creator's public address. See ROADMAP.md for addresses and the transaction. A Wallet Standard popup rehearsal and deployment of these changes to the hosted site remain separate checks; no popup was simulated.
