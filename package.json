@@ -8,7 +8,7 @@
   ],
   "scripts": {
     "dev:app": "bun run --cwd app dev",
-    "dev:server": "bun run --cwd server dev",
+    "dev:server": "bun run --hot --env-file=.env server/src/index.ts",
     "build:app": "bun run --cwd app build",
     "sync-idl": "bun run scripts/sync-idl.ts",
     "program:build": "bun run scripts/anchor.ts build",
