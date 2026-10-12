@@ -1,23 +1,28 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { DemoBadge } from "../components/discovery/Cards";
+import { DemoBadge } from "../features/discovery/components/Cards";
 import {
   EvidencePanel,
   type AskTarget,
-} from "../components/discovery/EvidencePanel";
-import { SourceCard } from "../components/discovery/SourceCard";
-import { Timeline } from "../components/discovery/Timeline";
-import { WatchButton } from "../components/discovery/WatchButton";
+} from "../features/discovery/components/EvidencePanel";
+import { SourceCard } from "../features/discovery/components/SourceCard";
+import { Timeline } from "../features/discovery/components/Timeline";
+import { WatchButton } from "../features/discovery/components/WatchButton";
 import { Cue } from "../components/cue/Cue";
 import { BackLink } from "../components/ui/BackLink";
 import { Icon } from "../components/ui/Icon";
-import { CURATION_NOTE, DiscoveryNotFoundError } from "../lib/discovery";
-import { useIdea } from "../lib/discovery-queries";
+import {
+  CURATION_NOTE,
+  DiscoveryNotFoundError,
+  evidenceSummary,
+  type IdeaDetail,
+} from "../features/discovery/model";
+import { useIdea } from "../features/discovery/queries";
 import {
   markSeen,
   seqGreater,
   useDiscoveryWatch,
-} from "../lib/discovery-watch";
+} from "../features/discovery/watch";
 
 export const Route = createFileRoute("/ideas/$ideaId")({
   head: () => ({ meta: [{ title: "Idea · Relay" }] }),
@@ -48,13 +53,25 @@ function IdeaView({ ideaId }: { ideaId: string }) {
     markSeen("idea", idea.id, idea.latestSeq);
   }, [idea, entry]);
 
+  // A link from Updates points at one entry (#event-<id>): bring exactly that entry into view.
+  useEffect(() => {
+    if (!idea) return;
+    const id = window.location.hash.slice(1);
+    if (!id.startsWith("event-")) return;
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.setAttribute("tabindex", "-1");
+    el.scrollIntoView({ block: "center" });
+    el.focus({ preventScroll: true });
+  }, [idea]);
+
   const isNew = (seq: string) =>
     openedAfter.current !== null && seqGreater(seq, openedAfter.current);
 
   if (q.isPending)
     return (
       <section className="page page--wide" aria-busy="true" data-cursor-zone>
-        <BackLink fallback="/ideas" label="Ideas" />
+        <BackLink fallback="/" label="Discover" />
         <p className="page__text">Loading the idea…</p>
       </section>
     );
@@ -62,7 +79,7 @@ function IdeaView({ ideaId }: { ideaId: string }) {
   if (q.isError)
     return (
       <section className="page page--wide" data-cursor-zone>
-        <BackLink fallback="/ideas" label="Ideas" />
+        <BackLink fallback="/" label="Discover" />
         {q.error instanceof DiscoveryNotFoundError ? (
           <div className="notice" role="status">
             <Cue pose="unavailable" className="notice__cue" />
@@ -71,8 +88,8 @@ function IdeaView({ ideaId }: { ideaId: string }) {
               <p className="page__text">
                 It may have been removed, or the link may be wrong.
               </p>
-              <Link to="/ideas" className="btn btn--glass btn--small">
-                See all ideas
+              <Link to="/" className="btn btn--glass btn--small">
+                Back to Discover
               </Link>
             </div>
           </div>
@@ -104,7 +121,7 @@ function IdeaView({ ideaId }: { ideaId: string }) {
       aria-labelledby="idea-title"
       data-cursor-zone
     >
-      <BackLink fallback="/ideas" label="Ideas" />
+      <BackLink fallback="/" label="Discover" />
       <header className="idea__head">
         <p className="icard__badges">
           {data.isDemo && <DemoBadge />}
@@ -164,6 +181,8 @@ function IdeaView({ ideaId }: { ideaId: string }) {
         />
       </section>
 
+      <EvidenceSummarySection idea={data} />
+
       <EvidencePanel
         ideaId={data.id}
         events={data.events}
@@ -177,5 +196,35 @@ function IdeaView({ ideaId }: { ideaId: string }) {
         recommend one.
       </p>
     </article>
+  );
+}
+
+/** Original → later item → what is established and what is not, in words. */
+function EvidenceSummarySection({ idea }: { idea: IdeaDetail }) {
+  const { established, unknown } = evidenceSummary(idea);
+  return (
+    <section aria-labelledby="known-title" className="idea__known">
+      <h2 id="known-title" className="page__subsection">
+        What Relay can and cannot establish
+      </h2>
+      <div className="known">
+        <div>
+          <h3 className="known__title">Established by the record</h3>
+          <ul className="known__list">
+            {established.map((t) => (
+              <li key={t}>{t}</li>
+            ))}
+          </ul>
+        </div>
+        <div>
+          <h3 className="known__title">Not established</h3>
+          <ul className="known__list">
+            {unknown.map((t) => (
+              <li key={t}>{t}</li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </section>
   );
 }

@@ -9,16 +9,18 @@ import {
   signInWithGoogle,
   signOut,
   useGoogleAuth,
-} from "../lib/google-auth";
+} from "../features/account/google-auth";
+import { UnlockStrip } from "../features/account/UnlockStrip";
 import { useMounted } from "../lib/mounted";
+import { requestWelcome } from "../features/onboarding/welcome-state";
 import { disconnectWallet, openWalletDialog, useWallet } from "../lib/wallet";
 
 export const Route = createFileRoute("/account")({
-  validateSearch: (search: Record<string, unknown>) => {
+  validateSearch: (
+    search: Record<string, unknown>,
+  ): { auth_error?: "cancelled" | "failed" } => {
     const e = search.auth_error;
-    const auth_error =
-      e === "cancelled" || e === "failed" ? e : undefined;
-    return { auth_error };
+    return e === "cancelled" || e === "failed" ? { auth_error: e } : {};
   },
   head: () => ({ meta: [{ title: "Account · Relay" }] }),
   component: Account,
@@ -35,6 +37,7 @@ function Account() {
       </header>
 
       <div className="acct">
+        <UnlockStrip />
         <GoogleSection authError={auth_error} />
         <WalletSection />
         <Preferences />
@@ -73,15 +76,18 @@ function Account() {
               Cue
             </h2>
             <p className="page__text">
-              Relay's usher. Replay the opening any time.
+              Relay's usher. Reopen the full welcome any time.
             </p>
             <div className="notice__actions">
-              <Link
-                to="/"
-                search={{ welcome: true }}
+              <button
+                type="button"
                 className="btn btn--glass btn--small"
+                onClick={requestWelcome}
               >
-                Meet Cue again
+                Show welcome
+              </button>
+              <Link to="/about" className="btn btn--ghost btn--small">
+                How it works
               </Link>
               <Link to="/demo" className="btn btn--ghost btn--small">
                 Try the demo
@@ -110,18 +116,32 @@ function GoogleSection({
   const loading = !mounted || auth.status === "loading";
 
   return (
-    <section className="panel" aria-labelledby="google-auth-title">
-      <h2 id="google-auth-title" className="panel__title">
-        Sign in
+    <section
+      className={`panel${auth.status === "signed_in" ? " panel--me" : ""}`}
+      aria-labelledby="google-auth-title"
+    >
+      <h2
+        id="google-auth-title"
+        className={auth.status === "signed_in" ? "sr-only" : "panel__title"}
+      >
+        {auth.status === "signed_in" ? "Signed in" : "Sign in"}
       </h2>
 
       {authError === "cancelled" && (
-        <p className="field__error" role="alert" style={{ marginBottom: "var(--s2)" }}>
+        <p
+          className="field__error"
+          role="alert"
+          style={{ marginBottom: "var(--s2)" }}
+        >
           Sign-in was cancelled.
         </p>
       )}
       {authError === "failed" && (
-        <p className="field__error" role="alert" style={{ marginBottom: "var(--s2)" }}>
+        <p
+          className="field__error"
+          role="alert"
+          style={{ marginBottom: "var(--s2)" }}
+        >
           Sign-in failed. Please try again.
         </p>
       )}
@@ -131,39 +151,45 @@ function GoogleSection({
           Checking sign-in…
         </p>
       ) : auth.status === "signed_in" ? (
-        <div className="acct-google">
-          {auth.user.picture ? (
-            <img
-              src={auth.user.picture}
-              alt=""
-              width={48}
-              height={48}
-              className="acct-google__avatar"
-              referrerPolicy="no-referrer"
-            />
-          ) : (
-            <span className="acct-google__avatar acct-google__avatar--placeholder">
-              <Icon name="account" size={24} />
+        <div className="me">
+          <span className="me__avatar">
+            {auth.user.picture ? (
+              <img
+                src={auth.user.picture}
+                alt=""
+                width={64}
+                height={64}
+                referrerPolicy="no-referrer"
+              />
+            ) : (
+              <Icon name="account" size={28} />
+            )}
+            <span className="me__badge" aria-hidden="true">
+              <Icon name="shield" size={12} />
             </span>
-          )}
-          <div className="acct-google__info">
-            <p className="acct-google__name">{auth.user.name}</p>
-            <p className="page__text page__text--quiet">{auth.user.email}</p>
+          </span>
+          <div className="me__info">
+            <p className="me__name">{auth.user.name}</p>
+            <p className="me__mail" title={auth.user.email}>
+              {auth.user.email}
+            </p>
           </div>
           <button
             id="google-sign-out-btn"
             type="button"
-            className="btn btn--ghost btn--small"
-            data-tone="danger"
+            className="me__out"
+            aria-label="Sign out"
+            title="Sign out"
             onClick={() => void signOut()}
           >
-            Sign out
+            <Icon name="close" size={20} />
           </button>
         </div>
       ) : (
         <div className="acct-google">
           <p className="page__text page__text--quiet" style={{ flexGrow: 1 }}>
-            Sign in to watch traders and interact with plans.
+            Optional. Discovering ideas, opening sources and watching need no
+            account.
           </p>
           <button
             id="google-sign-in-btn"
@@ -237,7 +263,7 @@ function WalletSection() {
           <div className="acct-wallet__actions">
             <Link
               to="/watchlist"
-              search={{ tab: "history" }}
+              search={{ tab: "receipts" }}
               className="btn btn--glass btn--small"
             >
               Follow history
@@ -289,7 +315,10 @@ function Preferences() {
   const mounted = useMounted();
   const [blocked, setBlocked] = useState(false);
   return (
-    <section className="panel" aria-labelledby="prefs-title">
+    <section
+      className="panel panel--pointer-only"
+      aria-labelledby="prefs-title"
+    >
       <h2 id="prefs-title" className="panel__title">
         Preferences
       </h2>

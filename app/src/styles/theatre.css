@@ -120,8 +120,8 @@
 /* Desktop navigation: one brass-edged rail so the links read over the scallops. */
 .topnav {
   display: none;
-  grid-column: 1;
-  justify-self: start;
+  grid-column: 2;
+  justify-self: center;
 }
 
 .topnav__list {
@@ -223,20 +223,30 @@
 }
 
 .hdr-btn--cursor,
+.hdr-btn--welcome,
 .hdr-btn--account {
   display: none;
 }
 
 @media (min-width: 900px) {
+  /* Desktop: the sign at the left, the navigation centred on the page (equal side columns, so a
+     wider control group on some pages never moves it), the controls at the right. */
   .valance {
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
     gap: var(--s4);
+  }
+
+  .valance__sign {
+    grid-column: 1;
+    justify-self: start;
   }
 
   .topnav {
     display: block;
   }
 
-  .hdr-btn--account {
+  .hdr-btn--account,
+  .hdr-btn--welcome {
     display: inline-flex;
   }
 
@@ -740,9 +750,8 @@ html[data-welcome="opening"] .welcome {
   overflow-y: hidden;
 }
 
-/* The feed waits behind closed curtains: not visible, not focusable, not announced. */
-html[data-welcome="on"] .feed-wrap,
-html[data-welcome="on"] .stage > .stage-msg,
+/* The page waits behind closed curtains: not visible, not focusable, not announced. */
+html[data-welcome="on"] .stage > :not(.welcome, .opening),
 html[data-welcome="on"] .valance__sign {
   visibility: hidden;
 }

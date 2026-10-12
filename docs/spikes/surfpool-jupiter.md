@@ -1,6 +1,6 @@
 # Spike: Jupiter swaps on a Surfpool mainnet fork
 
-Phase 0 of [RELAY_IMPLEMENTATION_PLAN.md](../RELAY_IMPLEMENTATION_PLAN.md). Run on 2026-10-09.
+Phase 0 of [RELAY_IMPLEMENTATION_PLAN.md](../archive/RELAY_IMPLEMENTATION_PLAN.md). Run on 2026-10-09.
 
 ## Result: **A′ (GO, with a restricted venue list)**
 

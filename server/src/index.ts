@@ -1,19 +1,28 @@
 import { createApp } from "./app";
-import { connect, migrate } from "./db";
-import { loadEnv } from "./env";
-import { createLogger } from "./logger";
-import { assertRpcMatchesNetwork } from "./network-check";
-import { createEvidenceService } from "./discovery/evidence";
-import { createDiscoveryService } from "./discovery/service";
-import { createChain } from "./services/chain";
-import { createFollowService } from "./services/follow";
-import { createJupiterClient } from "./services/jupiter";
-import { createPlanService } from "./services/plans";
-import { createRpcForward } from "./services/rpc-proxy";
-import { createJupiterPrices } from "./services/prices";
+import { connect, migrate } from "./shared/db";
+import { describeDbTarget, targetLine } from "./shared/db-target";
+import { loadEnv } from "./shared/env";
+import { createLogger } from "./shared/logger";
+import { assertRpcMatchesNetwork } from "./shared/network-check";
+import { createEvidenceService } from "./modules/discovery/evidence";
+import { loadFeedConfig, pollFeeds } from "./modules/discovery/feeds";
+import { createDiscoveryService } from "./modules/discovery/service";
+import { createChain } from "./modules/plans/chain";
+import { createFollowService } from "./modules/plans/follow";
+import { createJupiterClient } from "./modules/plans/jupiter";
+import { createPlanService } from "./modules/plans/plans";
+import { createRpcForward } from "./modules/plans/rpc-proxy";
+import { createJupiterPrices } from "./modules/plans/prices";
 
 const env = loadEnv();
 const logger = createLogger();
+
+// Say which database this start will migrate and use. (It never refuses: the root .env decides.)
+if (!env.production) {
+  logger.info("database_target", {
+    target: targetLine(describeDbTarget(env.databaseUrl)),
+  });
+}
 
 // A wrong RPC network would label real funds as test funds (or the reverse), so it stops the start.
 if (
@@ -75,6 +84,31 @@ logger.info("server_started", {
   origin: env.appOrigin,
   listedCreators: env.creatorAllowlist.length,
 });
+
+// Automatic detection of new items in the authors' own public feeds (titles and links only). It
+// never runs in demo mode, and FEEDS_POLL=off turns it off.
+if (!env.demoMode && process.env.FEEDS_POLL !== "off") {
+  const feeds = loadFeedConfig();
+  const poll = () =>
+    pollFeeds(db, feeds, {
+      fetch: (url, init) => fetch(url, init),
+      now: () => new Date(),
+      logger,
+    }).then(
+      (reports) =>
+        logger.info("feeds_polled", {
+          ok: reports.filter((r) => r.ok).length,
+          failed: reports.filter((r) => !r.ok).length,
+          added: reports.reduce((n, r) => n + r.added, 0),
+        }),
+      (e: unknown) =>
+        logger.warn("feeds_poll_error", {
+          error: e instanceof Error ? e.message : "unknown",
+        }),
+    );
+  setTimeout(() => void poll(), 5_000);
+  setInterval(() => void poll(), 30 * 60_000);
+}
 
 export default {
   port: env.port,

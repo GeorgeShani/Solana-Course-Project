@@ -2,7 +2,9 @@
 
 Relay does not scrape X, Telegram or any other platform. A person looks at a public source, decides it is worth recording, and writes down what it says in `curated.json`. `bun run --cwd server curate` checks the file strictly and loads it. Everything it loads is labelled **Manual coverage** in the API and the app. Nothing here claims automated monitoring.
 
-`curated.json` starts empty on purpose. **No trader is added without the owner's confirmation of who they are and where their posts are.** `demo.json` is a separate, clearly fictional file for development (`"demo": true`; refused when `NODE_ENV=production`; never shown next to live data).
+`curated.json` currently holds three public-source profiles, all `public_source_only` and **not claimed by the author**: Arthur Hayes, Peter Brandt and Benjamin Cowen (items opened and checked on 2026-10-11). Hayes has one author-referenced update pair; Brandt's later item is an **uncertain** relationship; Cowen has one sourced analysis. No wallet is linked to any of them. **No further trader is added without the owner's confirmation of who they are and where their posts are.** `demo.json` is a separate, clearly fictional file for development (`"demo": true`; refused when `NODE_ENV=production`; never shown next to live data).
+
+Summaries are Relay's paraphrase, never the author's words. Re-open every source link and re-check `retrievedAt` before presenting; a source that has moved gets an availability entry, not a silent edit.
 
 ## What each trader needs
 
@@ -26,4 +28,4 @@ Relay does not scrape X, Telegram or any other platform. A person looks at a pub
 - No dates in the future. Text has no control characters and is NFC-normalised.
 - Sources, ideas and events are append-only. If a recorded entry is wrong, add a `correction` event; a file that contradicts a recorded entry is refused whole. A source that disappears gets a new availability entry (`unavailable` or `removed`) and a `source_unavailable` event; the app then shows a tombstone, not the text.
 
-Run `bun run --cwd server curate --check` before loading.
+Before loading: `bun run --cwd server curate --check` (valid?) and `bun run --cwd server curate --report` (coverage, capture freshness, what to re-check; sources older than 30 days are flagged). Neither touches a database. Loading refuses a remote database until you name its host (`--confirm-db-host=<host>`); see server/README.md, "Safe load".

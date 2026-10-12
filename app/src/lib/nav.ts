@@ -1,22 +1,20 @@
 import type { IconName } from "../components/ui/Icon";
 
-type Dest =
-  "/" | "/ideas" | "/traders" | "/watchlist" | "/account" | "/how-it-works";
+type Dest = "/" | "/updates" | "/watchlist" | "/plans" | "/account" | "/about";
 
 /** The phone's bottom bar: the app's five destinations. */
 export const NAV: { to: Dest; label: string; icon: IconName }[] = [
-  { to: "/", label: "Discover", icon: "feed" },
-  { to: "/ideas", label: "Ideas", icon: "post" },
-  { to: "/traders", label: "Traders", icon: "traders" },
+  { to: "/", label: "Discover", icon: "post" },
+  { to: "/updates", label: "Updates", icon: "refresh" },
   { to: "/watchlist", label: "Watchlist", icon: "star" },
+  { to: "/plans", label: "Plans", icon: "plans" },
   { to: "/account", label: "Account", icon: "account" },
 ];
 
 /** The desktop header: Account lives behind the wallet control, so the guide takes its place. */
 export const HEADER_NAV: { to: Dest; label: string }[] = [
   { to: "/", label: "Discover" },
-  { to: "/ideas", label: "Ideas" },
-  { to: "/traders", label: "Traders" },
+  { to: "/updates", label: "Updates" },
   { to: "/watchlist", label: "Watchlist" },
-  { to: "/how-it-works", label: "How it works" },
+  { to: "/plans", label: "Plans" },
 ];

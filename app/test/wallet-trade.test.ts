@@ -1,7 +1,8 @@
 import { describe, expect, test } from "bun:test";
-import { ApiContractError, parseQuote } from "../src/lib/api";
+import { parseQuote } from "../src/features/plans/api";
+import { ApiContractError } from "../src/lib/api/http";
 import { parseCueCursorPref } from "../src/lib/cue-cursor";
-import { checkFollowAmount } from "../src/lib/follow";
+import { checkFollowAmount } from "../src/features/plans/execution/follow";
 import {
   isUserRejection,
   toWalletAccount,

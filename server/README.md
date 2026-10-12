@@ -10,17 +10,17 @@ Serve the feed and plan pages, and store the offchain text of plans. **The Solan
 
 Reached publicly under `/api` (Caddy and the Vite dev proxy strip the prefix).
 
-| Method | Path                       | What it does                                                                                                                                                                                                                                                                                                                            |
-| ------ | -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `GET`  | `/health`                  | Liveness: `{ "ok": true }`.                                                                                                                                                                                                                                                                                                             |
-| `GET`  | `/health/ready`            | Readiness: `200` when the database and the Solana RPC both answer, otherwise `503` with `checks: { database, rpc }` saying which is down. The container healthcheck uses `/health`, which must not depend on Solana.                                                                                                                    |
-| `GET`  | `/feed?pair&cursor&limit`  | Ranked plan cards with the advisory entry status. Deterministic ranking; never ranked by claimed return. With `CREATOR_ALLOWLIST` set, only those creators' plans are listed.                                                                                                                                                           |
-| `GET`  | `/plans/:planPda`          | One plan with every version, its text (or `null` when unverified) and its hash chain. Every card carries `listed`: `false` for a plan whose creator is not on the allowlist (reachable by link, not in the feed).                                                                                                                       |
-| `POST` | `/plans/:planPda/confirm`  | Stores a version's text if it matches the onchain `content_hash`. Idempotent.                                                                                                                                                                                                                                                           |
-| `GET`  | `/prices`                  | Advisory reference prices and their age.                                                                                                                                                                                                                                                                                                |
-| `POST` | `/follow/quote`            | `{ planPda, version, follower, quoteAmount }`. Fetches a fresh Jupiter route, composes the follow transaction with the same code the client runs, refuses prices outside the plan's range, simulates it, and returns a plain-language summary plus the exact inputs the client needs to rebuild and sign it. Nothing is signed or sent. |
-| `POST` | `/follow/verify`           | `{ signature }` only. Re-reads the transaction and the receipt account from the chain and records the execution as `recorded` or `failed` (with the reason). Idempotent; a recorded execution is never downgraded.                                                                                                                      |
-| `GET`  | `/me/executions?follower=` | A wallet's verified executions, newest first.                                                                                                                                                                                                                                                                                           |
+| Method | Path                            | What it does                                                                                                                                                                                                                                                                                                                            |
+| ------ | ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GET`  | `/health`                       | Liveness: `{ "ok": true }`.                                                                                                                                                                                                                                                                                                             |
+| `GET`  | `/health/ready`                 | Readiness: `200` when the database and the Solana RPC both answer, otherwise `503` with `checks: { database, rpc }` saying which is down. Also lists configured `providers` (Jupiter price key, Google sign-in, wallet data: none) without calling them. The container healthcheck uses `/health`, which must not depend on Solana.     |
+| `GET`  | `/plans/feed?pair&cursor&limit` | Ranked native-plan cards with the advisory entry status. Deterministic ranking; never ranked by claimed return. With `CREATOR_ALLOWLIST` set, only those creators' plans are listed. `GET /feed` is a deprecated alias with the same answer (it adds `Deprecation: true` and a `Link` to the new path).                                 |
+| `GET`  | `/plans/:planPda`               | One plan with every version, its text (or `null` when unverified) and its hash chain. Every card carries `listed`: `false` for a plan whose creator is not on the allowlist (reachable by link, not in the feed).                                                                                                                       |
+| `POST` | `/plans/:planPda/confirm`       | Stores a version's text if it matches the onchain `content_hash`. Idempotent.                                                                                                                                                                                                                                                           |
+| `GET`  | `/prices`                       | Advisory reference prices and their age.                                                                                                                                                                                                                                                                                                |
+| `POST` | `/follow/quote`                 | `{ planPda, version, follower, quoteAmount }`. Fetches a fresh Jupiter route, composes the follow transaction with the same code the client runs, refuses prices outside the plan's range, simulates it, and returns a plain-language summary plus the exact inputs the client needs to rebuild and sign it. Nothing is signed or sent. |
+| `POST` | `/follow/verify`                | `{ signature }` only. Re-reads the transaction and the receipt account from the chain and records the execution as `recorded` or `failed` (with the reason). Idempotent; a recorded execution is never downgraded.                                                                                                                      |
+| `GET`  | `/me/executions?follower=`      | A wallet's verified executions, newest first.                                                                                                                                                                                                                                                                                           |
 
 Discovery (read-only; sourced traders, their ideas and each idea's timeline; see [curation/README.md](curation/README.md)):
 
@@ -30,6 +30,7 @@ Discovery (read-only; sourced traders, their ideas and each idea's timeline; see
 | `GET`  | `/discovery/traders/:id`                                                 | One profile with its links (each with how it is known: `creator_confirmed`, `editorially_associated` or `uncertain`) and its ideas.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 | `GET`  | `/discovery/ideas?cursor&limit&trader`                                   | Ideas, newest activity first (ties by id), with the original source, the stated conditions (or `null`: "Entry conditions not specified") and the newest event `seq`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | `GET`  | `/discovery/ideas/:id`                                                   | The original source (`publishedAt` as the source says it, `null` if unknown, and `retrievedAt` when Relay captured it; availability; the permitted excerpt, or a tombstone if removed) and the timeline: each event with its type, times, source or evidence, how it is tied to the idea, review state and hash. `chain.verified` says whether the stored hashes still match.                                                                                                                                                                                                                                                                          |
+| `GET`  | `/discovery/feed?limit` | New items detected automatically in each profile's own RSS/Atom feed (`curation/feeds.json`), newest first, with each feed's last check and last error. Only title, exact link and date are kept; `provenance: automatic_unreviewed`. Polled every 30 minutes by the server (`FEEDS_POLL=off` stops it) or with `bun run --cwd server feeds`. |
 | `GET`  | `/discovery/changes?watch=idea:<id>:<seq>&watch=trader:<id>:<seq>&limit` | "What changed since I last checked?" For up to 50 watched targets and the last event `seq` the reader has seen for each: the meaningful events after it, grouped under their idea (a sourced update, new evidence, a discrepancy, a reviewed response, an added source, a correction, a Relay plan, or the original source becoming unavailable). The first capture, plain on-chain activity and unreviewed responses are not changes. `latestSeq` is the newest event of any kind, so a reader that opens a target can store it as its cursor. The server never marks anything read. `coverage.lastRecordedAt` says how fresh the manual coverage is. |
 
 Evidence requests (the reader asks, a reviewer decides; see the rules below):
@@ -86,7 +87,7 @@ bun run dev:server                            # applies migrations, then serves 
 bun run --cwd server seed                     # optional: real onchain demo plans with labelled fictional creators
 bun run --cwd server curate --demo            # optional: the fictional discovery demo (DEMO_MODE=true serves it)
 bun run --cwd server review list             # evidence requests and references waiting for a reviewer (also: approve-request, reject-request, close-request, accept, reject)
-bun run --cwd server curate --check           # validate server/curation/curated.json (the real traders; empty until the owner supplies them)
+bun run --cwd server curate --check           # validate server/curation/curated.json (the three public-source profiles)
 bun run --cwd server test                     # needs the dev Postgres and a relay_test database
 ```
 
@@ -101,19 +102,43 @@ The tests use `postgres://relay:relay_local_only@127.0.0.1:5432/relay_test` (ove
 
 ## Layout
 
+Two domains with different authority, kept in separate modules:
+
+- **Discovery** (`modules/discovery`): editorial, manually curated public-source records. They show what a source said and when; they never prove a trade, and the server never visits a link.
+- **Plans** (`modules/plans`): Relay-native plans. The chain is authoritative; the server mirrors it, and nothing from a client is trusted for amounts, prices or outcomes.
+
 ```
 src/
-├── index.ts         entry: migrate, wire services, serve
-├── app.ts           routes and middleware
-├── env.ts           typed environment
-├── db.ts            Bun.sql client and migration runner
-├── middleware.ts    origin guard, rate limiter, ApiError
-└── services/        chain reader (Kit), plans, follow (quote/verify), jupiter client, prices, feed ranking
+├── index.ts         entry: check the database target, migrate, wire services, serve
+├── app.ts           routes and middleware (health, plan feed and detail, follow, rpc, prices)
+├── migrate.ts       `bun run migrate`
+├── modules/
+│   ├── discovery/   curation (parse, validate, apply, report), service, routes, evidence requests, hashes
+│   ├── plans/       chain reader (Kit), plans, feed ranking, follow (quote/verify), jupiter, prices, rpc proxy
+│   └── auth/        Google sign-in
+└── shared/          env, db and migrations, db-target guard, logging, middleware (ApiError, rate limits), util, network checks
 migrations/          SQL files applied in order
-scripts/seed-demo.ts real onchain plans with labelled demo creators
-scripts/follow-via-api.ts a follower end to end through the HTTP API
+curation/            curated.json (real, hand-reviewed), demo.json (fictional), README
+scripts/             curate, review, seed-demo, check-network, follow-via-api
 test/                API tests (Postgres + an in-memory chain built with the real encoders)
 ```
+
+A future outside-Relay wallet-data adapter would live in its own `modules/wallet-intelligence`, never inside `discovery` or `curation` (see docs/research). None exists.
+
+## Safe load, migration and rollback
+
+The root `.env` may point `DATABASE_URL` at a **remote** database. So every command that writes states its target first. The scripts below refuse a non-local host until you name it; the server (`dev:server`) only prints the target and starts:
+
+```bash
+bun run --cwd server curate --check                      # validate only (no database)
+bun run --cwd server curate --report                     # coverage, freshness, warnings (no database)
+bun run --cwd server curate --confirm-db-host=<host>     # load; the host must match exactly if it is not local
+bun run --cwd server migrate --confirm-db-host=<host>
+```
+
+For local work, run from `server/` with explicit variables (`DATABASE_URL=postgres://relay:relay_local_only@127.0.0.1:5432/relay`, `APP_ORIGIN`, `NETWORK=devnet`) and `bun run src/index.ts`, which does not read the root `.env`.
+
+Rollback boundaries: migrations are forward-only SQL, each in its own transaction (a failed one leaves nothing behind). Curated sources, ideas and events are append-only in the database itself; the loader refuses a file that contradicts a recorded entry, and fixes are new `correction` events, never edits. So a wrong load is corrected by a correction event or, for a throwaway database, by recreating it; there is no "undo". Check `curate --report` and the target line before every load.
 
 ## Docker
 

@@ -1,10 +1,15 @@
-import { Hono } from "hono";
+import { Hono, type Context } from "hono";
 import { bodyLimit } from "hono/body-limit";
 import { secureHeaders } from "hono/secure-headers";
 import { SUPPORTED_PAIRS, formatUnits } from "@relay/domain";
-import type { Db } from "./db";
-import type { Env } from "./env";
-import { safeMessage, shortAddress, silentLogger, type Logger } from "./logger";
+import type { Db } from "./shared/db";
+import type { Env } from "./shared/env";
+import {
+  safeMessage,
+  shortAddress,
+  silentLogger,
+  type Logger,
+} from "./shared/logger";
 import {
   ApiError,
   clientKey,
@@ -14,15 +19,15 @@ import {
   readJson,
   requestLog,
   type AppEnv,
-} from "./middleware";
-import { mountDiscovery, mountEvidence } from "./discovery/routes";
-import type { EvidenceService } from "./discovery/evidence";
-import type { DiscoveryService } from "./discovery/service";
-import type { FollowService } from "./services/follow";
-import type { PlanService } from "./services/plans";
-import type { ChainReader, PriceSource } from "./services/types";
-import { parseRpcRequest, type RpcForward } from "./services/rpc-proxy";
-import { mountGoogleAuth } from "./auth/google";
+} from "./shared/middleware";
+import { mountDiscovery, mountEvidence } from "./modules/discovery/routes";
+import type { EvidenceService } from "./modules/discovery/evidence";
+import type { DiscoveryService } from "./modules/discovery/service";
+import type { FollowService } from "./modules/plans/follow";
+import type { PlanService } from "./modules/plans/plans";
+import type { ChainReader, PriceSource } from "./modules/plans/types";
+import { parseRpcRequest, type RpcForward } from "./modules/plans/rpc-proxy";
+import { mountGoogleAuth } from "./modules/auth/google";
 
 export interface AppDeps {
   env: Env;
@@ -116,12 +121,20 @@ export function createApp({
         // Kept for older clients: the same value as `network`.
         cluster: env.cluster,
         checks: { database, rpc: rpcState },
+        // What is configured, never called here (a provider outage must not fail readiness).
+        // No wallet-data provider exists; public-source coverage needs none.
+        providers: {
+          jupiterPrices: env.jupiterApiKey ? "keyed" : "keyless",
+          googleSignIn:
+            env.googleClientId && env.googleClientSecret ? "configured" : "off",
+          walletData: "none",
+        },
       },
       ok ? 200 : 503,
     );
   });
 
-  app.get("/feed", async (c) => {
+  const feed = async (c: Context<AppEnv>) => {
     const limitText = c.req.query("limit");
     const limit = limitText === undefined ? undefined : Number(limitText);
     if (limit !== undefined && !Number.isInteger(limit)) {
@@ -134,6 +147,15 @@ export function createApp({
         limit,
       }),
     );
+  };
+
+  // The canonical native-plan feed. Registered before /plans/:planPda so "feed" is never read as an address.
+  app.get("/plans/feed", feed);
+  // The earlier path. Same answer; the headers tell clients to move.
+  app.get("/feed", async (c) => {
+    c.header("Deprecation", "true");
+    c.header("Link", '</plans/feed>; rel="successor-version"');
+    return feed(c);
   });
 
   mountDiscovery(app, discovery);

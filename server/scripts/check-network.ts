@@ -7,8 +7,8 @@
  * prints PASS / WARN / FAIL lines. It sends no transaction, signs nothing and needs no key. It does
  * not print the RPC URL, because provider keys live in URLs.
  */
-import { loadEnv } from "../src/env";
-import { reportOk, runNetworkReport } from "../src/network-report";
+import { loadEnv } from "../src/shared/env";
+import { reportOk, runNetworkReport } from "../src/shared/network-report";
 
 const env = loadEnv();
 const custom = env.solanaRpcUrl !== "https://api.devnet.solana.com";

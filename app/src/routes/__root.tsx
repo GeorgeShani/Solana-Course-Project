@@ -8,19 +8,25 @@ import type { ReactNode } from "react";
 import { Providers } from "../components/Providers";
 import { Cue } from "../components/cue/Cue";
 import { CueCursor } from "../components/cue/CueCursor";
-import {
-  CURTAIN_BOOT_SCRIPT,
-  Drapes,
-} from "../components/theatre/CurtainIntro";
+import { CurtainIntro, Drapes } from "../features/onboarding/CurtainIntro";
 import { Valance } from "../components/theatre/Marquee";
+import { Welcome } from "../features/onboarding/Welcome";
 import { TabBar } from "../components/ui/TabBar";
 import { WalletDialog } from "../components/wallet/WalletDialog";
 import { CLUSTER, CLUSTER_LABEL } from "../lib/config";
+import { WELCOME_BOOT_SCRIPT } from "../features/onboarding/welcome-state";
+import aboutCss from "../styles/about.css?url";
+import audienceCss from "../styles/audience.css?url";
 import baseCss from "../styles/base.css?url";
+import discoverCss from "../styles/discover.css?url";
 import discoveryCss from "../styles/discovery.css?url";
 import feedCss from "../styles/feed.css?url";
 import screensCss from "../styles/screens.css?url";
 import theatreCss from "../styles/theatre.css?url";
+import intervalCss from "../styles/interval.css?url";
+import showtimeCss from "../styles/showtime.css?url";
+import streamCss from "../styles/stream.css?url";
+import ticketCss from "../styles/ticket.css?url";
 import tokensCss from "../styles/tokens.css?url";
 
 export const Route = createRootRoute({
@@ -33,11 +39,11 @@ export const Route = createRootRoute({
       },
       { name: "theme-color", content: "#1b1035" },
       { name: "color-scheme", content: "dark" },
-      { title: "Relay — Solana traders' ideas and the evidence behind them" },
+      { title: "Relay — traders' public ideas and the evidence behind them" },
       {
         name: "description",
         content:
-          "Discover Solana traders, explore their public ideas, and see the activity Relay can verify. Not financial advice.",
+          "See the original idea. Follow what changed. Check the evidence. Not financial advice.",
       },
     ],
     links: [
@@ -48,6 +54,13 @@ export const Route = createRootRoute({
       { rel: "stylesheet", href: feedCss },
       { rel: "stylesheet", href: screensCss },
       { rel: "stylesheet", href: discoveryCss },
+      { rel: "stylesheet", href: discoverCss },
+      { rel: "stylesheet", href: streamCss },
+      { rel: "stylesheet", href: showtimeCss },
+      { rel: "stylesheet", href: intervalCss },
+      { rel: "stylesheet", href: aboutCss },
+      { rel: "stylesheet", href: audienceCss },
+      { rel: "stylesheet", href: ticketCss },
     ],
   }),
   shellComponent: RootDocument,
@@ -58,7 +71,7 @@ function RootDocument({ children }: { children: ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <script>{CURTAIN_BOOT_SCRIPT}</script>
+        <script>{WELCOME_BOOT_SCRIPT}</script>
         <HeadContent />
       </head>
       <body>
@@ -70,6 +83,8 @@ function RootDocument({ children }: { children: ReactNode }) {
             <div className="stage-floor" aria-hidden="true" />
             <Valance clusterLabel={CLUSTER_LABEL[CLUSTER]} />
             <main id="main" className="stage">
+              <Welcome />
+              <CurtainIntro sub="Public ideas, with sources" />
               {children}
             </main>
             <Drapes />

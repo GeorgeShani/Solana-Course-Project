@@ -453,6 +453,9 @@ kbd {
 }
 
 .page > * {
+  /* A definite width, so the centring margins never shrink a block to its content (in a grid page
+     they did, and every block landed on a different left edge). */
+  width: min(100%, var(--page-max));
   max-width: min(100%, var(--page-max));
   margin-left: auto;
   margin-right: auto;
@@ -565,10 +568,6 @@ kbd {
   margin-bottom: calc(-1 * var(--s3));
 }
 
-.me-empty__cue {
-  width: 96px;
-}
-
 .page > .btn {
   display: flex;
   width: fit-content;
@@ -601,59 +600,9 @@ kbd {
   margin-top: var(--s3);
 }
 
-.watchlist__item {
-  display: grid;
-  grid-template-columns: auto 1fr auto auto;
-  align-items: center;
-  gap: var(--s2) var(--s3);
-  padding: var(--s3) var(--s4);
-  border-radius: var(--r-md);
-  background: var(--velvet-2);
-  border: 1px solid var(--hairline);
-}
-
-.watchlist__star {
-  color: var(--limelight);
-}
-
-.watchlist__text {
-  min-width: 0;
-}
-
-.watchlist__label {
-  font-weight: 600;
-  overflow-wrap: anywhere;
-}
-
 .watchlist__meta {
   font-size: var(--t-footnote);
   color: var(--haze);
-}
-
-.watchlist__item--rich {
-  grid-template-columns: auto 1fr;
-  align-items: start;
-}
-
-.watchlist__item--rich .watchlist__star {
-  margin-top: 2px;
-}
-
-.watchlist__cue {
-  width: 64px;
-  margin: -10px -6px -8px -10px;
-}
-
-.watchlist__text {
-  display: grid;
-  gap: var(--s1);
-}
-
-.watchlist__now {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--s1) var(--s2);
 }
 
 .watchlist__status {
@@ -681,18 +630,12 @@ kbd {
   border-style: dashed;
 }
 
-.watchlist__note {
-  color: var(--chalk);
-  font-size: var(--t-footnote);
-}
-
 .watchlist__error {
   color: var(--st-above);
   font-size: var(--t-footnote);
 }
 
-.watchlist__error button,
-.me-empty__links a {
+.watchlist__error button {
   min-height: 32px;
   padding: 0;
   border: 0;
@@ -703,12 +646,6 @@ kbd {
   text-decoration: underline;
   text-underline-offset: 3px;
   cursor: pointer;
-}
-
-.watchlist__actions {
-  grid-column: 2;
-  display: flex;
-  gap: var(--s2);
 }
 
 .changes {
@@ -736,20 +673,6 @@ kbd {
   font-weight: 700;
 }
 
-.me-empty {
-  display: grid;
-  grid-template-columns: 96px 1fr;
-  align-items: center;
-  gap: var(--s3);
-  margin-top: var(--s3);
-}
-
-.me-empty__links {
-  display: flex;
-  gap: var(--s4);
-  margin-top: var(--s1);
-}
-
 .page__subsection {
   margin-top: var(--s5);
   margin-bottom: var(--s2);
@@ -766,39 +689,9 @@ kbd {
   margin-top: var(--s4);
 }
 
-.lookup__label {
-  font-weight: 600;
-}
-
 .lookup__row {
   display: flex;
   gap: var(--s2);
-}
-
-.lookup__input {
-  flex: 1;
-  min-width: 0;
-  min-height: 44px;
-  padding: 0 var(--s3);
-  border: 1px solid var(--hairline-strong);
-  border-radius: var(--r-sm);
-  background: var(--ink-well);
-  color: var(--chalk);
-  font-size: var(--t-subhead);
-}
-
-.lookup__input:focus-visible {
-  outline: 2px solid var(--limelight);
-  outline-offset: 2px;
-}
-
-.lookup__input[aria-invalid="true"] {
-  border-color: var(--danger);
-}
-
-.lookup__error {
-  color: var(--danger);
-  font-size: var(--t-footnote);
 }
 
 .receipts {
@@ -1224,60 +1117,6 @@ kbd {
   margin-top: var(--s3);
 }
 
-.trader-row {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  align-items: center;
-  gap: var(--s3);
-  min-height: 72px;
-  padding: var(--s3) var(--s3) var(--s3) var(--s4);
-  border: 1px solid var(--hairline);
-  border-radius: var(--r-md);
-  background: var(--velvet-2);
-  color: var(--chalk);
-  text-decoration: none;
-  transition:
-    border-color var(--t-state) var(--ease-out),
-    background-color var(--t-state) var(--ease-out),
-    transform 100ms var(--ease-out);
-}
-
-@media (hover: hover) {
-  .trader-row:hover {
-    border-color: rgba(214, 178, 106, 0.55);
-    background: var(--velvet-3);
-  }
-}
-
-.trader-row:active {
-  transform: scale(0.99);
-}
-
-.trader-row__text {
-  display: grid;
-  gap: 2px;
-  min-width: 0;
-}
-
-.trader-row__name {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--s1) var(--s2);
-  font-weight: 700;
-  overflow-wrap: anywhere;
-}
-
-.trader-row__meta {
-  color: var(--haze);
-  font-size: var(--t-footnote);
-}
-
-.trader-row__chevron {
-  color: var(--haze);
-  rotate: -90deg;
-}
-
 .profile {
   display: grid;
   grid-template-columns: clamp(96px, 26vw, 148px) 1fr;
@@ -1406,10 +1245,6 @@ a.record-row:active {
   color: var(--brass);
 }
 
-.how__end {
-  margin-top: var(--s6);
-}
-
 /* ---------------------------------------------------------------- record page */
 
 .record__kinds {
@@ -1429,12 +1264,6 @@ a.record-row:active {
   color: var(--haze);
   font-size: 0.55em;
   letter-spacing: 0.02em;
-}
-
-.record__tagline {
-  color: var(--limelight);
-  font-size: var(--t-subhead);
-  font-weight: 600;
 }
 
 .record__byline {
@@ -1481,17 +1310,6 @@ a.record-row:active {
 
 .demo__records {
   margin-bottom: var(--s5);
-}
-
-@media (max-width: 520px) {
-  .watchlist__item {
-    grid-template-columns: auto 1fr auto;
-  }
-
-  .watchlist__item > .btn:first-of-type {
-    grid-column: 2 / 4;
-    justify-self: start;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {

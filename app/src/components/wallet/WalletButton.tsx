@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { useEffect, useId, useRef, useState } from "react";
 import { shortAddress } from "../../lib/format";
 import {
@@ -8,9 +8,24 @@ import {
 } from "../../lib/wallet";
 import { Icon } from "../ui/Icon";
 
-/** The header's wallet control: connect, or the connected address with copy, account and disconnect. */
+/** Paths where a wallet is part of the task. Discover, ideas, profiles and Updates never ask for one. */
+function isWalletPath(pathname: string): boolean {
+  return (
+    pathname === "/plans" ||
+    pathname.startsWith("/plans/") ||
+    pathname === "/account" ||
+    pathname === "/watchlist"
+  );
+}
+
+/**
+ * The header's wallet control: connect, or the connected address with copy, account and disconnect.
+ * A visitor who has not connected sees "Connect wallet" only where a wallet is part of the task
+ * (Plans, Account, the Watchlist's receipts), never on public discovery.
+ */
 export function WalletButton() {
   const { state } = useWallet();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const menuId = useId();
@@ -37,6 +52,7 @@ export function WalletButton() {
   }, [open]);
 
   if (state.status !== "connected") {
+    if (!isWalletPath(pathname)) return null;
     const busy = state.status === "connecting";
     return (
       <button

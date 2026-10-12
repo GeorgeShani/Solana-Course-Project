@@ -25,7 +25,7 @@ import {
   getAssociatedTokenAddress,
   sendSigned,
 } from "@relay/domain/solana";
-import { isRecord } from "../src/util";
+import { isRecord } from "../src/shared/util";
 
 const RPC = process.env.SOLANA_RPC_URL ?? "http://127.0.0.1:8899";
 assertLocalFork(RPC, "follow-via-api");

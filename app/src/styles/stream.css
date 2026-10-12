@@ -1,0 +1,727 @@
+/*
+ * Discover as a stream: one idea per screen. Pictures carry the meaning (a face, a drawn link, a
+ * pulse); words are labels. Each author has one accent that tints the glow and the ring and never
+ * carries text. Motion is a short entrance on the screen that arrives; reduced motion turns all of
+ * it off. Only tokens from tokens.css are used.
+ */
+
+.stream-wrap {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.stream {
+  position: relative;
+  z-index: 10;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scroll-snap-type: y mandatory;
+  scrollbar-width: none;
+  /* Screens that arrive later must never move the one being looked at. */
+  overflow-anchor: none;
+}
+
+.stream::-webkit-scrollbar {
+  display: none;
+}
+
+.stream__bar {
+  position: absolute;
+  z-index: 21;
+  top: 0;
+  left: var(--wing);
+  right: var(--wing);
+  height: 3px;
+  background: rgba(246, 241, 255, 0.1);
+}
+
+.stream__bar span {
+  display: block;
+  height: 100%;
+  background: var(--limelight);
+  transition: width 0.4s var(--ease-out);
+}
+
+/* The people, as pictures, and the reader's title: one bar, centred at the top. */
+.stream__top {
+  position: absolute;
+  z-index: 20;
+  top: var(--s3);
+  left: 50%;
+  translate: -50% 0;
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  max-width: calc(100% - 2 * var(--wing) - 120px);
+}
+
+.stream__people {
+  display: flex;
+  gap: var(--s2);
+  padding: var(--s1);
+  border-radius: 999px;
+  background: rgba(15, 8, 32, 0.8);
+  backdrop-filter: blur(6px);
+}
+
+.level {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  margin: 0;
+  padding: 0 var(--s3);
+  border: 1px solid var(--hairline-strong);
+  border-radius: 999px;
+  background: rgba(15, 8, 32, 0.8);
+  color: var(--limelight);
+  font-size: var(--t-footnote);
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.ring {
+  display: grid;
+  place-items: center;
+  width: var(--ctl-sm);
+  height: var(--ctl-sm);
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  background: var(--velvet-3);
+  color: var(--chalk);
+  overflow: hidden;
+  opacity: 0.72;
+  transition:
+    opacity var(--t-state) var(--ease-out),
+    border-color var(--t-state) var(--ease-out),
+    transform var(--t-state) var(--ease-out);
+}
+
+.ring[aria-current="true"] {
+  opacity: 1;
+  border-color: var(--limelight);
+  transform: scale(1.1);
+  box-shadow: 0 0 0 3px rgba(255, 217, 138, 0.22);
+}
+
+.ring .avatar {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  box-shadow: none;
+}
+
+/* ------------------------------------------------------------------ avatar */
+
+.avatar {
+  --accent: var(--limelight);
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--velvet-4);
+  color: var(--chalk);
+  font-weight: 800;
+  font-size: 1.5rem;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar[data-kind="logo"] {
+  background: #fff;
+}
+
+.avatar[data-kind="logo"] img {
+  object-fit: contain;
+  padding: 6%;
+}
+
+[data-author="arthur-hayes"] {
+  --accent: #ff6b5e;
+}
+
+[data-author="benjamin-cowen"] {
+  --accent: #3fa4ff;
+}
+
+[data-author="peter-brandt"] {
+  --accent: #7cc66b;
+}
+
+/* ------------------------------------------------------------------ one screen */
+
+.scr {
+  --accent: var(--limelight);
+  position: relative;
+  isolation: isolate;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* "safe": a screen taller than the window starts at its top instead of losing it. */
+  justify-content: safe center;
+  gap: clamp(4px, 1.1vh, 12px);
+  width: min(100%, 760px);
+  margin: 0 auto;
+  /* Centred between the people bar above and the stage line below (the floor is a fifth of the
+     window), so the content has one fixed free area to fit in at every screen size. */
+  padding: 76px calc(var(--wing) + var(--s3)) calc(24vh + var(--s2));
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  /* A screen never scrolls: everything is sized from the window height to fit its free area. */
+  overflow: hidden;
+  text-align: center;
+}
+
+/* A screen taller than the window scrolls; its parts must keep their size, never squash to nothing. */
+.scr > * {
+  flex-shrink: 0;
+}
+
+.scr:focus-visible {
+  outline-offset: -6px;
+  border-radius: var(--r-lg);
+}
+
+/* The author colour, as a soft light behind the face. */
+.scr::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0 -20%;
+  pointer-events: none;
+  background: radial-gradient(
+    46% 34% at 50% 26%,
+    color-mix(in srgb, var(--accent) 34%, transparent),
+    transparent 72%
+  );
+}
+
+.scr__who {
+  display: grid;
+  justify-items: center;
+  gap: var(--s2);
+  color: var(--chalk);
+  text-decoration: none;
+}
+
+.avatar--hero {
+  width: clamp(64px, 14vh, 150px);
+  border: 3px solid var(--velvet-deep);
+  box-shadow:
+    0 0 0 3px var(--accent),
+    0 14px 40px rgba(7, 2, 15, 0.55);
+}
+
+.scr__name {
+  font-weight: 800;
+  font-size: var(--t-callout);
+  letter-spacing: 0.01em;
+}
+
+.scr__title {
+  margin: 0;
+  max-width: 20ch;
+  font-family: var(--font-display);
+  font-size: clamp(1.4rem, min(5.4vw, 5.4vh), 2.75rem);
+  line-height: 1.04;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.scr--end {
+  gap: var(--s5);
+}
+
+.scr__cue {
+  width: min(46vw, 190px);
+}
+
+.scr__row {
+  display: flex;
+  gap: var(--s4);
+}
+
+.scr__warn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s2);
+  margin: 0;
+  color: var(--st-above);
+  font-size: var(--t-footnote);
+}
+
+.orb {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  padding: 0;
+  border: 1px solid var(--hairline-strong);
+  border-radius: 50%;
+  background: var(--glass);
+  color: var(--chalk);
+  cursor: pointer;
+}
+
+/* ------------------------------------------------------------------ chips */
+
+.scr__chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--s2);
+  margin: 0;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 28px;
+  padding: 0 var(--s3);
+  border: 1px solid var(--hairline-strong);
+  border-radius: 999px;
+  background: rgba(15, 8, 32, 0.55);
+  color: var(--chalk);
+  font-size: var(--t-footnote);
+  font-weight: 600;
+}
+
+.chip--quiet {
+  color: var(--haze);
+  font-weight: 500;
+}
+
+.chip--new {
+  border-color: var(--accent);
+  color: var(--chalk);
+}
+
+.chip--new i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+/* ------------------------------------------------------------------ the drawn link */
+
+.track {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  width: min(100%, 220px);
+  --line: var(--limelight);
+}
+
+.track[data-line="dashed"] {
+  --line: var(--sol-purple-light);
+}
+
+.track[data-line="dotted"] {
+  --line: var(--st-above);
+}
+
+.track[data-line="none"] {
+  --line: var(--haze);
+}
+
+.track svg {
+  width: 100%;
+  overflow: visible;
+}
+
+.track__node {
+  fill: var(--limelight);
+}
+
+.track__node--later {
+  fill: var(--line);
+}
+
+.track__line {
+  stroke: var(--line);
+  stroke-width: 3;
+  stroke-linecap: round;
+  fill: none;
+}
+
+.track[data-line="solid"] .track__line {
+  stroke-dasharray: 1;
+}
+
+.track[data-line="dashed"] .track__line {
+  stroke-dasharray: 0.05 0.04;
+}
+
+.track[data-line="dotted"] .track__line {
+  stroke-dasharray: 0.002 0.03;
+  stroke-width: 4;
+}
+
+.track__stub {
+  stroke: var(--haze);
+  stroke-width: 2;
+  stroke-dasharray: 3 5;
+  stroke-linecap: round;
+  opacity: 0.6;
+}
+
+.track__caption {
+  color: var(--line);
+  font-size: var(--t-footnote);
+  font-weight: 700;
+}
+
+/* ------------------------------------------------------------------ what it says (hidden until asked) */
+
+.scr__peek {
+  max-width: 46ch;
+}
+
+.scr__peek {
+  max-width: 46ch;
+}
+
+.scr__peek summary {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  margin: 0 auto;
+  border: 1px solid var(--hairline-strong);
+  border-radius: 50%;
+  background: rgba(15, 8, 32, 0.55);
+  color: var(--haze);
+  cursor: pointer;
+  list-style: none;
+}
+
+.scr__peek summary::-webkit-details-marker {
+  display: none;
+}
+
+.scr__peek p {
+  position: absolute;
+  z-index: 6;
+  left: var(--s4);
+  right: var(--s4);
+  bottom: calc(20vh + var(--s3));
+  max-width: 520px;
+  margin: 0 auto;
+  border: 1px solid var(--hairline-strong);
+  padding: var(--s3);
+  border-radius: var(--r-md);
+  background: rgba(15, 8, 32, 0.8);
+  color: var(--chalk);
+  font-size: var(--t-subhead);
+  line-height: 1.5;
+  text-align: left;
+}
+
+/* ------------------------------------------------------------------ the action rail */
+
+/* The actions sit in a row under the content, in the thumb zone, never over the words. */
+.scr > .rail {
+  display: flex;
+  justify-content: center;
+  gap: var(--s5);
+  margin-top: var(--s2);
+}
+
+.rail__btn {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  width: 64px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--chalk);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.rail__btn svg {
+  box-sizing: border-box;
+  width: clamp(46px, 7vh, 56px);
+  height: clamp(46px, 7vh, 56px);
+  padding: 26%;
+  border: 1px solid var(--hairline-strong);
+  border-radius: 50%;
+  background: var(--glass);
+  transition:
+    transform 0.2s var(--ease-out),
+    background-color var(--t-state) var(--ease-out),
+    border-color var(--t-state) var(--ease-out);
+}
+
+.rail__btn:active svg {
+  transform: scale(0.92);
+}
+
+.rail__btn[data-on="true"] svg {
+  border-color: var(--limelight);
+  background: rgba(255, 217, 138, 0.16);
+  color: var(--limelight);
+}
+
+.rail__label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--haze);
+}
+
+.watchbtn[data-variant="rail"] .field__error {
+  position: absolute;
+  width: 220px;
+  translate: -78px 0;
+}
+
+/* Loading: the shape of a screen, so nothing jumps when the real one arrives. */
+.avatar--wait,
+.wait__bar {
+  background: linear-gradient(
+    90deg,
+    var(--velvet-3),
+    var(--velvet-4),
+    var(--velvet-3)
+  );
+  background-size: 200% 100%;
+}
+
+.wait__bar {
+  display: block;
+  width: min(80%, 360px);
+  height: 28px;
+  border-radius: var(--r-sm);
+}
+
+.wait__bar--short {
+  width: min(50%, 220px);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .avatar--wait,
+  .wait__bar {
+    animation: stream-shimmer 1.4s linear infinite;
+  }
+}
+
+@keyframes stream-shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+/* ------------------------------------------------------------------ motion: only the arriving screen moves */
+
+@media (prefers-reduced-motion: no-preference) {
+  .scr[data-active="true"] .avatar--hero {
+    animation: stream-pop 0.55s var(--ease-out);
+  }
+
+  .scr[data-active="true"] .scr__title {
+    animation: stream-rise 0.55s var(--ease-out) 0.08s backwards;
+  }
+
+  .scr[data-active="true"] .track__line {
+    animation: stream-draw 0.8s var(--ease-out) 0.25s backwards;
+  }
+
+  .scr[data-active="true"] .track[data-line="dashed"] .track__line,
+  .scr[data-active="true"] .track[data-line="dotted"] .track__line {
+    animation: stream-fade 0.8s var(--ease-out) 0.25s backwards;
+  }
+
+  .scr[data-active="true"] .rail__btn {
+    animation: stream-rise 0.5s var(--ease-out) 0.3s backwards;
+  }
+
+  .chip--new i {
+    animation: stream-pulse 1.8s ease-in-out infinite;
+  }
+
+  .rail__btn[data-on="true"] svg {
+    animation: stream-pop 0.4s var(--ease-out);
+  }
+}
+
+@keyframes stream-pop {
+  from {
+    transform: scale(0.9);
+  }
+  60% {
+    transform: scale(1.04);
+  }
+}
+
+@keyframes stream-rise {
+  from {
+    transform: translateY(14px);
+  }
+}
+
+@keyframes stream-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+}
+
+@keyframes stream-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes stream-pulse {
+  50% {
+    transform: scale(1.5);
+    opacity: 0.55;
+  }
+}
+
+@media (max-height: 820px) {
+  .scr__title {
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+}
+
+@media (max-height: 640px) {
+  .scr {
+    justify-content: flex-start;
+    padding-top: calc(var(--s7) + var(--s4));
+    padding-bottom: var(--s5);
+  }
+}
+
+/* ------------------------------------------------------------------ the audience below the line */
+
+.aud {
+  position: absolute;
+  z-index: 11;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 20vh;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.aud__row {
+  position: absolute;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end;
+}
+
+.aud__row--back {
+  bottom: 38%;
+  padding: 0 4%;
+}
+
+.aud__row--front {
+  bottom: -14%;
+  padding: 0 9%;
+}
+
+.aud__p {
+  flex: none;
+  fill: #0b0618;
+  stroke: color-mix(in srgb, var(--accent, var(--limelight)) 55%, transparent);
+  stroke-width: 1.2;
+  transition: stroke 0.6s var(--ease-out);
+}
+
+.aud__row--back .aud__p {
+  width: clamp(26px, 3.4vw, 44px);
+  opacity: 0.8;
+}
+
+.aud__row--front .aud__p {
+  width: clamp(40px, 5.4vw, 72px);
+}
+
+/* A little life: heads sway out of step; they applaud when something is watched. */
+@media (prefers-reduced-motion: no-preference) {
+  .aud__p {
+    animation: aud-sway 4.5s ease-in-out infinite alternate;
+  }
+
+  .aud__row > :nth-child(3n) {
+    animation-delay: -1.2s;
+  }
+
+  .aud__row > :nth-child(3n + 1) {
+    animation-delay: -2.6s;
+    animation-duration: 5.4s;
+  }
+
+  .aud[data-clap="true"] .aud__p {
+    animation: aud-clap 0.36s ease-in-out 5;
+  }
+
+  .aud[data-clap="true"] .aud__row > :nth-child(odd) {
+    animation-delay: 0.1s;
+  }
+}
+
+@keyframes aud-sway {
+  to {
+    transform: translateY(-3px) rotate(1.5deg);
+  }
+}
+
+@keyframes aud-clap {
+  50% {
+    transform: translateY(-9px) scale(1.04);
+  }
+}
+
+@media (max-width: 600px) {
+  .aud__row > :nth-child(even) {
+    display: none;
+  }
+}
+
+@media (max-width: 460px) {
+  .stream__top {
+    max-width: calc(100% - 2 * var(--wing) - 76px);
+    left: calc(50% + 28px);
+    gap: 6px;
+  }
+
+  .stream__top .ring {
+    width: 34px;
+    height: 34px;
+  }
+
+  .level {
+    flex-shrink: 0;
+    padding-inline: 8px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
+}

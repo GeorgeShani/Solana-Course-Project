@@ -1,6 +1,9 @@
 import { describe, expect, it } from "bun:test";
 import { NETWORKS } from "@relay/domain";
-import { assertRpcMatchesNetwork, type FetchLike } from "../src/network-check";
+import {
+  assertRpcMatchesNetwork,
+  type FetchLike,
+} from "../src/shared/network-check";
 
 function rpcReturning(result: unknown): FetchLike {
   return async () =>

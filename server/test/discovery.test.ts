@@ -1,7 +1,13 @@
 import { afterAll, describe, expect, it } from "bun:test";
-import { applyCuration, CurationConflictError } from "../src/discovery/apply";
-import { CurationError, parseCuration } from "../src/discovery/curation";
-import { eventHash, type EventHashInput } from "../src/discovery/hash";
+import {
+  applyCuration,
+  CurationConflictError,
+} from "../src/modules/discovery/apply";
+import {
+  CurationError,
+  parseCuration,
+} from "../src/modules/discovery/curation";
+import { eventHash, type EventHashInput } from "../src/modules/discovery/hash";
 import { createTestApp, type TestApp } from "./helpers";
 
 // ------------------------------------------------------------------------------------ helpers
@@ -971,6 +977,16 @@ describe("GET /discovery", () => {
     // update) was recorded before them.
     expect(seen).toEqual(["idea-three", "idea-two", "idea-one", "sol-watch"]);
     expect(new Set(seen).size).toBe(seen.length);
+    // A card can say what the newest later item is without opening the timeline.
+    const all = list(
+      (await json(await app.get("/discovery/ideas?limit=30"))).items,
+    );
+    const updateOf = (id: string) => all.find((i) => i.id === id)?.latestUpdate;
+    expect(updateOf("idea-one")).toBeNull();
+    expect(obj(updateOf("sol-watch"))).toEqual({
+      basis: "creator_confirmed",
+      occurredAt: "2026-10-02T09:00:00.000Z",
+    });
     const filtered = await json(
       await app.get("/discovery/ideas?trader=ada-test&limit=30"),
     );
@@ -1079,8 +1095,9 @@ describe("GET /discovery", () => {
     expect((await live.get("/discovery/ideas/demo-watch")).status).toBe(404);
 
     // The same database, read by a server in demo mode.
-    const { loadEnv } = await import("../src/env");
-    const { createDiscoveryService } = await import("../src/discovery/service");
+    const { loadEnv } = await import("../src/shared/env");
+    const { createDiscoveryService } =
+      await import("../src/modules/discovery/service");
     const demoService = createDiscoveryService({
       env: loadEnv({ NETWORK: "localnet", DEMO_MODE: "true" }),
       db: live.db,

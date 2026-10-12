@@ -1,6 +1,6 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { DemoBadge, IdeaCard } from "../components/discovery/Cards";
-import { WatchButton } from "../components/discovery/WatchButton";
+import { DemoBadge, IdeaCard } from "../features/discovery/components/Cards";
+import { WatchButton } from "../features/discovery/components/WatchButton";
 import { Cue } from "../components/cue/Cue";
 import { BackLink } from "../components/ui/BackLink";
 import { Icon } from "../components/ui/Icon";
@@ -11,9 +11,10 @@ import {
   PROVIDER_LABEL,
   RELATIONSHIP_LABEL,
   formatWhen,
+  latestCapture,
   safeHref,
-} from "../lib/discovery";
-import { useSourcedTrader } from "../lib/discovery-queries";
+} from "../features/discovery/model";
+import { useSourcedTrader } from "../features/discovery/queries";
 
 export const Route = createFileRoute("/profiles/$traderId")({
   head: () => ({ meta: [{ title: "Profile · Relay" }] }),
@@ -27,7 +28,7 @@ function ProfilePage() {
   if (q.isPending)
     return (
       <section className="page page--wide" aria-busy="true" data-cursor-zone>
-        <BackLink fallback="/traders" label="Traders" />
+        <BackLink fallback="/" label="Discover" />
         <p className="page__text">Loading the profile…</p>
       </section>
     );
@@ -35,7 +36,7 @@ function ProfilePage() {
   if (q.isError)
     return (
       <section className="page page--wide" data-cursor-zone>
-        <BackLink fallback="/traders" label="Traders" />
+        <BackLink fallback="/" label="Discover" />
         {q.error instanceof DiscoveryNotFoundError ? (
           <div className="notice" role="status">
             <Cue pose="unavailable" className="notice__cue" />
@@ -44,8 +45,8 @@ function ProfilePage() {
               <p className="page__text">
                 It may have been removed, or the link may be wrong.
               </p>
-              <Link to="/traders" className="btn btn--glass btn--small">
-                See all traders
+              <Link to="/" className="btn btn--glass btn--small">
+                Back to Discover
               </Link>
             </div>
           </div>
@@ -76,7 +77,7 @@ function ProfilePage() {
       aria-labelledby="profile-title"
       data-cursor-zone
     >
-      <BackLink fallback="/traders" label="Traders" />
+      <BackLink fallback="/" label="Discover" />
       <header className="idea__head">
         <p className="icard__badges">
           {t.isDemo && <DemoBadge />}
@@ -110,6 +111,12 @@ function ProfilePage() {
         <p className="page__text">
           <strong>What this does not cover.</strong> {t.coverageLimits}
         </p>
+        {latestCapture(t.ideas) && (
+          <p className="page__text page__text--quiet">
+            Newest capture by Relay: {formatWhen(latestCapture(t.ideas))}.
+            Nothing is checked automatically after that.
+          </p>
+        )}
         {t.ownerConfirmed && (
           <p className="page__text page__text--quiet">
             Relay's owner ({t.ownerConfirmed.by}) confirmed the sources on{" "}

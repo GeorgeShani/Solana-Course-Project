@@ -1,110 +1,142 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { Feed } from "../components/feed/Feed";
-import { FeedLoading } from "../components/feed/FeedStates";
-import { CurtainIntro } from "../components/theatre/CurtainIntro";
-import { Welcome } from "../components/theatre/Welcome";
-import { getChainStatus } from "../lib/chain";
-import { getFirstFeedPage, type FeedLoad } from "../lib/feed-server";
-import { fictionalPreviewFeed } from "../lib/fixtures";
+import { createFileRoute, redirect } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { IdeaStream } from "../features/discovery/components/IdeaStream";
+import { Cue } from "../components/cue/Cue";
+import { Icon } from "../components/ui/Icon";
+import {
+  useDetectedFeed,
+  useIdeaFeed,
+  useSourcedTraders,
+} from "../features/discovery/queries";
 
-interface FeedSearch {
-  /** The active plan, for deep links and restoring the reader's place. */
+interface DiscoverSearch {
+  /** Narrow the ideas to one public-source profile. */
+  trader?: string;
+  /** Older deep links to a plan on `/`; redirected to `/plans`. */
   plan?: string;
-  /** Development only: a labelled fictional feed for layout checks. */
-  preview?: "fictional";
-  /** Show the welcome scene again, even after the visitor has entered before. */
+  /** Compatibility only: opens the welcome, then the scene replaces it with the clean path. */
   welcome?: true;
+  /** Older development links to the fictional fixtures; redirected in development only. */
+  preview?: "fictional";
 }
 
-const URL_WRITE_DELAY_MS = 350;
+const TRADER_ID = /^[a-z0-9][a-z0-9_-]{2,63}$/;
 
+/**
+ * Discover: public-source ideas first. Each idea links its original source and later items, with
+ * the relationship between them stated. Nothing here is a trade, a recommendation or live data:
+ * people at Relay recorded every entry by hand.
+ */
 export const Route = createFileRoute("/")({
-  validateSearch: (search: Record<string, unknown>): FeedSearch => ({
+  validateSearch: (search: Record<string, unknown>): DiscoverSearch => ({
+    trader:
+      typeof search.trader === "string" && TRADER_ID.test(search.trader)
+        ? search.trader
+        : undefined,
     plan:
       typeof search.plan === "string" && search.plan.length <= 64
         ? search.plan
         : undefined,
-    preview: search.preview === "fictional" ? "fictional" : undefined,
     welcome: search.welcome !== undefined ? true : undefined,
+    preview: search.preview === "fictional" ? "fictional" : undefined,
   }),
-  loaderDeps: ({ search }) => ({ preview: search.preview }),
-  loader: async ({
-    deps,
-  }): Promise<{ feed: FeedLoad; chainOk: boolean; preview: boolean }> => {
-    if (deps.preview === "fictional") {
-      const now = Date.now();
-      return {
-        feed: { ok: true, page: fictionalPreviewFeed(now), receivedAt: now },
-        chainOk: true,
-        preview: true,
-      };
-    }
-    const [feed, chain] = await Promise.all([
-      getFirstFeedPage(),
-      getChainStatus(),
-    ]);
-    return { feed, chainOk: chain.ok, preview: false };
+  beforeLoad: ({ search }) => {
+    if (search.preview === "fictional" && import.meta.env.DEV)
+      throw redirect({
+        to: "/dev/plan-states",
+        search: { plan: search.plan },
+        replace: true,
+      });
+    if (search.plan)
+      throw redirect({
+        to: "/plans",
+        search: { plan: search.plan },
+        replace: true,
+      });
   },
-  component: FeedRoute,
-  pendingComponent: FeedLoading,
+  head: () => ({
+    meta: [
+      { title: "Relay — Discover traders' public ideas, with sources" },
+      {
+        name: "description",
+        content:
+          "See the original idea. Follow what changed. Check the evidence. Public-source profiles recorded by hand, with exact links and times. Not financial advice.",
+      },
+    ],
+  }),
+  component: Discover,
 });
 
-function FeedRoute() {
-  const { feed, chainOk, preview } = Route.useLoaderData();
-  const { plan, welcome } = Route.useSearch();
-  const navigate = useNavigate({ from: "/" });
-  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const [initialPlan] = useState(plan);
+function Discover() {
+  const { trader } = Route.useSearch();
+  const profiles = useSourcedTraders();
+  const ideasQuery = useIdeaFeed(trader);
+  const detected = useDetectedFeed();
+  const people = profiles.data?.pages.flatMap((p) => p.items) ?? [];
+  const ideas = ideasQuery.data?.pages.flatMap((p) => p.items) ?? [];
 
-  const onActiveChange = useCallback(
-    (planPda: string) => {
-      clearTimeout(timer.current);
-      timer.current = setTimeout(() => {
-        void navigate({
-          search: (prev) => ({ ...prev, plan: planPda }),
-          replace: true,
-          resetScroll: false,
-        });
-      }, URL_WRITE_DELAY_MS);
-    },
-    [navigate],
-  );
-  useEffect(() => () => clearTimeout(timer.current), []);
+  // The stream wants every recorded idea; there are few, so read the remaining pages now.
+  const { hasNextPage, isFetchingNextPage, fetchNextPage } = ideasQuery;
+  useEffect(() => {
+    if (hasNextPage && !isFetchingNextPage) void fetchNextPage();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  const onEntered = useCallback(() => {
-    if (welcome)
-      void navigate({
-        search: (prev) => ({ ...prev, welcome: undefined }),
-        replace: true,
-        resetScroll: false,
-      });
-    document
-      .querySelector<HTMLElement>(".feed [data-plan], .stage-msg")
-      ?.focus({ preventScroll: true });
-  }, [navigate, welcome]);
+  if (profiles.isError || ideasQuery.isError)
+    return (
+      <section
+        className="page page--wide"
+        aria-labelledby="discover-title"
+        data-cursor-zone
+      >
+        <h1 id="discover-title" className="page__title" data-page-start>
+          Discover
+        </h1>
+        <ErrorNotice
+          message={
+            (ideasQuery.error ?? profiles.error)?.message ?? "Request failed"
+          }
+          onRetry={() => {
+            void profiles.refetch();
+            void ideasQuery.refetch();
+          }}
+        />
+      </section>
+    );
 
-  const count = feed.ok ? feed.page.items.length : 0;
   return (
-    <>
-      <Welcome forced={!!welcome} onEntered={onEntered} />
-      <CurtainIntro
-        sub={
-          !feed.ok
-            ? "Tonight's lineup"
-            : preview
-              ? "Fictional preview"
-              : `Tonight · ${count}${feed.page.nextCursor ? "+" : ""} ${count === 1 ? "plan" : "plans"}`
-        }
-      />
-      <Feed
-        key={preview ? "preview" : "live"}
-        initial={feed}
-        preview={preview}
-        chainOk={chainOk}
-        initialPlan={initialPlan}
-        onActiveChange={onActiveChange}
-      />
-    </>
+    <IdeaStream
+      ideas={ideas}
+      detected={detected.data?.items ?? []}
+      people={people}
+      trader={trader}
+      feedError={detected.isError}
+      loading={profiles.isPending || ideasQuery.isPending}
+    />
+  );
+}
+
+function ErrorNotice({
+  message,
+  onRetry,
+}: {
+  message: string;
+  onRetry: () => void;
+}) {
+  return (
+    <div className="notice notice--error" role="status">
+      <Cue pose="unavailable" className="notice__cue" />
+      <div className="notice__body">
+        <p className="notice__title">Can't reach Relay's service</p>
+        <p className="page__text">{message}.</p>
+        <button
+          type="button"
+          className="btn btn--glass btn--small"
+          onClick={onRetry}
+        >
+          <Icon name="refresh" size={18} />
+          Try again
+        </button>
+      </div>
+    </div>
   );
 }

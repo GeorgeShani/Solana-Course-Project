@@ -1,18 +1,20 @@
 # Relay: instructions for AI agents
 
-## Read the plan first, in full
+## Read this first
 
-Before you plan, edit or run anything, read **all of [docs/RELAY_IMPLEMENTATION_PLAN.md](docs/RELAY_IMPLEMENTATION_PLAN.md)**. It is long: read it to the last line (page through it with offsets if your reader truncates), not just the sections that look relevant. It holds the product definition, the architecture and security model, the entry-status vocabulary, the PnL rules, and the phase-by-phase roadmap.
+Before you plan, edit or run anything, read, in this order:
 
-The plan is the source of truth for what to build and why. Phases marked `DONE` are finished; each one ends with a **Result** note that records deviations from the original text. Where a Result note and an older section disagree, the Result note wins. Work on one phase at a time, in order, and update the plan (tick the tasks, add a Result note) when you finish a phase.
+1. [PRODUCT.md](PRODUCT.md): what Relay is, the evidence taxonomy, the locked decisions.
+2. [docs/ROADMAP.md](docs/ROADMAP.md): the active milestones and what is next.
+3. The README of the subsystem you touch (`app/`, `server/`, `program/`, `server/curation/`) and [DESIGN.md](DESIGN.md) for UI work.
 
-If code and plan disagree, say so and ask rather than silently picking one.
+Authority order when documents disagree: **PRODUCT.md > docs/ROADMAP.md > subsystem READMEs > everything else.** Everything under `docs/archive/` is historical context only and is **not** current product authority; do not rebuild against it. If code and these documents disagree, say so and ask rather than silently picking one.
 
-Current work is **Stage 3** of the plan (owner amendment 2026-10-10). **Start with [docs/CONTINUE.md](docs/CONTINUE.md)**: what is done, what is next, and the owner's decisions. Also read the team brief it is based on, [docs/RELAY_HANDOFF_2026-10-10.md](docs/RELAY_HANDOFF_2026-10-10.md).
+Work one milestone at a time, in order. When a milestone finishes, update `docs/ROADMAP.md` (status and a short result note).
 
 ## What this is
 
-Relay: "Meet the traders. Follow the evidence." It turns traders' public ideas into followable timelines (original source, later updates, available evidence), for people who follow traders in any market. Its execution path is Relay-native plans on Solana: "Is this idea still available to me, and what happened after people followed it?" Followers authorize each trade themselves; creator updates never authorize anything. An eligible entry is never described as safe, recommended or profitable. Public-source discovery and Relay-native execution never share authority.
+Relay is a public-source trading-idea memory system: "See the original idea. Follow what changed. Check the evidence." It turns traders' public ideas into followable timelines (original source, later updates, available evidence). Trading is secondary. Relay-native plans on Solana are an optional, separate capability under Plans: followers authorize each trade themselves, creator updates never authorize anything, and an eligible entry is never described as safe, recommended or profitable. Public-source discovery and Relay-native execution never share authority.
 
 ## Repository map
 
@@ -23,7 +25,7 @@ Relay: "Meet the traders. Follow the evidence." It turns traders' public ideas i
 | `server/`  | Hono + Bun + Postgres. Mirrors the chain, serves the feed, verifies follows. Never an authority.                                                 |
 | `app/`     | TanStack Start (React) frontend.                                                                                                                 |
 | `scripts/` | `anchor.ts` (runs Anchor through WSL), `sync-idl.ts`.                                                                                            |
-| `docs/`    | The plan and the spike notes.                                                                                                                    |
+| `docs/`    | Roadmap, runbooks, research, archived history.                                                                                                   |
 
 ## Rules that always apply
 
@@ -56,4 +58,4 @@ bun run sync-idl                              # IDL -> domain/src/solana/relay.i
 (cd app && bun run build)
 ```
 
-Fork demos (Surfpool local fork) are described in `docs/spikes/surfpool-jupiter.md` and `server/README.md`.
+Fork demos (Surfpool local fork) are described in `docs/spikes/surfpool-jupiter.md` and `server/README.md`. Curation: `bun run --cwd server curate --check`.
