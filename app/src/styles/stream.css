@@ -705,3 +705,23 @@
     display: none;
   }
 }
+
+@media (max-width: 460px) {
+  .stream__top {
+    max-width: calc(100% - 2 * var(--wing) - 76px);
+    left: calc(50% + 28px);
+    gap: 6px;
+  }
+
+  .stream__top .ring {
+    width: 34px;
+    height: 34px;
+  }
+
+  .level {
+    flex-shrink: 0;
+    padding-inline: 8px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
+}

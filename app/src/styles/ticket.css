@@ -263,3 +263,69 @@
     transform: scale(1.04);
   }
 }
+
+@media (max-width: 600px) {
+  .ticket .avatar--hero {
+    width: clamp(56px, 10vh, 110px);
+  }
+}
+
+@media (max-width: 600px) {
+  .ticket__stub {
+    padding-bottom: 20px;
+  }
+}
+
+@media (max-width: 600px) {
+  .ticket .avatar--hero {
+    width: clamp(52px, 8.6vh, 96px);
+  }
+
+  .ticket__peek {
+    display: none;
+  }
+}
+
+/* Short windows: keep the whole ticket, drop what is not essential. */
+@media (max-height: 700px) {
+  .ticket__peek,
+  .track__caption {
+    display: none;
+  }
+
+  .ticket .avatar--hero {
+    width: clamp(44px, 9vh, 70px);
+  }
+
+  .ticket__title {
+    font-size: clamp(1.1rem, 4.2vh, 1.6rem);
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+
+  .ticket__poster {
+    gap: 2px;
+    padding-top: 8px;
+    padding-bottom: 6px;
+  }
+
+  .ticket__stub {
+    padding-top: 6px;
+    padding-bottom: 8px;
+  }
+
+  .slot__disc {
+    width: 40px;
+    height: 40px;
+  }
+
+  .chips--meta .chip:nth-child(n + 3) {
+    display: none;
+  }
+}
+
+@media (max-height: 560px) {
+  .chips--meta {
+    display: none;
+  }
+}
