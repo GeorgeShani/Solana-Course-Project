@@ -24,7 +24,9 @@ import { WatchStory } from "./WatchStory";
 
 type Screen =
   | { kind: "idea"; key: string; idea: IdeaSummary }
-  | { kind: "detected"; key: string; item: FeedItemView };
+  | { kind: "detected"; key: string; item: FeedItemView }
+  /** Past the last card: reaching it closes the curtains, so the feed has an ending. */
+  | { kind: "end" };
 
 /** Cap the stream so a visit stays short; recorded ideas first, then detected posts. */
 const MAX_EXAMPLES = 6;
@@ -68,7 +70,7 @@ export function IdeaStream({
   );
 
   const screens = useMemo<Screen[]>(() => {
-    return [
+    const cards: Screen[] = [
       ...ideas.map((idea): Screen => ({ kind: "idea", key: idea.id, idea })),
       ...extra.map((item): Screen => ({
         kind: "detected",
@@ -76,7 +78,10 @@ export function IdeaStream({
         item,
       })),
     ].slice(0, MAX_EXAMPLES);
+    return cards.length === 0 ? cards : [...cards, { kind: "end" }];
   }, [ideas, extra]);
+  // The pager counts cards, not the closing screen.
+  const total = screens.filter((s) => s.kind !== "end").length;
 
   const feedRef = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
@@ -177,8 +182,25 @@ export function IdeaStream({
     feedRef.current?.scrollTo({ top: 0, behavior: "auto" });
   }, [trader]);
 
-  // Opening the curtains again leaves the reader on the card they were looking at.
-  const closeShowtime = useCallback(() => setShowtime(false), []);
+  // Past the last card the curtains close over it, as at the end of a show.
+  const endedShow = useRef(false);
+  useEffect(() => {
+    if (screens[active]?.kind !== "end") return;
+    endedShow.current = true;
+    setShowtime(true);
+    const lastCard = screens.length - 2;
+    if (lastCard >= 0) go(lastCard, "auto");
+  }, [active, screens, go]);
+
+  // After the end of the show the curtains open back at the first card; opened from "How it works"
+  // they leave the reader on the card they were looking at.
+  const closeShowtime = useCallback(() => {
+    if (endedShow.current) {
+      endedShow.current = false;
+      go(0, "auto");
+    }
+    setShowtime(false);
+  }, [go]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -277,16 +299,18 @@ export function IdeaStream({
               <Icon name="arrow-up" size={18} />
             </button>
             <span className="pager__count" aria-live="polite">
-              {screens.length === 0
-                ? "–"
-                : `${Math.min(active + 1, screens.length)} of ${screens.length}`}
+              {total === 0 ? "–" : `${Math.min(active + 1, total)} of ${total}`}
             </span>
             <button
               type="button"
               className="pager__btn"
               onClick={() => go(active + 1)}
-              disabled={active >= screens.length - 1}
-              aria-label="Next idea"
+              disabled={total === 0 || active >= screens.length - 1}
+              aria-label={
+                active >= total - 1 && total > 0
+                  ? "Finish: close the curtains"
+                  : "Next idea"
+              }
             >
               <Icon name="arrow-down" size={18} />
             </button>
@@ -326,6 +350,16 @@ export function IdeaStream({
             "aria-posinset": i + 1,
             "aria-setsize": screens.length,
           } as const;
+
+          if (s.kind === "end")
+            return (
+              <article
+                key="end"
+                className="scr scr--end"
+                {...common}
+                aria-hidden="true"
+              />
+            );
 
           const ticketScreen: TicketScreen =
             s.kind === "idea"

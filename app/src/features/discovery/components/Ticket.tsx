@@ -4,6 +4,7 @@ import { Icon } from "../../../components/ui/Icon";
 import {
   formatWhen,
   safeHref,
+  shortDate,
   sourceHost,
   type FeedItemView,
   type IdeaSummary,
@@ -16,19 +17,6 @@ import { WatchButton } from "./WatchButton";
 export type TicketScreen =
   | { kind: "idea"; idea: IdeaSummary }
   | { kind: "detected"; item: FeedItemView };
-
-/** "7 Oct 2026" in UTC, or null when the source gives no date. The exact time is in the tooltip. */
-export function shortDate(iso: string | null): string | null {
-  if (iso === null) return null;
-  const t = Date.parse(iso);
-  if (Number.isNaN(t)) return null;
-  return new Date(t).toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    timeZone: "UTC",
-  });
-}
 
 const UPDATE_LABEL: Record<RelationshipBasis, string> = {
   creator_confirmed: "Update from the author",

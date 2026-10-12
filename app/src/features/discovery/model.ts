@@ -1050,6 +1050,19 @@ export function formatWhen(iso: string | null): string {
   })} UTC`;
 }
 
+/** "7 Oct 2026" in UTC, or null when the source gives no date. The exact time goes in a tooltip. */
+export function shortDate(iso: string | null): string | null {
+  if (iso === null) return null;
+  const t = Date.parse(iso);
+  if (Number.isNaN(t)) return null;
+  return new Date(t).toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+}
+
 /** Shown wherever curated records appear: the coverage is manual and nothing updates on its own. */
 export const CURATION_NOTE =
   "Editorially curated from public sources: ideas and their updates are recorded by hand. Only new posts in the authors' own feeds are detected automatically, as a title and a link.";

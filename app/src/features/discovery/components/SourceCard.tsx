@@ -6,13 +6,15 @@ import {
   sourceHost,
   formatWhen,
   safeHref,
+  shortDate,
   type SourceView,
 } from "../model";
 
 /**
  * One captured public source. It states what Relay knows and what it does not: the time the source
- * gives for itself (or "Unknown"), the time Relay captured it, whether it can still be opened, and
- * that a person at Relay recorded it by hand. It never calls a statement a trade.
+ * gives for itself (or "Unknown"), whether it could be opened when Relay looked, and a link to the
+ * original. How it was captured, by whom, and the fingerprint of the stored record are one tap away.
+ * It never calls a statement a trade.
  */
 export function SourceCard({
   source,
@@ -34,7 +36,6 @@ export function SourceCard({
           {RECORD_TYPE_LABEL[source.recordType] ?? source.recordType} ·{" "}
           {sourceHost(source.url) ?? provider}
         </span>
-        <span className="badge badge--quiet">Manual coverage</span>
       </figcaption>
 
       {source.contentRemoved || source.displayedContent === null ? (
@@ -51,27 +52,17 @@ export function SourceCard({
       <dl className="source__facts">
         <div>
           <dt>Published</dt>
-          <dd>
-            {formatWhen(source.publishedAt)}
+          <dd title={formatWhen(source.publishedAt)}>
+            {shortDate(source.publishedAt) ?? "Date unknown"}
             {source.publishedAt === null && (
               <span className="source__why"> (the source gives no time)</span>
             )}
           </dd>
         </div>
         <div>
-          <dt>Captured by Relay</dt>
-          <dd>{formatWhen(source.retrievedAt)}</dd>
-        </div>
-        <div>
-          <dt>Status</dt>
+          <dt>When Relay looked</dt>
           <dd data-gone={gone}>
             {AVAILABILITY_LABEL[source.availability.state]}
-            {source.availability.state !== "unknown" && (
-              <span className="source__why">
-                {" "}
-                (as of {formatWhen(source.availability.observedAt)})
-              </span>
-            )}
           </dd>
         </div>
         {source.availability.note && (
@@ -80,17 +71,18 @@ export function SourceCard({
             <dd>{source.availability.note}</dd>
           </div>
         )}
-        <div>
-          <dt>Recorded by</dt>
-          <dd>{source.curator}</dd>
-        </div>
       </dl>
 
       <p className="source__links">
         {href ? (
-          <a href={href} target="_blank" rel="noopener noreferrer nofollow">
+          <a
+            className="btn btn--glass btn--small"
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer nofollow"
+          >
             Open the original
-            <Icon name="external" size={14} />
+            <Icon name="external" size={16} />
           </a>
         ) : (
           <span className="source__why">No safe link to the original.</span>
@@ -99,11 +91,16 @@ export function SourceCard({
       <details className="source__more">
         <summary>How Relay recorded this</summary>
         <p>
-          A person at Relay copied this source by hand. Relay does not watch the
-          account live, so it may have changed since. The fingerprint below
-          identifies exactly what Relay stored (link, times and text), so a
-          later edit to Relay's record would show. It does not prove the source
-          existed before Relay captured it.
+          {source.curator} copied this source by hand on{" "}
+          {formatWhen(source.retrievedAt)}
+          {source.availability.state !== "unknown" &&
+            ` and checked it then (${AVAILABILITY_LABEL[source.availability.state].toLowerCase()})`}
+          . Relay does not watch the account live, so it may have changed since.
+        </p>
+        <p>
+          The fingerprint below identifies exactly what Relay stored (link,
+          times and text), so a later edit to Relay's record would show. It does
+          not prove the source existed before Relay captured it.
         </p>
         <p className="source__hash num">{source.contentHash}</p>
       </details>
