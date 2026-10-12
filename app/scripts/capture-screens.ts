@@ -43,9 +43,7 @@ async function main() {
   const ideas = (await (await fetch(`${API}/discovery/ideas`)).json()) as {
     items: { id: string; title: string }[];
   };
-  const traders = (await (
-    await fetch(`${API}/discovery/traders`)
-  ).json()) as {
+  const traders = (await (await fetch(`${API}/discovery/traders`)).json()) as {
     items: { id: string; displayName: string }[];
   };
   const plans = (await (await fetch(`${API}/plans/feed?limit=5`)).json()) as {
@@ -62,7 +60,12 @@ async function main() {
     });
     const page = await ctx.newPage();
     await page.goto(`${BASE}/`, { waitUntil: "networkidle" });
-    await shot(page, "01-welcome", "Closed-curtain welcome (first visit)", shots);
+    await shot(
+      page,
+      "01-welcome",
+      "Closed-curtain welcome (first visit)",
+      shots,
+    );
     await ctx.close();
   }
 
@@ -82,7 +85,12 @@ async function main() {
     if (await cord.count()) {
       await cord.click();
       await page.waitForTimeout(1400);
-      await shot(page, "03-interval", "Interval / Showtime (curtains closed)", shots);
+      await shot(
+        page,
+        "03-interval",
+        "Interval / Showtime (curtains closed)",
+        shots,
+      );
       const back = page.getByRole("button", { name: /Back to the show/i });
       if (await back.count()) await back.click();
       await page.waitForTimeout(600);
@@ -129,7 +137,12 @@ async function main() {
     });
     await page.goto(`${BASE}/updates`, { waitUntil: "networkidle" });
     await page.waitForTimeout(800);
-    await shot(page, "08-updates-watching", "Updates (watching one idea)", shots);
+    await shot(
+      page,
+      "08-updates-watching",
+      "Updates (watching one idea)",
+      shots,
+    );
 
     for (const tab of ["ideas", "profiles", "plans", "receipts"] as const) {
       await page.goto(`${BASE}/watchlist?tab=${tab}`, {
@@ -148,7 +161,12 @@ async function main() {
       await page.goto(`${BASE}/plans/${p.planPda}`, {
         waitUntil: "networkidle",
       });
-      await shot(page, `12-plan-${p.planPda.slice(0, 8)}`, "Plan detail", shots);
+      await shot(
+        page,
+        `12-plan-${p.planPda.slice(0, 8)}`,
+        "Plan detail",
+        shots,
+      );
     }
 
     await page.goto(`${BASE}/account`, { waitUntil: "networkidle" });
