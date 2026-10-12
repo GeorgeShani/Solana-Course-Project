@@ -28,3 +28,6 @@ app/playwright-report/
 
 # Written by scripts/deploy.sh: the commit that last failed to start
 .deploy-last-failed
+
+# Public, resumable owner-run devnet rehearsal manifests
+.relay/

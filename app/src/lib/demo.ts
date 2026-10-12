@@ -53,6 +53,64 @@ export const DEMO_STEPS: readonly DemoStep[] = [
   },
 ];
 
+export interface DemoScenario {
+  id: string;
+  label: string;
+  description: string;
+  steps: readonly DemoStep[];
+}
+
+export const DEMO_SCENARIOS: readonly DemoScenario[] = [
+  {
+    id: "entry-passes",
+    label: "Entry passes",
+    description: "Start inside the range, then see the price move above it.",
+    steps: DEMO_STEPS,
+  },
+  {
+    id: "wait-for-range",
+    label: "Wait for the range",
+    description: "Start below the range, enter it, then move past it.",
+    steps: [
+      { minutes: 0, price: "135", advanceLabel: "" },
+      {
+        minutes: 10,
+        price: "142",
+        advanceLabel: "Advance demo · into the range",
+      },
+      {
+        minutes: 25,
+        price: "148",
+        advanceLabel: "Advance demo · above the range",
+      },
+      {
+        minutes: 50,
+        price: "143",
+        advanceLabel: "Advance demo · past the window",
+      },
+    ],
+  },
+  {
+    id: "return-to-range",
+    label: "Return to the range",
+    description:
+      "Start above the range and see a return before the window closes.",
+    steps: [
+      { minutes: 0, price: "150", advanceLabel: "" },
+      {
+        minutes: 15,
+        price: "144",
+        advanceLabel: "Advance demo · back in range",
+      },
+      {
+        minutes: 50,
+        price: "144",
+        advanceLabel: "Advance demo · past the window",
+      },
+    ],
+  },
+];
+
 export interface DemoState {
   step: number;
   nowMs: number;
@@ -63,9 +121,13 @@ export interface DemoState {
 }
 
 /** The simulated world at one step, anchored to the moment the demo started. */
-export function demoState(step: number, startMs: number): DemoState {
-  const i = Math.min(Math.max(0, step), DEMO_STEPS.length - 1);
-  const s = DEMO_STEPS[i];
+export function demoState(
+  step: number,
+  startMs: number,
+  scenario: DemoScenario = DEMO_SCENARIOS[0],
+): DemoState {
+  const i = Math.min(Math.max(0, step), scenario.steps.length - 1);
+  const s = scenario.steps[i];
   const nowMs = startMs + s.minutes * MIN;
   const publishedAtSec = Math.floor(
     (startMs - DEMO_PLAN.publishedMinutesBefore * MIN) / 1000,

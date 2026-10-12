@@ -792,6 +792,17 @@ kbd {
   text-align: center;
 }
 
+.demo__scenarios {
+  border: 0;
+  padding: 0;
+  margin: 24px 0;
+}
+.demo__scenario-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0;
+}
 .demo__grid {
   display: grid;
   gap: var(--s5);

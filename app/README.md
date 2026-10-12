@@ -16,6 +16,8 @@ When the API is unreachable the app says so ("Can't reach Relay's service") inst
 
 ## Routes
 
+The fictional `/demo` offers three selectable entry scenarios: an entry passing, a price entering the range, and a return to the range. Time moves only on a button press.
+
 | Route                       | What it is                                                                                            |
 | --------------------------- | ----------------------------------------------------------------------------------------------------- |
 | `/`                         | Discover: public-source profiles and ideas. Shows the welcome once to a new visitor.                  |
