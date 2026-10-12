@@ -45,9 +45,20 @@ Routes: `/plans`, `/plans/:planPda`, `/plans/creators[/:address]`; `/records/*`,
 
 **Backend:** `server/src/modules/{discovery,plans,auth}` and `shared/`; endpoints unchanged. New: `curate --report` (coverage, freshness, warnings), `/health/ready` lists configured providers without calling them, and a database-target guard (`shared/db-target.ts`): migrate, curate, review, seed and a development server print the target host and refuse a remote one unless named (`--confirm-db-host`, `ALLOW_REMOTE_DB`). Added after a load reached a remote database by way of the root `.env`. Documented safe load, migration and rollback boundaries in `server/README.md`. No wallet-data adapter was added.
 
-## M7. Demo, rehearsal and release gate: IN PROGRESS
+## M7. Demo, rehearsal and release gate: DONE (with limits below)
 
-`/demo` stays fictional and isolated; the technical demo uses only real curated records (and real devnet plans if shown); desktop, mobile, keyboard, reduced motion, empty and backend-down states verified; limitations match narration and docs.
+[docs/runbooks/DEMO.md](runbooks/DEMO.md) is the script. Verified 2026-10-12 on this machine:
+
+| Check                                                                | Result                                                                                                                                                                                     |
+| -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Production build, served                                             | `/` 200, `/plans` 200, idea page 200, `/dev/plan-states` **404**, `/records/:pda` and `/traders` redirect; fixtures absent from the bundle                                                 |
+| Golden journey in the browser (local database, real curated records) | Welcome, Discover, Hayes (author-linked), Brandt (link not established), source links open with `noopener noreferrer nofollow`, Watch, reload, Updates, exact entry, caught up: done twice |
+| Mobile (375 wide)                                                    | Welcome fits with both actions; Discover and the backend-down state read correctly; no wallet prompt on Discover                                                                           |
+| Backend down                                                         | "Can't reach Relay's service", never stale or invented data                                                                                                                                |
+| Contrast (all token pairs on the dark surfaces)                      | Every text, accent and status ink is at least 6.0:1 on `--velvet`, `--velvet-2`, `--velvet-3` (AA needs 4.5); computed from `tokens.css`                                                   |
+| Automated                                                            | domain 90, server 215, app 142 tests; lint and `tsc` clean                                                                                                                                 |
+
+Not verified, and stated so: the program was not rebuilt (`program:build`/`program:test` need WSL and were not run; `program/` is unchanged); no devnet plan or receipt was exercised, so Part 2 of the demo has not been rehearsed; no screen reader pass and no full keyboard audit beyond focus handling in the welcome and exact-entry links; reduced motion was reasoned from CSS and the boot script test, not observed; the `design-md` lint and the `impeccable`/`web-design-guidelines` skills were not installed (the plan makes that optional). The Google sign-in added before this restructure still gates "Review trade"; that is an open owner decision.
 
 ## Deferred
 
