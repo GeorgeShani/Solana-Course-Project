@@ -13,7 +13,10 @@ skip-lint = false
 members = ["programs/relay"]
 
 [programs.localnet]
-relay = "Dzm5tgMCdhJZfXeHYuALst4hvZYiCebfyKf1ctx6WBF6"
+relay = "GyfA1Cfni44zwHc5FB9nxtmMRhnLv5YtTY1KZY5NsK6F"
+
+[programs.devnet]
+relay = "GyfA1Cfni44zwHc5FB9nxtmMRhnLv5YtTY1KZY5NsK6F"
 
 [provider]
 cluster = "localnet"

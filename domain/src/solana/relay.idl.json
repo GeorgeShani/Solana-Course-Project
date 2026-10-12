@@ -1,5 +1,5 @@
 {
-  "address": "Dzm5tgMCdhJZfXeHYuALst4hvZYiCebfyKf1ctx6WBF6",
+  "address": "GyfA1Cfni44zwHc5FB9nxtmMRhnLv5YtTY1KZY5NsK6F",
   "metadata": {
     "name": "relay",
     "version": "0.1.0",
@@ -12,7 +12,16 @@
       "docs": [
         "Snapshot the follower's balances. Valid only as: begin_follow, one Jupiter swap, finish_follow."
       ],
-      "discriminator": [213, 60, 38, 48, 215, 232, 193, 52],
+      "discriminator": [
+        213,
+        60,
+        38,
+        48,
+        215,
+        232,
+        193,
+        52
+      ],
       "accounts": [
         {
           "name": "follower",
@@ -28,7 +37,15 @@
             "seeds": [
               {
                 "kind": "const",
-                "value": [118, 101, 114, 115, 105, 111, 110]
+                "value": [
+                  118,
+                  101,
+                  114,
+                  115,
+                  105,
+                  111,
+                  110
+                ]
               },
               {
                 "kind": "account",
@@ -48,7 +65,15 @@
             "seeds": [
               {
                 "kind": "const",
-                "value": [114, 101, 99, 101, 105, 112, 116]
+                "value": [
+                  114,
+                  101,
+                  99,
+                  101,
+                  105,
+                  112,
+                  116
+                ]
               },
               {
                 "kind": "account",
@@ -97,12 +122,23 @@
     },
     {
       "name": "close_plan",
-      "discriminator": [45, 137, 184, 220, 162, 253, 161, 8],
+      "discriminator": [
+        45,
+        137,
+        184,
+        220,
+        162,
+        253,
+        161,
+        8
+      ],
       "accounts": [
         {
           "name": "creator",
           "signer": true,
-          "relations": ["plan"]
+          "relations": [
+            "plan"
+          ]
         },
         {
           "name": "plan",
@@ -113,7 +149,16 @@
     },
     {
       "name": "create_plan",
-      "discriminator": [77, 43, 141, 254, 212, 118, 41, 186],
+      "discriminator": [
+        77,
+        43,
+        141,
+        254,
+        212,
+        118,
+        41,
+        186
+      ],
       "accounts": [
         {
           "name": "creator",
@@ -127,7 +172,12 @@
             "seeds": [
               {
                 "kind": "const",
-                "value": [112, 108, 97, 110]
+                "value": [
+                  112,
+                  108,
+                  97,
+                  110
+                ]
               },
               {
                 "kind": "account",
@@ -147,7 +197,15 @@
             "seeds": [
               {
                 "kind": "const",
-                "value": [118, 101, 114, 115, 105, 111, 110]
+                "value": [
+                  118,
+                  101,
+                  114,
+                  115,
+                  105,
+                  111,
+                  110
+                ]
               },
               {
                 "kind": "account",
@@ -155,7 +213,10 @@
               },
               {
                 "kind": "const",
-                "value": [1, 0]
+                "value": [
+                  1,
+                  0
+                ]
               }
             ]
           }
@@ -194,7 +255,10 @@
         {
           "name": "content_hash",
           "type": {
-            "array": ["u8", 32]
+            "array": [
+              "u8",
+              32
+            ]
           }
         }
       ]
@@ -204,12 +268,23 @@
       "docs": [
         "Measure what the swap did and record a receipt, or revert everything."
       ],
-      "discriminator": [13, 188, 25, 154, 150, 81, 248, 8],
+      "discriminator": [
+        13,
+        188,
+        25,
+        154,
+        150,
+        81,
+        248,
+        8
+      ],
       "accounts": [
         {
           "name": "follower",
           "signer": true,
-          "relations": ["receipt"]
+          "relations": [
+            "receipt"
+          ]
         },
         {
           "name": "receipt",
@@ -227,7 +302,15 @@
             "seeds": [
               {
                 "kind": "const",
-                "value": [118, 101, 114, 115, 105, 111, 110]
+                "value": [
+                  118,
+                  101,
+                  114,
+                  115,
+                  105,
+                  111,
+                  110
+                ]
               },
               {
                 "kind": "account",
@@ -249,13 +332,24 @@
     },
     {
       "name": "revise_plan",
-      "discriminator": [45, 156, 119, 120, 160, 78, 85, 71],
+      "discriminator": [
+        45,
+        156,
+        119,
+        120,
+        160,
+        78,
+        85,
+        71
+      ],
       "accounts": [
         {
           "name": "creator",
           "writable": true,
           "signer": true,
-          "relations": ["plan"]
+          "relations": [
+            "plan"
+          ]
         },
         {
           "name": "plan",
@@ -267,7 +361,15 @@
             "seeds": [
               {
                 "kind": "const",
-                "value": [118, 101, 114, 115, 105, 111, 110]
+                "value": [
+                  118,
+                  101,
+                  114,
+                  115,
+                  105,
+                  111,
+                  110
+                ]
               },
               {
                 "kind": "account",
@@ -306,7 +408,10 @@
         {
           "name": "content_hash",
           "type": {
-            "array": ["u8", 32]
+            "array": [
+              "u8",
+              32
+            ]
           }
         }
       ]
@@ -315,33 +420,96 @@
   "accounts": [
     {
       "name": "FollowReceipt",
-      "discriminator": [239, 104, 233, 70, 202, 174, 117, 180]
+      "discriminator": [
+        239,
+        104,
+        233,
+        70,
+        202,
+        174,
+        117,
+        180
+      ]
     },
     {
       "name": "Plan",
-      "discriminator": [161, 231, 251, 119, 2, 12, 162, 2]
+      "discriminator": [
+        161,
+        231,
+        251,
+        119,
+        2,
+        12,
+        162,
+        2
+      ]
     },
     {
       "name": "PlanVersion",
-      "discriminator": [28, 234, 239, 110, 19, 210, 3, 13]
+      "discriminator": [
+        28,
+        234,
+        239,
+        110,
+        19,
+        210,
+        3,
+        13
+      ]
     }
   ],
   "events": [
     {
       "name": "FollowRecorded",
-      "discriminator": [203, 187, 121, 59, 15, 11, 36, 236]
+      "discriminator": [
+        203,
+        187,
+        121,
+        59,
+        15,
+        11,
+        36,
+        236
+      ]
     },
     {
       "name": "PlanClosedEvent",
-      "discriminator": [6, 115, 16, 243, 108, 123, 11, 42]
+      "discriminator": [
+        6,
+        115,
+        16,
+        243,
+        108,
+        123,
+        11,
+        42
+      ]
     },
     {
       "name": "PlanCommitted",
-      "discriminator": [83, 238, 231, 240, 7, 247, 206, 185]
+      "discriminator": [
+        83,
+        238,
+        231,
+        240,
+        7,
+        247,
+        206,
+        185
+      ]
     },
     {
       "name": "PlanRevised",
-      "discriminator": [1, 109, 220, 203, 113, 131, 135, 108]
+      "discriminator": [
+        1,
+        109,
+        220,
+        203,
+        113,
+        131,
+        135,
+        108
+      ]
     }
   ],
   "errors": [
@@ -643,7 +811,10 @@
           {
             "name": "terms_hash",
             "type": {
-              "array": ["u8", 32]
+              "array": [
+                "u8",
+                32
+              ]
             }
           },
           {
@@ -673,7 +844,10 @@
           {
             "name": "terms_hash",
             "type": {
-              "array": ["u8", 32]
+              "array": [
+                "u8",
+                32
+              ]
             }
           },
           {
@@ -740,7 +914,10 @@
               "SHA-256 of the offchain text (rationale, exit thesis, ...). See domain/src/commitment.ts."
             ],
             "type": {
-              "array": ["u8", 32]
+              "array": [
+                "u8",
+                32
+              ]
             }
           },
           {
@@ -749,7 +926,10 @@
               "terms_hash of the previous version; all zeros for version 1."
             ],
             "type": {
-              "array": ["u8", 32]
+              "array": [
+                "u8",
+                32
+              ]
             }
           },
           {
@@ -758,7 +938,10 @@
               "Hash over all of the above plus the plan, creator and program id (see commitment.rs)."
             ],
             "type": {
-              "array": ["u8", 32]
+              "array": [
+                "u8",
+                32
+              ]
             }
           },
           {
@@ -786,7 +969,9 @@
   "constants": [
     {
       "name": "MAX_VERSIONS",
-      "docs": ["Maximum versions per plan (v1 plus 15 revisions)."],
+      "docs": [
+        "Maximum versions per plan (v1 plus 15 revisions)."
+      ],
       "type": "u16",
       "value": "16"
     },

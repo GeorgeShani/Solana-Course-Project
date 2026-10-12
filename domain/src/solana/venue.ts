@@ -35,7 +35,7 @@ import {
  * and in program/programs/relay/src/constants.rs, and a test checks that both agree.
  */
 export const SIMULATED_VENUE_PROGRAM_ADDRESS: Address = address(
-  "3A7tcXdJPRbBTJXvaLpn6vqddkJT8NQG8cgsubYgEmXa",
+  "CvopiSHQabzQfWnEzhpaLwNRM5MbyGmhLe643NFSSp8K",
 );
 
 export const SIMULATED_VENUE_LABEL = "Simulated swap venue (devnet)";

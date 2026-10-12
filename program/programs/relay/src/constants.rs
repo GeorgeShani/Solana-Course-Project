@@ -63,7 +63,7 @@ pub const JUPITER_PROGRAM_IDS: [Pubkey; 1] =
 /// The simulated swap venue (program/programs/simulated_venue). This is a PLACEHOLDER address until
 /// the owner deploys the venue with their own keypair; `scripts/set-program-id.ts <relay> --venue
 /// <venue>` rewrites it (and the TypeScript copy in domain/src/solana/venue.ts).
-pub const VENUE_PROGRAM_ID: Pubkey = pubkey!("3A7tcXdJPRbBTJXvaLpn6vqddkJT8NQG8cgsubYgEmXa");
+pub const VENUE_PROGRAM_ID: Pubkey = pubkey!("CvopiSHQabzQfWnEzhpaLwNRM5MbyGmhLe643NFSSp8K");
 
 /// The only programs whose instruction may sit between `begin_follow` and `finish_follow`.
 #[cfg(not(feature = "devnet"))]

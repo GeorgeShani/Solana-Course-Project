@@ -13,7 +13,7 @@ pub use constants::*;
 pub use instructions::*;
 pub use state::*;
 
-declare_id!("Dzm5tgMCdhJZfXeHYuALst4hvZYiCebfyKf1ctx6WBF6");
+declare_id!("GyfA1Cfni44zwHc5FB9nxtmMRhnLv5YtTY1KZY5NsK6F");
 
 #[program]
 pub mod relay {
