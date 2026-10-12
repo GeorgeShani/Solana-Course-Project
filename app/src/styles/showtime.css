@@ -1,0 +1,187 @@
+/* The cord that calls the interval, the watch story, and the shared keyframes. */
+
+@keyframes flow-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+}
+
+@keyframes flow-pop {
+  from {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.12);
+  }
+}
+
+@keyframes flow-glow {
+  50% {
+    box-shadow: 0 0 0 10px rgba(255, 217, 138, 0.16);
+  }
+}
+
+/* ------------------------------------------------------------------ the cord */
+
+.cord {
+  position: absolute;
+  z-index: 22;
+  top: 0;
+  left: calc(var(--wing) + var(--s3));
+  display: grid;
+  justify-items: center;
+  width: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--limelight);
+  cursor: pointer;
+  transform-origin: top center;
+}
+
+.cord__rope {
+  width: 3px;
+  height: 22px;
+  background: var(--brass);
+}
+
+.cord__tassel {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 2px solid var(--brass);
+  border-radius: 50%;
+  background: var(--velvet-deep);
+}
+
+.cord:hover .cord__tassel,
+.cord:focus-visible .cord__tassel {
+  background: rgba(255, 217, 138, 0.18);
+}
+
+.cord:active {
+  transform: translateY(6px);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .cord {
+    animation: cord-sway 1.6s ease-in-out 2;
+  }
+}
+
+@keyframes cord-sway {
+  50% {
+    transform: rotate(5deg);
+  }
+}
+
+/* ------------------------------------------------------------------ watch story (what happens next) */
+
+.story {
+  position: absolute;
+  z-index: 35;
+  left: 50%;
+  bottom: calc(18% + var(--s2));
+  translate: -50% 0;
+  display: grid;
+  justify-items: center;
+  gap: var(--s3);
+  width: min(calc(100% - 2 * var(--wing) - var(--s4)), 440px);
+  padding: var(--s4);
+  border: 1px solid var(--limelight);
+  border-radius: var(--r-lg);
+  background: rgba(15, 8, 32, 0.96);
+  box-shadow: 0 20px 60px rgba(7, 2, 15, 0.7);
+}
+
+.story__row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s3);
+  width: 100%;
+}
+
+.story__who .avatar {
+  width: 48px;
+}
+
+.story__card {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  min-width: 82px;
+  padding: var(--s2) var(--s3);
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--r-md);
+  background: var(--velvet-3);
+  color: var(--chalk);
+  font-size: var(--t-footnote);
+  font-weight: 700;
+}
+
+.story__card small {
+  color: var(--haze);
+  font-size: var(--t-caption);
+  font-weight: 500;
+}
+
+.story__card--new {
+  border-color: var(--limelight);
+}
+
+.story__wire {
+  flex: 1;
+  min-width: 40px;
+  max-width: 90px;
+  height: 4px;
+}
+
+.story__wire line {
+  stroke: var(--limelight);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+}
+
+.story__bell {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 217, 138, 0.16);
+  color: var(--limelight);
+}
+
+.story__actions {
+  display: flex;
+  gap: var(--s2);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .story {
+    animation: story-in 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .story__wire line {
+    animation: flow-draw 1s ease-out 0.5s backwards;
+  }
+
+  .story__card--new {
+    animation: flow-pop 0.5s cubic-bezier(0.16, 1, 0.3, 1) 1.3s backwards;
+  }
+
+  .story__bell {
+    animation: flow-glow 1.6s ease-in-out 1.8s infinite;
+  }
+}
+
+@keyframes story-in {
+  from {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+}

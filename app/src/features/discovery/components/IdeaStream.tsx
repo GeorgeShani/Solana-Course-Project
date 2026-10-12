@@ -3,97 +3,40 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Cue } from "../../../components/cue/Cue";
 import { Icon } from "../../../components/ui/Icon";
 import {
-  formatWhen,
-  latestUpdateLabel,
-  safeHref,
   sameSource,
-  sourceHost,
   type FeedItemView,
   type IdeaSummary,
-  type RelationshipBasis,
   type TraderSummary,
 } from "../model";
+import {
+  addStamp,
+  levelOf,
+  stampsOf,
+  totalStamps,
+  useStamps,
+  type Stamp,
+} from "../stamps";
+import { swayDrapes } from "../drapes";
+import { Audience, type Mood } from "./Audience";
 import { Avatar } from "./Avatar";
-import { WatchButton } from "./WatchButton";
+import { Showtime } from "./Showtime";
+import { Ticket, type TicketScreen } from "./Ticket";
+import { WatchStory } from "./WatchStory";
 
 type Screen =
   | { kind: "idea"; key: string; idea: IdeaSummary }
   | { kind: "detected"; key: string; item: FeedItemView }
   | { kind: "end" };
 
-/** "5m", "3h", "2d", "9 Oct": short enough for a chip; the exact time is in the tooltip. */
-function ago(iso: string | null, now: number): string {
-  if (iso === null) return "date unknown";
-  const t = Date.parse(iso);
-  if (Number.isNaN(t)) return "date unknown";
-  const s = Math.max(0, Math.round((now - t) / 1000));
-  if (s < 3600) return `${Math.max(1, Math.round(s / 60))}m`;
-  if (s < 86_400) return `${Math.round(s / 3600)}h`;
-  if (s < 14 * 86_400) return `${Math.round(s / 86_400)}d`;
-  return new Date(t).toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "short",
-    timeZone: "UTC",
-  });
-}
-
-const TRACK: Record<
-  RelationshipBasis | "none",
-  { caption: string; line: "solid" | "dashed" | "dotted" | "none" }
-> = {
-  creator_confirmed: { caption: "Author-linked update", line: "solid" },
-  editorially_associated: { caption: "Same topic", line: "dashed" },
-  uncertain: { caption: "Link unconfirmed", line: "dotted" },
-  original: { caption: "Original", line: "none" },
-  none: { caption: "No update yet", line: "none" },
-};
+/** The index of the ticket the reader reaches when the curtains close for the interval. */
+const INTERVAL_AT = 3;
 
 /**
- * The relationship between an original and its later item, drawn instead of explained: two nodes,
- * joined by a solid line when the author linked them, dashed for the same topic, dotted when
- * Relay could not confirm it, and a lone node when nothing later is recorded.
- */
-function Track({ basis }: { basis: RelationshipBasis | null }) {
-  const t = TRACK[basis ?? "none"];
-  const tip =
-    latestUpdateLabel({
-      latestUpdate: basis ? { basis, occurredAt: null } : null,
-    }) ?? "No later item recorded yet";
-  return (
-    <div className="track" data-line={t.line} title={tip}>
-      <svg viewBox="0 0 240 24" role="img" aria-label={t.caption}>
-        <circle className="track__node" cx="14" cy="12" r="7" />
-        {t.line !== "none" ? (
-          <>
-            <line
-              className="track__line"
-              x1="22"
-              y1="12"
-              x2="218"
-              y2="12"
-              pathLength={1}
-            />
-            <circle
-              className="track__node track__node--later"
-              cx="226"
-              cy="12"
-              r="7"
-            />
-          </>
-        ) : (
-          <line className="track__stub" x1="26" y1="12" x2="120" y2="12" />
-        )}
-      </svg>
-      <span className="track__caption">{t.caption}</span>
-    </div>
-  );
-}
-
-/**
- * Discover: one idea per screen, snapping as you swipe, scroll or press J / K. Pictures and motion
- * carry the meaning; words are the few that matter. Recorded ideas first, then the newest posts
- * detected automatically in the authors' own feeds (marked "Unreviewed"). No auto-advance, no
- * ranking by anything but time.
+ * Discover: one ticket per screen, snapping as you swipe, scroll or press J / K. Recorded ideas
+ * first, then the newest posts detected automatically in the authors' own feeds (marked
+ * "Unreviewed"). The reader stamps tickets by really looking at, opening and watching them; the
+ * audience below the stage line reacts, and after the third ticket the curtains close for an
+ * interval that replays the journey. No auto-advance, no ranking by anything but time.
  */
 export function IdeaStream({
   ideas,
@@ -143,6 +86,56 @@ export function IdeaStream({
   // Where the reader is heading, so quick key presses keep moving instead of waiting for the scroll.
   const heading = useRef(0);
   const [now] = useState(() => Date.now());
+  const book = useStamps();
+  const [showtime, setShowtime] = useState(false);
+  const [story, setStory] = useState(false);
+  const [applause, setApplause] = useState(false);
+  const applauseTimer = useRef<number | undefined>(undefined);
+
+  // The window makes room for the house below the stage line while this page is open.
+  useEffect(() => {
+    document.documentElement.dataset.house = "on";
+    return () => {
+      delete document.documentElement.dataset.house;
+    };
+  }, []);
+
+  const mood: Mood = showtime ? "cheer" : applause ? "clap" : "idle";
+
+  const stamp = useCallback((ticket: string, kind: Stamp) => {
+    if (!addStamp(ticket, kind)) return;
+    // Looking is quiet; opening a source or watching earns a round of applause.
+    if (kind === "seen") return;
+    swayDrapes();
+    setApplause(true);
+    window.clearTimeout(applauseTimer.current);
+    applauseTimer.current = window.setTimeout(() => setApplause(false), 1800);
+  }, []);
+
+  // After the third ticket the curtains close once per visit and show the whole journey.
+  useEffect(() => {
+    if (active !== INTERVAL_AT) return;
+    try {
+      if (sessionStorage.getItem("relay:showtime") === "1") return;
+      sessionStorage.setItem("relay:showtime", "1");
+    } catch {
+      return;
+    }
+    setShowtime(true);
+  }, [active]);
+
+  // The first Watch of a visit shows what watching does, with a real example.
+  const onFirstWatch = useCallback(() => {
+    try {
+      if (sessionStorage.getItem("relay:watch-story") === "1") return;
+      sessionStorage.setItem("relay:watch-story", "1");
+    } catch {
+      return;
+    }
+    setStory(true);
+  }, []);
+  const closeShowtime = useCallback(() => setShowtime(false), []);
+  const closeStory = useCallback(() => setStory(false), []);
 
   useEffect(() => {
     const root = feedRef.current;
@@ -177,10 +170,7 @@ export function IdeaStream({
       "(prefers-reduced-motion: reduce)",
     ).matches;
     // Scroll the feed itself, never the page around it.
-    root?.scrollTo({
-      top: el.offsetTop,
-      behavior: reduce ? "auto" : "smooth",
-    });
+    root?.scrollTo({ top: el.offsetTop, behavior: reduce ? "auto" : "smooth" });
     el.focus({ preventScroll: true });
   }, []);
 
@@ -214,44 +204,87 @@ export function IdeaStream({
   const latestSeqOf = (traderId: string) =>
     people.find((p) => p.id === traderId)?.latestSeq ?? null;
   const pct = screens.length > 1 ? (active / (screens.length - 1)) * 100 : 0;
+  const current = screens[Math.min(active, screens.length - 1)];
+  const activeAuthor =
+    current?.kind === "idea"
+      ? current.idea.trader.id
+      : current?.kind === "detected"
+        ? current.item.trader.id
+        : undefined;
+  const total = totalStamps(book);
+  const level = levelOf(total);
 
   return (
-    <div className="stream-wrap" data-cursor-zone>
+    <div
+      className="stream-wrap"
+      data-cursor-zone
+      data-author={activeAuthor}
+      data-showtime={showtime}
+    >
+      <Audience mood={mood} />
+
       <div className="stream__bar" aria-hidden="true">
         <span style={{ width: `${pct}%` }} />
       </div>
+
+      <button
+        type="button"
+        className="cord"
+        onClick={() => setShowtime(true)}
+        aria-label="Pull the cord: show how Relay works"
+        title="Pull the cord"
+      >
+        <span className="cord__rope" />
+        <span className="cord__tassel">
+          <Icon name="star-filled" size={16} />
+        </span>
+      </button>
+      <Showtime open={showtime} onClose={closeShowtime} />
+      {story && <WatchStory onClose={closeStory} />}
 
       <h1 className="sr-only" data-page-start tabIndex={-1}>
         Discover
       </h1>
 
-      {people.length > 1 && (
-        <nav className="stream__people" aria-label="Show ideas by">
-          <Link
-            to="/"
-            search={{}}
-            className="ring ring--all"
-            aria-current={trader === undefined}
-            title="Everyone"
-          >
-            <Icon name="traders" size={20} />
-            <span className="sr-only">Everyone</span>
-          </Link>
-          {people.map((p) => (
+      <div className="stream__top">
+        {people.length > 1 && (
+          <nav className="stream__people" aria-label="Show ideas by">
             <Link
-              key={p.id}
               to="/"
-              search={{ trader: p.id }}
-              className="ring"
-              aria-current={trader === p.id}
-              title={p.displayName}
+              search={{}}
+              className="ring ring--all"
+              aria-current={trader === undefined}
+              title="Everyone"
             >
-              <Avatar id={p.id} name={p.displayName} />
-              <span className="sr-only">{p.displayName}</span>
+              <Icon name="traders" size={20} />
+              <span className="sr-only">Everyone</span>
             </Link>
-          ))}
-        </nav>
-      )}
+            {people.map((p) => (
+              <Link
+                key={p.id}
+                to="/"
+                search={{ trader: p.id }}
+                className="ring"
+                aria-current={trader === p.id}
+                title={p.displayName}
+              >
+                <Avatar id={p.id} name={p.displayName} />
+                <span className="sr-only">{p.displayName}</span>
+              </Link>
+            ))}
+          </nav>
+        )}
+        <p
+          className="level"
+          title={
+            level.toNext === null
+              ? "Top of the house"
+              : `${level.toNext} more stamps for the next title`
+          }
+        >
+          <Icon name="star-filled" size={12} /> {level.name} · {total}
+        </p>
+      </div>
 
       <div
         ref={feedRef}
@@ -277,7 +310,6 @@ export function IdeaStream({
         {screens.map((s, i) => {
           const common = {
             "data-index": i,
-            "data-active": i === active,
             tabIndex: -1,
             "aria-posinset": i + 1,
             "aria-setsize": screens.length,
@@ -305,6 +337,13 @@ export function IdeaStream({
                     <Icon name="updated" size={26} />
                   </Link>
                   <Link
+                    to="/about"
+                    className="orb"
+                    aria-label="How Relay works"
+                  >
+                    <Icon name="details" size={26} />
+                  </Link>
+                  <Link
                     to="/plans"
                     className="orb"
                     aria-label="Plans published through Relay"
@@ -320,120 +359,32 @@ export function IdeaStream({
               </article>
             );
 
-          const isIdea = s.kind === "idea";
-          const person = isIdea ? s.idea.trader : s.item.trader;
-          const title = isIdea ? s.idea.title : s.item.title;
-          const url = isIdea ? s.idea.original.url : s.item.url;
-          const when = isIdea
-            ? s.idea.original.publishedAt
-            : s.item.publishedAt;
-          const href = safeHref(url);
-          const host = sourceHost(url);
-
+          const ticketScreen: TicketScreen =
+            s.kind === "idea"
+              ? { kind: "idea", idea: s.idea }
+              : { kind: "detected", item: s.item };
+          const person = s.kind === "idea" ? s.idea.trader : s.item.trader;
+          const title = s.kind === "idea" ? s.idea.title : s.item.title;
           return (
             <article
               key={s.key}
               className="scr"
               data-author={person.id}
-              data-kind={s.kind}
+              data-active={i === active}
               {...common}
               aria-label={`${title}, ${person.displayName}`}
             >
-              <Link
-                to="/profiles/$traderId"
-                params={{ traderId: person.id }}
-                className="scr__who"
-                title={`${person.displayName} · public-source profile, not claimed by the author`}
-              >
-                <Avatar
-                  id={person.id}
-                  name={person.displayName}
-                  className="avatar--hero"
-                />
-                <span className="scr__name">{person.displayName}</span>
-              </Link>
-
-              {!isIdea && (
-                <p className="scr__chips">
-                  <span className="chip chip--new">
-                    <i aria-hidden="true" /> New
-                  </span>
-                  <span
-                    className="chip chip--quiet"
-                    title="Found automatically in the author's own feed. Relay has not read it or checked that it is a trading idea."
-                  >
-                    Unreviewed
-                  </span>
-                </p>
-              )}
-
-              <h2 className="scr__title">{title}</h2>
-
-              {isIdea ? (
-                <Track basis={s.idea.latestUpdate?.basis ?? null} />
-              ) : null}
-
-              <div className="scr__chips scr__chips--meta">
-                {isIdea && s.idea.assets.length > 0 && (
-                  <span className="chip">
-                    {s.idea.assets.slice(0, 3).join(" · ")}
-                  </span>
-                )}
-                {host && <span className="chip chip--quiet">{host}</span>}
-                <span className="chip chip--quiet" title={formatWhen(when)}>
-                  <Icon name="clock" size={12} /> {ago(when, now)}
-                </span>
-              </div>
-
-              {isIdea &&
-                s.idea.original.displayedContent &&
-                !s.idea.original.contentRemoved && (
-                  <details className="scr__peek">
-                    <summary aria-label="What it says">
-                      <Icon name="details" size={16} />
-                    </summary>
-                    <p>{s.idea.original.displayedContent}</p>
-                  </details>
-                )}
-
-              <div className="rail">
-                <WatchButton
-                  variant="rail"
-                  type={isIdea ? "idea" : "trader"}
-                  id={isIdea ? s.idea.id : s.item.trader.id}
-                  label={
-                    isIdea
-                      ? `${s.idea.title} · ${s.idea.trader.displayName}`
-                      : s.item.trader.displayName
-                  }
-                  seenSeq={
-                    isIdea ? s.idea.latestSeq : latestSeqOf(s.item.trader.id)
-                  }
-                />
-                {href && (
-                  <a
-                    className="rail__btn"
-                    href={href}
-                    target="_blank"
-                    rel="noopener noreferrer nofollow"
-                    aria-label="Open the original"
-                  >
-                    <Icon name="external" size={26} />
-                    <span className="rail__label">Source</span>
-                  </a>
-                )}
-                {isIdea && (
-                  <Link
-                    to="/ideas/$ideaId"
-                    params={{ ideaId: s.idea.id }}
-                    className="rail__btn"
-                    aria-label="See the timeline"
-                  >
-                    <Icon name="chain" size={26} />
-                    <span className="rail__label">Story</span>
-                  </Link>
-                )}
-              </div>
+              <Ticket
+                screen={ticketScreen}
+                active={i === active}
+                now={now}
+                stamps={stampsOf(book, s.key)}
+                latestSeq={latestSeqOf(person.id)}
+                onStamp={(k) => {
+                  stamp(s.key, k);
+                  if (k === "watched") onFirstWatch();
+                }}
+              />
             </article>
           );
         })}

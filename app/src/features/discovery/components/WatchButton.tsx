@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Icon } from "../../../components/ui/Icon";
+import { SlotFace } from "./Slot";
 import { cueReact } from "../../../lib/cue-cursor";
 import {
   isWatched,
@@ -26,13 +27,16 @@ export function WatchButton({
   label,
   seenSeq,
   variant = "pill",
+  onWatched,
 }: {
   type: WatchTarget["type"];
   id: string;
   label: string;
   seenSeq: string | null;
   /** "rail" is the icon-only round button on the stream's action rail. */
-  variant?: "pill" | "rail";
+  variant?: "pill" | "rail" | "slot";
+  /** Called after something new is watched (not when it is un-watched). */
+  onWatched?: () => void;
 }) {
   const list = useDiscoveryWatch();
   const watching = isWatched(list, type, id);
@@ -44,7 +48,11 @@ export function WatchButton({
       <button
         type="button"
         className={
-          variant === "rail" ? "rail__btn" : "btn btn--glass btn--small"
+          variant === "slot"
+            ? "slot"
+            : variant === "rail"
+              ? "rail__btn"
+              : "btn btn--glass btn--small"
         }
         aria-pressed={watching}
         data-on={watching}
@@ -56,19 +64,34 @@ export function WatchButton({
             return;
           }
           setProblem(null);
-          if (result.watching) cueReact();
+          if (result.watching) {
+            cueReact();
+            onWatched?.();
+          }
         }}
       >
-        <Icon
-          name={watching ? "star-filled" : "star"}
-          size={variant === "rail" ? 26 : 16}
-        />
-        {variant === "rail" ? (
-          <span className="rail__label">{watching ? "Saved" : "Watch"}</span>
-        ) : watching ? (
-          "Watching"
+        {variant === "slot" ? (
+          <SlotFace
+            icon={watching ? "star-filled" : "star"}
+            label={watching ? "Watching" : "Watch"}
+            stamped={watching}
+          />
         ) : (
-          "Watch"
+          <>
+            <Icon
+              name={watching ? "star-filled" : "star"}
+              size={variant === "rail" ? 26 : 16}
+            />
+            {variant === "rail" ? (
+              <span className="rail__label">
+                {watching ? "Saved" : "Watch"}
+              </span>
+            ) : watching ? (
+              "Watching"
+            ) : (
+              "Watch"
+            )}
+          </>
         )}
       </button>
       {problem && (

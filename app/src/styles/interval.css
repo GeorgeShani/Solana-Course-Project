@@ -1,0 +1,591 @@
+/*
+ * The interval: curtains with depth that close over the stream, a valance, four small scenes and
+ * the stamp book. Laid out from the window, not a device: a row of four where there is room, a
+ * 2x2 grid where there is not, shorter art on short windows. Motion is decoration only; under
+ * reduced motion the curtains are simply open or closed and every scene is drawn finished.
+ */
+
+.showtime {
+  position: absolute;
+  z-index: 40;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  pointer-events: none;
+  visibility: hidden;
+  transition: visibility 0s linear 1.2s;
+}
+
+.showtime[data-open="true"] {
+  pointer-events: auto;
+  visibility: visible;
+  transition: none;
+}
+
+/* Raise the house in front of the closed curtains: the audience watches them close. */
+.stream-wrap[data-showtime="true"] .aud {
+  z-index: 45;
+}
+
+/* ------------------------------------------------------------------ the curtains */
+
+.showtime__drape {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 52%;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(7, 2, 15, 0.55),
+      transparent 22%,
+      transparent 70%,
+      rgba(7, 2, 15, 0.4)
+    ),
+    repeating-linear-gradient(
+      90deg,
+      var(--curtain-dark) 0 5px,
+      var(--curtain) 5px 20px,
+      var(--curtain-light) 20px 30px,
+      var(--curtain) 30px 44px,
+      var(--curtain-dark) 44px 52px
+    );
+  box-shadow: 0 0 60px rgba(7, 2, 15, 0.8);
+  transition: transform 1.1s cubic-bezier(0.5, 0, 0.2, 1);
+}
+
+.showtime__drape--l {
+  left: 0;
+  transform: translateX(-104%);
+  border-right: 3px solid var(--brass);
+}
+
+.showtime__drape--r {
+  right: 0;
+  transform: translateX(104%);
+  border-left: 3px solid var(--brass);
+}
+
+.showtime[data-open="true"] .showtime__drape {
+  transform: translateX(0);
+}
+
+/* The valance drops from the top, scalloped, with a brass hem. */
+.showtime__valance {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: clamp(46px, 8vh, 72px);
+  background: radial-gradient(
+      circle at 50% 0,
+      var(--curtain-light) 0 24%,
+      var(--curtain) 25% 62%,
+      var(--curtain-dark) 63% 100%
+    )
+    0 0 / 72px 100% repeat-x;
+  border-bottom: 3px solid var(--brass);
+  transform: translateY(-110%);
+  transition: transform 0.7s cubic-bezier(0.34, 1.3, 0.64, 1) 0.15s;
+}
+
+.showtime[data-open="true"] .showtime__valance {
+  transform: translateY(0);
+}
+
+/* House lights down: the dark behind the curtains, so the scenes read. */
+.showtime::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(70% 55% at 50% 42%, #2a1752, var(--velvet-deep));
+  opacity: 0;
+  transition: opacity 0.5s linear 0.6s;
+}
+
+.showtime[data-open="true"]::before {
+  opacity: 1;
+}
+
+/* ------------------------------------------------------------------ the stage behind the curtains */
+
+.showtime__stage {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  justify-items: center;
+  gap: clamp(8px, 2vh, 20px);
+  width: min(960px, 100% - 24px);
+  padding-top: clamp(40px, 7vh, 64px);
+  padding-bottom: calc(24vh + var(--s3));
+  opacity: 0;
+}
+
+.showtime[data-open="true"] .showtime__stage {
+  opacity: 1;
+  transition: opacity 0.35s linear 1.05s;
+}
+
+.interval {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s2);
+  margin: 0;
+  padding: 4px var(--s5);
+  border: 2px solid var(--brass);
+  border-radius: 999px;
+  background: var(--velvet-deep);
+  color: var(--limelight);
+  font-family: var(--font-display);
+  font-size: var(--t-title3);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  box-shadow: 0 0 24px rgba(255, 217, 138, 0.25);
+}
+
+/* ------------------------------------------------------------------ four scenes */
+
+.scenes {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(10px, 2.4vw, 32px);
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (max-width: 760px) {
+  .scenes {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: min(100%, 380px);
+  }
+}
+
+.scene {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+/* The path from one scene to the next, where they sit in a row. */
+@media (min-width: 761px) {
+  .scene:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    top: calc((100% - 28px) / 2);
+    left: calc(50% + min(50%, 95px));
+    width: clamp(10px, 2.4vw, 32px);
+    border-top: 3px dashed var(--limelight);
+    opacity: 0.8;
+  }
+}
+
+.scene__frame {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  max-width: 190px;
+  max-height: 24vh;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border: 2px solid color-mix(in srgb, var(--limelight) 60%, transparent);
+  border-radius: 26px;
+  background: linear-gradient(180deg, #2b1851, #1b1035);
+  box-shadow: 0 14px 34px rgba(7, 2, 15, 0.6);
+}
+
+.scene__n {
+  position: absolute;
+  z-index: 2;
+  top: 8px;
+  left: 8px;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--limelight);
+  color: var(--velvet-deep);
+  font-size: var(--t-footnote);
+  font-weight: 900;
+}
+
+.scene__label {
+  color: var(--chalk);
+  font-size: var(--t-callout);
+  font-weight: 800;
+}
+
+.art {
+  width: 82%;
+  height: 82%;
+  overflow: visible;
+}
+
+.art--faces {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.art--faces .avatar {
+  position: absolute;
+  width: 40%;
+  border: 3px solid var(--velvet-deep);
+  box-shadow: 0 6px 16px rgba(7, 2, 15, 0.5);
+}
+
+.art--faces .avatar:nth-of-type(1) {
+  left: 8%;
+  top: 40%;
+  rotate: -9deg;
+}
+
+.art--faces .avatar:nth-of-type(2) {
+  left: 30%;
+  top: 14%;
+  width: 44%;
+  z-index: 2;
+  box-shadow:
+    0 0 0 3px #3fa4ff,
+    0 8px 20px rgba(7, 2, 15, 0.6);
+}
+
+.art--faces .avatar:nth-of-type(3) {
+  right: 8%;
+  top: 40%;
+  rotate: 9deg;
+}
+
+.art__spark {
+  position: absolute;
+  left: 50%;
+  top: 14%;
+  width: 62%;
+  aspect-ratio: 1;
+  translate: -50% -4%;
+  border: 2px solid rgba(255, 217, 138, 0.5);
+  border-radius: 50%;
+}
+
+.art__card {
+  fill: #150b2b;
+  stroke: var(--brass);
+  stroke-width: 2;
+}
+
+.art__url {
+  fill: #2a1752;
+  stroke: var(--limelight);
+  stroke-width: 1.4;
+}
+
+.art__urlline {
+  stroke: var(--limelight);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+}
+
+.art__bar {
+  fill: #3a2667;
+}
+
+.art__clock circle {
+  fill: var(--velvet-deep);
+  stroke: var(--sol-green);
+  stroke-width: 3;
+}
+
+.art__clock path,
+.art__bell path,
+.art__bell line {
+  fill: none;
+  stroke: var(--limelight);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.art__clock path {
+  stroke: var(--sol-green);
+}
+
+.art__bell {
+  transform-origin: 60px 46px;
+}
+
+.art__bell path:first-child {
+  fill: rgba(255, 217, 138, 0.18);
+}
+
+.art__star {
+  fill: var(--limelight);
+  stroke: #fff3cf;
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+  transform-origin: 60px 24px;
+  transform: translateY(40px) scale(0.8);
+}
+
+.art__wave {
+  fill: none;
+  stroke: var(--limelight);
+  stroke-width: 3;
+  stroke-linecap: round;
+  opacity: 0;
+}
+
+.art__n1 {
+  fill: var(--limelight);
+}
+
+.art__n2 {
+  fill: var(--sol-green);
+}
+
+.art__link {
+  stroke: var(--sol-green);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+}
+
+.art__ping circle {
+  fill: rgba(20, 241, 149, 0.16);
+  stroke: var(--sol-green);
+  stroke-width: 2.5;
+}
+
+.art__ping path {
+  fill: none;
+  stroke: var(--sol-green);
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.art__ping {
+  transform-origin: 96px 42px;
+}
+
+/* ------------------------------------------------------------------ the stamp book */
+
+.book {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s3) var(--s4);
+  padding: var(--s2) var(--s4);
+  border: 1px solid var(--hairline-strong);
+  border-radius: 999px;
+  background: rgba(15, 8, 32, 0.85);
+}
+
+.book__level {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--limelight);
+  font-weight: 800;
+}
+
+.book__level b {
+  margin-left: 4px;
+  padding: 0 var(--s2);
+  border-radius: 999px;
+  background: rgba(255, 217, 138, 0.16);
+  color: var(--chalk);
+}
+
+.book__bar {
+  position: relative;
+  width: 84px;
+  height: 6px;
+  overflow: hidden;
+  border-radius: 3px;
+  background: rgba(246, 241, 255, 0.14);
+}
+
+.book__bar i {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  background: var(--limelight);
+}
+
+.book__counts {
+  display: flex;
+  gap: var(--s3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--haze);
+  font-weight: 700;
+}
+
+.book__counts li {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.showtime__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+}
+
+/* ------------------------------------------------------------------ the scenes play */
+
+@media (prefers-reduced-motion: no-preference) {
+  .showtime[data-open="true"] .showtime__drape {
+    animation: drape-settle 0.9s ease-out 1.1s;
+  }
+
+  .showtime[data-open="true"] .scene__frame {
+    animation: scene-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  }
+
+  .showtime[data-open="true"] .scene:nth-child(1) .scene__frame {
+    animation-delay: 1.2s;
+  }
+
+  .showtime[data-open="true"] .scene:nth-child(2) .scene__frame {
+    animation-delay: 1.8s;
+  }
+
+  .showtime[data-open="true"] .scene:nth-child(3) .scene__frame {
+    animation-delay: 2.4s;
+  }
+
+  .showtime[data-open="true"] .scene:nth-child(4) .scene__frame {
+    animation-delay: 3s;
+  }
+
+  .showtime[data-open="true"] .art--faces .avatar:nth-of-type(2) {
+    animation: art-lift 1.6s ease-in-out 1.6s infinite alternate;
+  }
+
+  .showtime[data-open="true"] .art__spark {
+    animation: art-spark 1.6s ease-out 1.3s infinite;
+  }
+
+  .showtime[data-open="true"] .art__urlline {
+    animation: flow-draw 1.2s ease-out 2s backwards;
+  }
+
+  .showtime[data-open="true"] .art__clock {
+    animation: scene-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) 2.7s backwards;
+  }
+
+  .showtime[data-open="true"] .art__star {
+    animation: art-drop 1s cubic-bezier(0.5, 0, 0.9, 0.6) 2.6s backwards;
+  }
+
+  .showtime[data-open="true"] .art__bell {
+    animation: art-ring 0.9s ease-in-out 3.5s 2;
+  }
+
+  .showtime[data-open="true"] .art__wave {
+    animation: art-wave 0.9s ease-out 3.5s 2;
+  }
+
+  .showtime[data-open="true"] .art__link {
+    animation: flow-draw 1s ease-out 3.4s backwards;
+  }
+
+  .showtime[data-open="true"] .art__ping {
+    animation:
+      flow-pop 0.6s cubic-bezier(0.16, 1, 0.3, 1) 4.3s backwards,
+      art-ring 0.9s ease-in-out 4.9s 3;
+  }
+}
+
+@keyframes drape-settle {
+  30% {
+    transform: translateX(0) skewX(0.8deg);
+  }
+  60% {
+    transform: translateX(0) skewX(-0.5deg);
+  }
+}
+
+@keyframes scene-in {
+  from {
+    transform: translateY(24px) scale(0.9);
+    opacity: 0;
+  }
+}
+
+@keyframes art-lift {
+  to {
+    transform: translateY(-8%);
+  }
+}
+
+@keyframes art-spark {
+  from {
+    transform: scale(0.7);
+    opacity: 0.9;
+  }
+  to {
+    transform: scale(1.25);
+    opacity: 0;
+  }
+}
+
+@keyframes art-drop {
+  from {
+    transform: translateY(-40px) rotate(-20deg);
+    opacity: 0;
+  }
+  80% {
+    transform: translateY(46px);
+  }
+  to {
+    transform: translateY(40px) scale(0.8);
+  }
+}
+
+@keyframes art-ring {
+  25% {
+    transform: rotate(12deg);
+  }
+  75% {
+    transform: rotate(-12deg);
+  }
+}
+
+@keyframes art-wave {
+  from {
+    opacity: 0.9;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.3);
+  }
+}
+
+@media (max-height: 700px) {
+  .showtime__stage {
+    gap: 6px;
+  }
+
+  .scene__label {
+    display: none;
+  }
+
+  .scene__frame {
+    max-height: 17vh;
+  }
+}

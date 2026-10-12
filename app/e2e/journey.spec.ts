@@ -258,8 +258,155 @@ test.describe("the Discover stream", () => {
     await expect(
       page.locator('article[data-kind="detected"]').first(),
     ).toContainText("Arthur Hayes");
+    await expect(page.locator('article[data-kind="idea"]')).toHaveCount(1);
+  });
+});
+
+test.describe("the game layer", () => {
+  test.beforeEach(async ({ page }) => returning(page));
+
+  test("pulling the cord closes the curtains on the whole journey, and the arrow opens them", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    await expect(page.locator('[data-index="0"]')).toHaveAttribute(
+      "data-active",
+      "true",
+    );
+    await page.waitForTimeout(3500); // the cord settles after its first sway
+    await page.getByRole("button", { name: /Pull the cord/ }).click();
+    const show = page.getByRole("dialog", { name: "How Relay works" });
+    await expect(show).toBeVisible();
+    for (const step of ["Pick", "Source", "Watch", "Update"])
+      await expect(show.getByText(step, { exact: true })).toBeVisible();
+    await show.getByRole("button", { name: /Open the curtains/ }).click();
+    await expect(show).toBeHidden();
+  });
+
+  test("the first Watch shows what happens next, with the real Hayes example", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    await expect(page.locator('[data-index="0"]')).toHaveAttribute(
+      "data-active",
+      "true",
+    );
+    await page
+      .locator('[data-index="0"]')
+      .getByRole("button", { name: /^Watch / })
+      .click();
+    const story = page.getByRole("dialog", { name: /real example/ });
+    await expect(story).toBeVisible();
+    await expect(story.getByText("Original")).toBeVisible();
+    await expect(story.getByText("Author-linked")).toBeVisible();
+    await story.getByRole("button", { name: "Got it" }).click();
+    await expect(story).toBeHidden();
+  });
+
+  test("every screen fits its window: nothing scrolls, and it is centred", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    await expect(page.locator('[data-index="3"]')).toBeAttached();
+    const stage = await page.evaluate(() => {
+      const f = document.querySelector(".stream");
+      return f ? { h: f.clientHeight, w: f.clientWidth } : null;
+    });
+    expect(stage).not.toBeNull();
+    for (const i of [0, 1, 2, 4, 8]) {
+      const m = await page.evaluate((i) => {
+        const el = document.querySelector(`[data-index="${i}"]`);
+        if (!(el instanceof HTMLElement)) return null;
+        const who = el
+          .querySelector(".scr__who, .scr__cue")
+          ?.getBoundingClientRect();
+        const rail = el
+          .querySelector(".rail, .scr__row")
+          ?.getBoundingClientRect();
+        const box = el.getBoundingClientRect();
+        return {
+          over: el.scrollHeight - el.clientHeight,
+          overX: el.scrollWidth - el.clientWidth,
+          mid:
+            who && rail
+              ? (who.left + who.right) / 2 - (box.left + box.right) / 2
+              : 0,
+          railBottom: rail ? rail.bottom : 0,
+          bottom: box.bottom,
+          overflowY: getComputedStyle(el).overflowY,
+        };
+      }, i);
+      expect(m, `screen ${i}`).not.toBeNull();
+      expect(m?.overflowY).toBe("hidden");
+      expect(m?.over ?? 99).toBeLessThanOrEqual(8);
+      expect(Math.abs(m?.mid ?? 99)).toBeLessThanOrEqual(2);
+      // The actions end above the stage line (a fifth of the window).
+      expect(m?.railBottom ?? 0).toBeLessThanOrEqual(
+        (m?.bottom ?? 0) - 0.15 * (stage?.h ?? 0),
+      );
+    }
+  });
+
+  test("the audience is below the stage line and applauds when something is watched", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    const aud = page.locator(".aud");
+    await expect(aud).toBeAttached();
+    expect(await aud.locator(".aud__p").count()).toBeGreaterThan(8);
+    await expect(aud).toHaveAttribute("data-clap", "false");
+    await page
+      .locator('[data-index="0"]')
+      .getByRole("button", { name: /^Watch / })
+      .click();
+    await expect(aud).toHaveAttribute("data-clap", "true");
+    await expect(aud).toHaveAttribute("aria-hidden", "true");
+  });
+
+  test("the two sides: watcher and feed member", async ({ page }) => {
+    await page.goto("/about");
+    await expect(page.getByRole("heading", { name: "Watcher" })).toBeVisible();
     await expect(
-      page.locator('article[data-kind="idea"]'),
-    ).toHaveCount(1);
+      page.getByRole("heading", { name: "Feed member" }),
+    ).toBeVisible();
+    await expect(page.getByText("No wallet")).toBeVisible();
+    await expect(page.getByText("Recorded", { exact: true })).toBeVisible();
+    await expect(page.getByText("Unreviewed", { exact: true })).toBeVisible();
+    await expect(page.getByText("Fictional", { exact: true })).toBeVisible();
+    await page.goto("/how-it-works");
+    await expect(page).toHaveURL(/\/about$/);
+  });
+
+  test("Account shows what is unlocked: Discover and Watch lit, Follow a plan locked until sign-in and wallet", async ({
+    page,
+  }) => {
+    await page.goto("/account");
+    const strip = page.getByRole("region", { name: "What you can do now" });
+    await expect(strip.locator('[data-on="true"]')).toHaveCount(2);
+    await expect(strip.locator('[data-on="false"]')).toHaveCount(1);
+    await expect(strip.getByText("Sign in: needed")).toBeAttached();
+    await expect(strip.getByText("Wallet: needed")).toBeAttached();
+  });
+
+  test("signed in, the card shows the person and a one-tap sign out", async ({
+    page,
+  }) => {
+    await page.route("**/api/auth/me", (r) =>
+      r.fulfill({
+        json: {
+          user: {
+            sub: "1",
+            email: "me@example.com",
+            name: "Test Person",
+            picture: null,
+          },
+        },
+      }),
+    );
+    await page.goto("/account");
+    await expect(page.getByText("Test Person")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Sign out" })).toBeVisible();
+    const strip = page.getByRole("region", { name: "What you can do now" });
+    await expect(strip.getByText("Sign in: done")).toBeAttached();
   });
 });

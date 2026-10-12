@@ -1,7 +1,6 @@
 import type { IconName } from "../components/ui/Icon";
 
-type Dest =
-  "/" | "/updates" | "/watchlist" | "/plans" | "/account" | "/how-it-works";
+type Dest = "/" | "/updates" | "/watchlist" | "/plans" | "/account" | "/about";
 
 /** The phone's bottom bar: the app's five destinations. */
 export const NAV: { to: Dest; label: string; icon: IconName }[] = [

@@ -47,19 +47,42 @@
   transition: width 0.4s var(--ease-out);
 }
 
-/* The people, as pictures: tap one to see only theirs. */
-.stream__people {
+/* The people, as pictures, and the reader's title: one bar, centred at the top. */
+.stream__top {
   position: absolute;
   z-index: 20;
   top: var(--s3);
   left: 50%;
   translate: -50% 0;
   display: flex;
+  align-items: center;
+  gap: var(--s2);
+  max-width: calc(100% - 2 * var(--wing) - 120px);
+}
+
+.stream__people {
+  display: flex;
   gap: var(--s2);
   padding: var(--s1);
   border-radius: 999px;
   background: rgba(15, 8, 32, 0.8);
   backdrop-filter: blur(6px);
+}
+
+.level {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  margin: 0;
+  padding: 0 var(--s3);
+  border: 1px solid var(--hairline-strong);
+  border-radius: 999px;
+  background: rgba(15, 8, 32, 0.8);
+  color: var(--limelight);
+  font-size: var(--t-footnote);
+  font-weight: 800;
+  white-space: nowrap;
 }
 
 .ring {
@@ -149,15 +172,16 @@
   align-items: center;
   /* "safe": a screen taller than the window starts at its top instead of losing it. */
   justify-content: safe center;
-  gap: var(--s2);
+  gap: clamp(4px, 1.1vh, 12px);
   width: min(100%, 760px);
   margin: 0 auto;
-  /* The perspective floor takes the lowest fifth of the stage; the content sits above it. */
-  padding: calc(var(--s7) + var(--s4)) calc(var(--wing) + var(--s4))
-    calc(18% + var(--s2));
+  /* Centred between the people bar above and the stage line below (the floor is a fifth of the
+     window), so the content has one fixed free area to fit in at every screen size. */
+  padding: 76px calc(var(--wing) + var(--s3)) calc(24vh + var(--s2));
   scroll-snap-align: start;
   scroll-snap-stop: always;
-  overflow-y: auto;
+  /* A screen never scrolls: everything is sized from the window height to fit its free area. */
+  overflow: hidden;
   text-align: center;
 }
 
@@ -194,7 +218,7 @@
 }
 
 .avatar--hero {
-  width: clamp(84px, 15vh, 150px);
+  width: clamp(64px, 14vh, 150px);
   border: 3px solid var(--velvet-deep);
   box-shadow:
     0 0 0 3px var(--accent),
@@ -211,7 +235,7 @@
   margin: 0;
   max-width: 20ch;
   font-family: var(--font-display);
-  font-size: clamp(1.7rem, 5.4vw, 2.75rem);
+  font-size: clamp(1.4rem, min(5.4vw, 5.4vh), 2.75rem);
   line-height: 1.04;
   text-wrap: balance;
   overflow-wrap: anywhere;
@@ -396,8 +420,14 @@
 }
 
 .scr__peek p {
-  flex-basis: 100%;
-  margin: var(--s2) 0 0;
+  position: absolute;
+  z-index: 6;
+  left: var(--s4);
+  right: var(--s4);
+  bottom: calc(20vh + var(--s3));
+  max-width: 520px;
+  margin: 0 auto;
+  border: 1px solid var(--hairline-strong);
   padding: var(--s3);
   border-radius: var(--r-md);
   background: rgba(15, 8, 32, 0.8);
@@ -432,9 +462,9 @@
 
 .rail__btn svg {
   box-sizing: border-box;
-  width: 56px;
-  height: 56px;
-  padding: 15px;
+  width: clamp(46px, 7vh, 56px);
+  height: clamp(46px, 7vh, 56px);
+  padding: 26%;
   border: 1px solid var(--hairline-strong);
   border-radius: 50%;
   background: var(--glass);
@@ -570,10 +600,108 @@
   }
 }
 
+@media (max-height: 820px) {
+  .scr__title {
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+}
+
 @media (max-height: 640px) {
   .scr {
     justify-content: flex-start;
     padding-top: calc(var(--s7) + var(--s4));
     padding-bottom: var(--s5);
+  }
+}
+
+/* ------------------------------------------------------------------ the audience below the line */
+
+.aud {
+  position: absolute;
+  z-index: 11;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 20vh;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.aud__row {
+  position: absolute;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end;
+}
+
+.aud__row--back {
+  bottom: 38%;
+  padding: 0 4%;
+}
+
+.aud__row--front {
+  bottom: -14%;
+  padding: 0 9%;
+}
+
+.aud__p {
+  flex: none;
+  fill: #0b0618;
+  stroke: color-mix(in srgb, var(--accent, var(--limelight)) 55%, transparent);
+  stroke-width: 1.2;
+  transition: stroke 0.6s var(--ease-out);
+}
+
+.aud__row--back .aud__p {
+  width: clamp(26px, 3.4vw, 44px);
+  opacity: 0.8;
+}
+
+.aud__row--front .aud__p {
+  width: clamp(40px, 5.4vw, 72px);
+}
+
+/* A little life: heads sway out of step; they applaud when something is watched. */
+@media (prefers-reduced-motion: no-preference) {
+  .aud__p {
+    animation: aud-sway 4.5s ease-in-out infinite alternate;
+  }
+
+  .aud__row > :nth-child(3n) {
+    animation-delay: -1.2s;
+  }
+
+  .aud__row > :nth-child(3n + 1) {
+    animation-delay: -2.6s;
+    animation-duration: 5.4s;
+  }
+
+  .aud[data-clap="true"] .aud__p {
+    animation: aud-clap 0.36s ease-in-out 5;
+  }
+
+  .aud[data-clap="true"] .aud__row > :nth-child(odd) {
+    animation-delay: 0.1s;
+  }
+}
+
+@keyframes aud-sway {
+  to {
+    transform: translateY(-3px) rotate(1.5deg);
+  }
+}
+
+@keyframes aud-clap {
+  50% {
+    transform: translateY(-9px) scale(1.04);
+  }
+}
+
+@media (max-width: 600px) {
+  .aud__row > :nth-child(even) {
+    display: none;
   }
 }

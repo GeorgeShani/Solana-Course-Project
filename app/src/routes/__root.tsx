@@ -15,13 +15,18 @@ import { TabBar } from "../components/ui/TabBar";
 import { WalletDialog } from "../components/wallet/WalletDialog";
 import { CLUSTER, CLUSTER_LABEL } from "../lib/config";
 import { WELCOME_BOOT_SCRIPT } from "../features/onboarding/welcome-state";
+import aboutCss from "../styles/about.css?url";
+import audienceCss from "../styles/audience.css?url";
 import baseCss from "../styles/base.css?url";
 import discoverCss from "../styles/discover.css?url";
 import discoveryCss from "../styles/discovery.css?url";
 import feedCss from "../styles/feed.css?url";
 import screensCss from "../styles/screens.css?url";
 import theatreCss from "../styles/theatre.css?url";
+import intervalCss from "../styles/interval.css?url";
+import showtimeCss from "../styles/showtime.css?url";
 import streamCss from "../styles/stream.css?url";
+import ticketCss from "../styles/ticket.css?url";
 import tokensCss from "../styles/tokens.css?url";
 
 export const Route = createRootRoute({
@@ -51,6 +56,11 @@ export const Route = createRootRoute({
       { rel: "stylesheet", href: discoveryCss },
       { rel: "stylesheet", href: discoverCss },
       { rel: "stylesheet", href: streamCss },
+      { rel: "stylesheet", href: showtimeCss },
+      { rel: "stylesheet", href: intervalCss },
+      { rel: "stylesheet", href: aboutCss },
+      { rel: "stylesheet", href: audienceCss },
+      { rel: "stylesheet", href: ticketCss },
     ],
   }),
   shellComponent: RootDocument,
