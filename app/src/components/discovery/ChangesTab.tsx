@@ -38,7 +38,7 @@ export function ChangesTab() {
       <div className="wl-empty">
         <Cue pose="saved" className="wl-empty__cue" />
         <p className="wl-empty__line">
-          Watch an idea or a trader to see what changes after you look away.
+          Watch an idea or a profile to see what changes after you look away.
         </p>
         <Link to="/" className="btn btn--primary btn--large">
           See ideas
@@ -175,7 +175,7 @@ function TargetCard({ t, w }: { t: TargetChanges; w: WatchedItem }) {
         <p className="wl-card__title">
           {w.label}
           <span className="badge badge--quiet">
-            {w.type === "idea" ? "Idea" : "Trader"}
+            {w.type === "idea" ? "Idea" : "Profile"}
           </span>
           {t.count > 0 && <span className="badge">{t.count} new</span>}
         </p>
@@ -213,6 +213,15 @@ function TargetCard({ t, w }: { t: TargetChanges; w: WatchedItem }) {
                         </span>
                       </p>
                       <p className="chg__summary">{e.summary}</p>
+                      <p className="wl-card__meta">
+                        <Link
+                          to="/ideas/$ideaId"
+                          params={{ ideaId: g.idea.id }}
+                          hash={`event-${e.id}`}
+                        >
+                          Open this entry in the timeline
+                        </Link>
+                      </p>
                       {href && (
                         <a
                           className="wl-card__meta"

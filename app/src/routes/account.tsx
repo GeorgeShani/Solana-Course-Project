@@ -246,7 +246,7 @@ function WalletSection() {
           <div className="acct-wallet__actions">
             <Link
               to="/watchlist"
-              search={{ tab: "history" }}
+              search={{ tab: "receipts" }}
               className="btn btn--glass btn--small"
             >
               Follow history

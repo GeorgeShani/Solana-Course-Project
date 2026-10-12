@@ -1,5 +1,5 @@
-import { useSyncExternalStore } from "react";
 import type { WatchTarget } from "./discovery";
+import { createBrowserStore } from "./storage/browser-store";
 
 /**
  * What this browser follows in Relay's discovery coverage: ideas and traders, each with a cursor.
@@ -104,55 +104,15 @@ export function isWatched(
 
 // ------------------------------------------------------------------------------- the store
 
-const listeners = new Set<() => void>();
-let cache: { raw: string | null; list: readonly WatchedItem[] } = {
-  raw: null,
-  list: EMPTY,
-};
+const store = createBrowserStore<readonly WatchedItem[]>({
+  key: DISCOVERY_WATCH_KEY,
+  empty: EMPTY,
+  parse: parseDiscoveryWatch,
+  serialize: serializeDiscoveryWatch,
+});
 
-function storage(): Storage | null {
-  try {
-    return typeof window === "undefined" ? null : window.localStorage;
-  } catch {
-    return null;
-  }
-}
-
-function read(): readonly WatchedItem[] {
-  const s = storage();
-  let raw: string | null = null;
-  try {
-    raw = s ? s.getItem(DISCOVERY_WATCH_KEY) : null;
-  } catch {
-    raw = null;
-  }
-  if (raw !== cache.raw) cache = { raw, list: parseDiscoveryWatch(raw) };
-  return cache.list;
-}
-
-function subscribe(listener: () => void) {
-  listeners.add(listener);
-  const onStorage = (e: StorageEvent) => {
-    if (e.key === null || e.key === DISCOVERY_WATCH_KEY) listener();
-  };
-  window.addEventListener("storage", onStorage);
-  return () => {
-    listeners.delete(listener);
-    window.removeEventListener("storage", onStorage);
-  };
-}
-
-function write(list: readonly WatchedItem[]): boolean {
-  const s = storage();
-  if (!s) return false;
-  try {
-    s.setItem(DISCOVERY_WATCH_KEY, serializeDiscoveryWatch(list));
-  } catch {
-    return false;
-  }
-  for (const l of listeners) l();
-  return true;
-}
+const read = store.read;
+const write = store.write;
 
 export type WatchResult =
   | { ok: true; watching: boolean }
@@ -213,6 +173,9 @@ export function markSeen(
   return changed ? write(next) : false;
 }
 
-export function useDiscoveryWatch(): readonly WatchedItem[] {
-  return useSyncExternalStore(subscribe, read, () => EMPTY);
+export const useDiscoveryWatch = store.use;
+
+/** Forgets every watched idea and profile in this browser (the reader asked to clear them). */
+export function clearDiscoveryWatch(): boolean {
+  return write(EMPTY);
 }

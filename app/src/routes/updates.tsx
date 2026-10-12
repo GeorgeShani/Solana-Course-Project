@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ChangesTab } from "../components/discovery/ChangesTab";
-import { Icon } from "../components/ui/Icon";
+import { StorageNotice } from "../components/ui/StorageNotice";
 import { useMounted } from "../lib/mounted";
 
 /**
@@ -27,10 +27,7 @@ function Updates() {
           </h1>
           <p className="page__lede">What changed since you last looked.</p>
         </div>
-        <span className="storage-note">
-          <Icon name="shield" size={13} />
-          Stored in this browser only
-        </span>
+        <StorageNotice />
       </header>
       {mounted ? (
         <ChangesTab />

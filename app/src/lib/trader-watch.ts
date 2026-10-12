@@ -1,4 +1,4 @@
-import { useSyncExternalStore } from "react";
+import { createBrowserStore } from "./storage/browser-store";
 
 /**
  * Watched traders. Like watched plans, this lives in this browser only and needs no wallet. Each
@@ -16,12 +16,6 @@ export interface WatchedTrader {
 }
 
 const EMPTY: readonly WatchedTrader[] = [];
-const listeners = new Set<() => void>();
-let cache: { raw: string | null; list: readonly WatchedTrader[] } = {
-  raw: null,
-  list: EMPTY,
-};
-
 const isInt = (v: unknown): v is number =>
   typeof v === "number" && Number.isSafeInteger(v);
 
@@ -57,49 +51,15 @@ export function parseTraderWatchList(raw: string | null): WatchedTrader[] {
   return out;
 }
 
-function storage(): Storage | null {
-  try {
-    return typeof window === "undefined" ? null : window.localStorage;
-  } catch {
-    return null;
-  }
-}
+const store = createBrowserStore<readonly WatchedTrader[]>({
+  key: TRADER_WATCH_KEY,
+  empty: EMPTY,
+  parse: parseTraderWatchList,
+  serialize: (list) => JSON.stringify(list),
+});
 
-function read(): readonly WatchedTrader[] {
-  const s = storage();
-  let raw: string | null = null;
-  try {
-    raw = s ? s.getItem(TRADER_WATCH_KEY) : null;
-  } catch {
-    raw = null;
-  }
-  if (raw !== cache.raw) cache = { raw, list: parseTraderWatchList(raw) };
-  return cache.list;
-}
-
-function subscribe(listener: () => void) {
-  listeners.add(listener);
-  const onStorage = (e: StorageEvent) => {
-    if (e.key === null || e.key === TRADER_WATCH_KEY) listener();
-  };
-  window.addEventListener("storage", onStorage);
-  return () => {
-    listeners.delete(listener);
-    window.removeEventListener("storage", onStorage);
-  };
-}
-
-function write(list: readonly WatchedTrader[]): boolean {
-  const s = storage();
-  if (!s) return false;
-  try {
-    s.setItem(TRADER_WATCH_KEY, JSON.stringify(list));
-  } catch {
-    return false;
-  }
-  for (const l of listeners) l();
-  return true;
-}
+const read = store.read;
+const write = store.write;
 
 /** Adds or removes a trader. Returns the new watching state, or null when storage is unavailable. */
 export function toggleWatchedTrader(
@@ -119,6 +79,9 @@ export function removeWatchedTrader(address: string): boolean {
   return write(read().filter((w) => w.address !== address));
 }
 
-export function useWatchedTraders(): readonly WatchedTrader[] {
-  return useSyncExternalStore(subscribe, read, () => EMPTY);
+export const useWatchedTraders = store.use;
+
+/** Forgets every watched plan creator in this browser (the reader asked to clear them). */
+export function clearWatchedTraders(): boolean {
+  return write(EMPTY);
 }

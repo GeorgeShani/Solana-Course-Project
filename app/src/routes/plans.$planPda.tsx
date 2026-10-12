@@ -354,7 +354,7 @@ function Record({
                   </span>
                   <span className="facts__note">
                     Look up verified receipts by wallet in the{" "}
-                    <Link to="/watchlist" search={{ tab: "history" }}>
+                    <Link to="/watchlist" search={{ tab: "receipts" }}>
                       Watchlist
                     </Link>
                     .
