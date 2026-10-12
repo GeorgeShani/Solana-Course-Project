@@ -1,19 +1,19 @@
 import type { EntryStatus } from "@relay/domain";
 import { describe, expect, test } from "bun:test";
 import {
-  ApiContractError,
   fetchPlanVersions,
   parseFeedPage,
   type FeedPage,
   type PlanCardView,
-} from "../src/lib/api";
+} from "../src/features/plans/api";
+import { ApiContractError } from "../src/lib/api/http";
 import {
   initialOrder,
   reconcileOrder,
   showNewest,
   visibleCards,
-} from "../src/lib/feed-order";
-import { fictionalPreviewFeed } from "../src/lib/fixtures";
+} from "../src/features/plans/feed-order";
+import { fictionalPreviewFeed } from "../src/features/plans/fixtures";
 import {
   formatAge,
   formatDuration,
@@ -21,16 +21,16 @@ import {
   formatUsdText,
   shortAddress,
 } from "../src/lib/format";
-import { stageName } from "../src/lib/labels";
-import { chainNowMs, liveEntry } from "../src/lib/live-status";
-import { rangeGeometry } from "../src/lib/range";
+import { stageName } from "../src/features/plans/labels";
+import { chainNowMs, liveEntry } from "../src/features/plans/live-status";
+import { rangeGeometry } from "../src/features/plans/range";
 import {
   STATUS_HEADLINE,
   reviewUnavailableReason,
   statusHeadline,
   statusHint,
-} from "../src/lib/status";
-import { parseWatchList } from "../src/lib/watchlist";
+} from "../src/features/plans/status";
+import { parseWatchList } from "../src/features/plans/plan-watch";
 
 const NOW = 1_800_000_000_000;
 const ALL_STATUSES: EntryStatus[] = [

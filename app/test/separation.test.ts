@@ -30,18 +30,16 @@ function importsOf(file: string): string[] {
 const rel = (f: string) => relative(SRC, f).split("\\").join("/");
 
 const DISCOVERY_FILES = [
-  ...files(join(SRC, "components", "discovery")),
+  ...files(join(SRC, "features", "discovery")),
   ...["index", "updates", "ideas.$ideaId", "profiles.$traderId"].map((r) =>
     join(SRC, "routes", `${r}.tsx`),
   ),
 ];
 
 const EXECUTION = [
-  "components/trade",
-  "lib/follow",
+  "features/plans",
+  "components/wallet",
   "lib/wallet",
-  "lib/fixtures",
-  "lib/chain",
   "lib/solana",
 ];
 
@@ -57,15 +55,14 @@ describe("discovery never reaches execution", () => {
 
 describe("native plans never read the discovery layer", () => {
   const PLAN_FILES = [
-    ...files(join(SRC, "components", "feed")),
-    ...files(join(SRC, "components", "trade")),
+    ...files(join(SRC, "features", "plans")),
     join(SRC, "routes", "plans.index.tsx"),
     join(SRC, "routes", "plans.$planPda.tsx"),
   ];
   for (const file of PLAN_FILES)
     test(`${rel(file)} imports no discovery module`, () => {
-      const bad = importsOf(file).filter(
-        (i) => /discovery/.test(i) && !/watch/.test(i),
+      const bad = importsOf(file).filter((i) =>
+        /features\/discovery|discovery\//.test(i),
       );
       expect(bad).toEqual([]);
     });
@@ -76,7 +73,7 @@ describe("fictional fixtures stay out of the product", () => {
     const users = files(SRC).filter(
       (f) =>
         importsOf(f).some((i) => i.endsWith("/fixtures")) ||
-        readFileSync(f, "utf8").includes('import("../lib/fixtures")'),
+        /import\(["'][^"']*\/fixtures["']\)/.test(readFileSync(f, "utf8")),
     );
     expect(users.map(rel)).toEqual(["routes/dev.plan-states.tsx"]);
   });

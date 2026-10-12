@@ -9,9 +9,9 @@ import {
   signInWithGoogle,
   signOut,
   useGoogleAuth,
-} from "../lib/google-auth";
+} from "../features/account/google-auth";
 import { useMounted } from "../lib/mounted";
-import { requestWelcome } from "../lib/welcome";
+import { requestWelcome } from "../features/onboarding/welcome-state";
 import { disconnectWallet, openWalletDialog, useWallet } from "../lib/wallet";
 
 export const Route = createFileRoute("/account")({

@@ -1,20 +1,21 @@
 import { describe, expect, test } from "bun:test";
-import { ApiContractError, parseExecution } from "../src/lib/api";
+import { parseExecution } from "../src/features/plans/api";
+import { ApiContractError } from "../src/lib/api/http";
 import { CUE_ART } from "../src/components/cue/cue-art";
 import type { CueArtNode } from "../src/components/cue/art-node";
 import { DEMO_LABEL, DEMO_PLAN, DEMO_STEPS, demoState } from "../src/lib/demo";
-import { fictionalPreviewFeed } from "../src/lib/fixtures";
+import { fictionalPreviewFeed } from "../src/features/plans/fixtures";
 import {
   estimateOpen,
   isAddress,
   plausibleBlockTime,
   watchChanges,
-} from "../src/lib/my-plans";
+} from "../src/features/plans/my-plans";
 import {
   parseSnapshot,
   parseWatchList,
   type WatchSnapshot,
-} from "../src/lib/watchlist";
+} from "../src/features/plans/plan-watch";
 
 const NOW = 1_800_000_000_000;
 

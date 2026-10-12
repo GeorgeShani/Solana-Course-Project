@@ -6,7 +6,7 @@ import {
   latestCapture,
   latestUpdateLabel,
   sourceHost,
-} from "../src/lib/discovery";
+} from "../src/features/discovery/model";
 
 describe("eventKind", () => {
   test("an update the author links is an update to the idea", () => {

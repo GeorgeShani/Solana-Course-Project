@@ -1,13 +1,13 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { DemoBadge } from "../components/discovery/Cards";
+import { DemoBadge } from "../features/discovery/components/Cards";
 import {
   EvidencePanel,
   type AskTarget,
-} from "../components/discovery/EvidencePanel";
-import { SourceCard } from "../components/discovery/SourceCard";
-import { Timeline } from "../components/discovery/Timeline";
-import { WatchButton } from "../components/discovery/WatchButton";
+} from "../features/discovery/components/EvidencePanel";
+import { SourceCard } from "../features/discovery/components/SourceCard";
+import { Timeline } from "../features/discovery/components/Timeline";
+import { WatchButton } from "../features/discovery/components/WatchButton";
 import { Cue } from "../components/cue/Cue";
 import { BackLink } from "../components/ui/BackLink";
 import { Icon } from "../components/ui/Icon";
@@ -16,13 +16,13 @@ import {
   DiscoveryNotFoundError,
   evidenceSummary,
   type IdeaDetail,
-} from "../lib/discovery";
-import { useIdea } from "../lib/discovery-queries";
+} from "../features/discovery/model";
+import { useIdea } from "../features/discovery/queries";
 import {
   markSeen,
   seqGreater,
   useDiscoveryWatch,
-} from "../lib/discovery-watch";
+} from "../features/discovery/watch";
 
 export const Route = createFileRoute("/ideas/$ideaId")({
   head: () => ({ meta: [{ title: "Idea · Relay" }] }),

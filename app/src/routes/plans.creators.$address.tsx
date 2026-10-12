@@ -1,22 +1,29 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { Cue } from "../components/cue/Cue";
-import { WatchToast } from "../components/feed/WatchToast";
+import { WatchToast } from "../features/plans/feed/WatchToast";
 import { Portrait } from "../components/theatre/Portrait";
 import { BackLink } from "../components/ui/BackLink";
 import { Icon } from "../components/ui/Icon";
 import { KindBadge } from "../components/ui/KindBadge";
 import { PairIcon } from "../components/ui/TokenIcon";
-import type { PlanCardView } from "../lib/api";
+import type { PlanCardView } from "../features/plans/api";
 import { useWallClock } from "../lib/clock";
 import { CLUSTER, CLUSTER_LABEL } from "../lib/config";
 import { formatUsdText } from "../lib/format";
-import { chainNowMs, liveEntry } from "../lib/live-status";
-import { isAddress } from "../lib/my-plans";
+import { chainNowMs, liveEntry } from "../features/plans/live-status";
+import { isAddress } from "../features/plans/my-plans";
 import { explorerAccountUrl, formatTimestamp } from "../lib/sources";
-import { STATUS_HEADLINE, STATUS_TONE } from "../lib/status";
-import { toggleWatchedTrader, useWatchedTraders } from "../lib/trader-watch";
-import { traderName, useTraderIndex, type TraderView } from "../lib/traders";
+import { STATUS_HEADLINE, STATUS_TONE } from "../features/plans/status";
+import {
+  toggleWatchedCreator,
+  useWatchedCreators,
+} from "../features/plans/creator-watch";
+import { creatorLabel } from "../features/plans/labels";
+import {
+  useCreatorIndex,
+  type PlanCreatorView,
+} from "../features/plans/creators";
 
 export const Route = createFileRoute("/plans/creators/$address")({
   head: () => ({ meta: [{ title: "Trader · Relay" }] }),
@@ -25,8 +32,8 @@ export const Route = createFileRoute("/plans/creators/$address")({
 
 function TraderProfile() {
   const { address } = Route.useParams();
-  const q = useTraderIndex();
-  const trader = q.data?.traders.find((t) => t.address === address);
+  const q = useCreatorIndex();
+  const trader = q.data?.creators.find((t) => t.address === address);
 
   return (
     <section
@@ -106,23 +113,23 @@ function Profile({
   serverNowMs,
   receivedAt,
 }: {
-  trader: TraderView;
+  trader: PlanCreatorView;
   serverNowMs: number;
   receivedAt: number;
 }) {
   const wall = useWallClock();
   const nowMs = chainNowMs(serverNowMs, receivedAt, wall);
-  const watched = useWatchedTraders();
+  const watched = useWatchedCreators();
   const watching = watched.some((w) => w.address === t.address);
   const [toast, setToast] = useState<{ key: number; subject: string } | null>(
     null,
   );
   const [storageError, setStorageError] = useState(false);
-  const name = traderName(t);
+  const name = creatorLabel(t);
   const explorer = explorerAccountUrl(t.address, CLUSTER);
 
   const toggle = () => {
-    const result = toggleWatchedTrader(t.address, name, t.latestPublishedAt);
+    const result = toggleWatchedCreator(t.address, name, t.latestPublishedAt);
     setStorageError(result === null);
     setToast((prev) =>
       result ? { key: (prev?.key ?? 0) + 1, subject: name } : null,

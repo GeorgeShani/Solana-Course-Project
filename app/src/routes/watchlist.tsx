@@ -7,7 +7,7 @@ import {
   useNavigate,
 } from "@tanstack/react-router";
 import { useRef, useState, type FormEvent, type KeyboardEvent } from "react";
-import { WatchedList } from "../components/discovery/WatchedList";
+import { WatchedList } from "../features/discovery/components/WatchedList";
 import { Cue } from "../components/cue/Cue";
 import { Avatar } from "../components/theatre/Portrait";
 import { Icon } from "../components/ui/Icon";
@@ -19,33 +19,34 @@ import {
   fetchPlan,
   type ExecutionView,
   type PlanCardView,
-} from "../lib/api";
+} from "../features/plans/api";
 import { useWallClock } from "../lib/clock";
 import { API_URL } from "../lib/config";
-import { useDiscoveryWatch } from "../lib/discovery-watch";
+import { useDiscoveryWatch } from "../features/discovery/watch";
 import { formatClock, formatUsd, shortAddress } from "../lib/format";
-import { planLabel } from "../lib/labels";
-import { liveEntry } from "../lib/live-status";
+import { planLabel } from "../features/plans/labels";
+import { liveEntry } from "../features/plans/live-status";
 import { useMounted } from "../lib/mounted";
 import {
   estimateOpen,
   isAddress,
   plausibleBlockTime,
   watchChanges,
-} from "../lib/my-plans";
-import { STATUS_HEADLINE, STATUS_TONE } from "../lib/status";
+} from "../features/plans/my-plans";
+import { STATUS_HEADLINE, STATUS_TONE } from "../features/plans/status";
 import {
-  removeWatchedTrader,
-  useWatchedTraders,
-  type WatchedTrader,
-} from "../lib/trader-watch";
-import { traderName, useTraderIndex } from "../lib/traders";
+  removeWatchedCreator,
+  useWatchedCreators,
+  type WatchedCreator,
+} from "../features/plans/creator-watch";
+import { creatorLabel } from "../features/plans/labels";
+import { useCreatorIndex } from "../features/plans/creators";
 import { useWallet } from "../lib/wallet";
 import {
   removeWatched,
   useWatchList,
   type WatchedPlan,
-} from "../lib/watchlist";
+} from "../features/plans/plan-watch";
 
 const TABS = ["ideas", "profiles", "plans", "receipts"] as const;
 type Tab = (typeof TABS)[number];
@@ -120,7 +121,7 @@ function useLive(card: PlanCardView | undefined, receivedAt: number) {
 function Watchlist() {
   const mounted = useMounted();
   const watching = useWatchList();
-  const traders = useWatchedTraders();
+  const traders = useWatchedCreators();
   const discovery = useDiscoveryWatch();
   const ideas = discovery.filter((w) => w.type === "idea");
   const profiles = discovery.filter((w) => w.type === "trader");
@@ -242,7 +243,7 @@ function PlansTab({
   traders,
 }: {
   watching: readonly WatchedPlan[];
-  traders: readonly WatchedTrader[];
+  traders: readonly WatchedCreator[];
 }) {
   if (watching.length === 0 && traders.length === 0)
     return (
@@ -272,19 +273,19 @@ function PlansTab({
       {traders.length > 0 && (
         <>
           <h2 className="page__subsection">Plan creators you watch</h2>
-          <WatchedTraders list={traders} />
+          <WatchedCreators list={traders} />
         </>
       )}
     </>
   );
 }
 
-function WatchedTraders({ list }: { list: readonly WatchedTrader[] }) {
-  const q = useTraderIndex();
+function WatchedCreators({ list }: { list: readonly WatchedCreator[] }) {
+  const q = useCreatorIndex();
   return (
     <ul className="wl-list">
       {list.map((w) => {
-        const t = q.data?.traders.find((x) => x.address === w.address);
+        const t = q.data?.creators.find((x) => x.address === w.address);
         const fresh = t
           ? t.plans.filter(
               (p) =>
@@ -298,7 +299,7 @@ function WatchedTraders({ list }: { list: readonly WatchedTrader[] }) {
             <Avatar seed={w.address} size={48} />
             <div className="wl-card__body">
               <p className="wl-card__title">
-                {t ? traderName(t) : w.label}
+                {t ? creatorLabel(t) : w.label}
                 {t?.isDemo && <span className="badge">Demo creator</span>}
               </p>
               <p className="wl-card__meta">
@@ -355,7 +356,7 @@ function WatchedTraders({ list }: { list: readonly WatchedTrader[] }) {
               <button
                 type="button"
                 className="btn btn--ghost btn--small"
-                onClick={() => removeWatchedTrader(w.address)}
+                onClick={() => removeWatchedCreator(w.address)}
                 aria-label={`Stop watching ${w.label}`}
               >
                 Remove

@@ -5,7 +5,7 @@ import {
   WELCOME_BOOT_SCRIPT,
   WELCOME_KEY,
   WELCOME_SEEN,
-} from "../src/lib/welcome";
+} from "../src/features/onboarding/welcome-state";
 
 interface Visit {
   path?: string;

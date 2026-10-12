@@ -47,7 +47,10 @@ export function formatAge(ms: number): string {
  */
 export function formatClock(unixSec: number, nowSec?: number): string {
   const d = new Date(unixSec * 1000);
-  const time = d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+  const time = d.toLocaleTimeString("en-GB", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
   if (nowSec === undefined) return time;
   const n = new Date(nowSec * 1000);
   const sameDay =
@@ -61,7 +64,9 @@ export function formatClock(unixSec: number, nowSec?: number): string {
 
 /** "7xKX…9fQa" */
 export function shortAddress(address: string): string {
-  return address.length <= 10 ? address : `${address.slice(0, 4)}…${address.slice(-4)}`;
+  return address.length <= 10
+    ? address
+    : `${address.slice(0, 4)}…${address.slice(-4)}`;
 }
 
 /** "3f9a…c1d2" for a hex hash. */

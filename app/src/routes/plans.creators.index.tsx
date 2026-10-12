@@ -6,10 +6,17 @@ import { KindBadge } from "../components/ui/KindBadge";
 import { PairIcon } from "../components/ui/TokenIcon";
 import { cueReact } from "../lib/cue-cursor";
 import { formatAge, shortAddress } from "../lib/format";
-import { liveEntry } from "../lib/live-status";
-import { STATUS_HEADLINE, STATUS_TONE } from "../lib/status";
-import { toggleWatchedTrader, useWatchedTraders } from "../lib/trader-watch";
-import { traderName, useTraderIndex, type TraderView } from "../lib/traders";
+import { liveEntry } from "../features/plans/live-status";
+import { STATUS_HEADLINE, STATUS_TONE } from "../features/plans/status";
+import {
+  toggleWatchedCreator,
+  useWatchedCreators,
+} from "../features/plans/creator-watch";
+import { creatorLabel } from "../features/plans/labels";
+import {
+  useCreatorIndex,
+  type PlanCreatorView,
+} from "../features/plans/creators";
 
 export const Route = createFileRoute("/plans/creators/")({
   head: () => ({ meta: [{ title: "Plan creators · Relay" }] }),
@@ -17,8 +24,8 @@ export const Route = createFileRoute("/plans/creators/")({
 });
 
 function Traders() {
-  const q = useTraderIndex();
-  const watched = useWatchedTraders();
+  const q = useCreatorIndex();
+  const watched = useWatchedCreators();
   return (
     <section
       className="page page--wide"
@@ -60,14 +67,14 @@ function Traders() {
             </button>
           </div>
         </div>
-      ) : q.data.traders.length === 0 ? (
+      ) : q.data.creators.length === 0 ? (
         <p className="page__text">
           No wallet has published a plan through Relay yet.
         </p>
       ) : (
         <>
           <ul className="tgrid">
-            {q.data.traders.map((t) => (
+            {q.data.creators.map((t) => (
               <TraderCard
                 key={t.address}
                 t={t}
@@ -92,14 +99,14 @@ function TraderCard({
   nowMs,
   watching,
 }: {
-  t: TraderView;
+  t: PlanCreatorView;
   nowMs: number;
   watching: boolean;
 }) {
   const named = t.displayName !== null || t.handle !== null;
   const latest = t.plans[0];
   const status = latest ? liveEntry(latest, nowMs).status : null;
-  const name = traderName(t);
+  const name = creatorLabel(t);
   const count = t.plans.length;
 
   return (
@@ -168,7 +175,7 @@ function TraderCard({
           data-on={watching}
           aria-label={watching ? `Stop watching ${name}` : `Watch ${name}`}
           onClick={() => {
-            const on = toggleWatchedTrader(
+            const on = toggleWatchedCreator(
               t.address,
               name,
               t.latestPublishedAt,
