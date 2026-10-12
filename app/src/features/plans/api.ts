@@ -74,10 +74,18 @@ export interface PlanCardView {
   fictionalPreview?: true;
 }
 
+/** Whether the server could read the program's accounts on its last try (see GET /plans/feed). */
+export interface PlanSync {
+  state: "ok" | "failing" | "not_yet";
+  lastSyncedAtMs: number | null;
+}
+
 export interface FeedPage {
   items: PlanCardView[];
   nextCursor: string | null;
   nowMs: number;
+  /** Null when the server does not report it (older servers); treated as unknown, never as ok. */
+  sync: PlanSync | null;
 }
 
 const ENTRY_STATUSES: readonly EntryStatus[] = [
@@ -197,6 +205,21 @@ export function parseFeedPage(v: unknown): FeedPage {
     items: r.items.map((item, i) => parsePlanCard(item, `feed.items[${i}]`)),
     nextCursor: strOrNull(r.nextCursor, "feed.nextCursor"),
     nowMs: num(r.nowMs, "feed.nowMs"),
+    sync: r.sync === undefined ? null : parseSync(r.sync),
+  };
+}
+
+function parseSync(v: unknown): PlanSync {
+  const r = rec(v, "feed.sync");
+  const state = r.state;
+  if (state !== "ok" && state !== "failing" && state !== "not_yet")
+    throw new ApiContractError("feed.sync.state is not a known sync state");
+  return {
+    state,
+    lastSyncedAtMs:
+      r.lastSyncedAtMs === null
+        ? null
+        : num(r.lastSyncedAtMs, "feed.sync.lastSyncedAtMs"),
   };
 }
 

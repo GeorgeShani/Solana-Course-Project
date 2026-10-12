@@ -273,5 +273,11 @@ function card(spec: Spec, nowMs: number): PlanCardView {
 }
 
 export function fictionalPreviewFeed(nowMs: number): FeedPage {
-  return { items: SPECS.map((s) => card(s, nowMs)), nextCursor: null, nowMs };
+  // Fictional: no chain was read, so no sync state is claimed.
+  return {
+    items: SPECS.map((s) => card(s, nowMs)),
+    nextCursor: null,
+    nowMs,
+    sync: null,
+  };
 }

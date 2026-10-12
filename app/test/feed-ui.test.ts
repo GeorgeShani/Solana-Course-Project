@@ -216,6 +216,24 @@ describe("api contract", () => {
     );
   });
 
+  test("reads the chain sync state, and treats a missing one as unknown", () => {
+    const failing = wire();
+    failing.sync = { state: "failing", lastSyncedAtMs: 1_700_000_000_000 };
+    expect(parseFeedPage(failing).sync).toEqual({
+      state: "failing",
+      lastSyncedAtMs: 1_700_000_000_000,
+    });
+    const never = wire();
+    never.sync = { state: "failing", lastSyncedAtMs: null };
+    expect(parseFeedPage(never).sync?.lastSyncedAtMs).toBeNull();
+    const older = wire();
+    delete older.sync;
+    expect(parseFeedPage(older).sync).toBeNull();
+    const bad = wire();
+    bad.sync = { state: "fine", lastSyncedAtMs: null };
+    expect(() => parseFeedPage(bad)).toThrow("feed.sync.state");
+  });
+
   test("carries the feed policy flag, and refuses a response without it", () => {
     const unlisted = wire();
     unlisted.items[1].listed = false;

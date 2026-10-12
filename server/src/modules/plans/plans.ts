@@ -98,10 +98,21 @@ export interface PlanDetailView extends PlanCardView {
   versions: VersionView[];
 }
 
+/**
+ * Whether the mirror of the chain is current. `failing` means the last read of the program's
+ * accounts failed, so an empty feed may only mean "Relay can't see the chain", not "no plans".
+ */
+export interface SyncStatus {
+  state: "ok" | "failing" | "not_yet";
+  /** When the chain was last read successfully, or null if it never was since the server started. */
+  lastSyncedAtMs: number | null;
+}
+
 export interface FeedPage {
   items: PlanCardView[];
   nextCursor: string | null;
   nowMs: number;
+  sync: SyncStatus;
 }
 
 // ---------------------------------------------------------------------------------------- service
@@ -216,6 +227,7 @@ export function createPlanService(deps: PlanServiceDeps) {
   let lastSyncAt = 0;
   let lastSyncLogAt = 0;
   let syncing: Promise<void> | undefined;
+  let syncState: SyncStatus["state"] = "not_yet";
 
   const allowlist = new Set(env.creatorAllowlist);
   const isListed = (creator: string) =>
@@ -245,11 +257,17 @@ export function createPlanService(deps: PlanServiceDeps) {
 
   /**
    * Copies plan and version accounts from the chain into the database. The accounts are the
-   * authority; this is idempotent. Throttled because the feed may call it on every request.
+   * authority; this is idempotent. Throttled after a good read because the feed may call it on
+   * every request; after a failed read it retries at once, so a recovery shows on the next request.
    */
   async function sync(opts: { force?: boolean } = {}): Promise<void> {
     if (syncing) return syncing;
-    if (!opts.force && Date.now() - lastSyncAt < SYNC_MIN_INTERVAL_MS) return;
+    if (
+      !opts.force &&
+      syncState === "ok" &&
+      Date.now() - lastSyncAt < SYNC_MIN_INTERVAL_MS
+    )
+      return;
     syncing = (async () => {
       const [plans, versions] = await Promise.all([
         chain.listPlans(),
@@ -266,10 +284,23 @@ export function createPlanService(deps: PlanServiceDeps) {
         if (known.has(data.plan)) await insertVersion(pda, data);
       }
       lastSyncAt = Date.now();
-    })().finally(() => {
-      syncing = undefined;
-    });
+      syncState = "ok";
+    })()
+      .catch((e: unknown) => {
+        syncState = "failing";
+        throw e;
+      })
+      .finally(() => {
+        syncing = undefined;
+      });
     return syncing;
+  }
+
+  function syncStatus(): SyncStatus {
+    return {
+      state: syncState,
+      lastSyncedAtMs: lastSyncAt === 0 ? null : lastSyncAt,
+    };
   }
 
   // ----------------------------------------------------------------------------------- confirm
@@ -603,6 +634,7 @@ export function createPlanService(deps: PlanServiceDeps) {
       nextCursor:
         offset + limit < ranked.length ? encodeCursor(offset + limit) : null,
       nowMs,
+      sync: syncStatus(),
     };
   }
 
@@ -637,7 +669,7 @@ export function createPlanService(deps: PlanServiceDeps) {
     };
   }
 
-  return { sync, confirm, feed, detail };
+  return { sync, syncStatus, confirm, feed, detail };
 }
 
 export type PlanService = ReturnType<typeof createPlanService>;

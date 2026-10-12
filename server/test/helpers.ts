@@ -39,7 +39,10 @@ import {
 import { createDiscoveryService } from "../src/modules/discovery/service";
 import { createFollowService } from "../src/modules/plans/follow";
 import type { BuildParams, JupiterClient } from "../src/modules/plans/jupiter";
-import { createPlanService } from "../src/modules/plans/plans";
+import {
+  createPlanService,
+  type PlanService,
+} from "../src/modules/plans/plans";
 import type { RpcForward, RpcRequest } from "../src/modules/plans/rpc-proxy";
 import type {
   ChainReader,
@@ -259,6 +262,8 @@ export interface TestApp {
   jupiter: FakeJupiter;
   rpc: FakeRpc;
   env: Env;
+  /** The plan service behind the routes, for driving a sync directly. */
+  plans: PlanService;
   /** Reviewer commands: the same code scripts/review.ts runs. Not reachable over HTTP. */
   review: ReviewService;
   post: (
@@ -337,6 +342,7 @@ export async function createTestApp(
     jupiter,
     rpc,
     env,
+    plans,
     review,
     get: async (path, headers = {}) => app.request(path, { headers }),
     post: async (path, body, headers = {}) =>

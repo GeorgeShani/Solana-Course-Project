@@ -121,6 +121,8 @@ export function createApp({
         // Kept for older clients: the same value as `network`.
         cluster: env.cluster,
         checks: { database, rpc: rpcState },
+        // The plan mirror, as of the last feed request; informational, so it never fails readiness.
+        planSync: plans.syncStatus(),
         // What is configured, never called here (a provider outage must not fail readiness).
         // No wallet-data provider exists; public-source coverage needs none.
         providers: {

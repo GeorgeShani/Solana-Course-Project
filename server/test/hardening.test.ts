@@ -202,6 +202,8 @@ describe("GET /health/ready", () => {
       network: "localnet",
       cluster: "localnet",
       checks: { database: "ok", rpc: "ok" },
+      // No feed request yet, so the plan mirror has not been read.
+      planSync: { state: "not_yet", lastSyncedAtMs: null },
       // Configured, not called: no wallet-data provider exists for public-source coverage.
       providers: {
         jupiterPrices: "keyless",
@@ -225,6 +227,47 @@ describe("GET /health/ready", () => {
     const app = await fresh();
     app.chain.down = true;
     expect((await app.get("/health")).status).toBe(200);
+  });
+});
+
+// ------------------------------------------------------------------------------- plan mirror sync
+
+describe("plan sync status", () => {
+  it("tells an empty feed apart from a chain Relay cannot read", async () => {
+    const app = await fresh();
+    app.chain.down = true;
+    const feed = await json(await app.get("/plans/feed"));
+    expect(list(feed.items)).toHaveLength(0);
+    expect(feed.sync).toEqual({ state: "failing", lastSyncedAtMs: null });
+    const ready = await json(await app.get("/health/ready"));
+    expect(ready.planSync).toEqual({ state: "failing", lastSyncedAtMs: null });
+  });
+
+  it("reports ok with the time of the last good read once the chain answers", async () => {
+    const app = await fresh();
+    const before = Date.now();
+    const feed = await json(await app.get("/plans/feed"));
+    const sync = obj(feed.sync);
+    expect(sync.state).toBe("ok");
+    expect(typeof sync.lastSyncedAtMs).toBe("number");
+    expect(Number(sync.lastSyncedAtMs)).toBeGreaterThanOrEqual(before);
+  });
+
+  it("keeps the last good time while failing, and recovers", async () => {
+    const app = await fresh();
+    const first = obj((await json(await app.get("/plans/feed"))).sync);
+    expect(first.state).toBe("ok");
+    app.chain.down = true;
+    // A good read is throttled for a few seconds; force the next one so the outage is seen.
+    await app.plans.sync({ force: true }).catch(() => {});
+    const down = obj((await json(await app.get("/plans/feed"))).sync);
+    expect(down).toEqual({
+      state: "failing",
+      lastSyncedAtMs: first.lastSyncedAtMs,
+    });
+    app.chain.down = false;
+    const back = obj((await json(await app.get("/plans/feed"))).sync);
+    expect(back.state).toBe("ok");
   });
 });
 

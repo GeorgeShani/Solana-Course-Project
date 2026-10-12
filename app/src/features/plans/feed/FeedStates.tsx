@@ -4,6 +4,8 @@ import { useState, type ReactNode, type Ref } from "react";
 import { Cue, type CuePose } from "../../../components/cue/Cue";
 import { Avatar } from "../../../components/theatre/Portrait";
 import { Icon } from "../../../components/ui/Icon";
+import { useWallClock } from "../../../lib/clock";
+import { formatAge } from "../../../lib/format";
 import { useCalmMotion } from "../../../lib/motion";
 
 const DEV = import.meta.env.DEV;
@@ -117,13 +119,60 @@ export function UnavailableState({
   );
 }
 
+/**
+ * No plans to show. When Relay could not read the program's accounts it says that instead: an
+ * empty list then only means "Relay can't see the chain", never "nobody has published a plan".
+ */
 export function EmptyState({
   onRefresh,
   refreshing,
+  chainUnreadable,
+  lastSyncedAtMs,
 }: {
   onRefresh: () => void;
   refreshing: boolean;
+  chainUnreadable: boolean;
+  lastSyncedAtMs: number | null;
 }) {
+  const wall = useWallClock();
+  if (chainUnreadable)
+    return (
+      <StageMessage
+        tone="error"
+        title="Relay can't read Solana right now"
+        busy={refreshing}
+        pose="unavailable"
+        actions={
+          <>
+            <button
+              type="button"
+              className="btn btn--glass"
+              onClick={onRefresh}
+              disabled={refreshing}
+            >
+              <Icon name="refresh" />
+              {refreshing ? "Checking…" : "Check again"}
+            </button>
+            <Link to="/" className="btn btn--glass">
+              <Icon name="post" />
+              Discover ideas
+            </Link>
+          </>
+        }
+      >
+        <p className="stage-msg__text">
+          So it can't tell whether any plans exist. None are shown instead of
+          guessing.
+        </p>
+        <p className="stage-msg__detail">
+          {lastSyncedAtMs === null
+            ? "Relay hasn't read the chain since its server started."
+            : wall === null
+              ? "Relay read the chain earlier."
+              : `Relay last read the chain ${formatAge(Math.max(0, wall - lastSyncedAtMs))}.`}
+        </p>
+      </StageMessage>
+    );
   return (
     <StageMessage
       title="No open plans right now"

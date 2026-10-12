@@ -36,7 +36,12 @@ import { WatchToast } from "./WatchToast";
 
 const POLL_MS = 15_000;
 /** A fictional preview that failed to load has nothing to refetch: an empty page, never invented cards. */
-const EMPTY_PAGE: FeedPage = { items: [], nextCursor: null, nowMs: 0 };
+const EMPTY_PAGE: FeedPage = {
+  items: [],
+  nextCursor: null,
+  nowMs: 0,
+  sync: null,
+};
 const NO_PAGES: FeedPage[] = [];
 const FINALE_ID = "__finale";
 /** A chain clock this far from the wall clock (a fork, time travel) is labelled on the card. */
@@ -114,6 +119,10 @@ export function Feed({
 
   const wall = useWallClock();
   const firstPage = pages[0];
+  // The loader's RPC check is a snapshot; the feed's own sync state refreshes with every poll.
+  const lastSyncedAtMs = firstPage?.sync?.lastSyncedAtMs ?? null;
+  const chainUnreadable =
+    !preview && (!chainOk || firstPage?.sync?.state === "failing");
   const nowMs = firstPage
     ? chainNowMs(firstPage.nowMs, query.dataUpdatedAt, wall)
     : 0;
@@ -335,6 +344,8 @@ export function Feed({
       <EmptyState
         refreshing={query.isFetching}
         onRefresh={() => void query.refetch()}
+        chainUnreadable={chainUnreadable}
+        lastSyncedAtMs={lastSyncedAtMs}
       />
     );
   }
@@ -375,10 +386,17 @@ export function Feed({
             ; statuses may be out of date.
           </Banner>
         )}
-        {!preview && !chainOk && (
+        {chainUnreadable && (
           <Banner tone="warn">
             <strong>Can't reach Solana right now.</strong> Statuses may be out
-            of date.
+            of date
+            {lastSyncedAtMs !== null && wall !== null && (
+              <>
+                ; plans were last read from the chain{" "}
+                {formatAge(Math.max(0, wall - lastSyncedAtMs))}
+              </>
+            )}
+            .
           </Banner>
         )}
         {pending.length > 0 && (
