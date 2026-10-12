@@ -27,13 +27,16 @@ The browser never talks to Solana or the database directly. It talks to `/api`, 
 
 Copy `.env.example` to `.env` and fill in only what you need. On a server you usually set:
 
-| Name                | Needed                            | What it is                                                                      |
-| ------------------- | --------------------------------- | ------------------------------------------------------------------------------- |
-| `NETWORK`           | yes                               | `devnet`                                                                        |
-| `DOMAIN`            | yes (server)                      | Your domain, for example `relay.example.com`                                    |
-| `POSTGRES_PASSWORD` | yes, unless `DATABASE_URL` is set | Password for the bundled Postgres                                               |
-| `DATABASE_URL`      | optional                          | A hosted database such as Neon; then you do not need `POSTGRES_PASSWORD`        |
-| `SOLANA_RPC_URL`    | optional                          | A devnet RPC URL from a provider; empty uses the free public one (rate limited) |
+| Name                                                              | Needed                            | What it is                                                                                                                                                                                                                           |
+| ----------------------------------------------------------------- | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `NETWORK`                                                         | yes                               | `devnet`                                                                                                                                                                                                                             |
+| `DOMAIN`                                                          | yes (server)                      | Your domain, for example `relay.example.com`                                                                                                                                                                                         |
+| `POSTGRES_PASSWORD`                                               | yes, unless `DATABASE_URL` is set | Password for the bundled Postgres                                                                                                                                                                                                    |
+| `DATABASE_URL`                                                    | optional                          | A hosted database such as Neon; then you do not need `POSTGRES_PASSWORD`                                                                                                                                                             |
+| `SOLANA_RPC_URL`                                                  | optional                          | A devnet RPC URL from a provider; empty uses the free public one (rate limited)                                                                                                                                                      |
+| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REDIRECT_URI` | for following                     | Google sign-in, which following a plan needs. The redirect URI must be exactly `https://<DOMAIN>/api/auth/google/callback`, and the same URI must be authorised on the OAuth client in Google Cloud Console. Empty turns sign-in off |
+
+`DOMAIN` is a bare host name: `relay.example.com`, not `https://relay.example.com`. A scheme there makes the server's allowed origin `https://https://...` and every write is refused.
 
 Everything else has a default. Do not create `server/.env` or `app/.env.local`: they are not used.
 
