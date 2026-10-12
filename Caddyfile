@@ -1,6 +1,15 @@
 # One origin for the whole stack. DOMAIN comes from .env (compose.yaml).
 # With DOMAIN=localhost Caddy serves a locally trusted certificate; with a real
 # domain it obtains and renews a Let's Encrypt certificate automatically.
+# www is not a second site: it sends visitors (and links, and search engines) to the one address the app,
+# the server's allowed origin and Google sign-in are all set up for. Caddy gets a certificate for the www
+# name too, so this needs a DNS record for it (a CNAME to the main name is enough). The redirect keeps the
+# path and the query. Without the record Caddy logs a failed certificate request for www and carries on:
+# the main site is not affected.
+www.{$DOMAIN} {
+	redir https://{$DOMAIN}{uri} permanent
+}
+
 {$DOMAIN} {
 	encode zstd gzip
 
