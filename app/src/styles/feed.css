@@ -21,6 +21,8 @@
   overscroll-behavior: contain;
   scroll-snap-type: y mandatory;
   scrollbar-width: none;
+  /* The house is outside the scrolling viewport, so it can never cover a plan's controls. */
+  margin-bottom: var(--house-h);
 }
 
 .feed::-webkit-scrollbar {
@@ -91,6 +93,71 @@
 
 .feed-keys {
   display: none;
+}
+
+.plans-pager {
+  position: absolute;
+  z-index: 20;
+  top: var(--s3);
+  right: calc(var(--wing) + var(--s4));
+}
+
+.feed-wrap .act {
+  padding-top: calc(var(--ctl-sm) + var(--s5));
+  padding-bottom: var(--s4);
+}
+
+.feed-wrap:has(.banner) .plans-pager {
+  top: auto;
+  bottom: calc(var(--house-h) + var(--s2));
+}
+
+/* A plan is longer than an idea. Short stages scroll its content, keeping every action reachable. */
+@media (max-width: 899px) {
+  .feed-wrap .act {
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scroll-padding-bottom: var(--s4);
+  }
+
+  .feed-wrap .act > * {
+    flex-shrink: 0;
+  }
+
+  .feed-wrap .act__programme {
+    flex: none;
+    min-height: auto;
+  }
+
+  .feed-wrap .act__cast {
+    display: grid;
+    grid-template-columns: 64px minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    gap: var(--s1) var(--s3);
+    align-items: center;
+    width: min(100%, 460px);
+    text-align: left;
+  }
+
+  .feed-wrap .act__portrait {
+    grid-row: 1 / 3;
+    margin: 0;
+  }
+
+  .feed-wrap .portrait {
+    width: 64px;
+  }
+
+  .feed-wrap .portrait__name {
+    font-size: var(--t-caption);
+  }
+
+  .feed-wrap .act__byline,
+  .feed-wrap .act__version {
+    grid-column: 2;
+    justify-content: flex-start;
+    align-items: flex-start;
+  }
 }
 
 .watch-toast {
@@ -601,7 +668,7 @@
   .feed-keys {
     position: absolute;
     right: calc(var(--wing) + var(--s4));
-    bottom: var(--s3);
+    bottom: calc(var(--house-h) + var(--s2));
     z-index: 20;
     display: block;
     color: var(--mute);
@@ -628,6 +695,12 @@
     justify-content: center;
     gap: clamp(var(--s6), 5vw, 72px);
     padding: var(--s5) calc(var(--wing) + var(--s5)) calc(20dvh + var(--s4));
+  }
+
+  .feed-wrap .act {
+    align-items: safe center;
+    padding-top: var(--s4);
+    overflow-y: auto;
   }
 
   .act__cast {
@@ -793,10 +866,6 @@
 
 .finale:focus-visible {
   outline-offset: -6px;
-}
-
-.finale__drape {
-  z-index: 0;
 }
 
 .finale__body {

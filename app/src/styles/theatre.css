@@ -570,11 +570,13 @@ html[data-house="on"] .stage-floor {
 }
 
 /* Interval sits inside the stage; lift the stage and hide the wing drapes so they do not cover it. */
-html[data-showtime="on"] .stage {
+html[data-showtime="on"] .stage,
+html[data-showtime="opening"] .stage {
   z-index: 31;
 }
 
-html[data-showtime="on"] .drapes {
+html[data-showtime="on"] .drapes,
+html[data-showtime="opening"] .drapes {
   opacity: 0;
   visibility: hidden;
 }

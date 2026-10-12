@@ -28,6 +28,9 @@ import { useMounted } from "../../../lib/mounted";
 import { STATUS_HEADLINE } from "../status";
 import { snapshotOf, toggleWatched, useWatchList } from "../plan-watch";
 import { Icon } from "../../../components/ui/Icon";
+import { Audience } from "../../../components/theatre/Audience";
+import { useTheatreHouse } from "../../../components/theatre/useTheatreHouse";
+import { useFeedEnding } from "../../../components/theatre/useFeedEnding";
 import { Banner, EmptyState, Finale, UnavailableState } from "./FeedStates";
 import { PlanCard } from "./PlanCard";
 import { ScriptSheet } from "./ScriptSheet";
@@ -133,6 +136,9 @@ export function Feed({
   const offline = query.isError && !!query.data;
 
   const cards = visibleCards(view);
+  const [closed, setClosed] = useState(false);
+  const { mood, applaud } = useTheatreHouse(closed, cards.length > 0);
+  const finish = useCallback(() => setClosed(true), []);
   const liveById = new Map(cards.map((c) => [c.planPda, liveEntry(c, nowMs)]));
 
   const watchList = useWatchList();
@@ -147,6 +153,11 @@ export function Feed({
   const nodes = useRef(new Map<string, HTMLElement>());
   const observer = useRef<IntersectionObserver | null>(null);
   const feedRef = useRef<HTMLDivElement>(null);
+  useFeedEnding(
+    feedRef,
+    cards.length > 0 && !query.hasNextPage && !closed,
+    finish,
+  );
 
   useEffect(() => {
     observer.current = new IntersectionObserver(
@@ -258,6 +269,7 @@ export function Feed({
     setToast((prev) =>
       result ? { key: (prev?.key ?? 0) + 1, subject } : null,
     );
+    if (result) applaud();
   };
 
   // ------------------------------------------------------------------ script sheet
@@ -272,11 +284,14 @@ export function Feed({
   const goTo = useCallback((id: string) => {
     const el = nodes.current.get(id);
     if (!el) return;
-    el.scrollIntoView({
-      block: "start",
+    el.scrollTo({ top: 0, behavior: "instant" });
+    setClosed(false);
+    setActiveId(id);
+    feedRef.current?.scrollTo({
+      top: el.offsetTop,
       behavior: prefersReducedMotion() ? "auto" : "smooth",
     });
-    el.focus({ preventScroll: true });
+    window.requestAnimationFrame(() => el.focus({ preventScroll: true }));
   }, []);
 
   const ids = [...cards.map((c) => c.planPda), FINALE_ID];
@@ -291,7 +306,9 @@ export function Feed({
     const key = e.key;
     if (key === "j" || key === "ArrowDown" || key === "PageDown") {
       e.preventDefault();
-      goTo(ids[Math.min(ids.length - 1, i + 1)]);
+      const next = ids[Math.min(ids.length - 1, i + 1)];
+      if (next === FINALE_ID && !hasNextPage) finish();
+      else goTo(next);
     } else if (key === "k" || key === "ArrowUp" || key === "PageUp") {
       e.preventDefault();
       goTo(ids[Math.max(0, i - 1)]);
@@ -306,12 +323,27 @@ export function Feed({
   };
 
   const showNewest = () => {
+    setClosed(false);
     setView(adoptNewest);
+    for (const el of nodes.current.values())
+      el.scrollTo({ top: 0, behavior: "instant" });
     feedRef.current?.scrollTo({
       top: 0,
       behavior: prefersReducedMotion() ? "auto" : "smooth",
     });
   };
+
+  const replay = useCallback(() => {
+    const first = cards[0];
+    if (!first) return;
+    setClosed(false);
+    setActiveId(first.planPda);
+    nodes.current.get(first.planPda)?.scrollTo({ top: 0, behavior: "instant" });
+    feedRef.current?.scrollTo({ top: 0, behavior: "instant" });
+    window.requestAnimationFrame(() =>
+      nodes.current.get(first.planPda)?.focus({ preventScroll: true }),
+    );
+  }, [cards]);
 
   // ------------------------------------------------------------------ render
 
@@ -342,7 +374,7 @@ export function Feed({
   if (cards.length === 0) {
     return (
       <EmptyState
-        refreshing={query.isFetching}
+        refreshing={mounted && query.isFetching}
         onRefresh={() => void query.refetch()}
         chainUnreadable={chainUnreadable}
         lastSyncedAtMs={lastSyncedAtMs}
@@ -364,12 +396,46 @@ export function Feed({
   ];
 
   return (
-    <div className="feed-wrap" data-cursor-zone>
-      <Spotlight
-        index={Math.max(0, activeIndex)}
-        lit={activeId !== FINALE_ID}
-      />
-      <div className="feed-banners">
+    <div className="feed-wrap" data-cursor-zone data-showtime={closed}>
+      <Audience mood={mood} />
+      <Spotlight index={Math.max(0, activeIndex)} lit={!closed} />
+      <div
+        className="plans-pager pager"
+        role="group"
+        aria-label="Browse plans"
+        inert={closed}
+      >
+        <button
+          type="button"
+          className="pager__btn"
+          disabled={activeIndex <= 0}
+          aria-label="Previous plan"
+          onClick={() => goTo(cards[activeIndex - 1].planPda)}
+        >
+          <Icon name="arrow-up" size={18} />
+        </button>
+        <span className="pager__count" aria-live="polite">
+          {Math.max(0, activeIndex) + 1} of {cards.length}
+        </span>
+        <button
+          type="button"
+          className="pager__btn"
+          aria-label={
+            activeIndex >= cards.length - 1 && !hasNextPage
+              ? "Finish: close the curtains"
+              : "Next plan"
+          }
+          onClick={() => {
+            const next = cards[Math.max(0, activeIndex) + 1];
+            if (next) goTo(next.planPda);
+            else if (!hasNextPage) finish();
+            else goTo(FINALE_ID);
+          }}
+        >
+          <Icon name="arrow-down" size={18} />
+        </button>
+      </div>
+      <div className="feed-banners" inert={closed}>
         {preview && (
           <Banner tone="preview">
             <strong>Fictional preview — not live data.</strong> Invented
@@ -414,6 +480,7 @@ export function Feed({
         aria-label="Trade plans"
         aria-busy={query.isFetchingNextPage}
         onKeyDown={onKeyDown}
+        inert={closed}
       >
         {cards.map((card, i) => (
           <PlanCard
@@ -432,29 +499,41 @@ export function Feed({
             articleRef={observeAct}
           />
         ))}
-        <Finale
-          sectionRef={observeAct}
-          active={activeId === FINALE_ID}
-          cast={cast}
-          tally={tally}
-          total={cards.length}
-          watched={cards
-            .filter((c) => watched.has(c.planPda))
-            .map((c) => ({
-              planPda: c.planPda,
-              label: planLabel(c),
-              seed: c.creator.address,
-            }))}
-          hasMore={!!query.hasNextPage}
-          loadingMore={query.isFetchingNextPage}
-          refreshing={query.isFetching}
-          onRefresh={() => {
-            void query.refetch().then(showNewest);
-          }}
-          onReplay={() => cards[0] && goTo(cards[0].planPda)}
-          onGoTo={goTo}
-        />
+        {query.hasNextPage && (
+          <section
+            ref={observeAct}
+            className="finale finale--loading"
+            data-plan={FINALE_ID}
+            tabIndex={-1}
+            aria-busy={query.isFetchingNextPage}
+          >
+            <p className="finale__loading">
+              {query.isFetchingNextPage
+                ? "Loading more plans…"
+                : "More plans below"}
+            </p>
+          </section>
+        )}
       </div>
+      <Finale
+        active={closed}
+        cast={cast}
+        tally={tally}
+        total={cards.length}
+        watched={cards
+          .filter((c) => watched.has(c.planPda))
+          .map((c) => ({
+            planPda: c.planPda,
+            label: planLabel(c),
+            seed: c.creator.address,
+          }))}
+        refreshing={mounted && query.isFetching}
+        onRefresh={() => {
+          void query.refetch().then(showNewest);
+        }}
+        onReplay={replay}
+        onGoTo={goTo}
+      />
 
       <ScriptSheet
         card={scriptCard}

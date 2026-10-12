@@ -4,7 +4,7 @@
  * whoever is on stage. Everything here is decoration: aria-hidden, never a count of anything.
  */
 
-/* The stage floor grows to make room for the house, on the discovery stream only. */
+/* The stage floor grows to make room for the house on Discover and Plans. */
 html[data-house="on"] .stage-floor {
   height: calc(var(--house-h) * 1.2);
 }
@@ -20,6 +20,12 @@ html[data-house="on"] .stage-floor {
   pointer-events: none;
   /* Opaque house fill — Interval curtains must never show through the crowd. */
   background: #10091d;
+}
+
+/* The house stays in front of the curtains until reopening finishes. */
+html[data-showtime="on"] .aud,
+html[data-showtime="opening"] .aud {
+  z-index: 45;
 }
 
 /* Dark house wall behind the rows so drape stripes cannot peek between heads. */
@@ -326,6 +332,10 @@ html[data-house="on"] .stage-floor {
 
 /* Phones: fewer, bigger people; house sits above the tab bar with every seat row visible. */
 @media (max-width: 600px) {
+  :root {
+    --house-h: 64px;
+  }
+
   .aud {
     bottom: 0;
   }

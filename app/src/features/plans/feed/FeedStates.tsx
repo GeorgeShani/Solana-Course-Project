@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
-import { useState, type ReactNode, type Ref } from "react";
+import type { ReactNode } from "react";
+import { Curtain } from "../../../components/theatre/Curtain";
 import { Cue, type CuePose } from "../../../components/cue/Cue";
 import { Avatar } from "../../../components/theatre/Portrait";
 import { Icon } from "../../../components/ui/Icon";
@@ -245,71 +246,26 @@ export function Finale({
   tally,
   total,
   watched,
-  hasMore,
-  loadingMore,
   refreshing,
   onRefresh,
   onReplay,
   onGoTo,
   active,
-  sectionRef,
 }: {
   cast: CastMember[];
   tally: [string, number][];
   total: number;
   watched: WatchedPlan[];
-  hasMore: boolean;
-  loadingMore: boolean;
   refreshing: boolean;
   onRefresh: () => void;
   onReplay: () => void;
   onGoTo: (planPda: string) => void;
   active: boolean;
-  sectionRef: Ref<HTMLElement>;
 }) {
   const reduce = useCalmMotion();
-  // The scene plays once per visit to the finale, then stays put.
-  const [played, setPlayed] = useState(false);
-  if (active && !played) setPlayed(true);
-  const shown = reduce || played;
-
-  if (hasMore) {
-    return (
-      <section
-        ref={sectionRef}
-        className="finale finale--loading"
-        aria-busy={loadingMore}
-        data-plan="__finale"
-        tabIndex={-1}
-      >
-        <p className="finale__loading">
-          {loadingMore ? "Loading more plans…" : "More plans below"}
-        </p>
-      </section>
-    );
-  }
-  const drape = (side: 1 | -1) => (
-    <motion.div
-      className={`drape drape--${side === 1 ? "left" : "right"} finale__drape`}
-      aria-hidden="true"
-      initial={false}
-      animate={
-        shown ? { scaleX: 1, skewY: 0 } : { scaleX: 0.14, skewY: side * 2 }
-      }
-      transition={reduce ? { duration: 0 } : { duration: 1.1, ease: EASE }}
-    />
-  );
+  const shown = active;
   return (
-    <section
-      ref={sectionRef}
-      className="finale"
-      data-active={active}
-      data-plan="__finale"
-      aria-labelledby="finale-title"
-      tabIndex={-1}
-    >
-      {drape(1)}
-      {drape(-1)}
+    <Curtain open={active} onClose={onReplay} label="End of the plans lineup">
       <motion.div
         className="finale__body"
         initial={false}
@@ -413,7 +369,12 @@ export function Finale({
             <Icon name="star" />
             {watched.length > 0 ? "Review your Watchlist" : "Open Watchlist"}
           </Link>
-          <button type="button" className="btn btn--glass" onClick={onReplay}>
+          <button
+            data-curtain-exit
+            type="button"
+            className="btn btn--glass"
+            onClick={onReplay}
+          >
             <Icon name="replay" />
             Explore again
           </button>
@@ -425,6 +386,6 @@ export function Finale({
           </button>
         </div>
       </motion.div>
-    </section>
+    </Curtain>
   );
 }

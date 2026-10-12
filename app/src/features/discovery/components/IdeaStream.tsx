@@ -1,12 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Icon } from "../../../components/ui/Icon";
 import {
   sameSource,
@@ -15,8 +8,9 @@ import {
   type TraderSummary,
 } from "../model";
 import { addStamp, stampsOf, useStamps, type Stamp } from "../stamps";
-import { swayDrapes } from "../drapes";
-import { Audience, type Mood } from "./Audience";
+import { Audience } from "../../../components/theatre/Audience";
+import { useTheatreHouse } from "../../../components/theatre/useTheatreHouse";
+import { useFeedEnding } from "../../../components/theatre/useFeedEnding";
 import { Avatar } from "./Avatar";
 import { Showtime } from "./Showtime";
 import { Ticket, type TicketScreen } from "./Ticket";
@@ -24,9 +18,7 @@ import { WatchStory } from "./WatchStory";
 
 type Screen =
   | { kind: "idea"; key: string; idea: IdeaSummary }
-  | { kind: "detected"; key: string; item: FeedItemView }
-  /** Past the last card: reaching it closes the curtains, so the feed has an ending. */
-  | { kind: "end" };
+  | { kind: "detected"; key: string; item: FeedItemView };
 
 /** Cap the stream so a visit stays short; recorded ideas first, then detected posts. */
 const MAX_EXAMPLES = 6;
@@ -78,10 +70,9 @@ export function IdeaStream({
         item,
       })),
     ].slice(0, MAX_EXAMPLES);
-    return cards.length === 0 ? cards : [...cards, { kind: "end" }];
+    return cards;
   }, [ideas, extra]);
-  // The pager counts cards, not the closing screen.
-  const total = screens.filter((s) => s.kind !== "end").length;
+  const total = screens.length;
 
   const feedRef = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
@@ -90,36 +81,24 @@ export function IdeaStream({
   const book = useStamps();
   const [showtime, setShowtime] = useState(false);
   const [story, setStory] = useState(false);
-  const [applause, setApplause] = useState(false);
-  const applauseTimer = useRef<number | undefined>(undefined);
-
-  // The window makes room for the house below the stage line while this page is open.
-  useEffect(() => {
-    document.documentElement.dataset.house = "on";
-    return () => {
-      delete document.documentElement.dataset.house;
-    };
+  const { mood, applaud } = useTheatreHouse(showtime);
+  const endedShow = useRef(false);
+  const finish = useCallback(() => {
+    endedShow.current = true;
+    setStory(false);
+    setShowtime(true);
   }, []);
+  useFeedEnding(feedRef, total > 0 && !showtime && !story, finish);
 
-  // Before paint, so CueCursor CSS/JS see closed curtains on the same frame the drapes start.
-  useLayoutEffect(() => {
-    document.documentElement.dataset.showtime = showtime ? "on" : "off";
-    return () => {
-      delete document.documentElement.dataset.showtime;
-    };
-  }, [showtime]);
-
-  const mood: Mood = showtime ? "cheer" : applause ? "clap" : "idle";
-
-  const stamp = useCallback((ticket: string, kind: Stamp) => {
-    if (!addStamp(ticket, kind)) return;
-    // Looking is quiet; opening a source or watching earns a round of applause.
-    if (kind === "seen") return;
-    swayDrapes();
-    setApplause(true);
-    window.clearTimeout(applauseTimer.current);
-    applauseTimer.current = window.setTimeout(() => setApplause(false), 1800);
-  }, []);
+  const stamp = useCallback(
+    (ticket: string, kind: Stamp) => {
+      if (!addStamp(ticket, kind)) return;
+      // Looking is quiet; opening a source or watching earns a round of applause.
+      if (kind === "seen") return;
+      applaud();
+    },
+    [applaud],
+  );
 
   // The first Watch of a visit shows what watching does, with a real example.
   const onFirstWatch = useCallback(() => {
@@ -157,22 +136,29 @@ export function IdeaStream({
     return () => io.disconnect();
   }, [screens.length]);
 
-  const go = useCallback((to: number, behavior?: ScrollBehavior) => {
-    const root = feedRef.current;
-    const el = root?.querySelector<HTMLElement>(`[data-index="${to}"]`);
-    if (!el) return;
-    heading.current = to;
-    setActive(to);
-    const reduce = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
-    // Scroll the feed itself, never the page around it.
-    root?.scrollTo({
-      top: el.offsetTop,
-      behavior: behavior ?? (reduce ? "auto" : "smooth"),
-    });
-    el.focus({ preventScroll: true });
-  }, []);
+  const go = useCallback(
+    (to: number, behavior?: ScrollBehavior) => {
+      if (to >= total && total > 0) {
+        finish();
+        return;
+      }
+      const root = feedRef.current;
+      const el = root?.querySelector<HTMLElement>(`[data-index="${to}"]`);
+      if (!el) return;
+      heading.current = to;
+      setActive(to);
+      const reduce = window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      ).matches;
+      // Scroll the feed itself, never the page around it.
+      root?.scrollTo({
+        top: el.offsetTop,
+        behavior: behavior ?? (reduce ? "auto" : "smooth"),
+      });
+      window.requestAnimationFrame(() => el.focus({ preventScroll: true }));
+    },
+    [finish, total],
+  );
 
   // Choosing a different author starts again from that author's first card, not from wherever the
   // scroll position happened to be.
@@ -182,28 +168,21 @@ export function IdeaStream({
     feedRef.current?.scrollTo({ top: 0, behavior: "auto" });
   }, [trader]);
 
-  // Past the last card the curtains close over it, as at the end of a show.
-  const endedShow = useRef(false);
-  useEffect(() => {
-    if (screens[active]?.kind !== "end") return;
-    endedShow.current = true;
-    setShowtime(true);
-    const lastCard = screens.length - 2;
-    if (lastCard >= 0) go(lastCard, "auto");
-  }, [active, screens, go]);
-
   // After the end of the show the curtains open back at the first card; opened from "How it works"
   // they leave the reader on the card they were looking at.
   const closeShowtime = useCallback(() => {
     if (endedShow.current) {
       endedShow.current = false;
       go(0, "auto");
+    } else {
+      go(active, "auto");
     }
     setShowtime(false);
-  }, [go]);
+  }, [go, active]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      if (showtime || story) return;
       const t = e.target;
       if (
         e.metaKey ||
@@ -221,13 +200,13 @@ export function IdeaStream({
           : e.key === "k" || e.key === "ArrowUp" || e.key === "PageUp"
             ? heading.current - 1
             : null;
-      if (next === null || next < 0 || next >= screens.length) return;
+      if (next === null || next < 0 || next > screens.length) return;
       e.preventDefault();
       go(next);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [go, screens.length]);
+  }, [go, screens.length, showtime, story]);
 
   const latestSeqOf = (traderId: string) =>
     people.find((p) => p.id === traderId)?.latestSeq ?? null;
@@ -254,7 +233,7 @@ export function IdeaStream({
         Discover
       </h1>
 
-      <div className="stream__toolbar">
+      <div className="stream__toolbar" inert={showtime}>
         {people.length > 1 && (
           <nav className="authors" aria-label="Show ideas by">
             <Link
@@ -305,7 +284,7 @@ export function IdeaStream({
               type="button"
               className="pager__btn"
               onClick={() => go(active + 1)}
-              disabled={total === 0 || active >= screens.length - 1}
+              disabled={total === 0}
               aria-label={
                 active >= total - 1 && total > 0
                   ? "Finish: close the curtains"
@@ -328,6 +307,7 @@ export function IdeaStream({
             : "Public trading ideas"
         }
         aria-busy={loading}
+        inert={showtime}
       >
         {screens.length === 0 && (
           <article
@@ -350,16 +330,6 @@ export function IdeaStream({
             "aria-posinset": i + 1,
             "aria-setsize": screens.length,
           } as const;
-
-          if (s.kind === "end")
-            return (
-              <article
-                key="end"
-                className="scr scr--end"
-                {...common}
-                aria-hidden="true"
-              />
-            );
 
           const ticketScreen: TicketScreen =
             s.kind === "idea"
