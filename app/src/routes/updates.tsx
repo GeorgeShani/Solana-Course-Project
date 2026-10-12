@@ -25,7 +25,9 @@ function Updates() {
           <h1 id="updates-title" className="page__title" data-page-start>
             Updates
           </h1>
-          <p className="page__lede">What changed since you last looked.</p>
+          <p className="page__lede">
+            What changed in ideas you watch. Stored in this browser only.
+          </p>
         </div>
         <StorageNotice />
       </header>

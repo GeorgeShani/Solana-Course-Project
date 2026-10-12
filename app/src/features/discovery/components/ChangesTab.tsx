@@ -4,7 +4,8 @@ import { Icon } from "../../../components/ui/Icon";
 import {
   eventKind,
   formatWhen,
-  safeHref,
+  shortDate,
+  updateFreshness,
   type ChangesResponse,
   type TargetChanges,
 } from "../model";
@@ -33,10 +34,10 @@ export function ChangesTab() {
       <div className="wl-empty">
         <Cue pose="saved" className="wl-empty__cue" />
         <p className="wl-empty__line">
-          Watch an idea or a profile to see what changes after you look away.
+          Watch an idea to see what changes after you look away.
         </p>
         <Link to="/" className="btn btn--primary btn--large">
-          See ideas
+          Explore ideas
         </Link>
       </div>
     );
@@ -99,9 +100,10 @@ function ChangesView({
     <div className="chg-wrap">
       <p className="chg-fresh">
         <Icon name="clock" size={14} />
+        Manual coverage. Relay does not watch these accounts live.
         {changes.coverage.lastRecordedAt
-          ? `Manual coverage. The newest entry was recorded ${formatWhen(changes.coverage.lastRecordedAt)}. Relay does not watch these accounts live.`
-          : "Manual coverage. Nothing has been recorded yet. Relay does not watch these accounts live."}
+          ? ` Newest record ${formatWhen(changes.coverage.lastRecordedAt)}.`
+          : ""}
       </p>
 
       {caughtUp ? (
@@ -116,8 +118,7 @@ function ChangesView({
         fresh > 0 && (
           <div className="chg-bar">
             <h2 className="page__subsection" id="chg-title">
-              Since your last visit: {fresh} new{" "}
-              {fresh === 1 ? "entry" : "entries"}
+              {fresh} new {fresh === 1 ? "entry" : "entries"}
             </h2>
             <button
               type="button"
@@ -146,98 +147,72 @@ function ChangesView({
 
 function TargetCard({ t, w }: { t: TargetChanges; w: WatchedItem }) {
   const next = cursorAfterReading(t, w.after);
-  const open =
-    w.type === "idea" ? (
-      <Link
-        to="/ideas/$ideaId"
-        params={{ ideaId: w.id }}
-        className="btn btn--glass btn--small"
-      >
-        Open
-      </Link>
-    ) : (
-      <Link
-        to="/profiles/$traderId"
-        params={{ traderId: w.id }}
-        className="btn btn--glass btn--small"
-      >
-        Open
-      </Link>
-    );
   return (
     <li className="wl-card chg">
       <div className="wl-card__body">
-        <p className="wl-card__title">
-          {w.label}
-          <span className="badge badge--quiet">
-            {w.type === "idea" ? "Idea" : "Profile"}
-          </span>
-          {t.count > 0 && <span className="badge">{t.count} new</span>}
-        </p>
         {!t.known ? (
-          <p className="wl-card__meta">
-            Relay no longer covers this, or it was never in this version's
-            coverage. Nothing can be reported about it.
-          </p>
+          <>
+            <p className="wl-card__title">{w.label}</p>
+            <p className="wl-card__meta">
+              Relay no longer covers this. Nothing can be reported about it.
+            </p>
+          </>
         ) : t.count === 0 ? (
-          <p className="wl-card__meta">Nothing new</p>
+          <>
+            <p className="wl-card__title">{w.label}</p>
+            <p className="wl-card__meta">Nothing new</p>
+          </>
         ) : (
           t.groups.map((g) => (
             <div key={g.idea.id} className="chg__group">
-              <p className="chg__idea">
-                <Link to="/ideas/$ideaId" params={{ ideaId: g.idea.id }}>
-                  {g.idea.title}
-                </Link>
-              </p>
-              <ul className="chg__events">
-                {g.events.map((e) => {
-                  const href = e.source ? safeHref(e.source.url) : null;
-                  return (
-                    <li key={e.id}>
-                      <p className="chg__head">
-                        <span className="tl__label">{eventKind(e).label}</span>
-                        <span className="wl-card__meta">
-                          {e.occurredAt
-                            ? `Happened ${formatWhen(e.occurredAt)}`
-                            : `Recorded ${formatWhen(e.recordedAt)} (time of the event unknown)`}
-                        </span>
-                      </p>
-                      <p className="chg__summary">{e.summary}</p>
-                      <p className="wl-card__meta">
-                        <Link
-                          to="/ideas/$ideaId"
-                          params={{ ideaId: g.idea.id }}
-                          hash={`event-${e.id}`}
-                        >
-                          Open this entry in the timeline
-                        </Link>
-                      </p>
-                      {href && (
-                        <a
-                          className="wl-card__meta"
-                          href={href}
-                          target="_blank"
-                          rel="noopener noreferrer nofollow"
-                        >
-                          Open the source
-                        </a>
+              {g.events.map((e) => {
+                const freshness = updateFreshness(e.occurredAt, e.recordedAt);
+                const when = shortDate(e.occurredAt) ?? shortDate(e.recordedAt);
+                return (
+                  <div key={e.id} className="chg__event">
+                    <p className="chg__idea">
+                      <Link
+                        to="/ideas/$ideaId"
+                        params={{ ideaId: g.idea.id }}
+                        hash={`event-${e.id}`}
+                      >
+                        {g.idea.title}
+                      </Link>
+                    </p>
+                    <p className="chg__meta">
+                      <span>{g.idea.traderDisplayName}</span>
+                      {when && (
+                        <time dateTime={e.occurredAt ?? e.recordedAt}>
+                          {when}
+                        </time>
                       )}
-                    </li>
-                  );
-                })}
-              </ul>
+                      <span className="badge badge--quiet">{freshness}</span>
+                      <span className="tl__label">{eventKind(e).label}</span>
+                    </p>
+                    <p className="chg__summary">{e.summary}</p>
+                    <p className="chg__actions">
+                      <Link
+                        to="/ideas/$ideaId"
+                        params={{ ideaId: g.idea.id }}
+                        hash={`event-${e.id}`}
+                        className="btn btn--glass btn--small"
+                      >
+                        Open
+                      </Link>
+                    </p>
+                  </div>
+                );
+              })}
             </div>
           ))
         )}
         {t.hasMore && (
           <p className="wl-card__meta" role="status">
-            There are more new entries than shown here. Mark these as read to
-            see the next ones.
+            More new entries exist. Mark these as read to see the next ones.
           </p>
         )}
       </div>
       <div className="wl-card__actions">
-        {t.known && open}
         {next !== null && (
           <button
             type="button"

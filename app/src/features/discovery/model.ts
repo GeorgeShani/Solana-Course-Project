@@ -154,7 +154,13 @@ export interface ChangeEvent {
 }
 
 export interface ChangeGroup {
-  idea: { id: string; title: string; assets: string[]; traderId: string };
+  idea: {
+    id: string;
+    title: string;
+    assets: string[];
+    traderId: string;
+    traderDisplayName: string;
+  };
   events: ChangeEvent[];
 }
 
@@ -518,6 +524,10 @@ export function parseChanges(v: unknown): ChangesResponse {
                 title: str(idea.title, "idea.title"),
                 assets: strings(idea.assets, "idea.assets"),
                 traderId: str(idea.traderId, "idea.traderId"),
+                traderDisplayName: str(
+                  idea.traderDisplayName,
+                  "idea.traderDisplayName",
+                ),
               },
               events: list(
                 gr.events,
@@ -898,6 +908,25 @@ export function relationshipTone(
   if (basis === "creator_confirmed") return "linked";
   if (basis === "editorially_associated") return "related";
   return "unsure";
+}
+
+/**
+ * Whether an Updates entry is a new publication or a historical item Relay recently recorded.
+ * Within a week of publish → newly published; longer gap → newly recorded by Relay.
+ */
+export function updateFreshness(
+  occurredAt: string | null,
+  recordedAt: string,
+): "Newly published" | "Newly recorded by Relay" {
+  if (occurredAt === null) return "Newly recorded by Relay";
+  const published = Date.parse(occurredAt);
+  const recorded = Date.parse(recordedAt);
+  if (Number.isNaN(published) || Number.isNaN(recorded))
+    return "Newly recorded by Relay";
+  const weekMs = 7 * 24 * 60 * 60 * 1000;
+  return recorded - published <= weekMs
+    ? "Newly published"
+    : "Newly recorded by Relay";
 }
 
 /**

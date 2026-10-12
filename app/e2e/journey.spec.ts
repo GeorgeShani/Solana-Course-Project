@@ -166,14 +166,13 @@ test.describe("discover → idea → source → watch", () => {
     );
 
     await page.goto("/updates");
-    await expect(
-      page.getByText(/Since your last visit: 1 new entry/),
-    ).toBeVisible();
+    await expect(page.getByText(/1 new entry/)).toBeVisible();
     // Showing the list must not mark anything read.
     expect((await savedWatch(page))[0]?.after).toBe(originSeq);
 
     await page
-      .getByRole("link", { name: "Open this entry in the timeline" })
+      .locator(".chg__actions")
+      .getByRole("link", { name: "Open" })
       .click();
     await expect(page).toHaveURL(/#event-hayes-no-trade-zone-update$/);
     await expect(

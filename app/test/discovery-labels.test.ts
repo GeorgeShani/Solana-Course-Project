@@ -9,6 +9,7 @@ import {
   latestUpdateLabel,
   relationshipTone,
   sourceHost,
+  updateFreshness,
 } from "../src/features/discovery/model";
 
 describe("eventKind", () => {
@@ -166,5 +167,25 @@ describe("latestCapture", () => {
         { original: { retrievedAt: "2026-10-05T10:00:00.000Z" } },
       ]),
     ).toBe("2026-10-11T16:30:00.000Z");
+  });
+});
+
+describe("updateFreshness", () => {
+  test("a capture within a week of publish is newly published", () => {
+    expect(
+      updateFreshness("2026-04-15T23:00:00.000Z", "2026-04-16T12:00:00.000Z"),
+    ).toBe("Newly published");
+  });
+
+  test("a historical item recorded much later is newly recorded by Relay", () => {
+    expect(
+      updateFreshness("2026-02-17T23:00:00.000Z", "2026-10-11T16:30:00.000Z"),
+    ).toBe("Newly recorded by Relay");
+  });
+
+  test("a missing publish time is recorded, not published", () => {
+    expect(updateFreshness(null, "2026-10-11T16:30:00.000Z")).toBe(
+      "Newly recorded by Relay",
+    );
   });
 });

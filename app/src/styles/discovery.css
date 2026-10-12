@@ -630,6 +630,26 @@
   gap: var(--s4);
 }
 
+.chg__event {
+  display: grid;
+  gap: var(--s2);
+}
+
+.chg__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s1) var(--s3);
+  color: var(--haze);
+  font-size: var(--t-footnote);
+}
+
+.chg__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+}
+
 .chg-fresh {
   display: flex;
   align-items: flex-start;

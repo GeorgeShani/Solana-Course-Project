@@ -153,6 +153,24 @@ export function removeWatch(type: WatchTarget["type"], id: string): boolean {
   return write(read().filter((w) => !(w.type === type && w.id === id)));
 }
 
+/** Keeps the stored label in sync with the live title from the API (fixes old placeholders). */
+export function refreshWatchLabel(
+  type: WatchTarget["type"],
+  id: string,
+  label: string,
+): boolean {
+  const nextLabel = label.trim().slice(0, 160);
+  if (!nextLabel) return false;
+  const list = read();
+  let changed = false;
+  const next = list.map((w) => {
+    if (w.type !== type || w.id !== id || w.label === nextLabel) return w;
+    changed = true;
+    return { ...w, label: nextLabel };
+  });
+  return changed ? write(next) : false;
+}
+
 /**
  * Records that the reader has now seen events up to `seq`. The cursor only moves forward, and
  * only for something already watched. Returns whether anything changed.
