@@ -145,7 +145,7 @@ function Figure({ p }: { p: Person }) {
       data-lean={p.lean > 0.55 ? "r" : p.lean < -0.55 ? "l" : "n"}
       style={{
         left: `${p.x}%`,
-        width: `clamp(${(28 * p.scale).toFixed(1)}px, ${(3.9 * p.scale).toFixed(2)}vw, ${(60 * p.scale).toFixed(1)}px)`,
+        "--s": p.scale.toFixed(3),
         animationDelay: `${p.delay.toFixed(2)}s`,
         animationDuration: `${p.duration.toFixed(2)}s`,
       }}
