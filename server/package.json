@@ -5,6 +5,7 @@
     "start": "bun run src/index.ts",
     "migrate": "bun run --env-file=../.env src/migrate.ts",
     "seed": "bun run --env-file=../.env scripts/seed-demo.ts",
+    "feeds": "bun run --env-file=../.env scripts/feeds.ts",
     "curate": "bun run --env-file=../.env scripts/curate.ts",
     "review": "bun run --env-file=../.env scripts/review.ts",
     "check-network": "bun run --env-file=../.env scripts/check-network.ts",

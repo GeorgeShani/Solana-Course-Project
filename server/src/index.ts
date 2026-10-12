@@ -5,6 +5,7 @@ import { loadEnv } from "./shared/env";
 import { createLogger } from "./shared/logger";
 import { assertRpcMatchesNetwork } from "./shared/network-check";
 import { createEvidenceService } from "./modules/discovery/evidence";
+import { loadFeedConfig, pollFeeds } from "./modules/discovery/feeds";
 import { createDiscoveryService } from "./modules/discovery/service";
 import { createChain } from "./modules/plans/chain";
 import { createFollowService } from "./modules/plans/follow";
@@ -83,6 +84,31 @@ logger.info("server_started", {
   origin: env.appOrigin,
   listedCreators: env.creatorAllowlist.length,
 });
+
+// Automatic detection of new items in the authors' own public feeds (titles and links only). It
+// never runs in demo mode, and FEEDS_POLL=off turns it off.
+if (!env.demoMode && process.env.FEEDS_POLL !== "off") {
+  const feeds = loadFeedConfig();
+  const poll = () =>
+    pollFeeds(db, feeds, {
+      fetch: (url, init) => fetch(url, init),
+      now: () => new Date(),
+      logger,
+    }).then(
+      (reports) =>
+        logger.info("feeds_polled", {
+          ok: reports.filter((r) => r.ok).length,
+          failed: reports.filter((r) => !r.ok).length,
+          added: reports.reduce((n, r) => n + r.added, 0),
+        }),
+      (e: unknown) =>
+        logger.warn("feeds_poll_error", {
+          error: e instanceof Error ? e.message : "unknown",
+        }),
+    );
+  setTimeout(() => void poll(), 5_000);
+  setInterval(() => void poll(), 30 * 60_000);
+}
 
 export default {
   port: env.port,

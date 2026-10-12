@@ -25,11 +25,14 @@ export function WatchButton({
   id,
   label,
   seenSeq,
+  variant = "pill",
 }: {
   type: WatchTarget["type"];
   id: string;
   label: string;
   seenSeq: string | null;
+  /** "rail" is the icon-only round button on the stream's action rail. */
+  variant?: "pill" | "rail";
 }) {
   const list = useDiscoveryWatch();
   const watching = isWatched(list, type, id);
@@ -37,10 +40,12 @@ export function WatchButton({
   const noun = type === "idea" ? "this idea" : label;
 
   return (
-    <div className="watchbtn">
+    <div className="watchbtn" data-variant={variant}>
       <button
         type="button"
-        className="btn btn--glass btn--small"
+        className={
+          variant === "rail" ? "rail__btn" : "btn btn--glass btn--small"
+        }
         aria-pressed={watching}
         data-on={watching}
         aria-label={watching ? `Stop watching ${noun}` : `Watch ${noun}`}
@@ -54,8 +59,17 @@ export function WatchButton({
           if (result.watching) cueReact();
         }}
       >
-        <Icon name={watching ? "star-filled" : "star"} size={16} />
-        {watching ? "Watching" : "Watch"}
+        <Icon
+          name={watching ? "star-filled" : "star"}
+          size={variant === "rail" ? 26 : 16}
+        />
+        {variant === "rail" ? (
+          <span className="rail__label">{watching ? "Saved" : "Watch"}</span>
+        ) : watching ? (
+          "Watching"
+        ) : (
+          "Watch"
+        )}
       </button>
       {problem && (
         <p className="field__error" role="alert">

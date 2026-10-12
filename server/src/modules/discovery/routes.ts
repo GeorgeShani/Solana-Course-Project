@@ -23,6 +23,7 @@ import {
  *   GET /discovery/traders/:id                 one profile, its links with the identity basis, its ideas
  *   GET /discovery/ideas?cursor&limit&trader   ideas, newest activity first
  *   GET /discovery/ideas/:id                   the original source and the timeline
+ *   GET /discovery/feed?limit                  new items detected automatically in the authors' own feeds
  *   GET /discovery/changes?watch=idea:<id>:<seq>&watch=trader:<id>:<seq>&limit
  *                                              what changed in the things a reader watches, after
  *                                              the last event seq it has seen for each
@@ -91,6 +92,10 @@ export function mountDiscovery(app: Hono<AppEnv>, discovery: DiscoveryService) {
 
   app.get("/discovery/ideas/:id", async (c) =>
     c.json(await discovery.getIdea(c.req.param("id"))),
+  );
+
+  app.get("/discovery/feed", async (c) =>
+    c.json(await discovery.listFeed(limitOf(c.req.query("limit")))),
   );
 
   app.get("/discovery/changes", async (c) =>

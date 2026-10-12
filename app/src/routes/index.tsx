@@ -1,12 +1,13 @@
-import { Link, createFileRoute, redirect } from "@tanstack/react-router";
-import {
-  IdeaCard,
-  SourcedTraderCard,
-} from "../features/discovery/components/Cards";
+import { createFileRoute, redirect } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { IdeaStream } from "../features/discovery/components/IdeaStream";
 import { Cue } from "../components/cue/Cue";
 import { Icon } from "../components/ui/Icon";
-import { formatWhen, latestCapture } from "../features/discovery/model";
-import { useIdeaFeed, useSourcedTraders } from "../features/discovery/queries";
+import {
+  useDetectedFeed,
+  useIdeaFeed,
+  useSourcedTraders,
+} from "../features/discovery/queries";
 
 interface DiscoverSearch {
   /** Narrow the ideas to one public-source profile. */
@@ -70,186 +71,47 @@ function Discover() {
   const { trader } = Route.useSearch();
   const profiles = useSourcedTraders();
   const ideasQuery = useIdeaFeed(trader);
+  const detected = useDetectedFeed();
   const people = profiles.data?.pages.flatMap((p) => p.items) ?? [];
   const ideas = ideasQuery.data?.pages.flatMap((p) => p.items) ?? [];
-  const selected = people.find((p) => p.id === trader);
-  const captured = latestCapture(ideas);
+
+  // The stream wants every recorded idea; there are few, so read the remaining pages now.
+  const { hasNextPage, isFetchingNextPage, fetchNextPage } = ideasQuery;
+  useEffect(() => {
+    if (hasNextPage && !isFetchingNextPage) void fetchNextPage();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  if (profiles.isError || ideasQuery.isError)
+    return (
+      <section
+        className="page page--wide"
+        aria-labelledby="discover-title"
+        data-cursor-zone
+      >
+        <h1 id="discover-title" className="page__title" data-page-start>
+          Discover
+        </h1>
+        <ErrorNotice
+          message={
+            (ideasQuery.error ?? profiles.error)?.message ?? "Request failed"
+          }
+          onRetry={() => {
+            void profiles.refetch();
+            void ideasQuery.refetch();
+          }}
+        />
+      </section>
+    );
 
   return (
-    <section
-      className="page page--wide"
-      aria-labelledby="discover-title"
-      data-cursor-zone
-    >
-      <header className="page__head">
-        <div>
-          <h1 id="discover-title" className="page__title" data-page-start>
-            Discover
-          </h1>
-          <p className="page__lede">
-            See the original idea. Follow what changed. Check the evidence.
-          </p>
-        </div>
-      </header>
-
-      <aside className="callout" aria-labelledby="coverage-title">
-        <Cue pose="unavailable" className="callout__cue" />
-        <div className="callout__body">
-          <h2 id="coverage-title" className="callout__title">
-            Manual coverage, not a live feed
-          </h2>
-          <p className="callout__text">
-            A person at Relay recorded each entry by hand from a public source.
-            Relay does not watch these accounts, so something may have changed
-            since. A statement is not proof that a trade happened, and a profile
-            is not claimed or endorsed by the person it describes.
-            {captured && ` Newest capture: ${formatWhen(captured)}.`}
-          </p>
-        </div>
-        <Link to="/how-it-works" className="btn btn--ghost btn--small">
-          How evidence works
-        </Link>
-      </aside>
-
-      <section aria-labelledby="profiles-title" className="discover__section">
-        <h2 id="profiles-title" className="page__subsection">
-          Public-source profiles
-        </h2>
-        {profiles.isPending ? (
-          <ul className="tgrid" aria-busy="true" aria-label="Loading profiles">
-            <li className="tcard tcard--ghost" />
-            <li className="tcard tcard--ghost" />
-            <li className="tcard tcard--ghost" />
-          </ul>
-        ) : profiles.isError ? (
-          <ErrorNotice
-            message={profiles.error.message}
-            onRetry={() => void profiles.refetch()}
-          />
-        ) : people.length === 0 ? (
-          <p className="page__text">
-            No profile has been recorded yet. Relay lists a profile only after a
-            person has linked a real public source for it.
-          </p>
-        ) : (
-          <ul className="tgrid">
-            {people.map((t) => (
-              <SourcedTraderCard key={t.id} trader={t} />
-            ))}
-          </ul>
-        )}
-      </section>
-
-      <section aria-labelledby="ideas-title" className="discover__section">
-        <h2 id="ideas-title" className="page__subsection">
-          Ideas
-          {selected ? ` by ${selected.displayName}` : ""}
-        </h2>
-
-        {people.length > 1 && (
-          <nav aria-label="Filter ideas by profile">
-            <ul className="filters">
-              <li>
-                <Link
-                  to="/"
-                  search={{}}
-                  className="filters__chip"
-                  aria-current={trader === undefined}
-                >
-                  All
-                </Link>
-              </li>
-              {people.map((p) => (
-                <li key={p.id}>
-                  <Link
-                    to="/"
-                    search={{ trader: p.id }}
-                    className="filters__chip"
-                    aria-current={trader === p.id}
-                  >
-                    {p.displayName}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </nav>
-        )}
-
-        {ideasQuery.isPending ? (
-          <ul className="igrid" aria-busy="true" aria-label="Loading ideas">
-            {[0, 1, 2].map((i) => (
-              <li key={i} className="icard icard--ghost" />
-            ))}
-          </ul>
-        ) : ideasQuery.isError ? (
-          <ErrorNotice
-            message={ideasQuery.error.message}
-            onRetry={() => void ideasQuery.refetch()}
-          />
-        ) : ideas.length === 0 ? (
-          <div className="notice" role="status">
-            <Cue pose="unavailable" className="notice__cue" />
-            <div className="notice__body">
-              <p className="notice__title">
-                {trader ? "No ideas for this profile" : "No ideas recorded yet"}
-              </p>
-              <p className="page__text">
-                Relay lists only ideas a person has recorded from a real, linked
-                source. It won't fill the gap with made-up ones.
-              </p>
-              {trader && (
-                <Link to="/" search={{}} className="btn btn--glass btn--small">
-                  Show all ideas
-                </Link>
-              )}
-            </div>
-          </div>
-        ) : (
-          <>
-            <ul className="igrid">
-              {ideas.map((idea) => (
-                <IdeaCard key={idea.id} idea={idea} />
-              ))}
-            </ul>
-            {ideasQuery.hasNextPage && (
-              <div className="igrid__more">
-                <button
-                  type="button"
-                  className="btn btn--glass"
-                  disabled={ideasQuery.isFetchingNextPage}
-                  onClick={() => void ideasQuery.fetchNextPage()}
-                >
-                  {ideasQuery.isFetchingNextPage
-                    ? "Loading…"
-                    : "Show more ideas"}
-                </button>
-              </div>
-            )}
-            {ideasQuery.isFetchNextPageError && (
-              <p className="field__error" role="alert">
-                Couldn't load more ideas. Try again.
-              </p>
-            )}
-          </>
-        )}
-      </section>
-
-      <aside className="discover__plans" aria-labelledby="plans-title">
-        <div>
-          <h2 id="plans-title" className="page__subsection">
-            Optional: plans published through Relay
-          </h2>
-          <p className="page__text page__text--quiet">
-            Separate from the public profiles above. A plan is signed on Solana
-            devnet (test tokens, no value) and can be followed only by you, with
-            your own approval. A public post never becomes a plan.
-          </p>
-        </div>
-        <Link to="/plans" className="btn btn--glass btn--small">
-          See plans
-        </Link>
-      </aside>
-    </section>
+    <IdeaStream
+      ideas={ideas}
+      detected={detected.data?.items ?? []}
+      people={people}
+      trader={trader}
+      feedError={detected.isError}
+      loading={profiles.isPending || ideasQuery.isPending}
+    />
   );
 }
 

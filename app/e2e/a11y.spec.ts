@@ -24,7 +24,13 @@ test.describe("accessibility", () => {
         .analyze();
       const bad = results.violations
         .filter((v) => v.impact === "serious" || v.impact === "critical")
-        .map((v) => `${v.id}: ${v.nodes.slice(0, 3).map((n) => n.target.join(" ")).join(" | ")}`);
+        .map(
+          (v) =>
+            `${v.id}: ${v.nodes
+              .slice(0, 3)
+              .map((n) => n.target.join(" "))
+              .join(" | ")}`,
+        );
       expect(bad).toEqual([]);
     });
 
@@ -32,7 +38,9 @@ test.describe("accessibility", () => {
     const ctx = await browser.newContext();
     const page = await ctx.newPage();
     await page.goto("/");
-    await expect(page.getByRole("button", { name: "Explore ideas" })).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "Explore ideas" }),
+    ).toBeVisible();
     const results = await new AxeBuilder({ page })
       .withTags(["wcag2a", "wcag2aa"])
       .analyze();
@@ -56,18 +64,24 @@ test.describe("keyboard", () => {
     await page.keyboard.press("Tab"); // past the skip link
     await expect(explore).toBeFocused();
     await page.keyboard.press("Escape");
-    await expect(page.getByRole("heading", { name: "Discover", level: 1 })).toBeVisible({ timeout: 15_000 });
+    await expect(
+      page.getByRole("heading", { name: "Discover", level: 1 }),
+    ).toBeVisible({ timeout: 15_000 });
     await ctx.close();
   });
 
-  test("Watch is reachable and operable with the keyboard", async ({ page }) => {
+  test("Watch is reachable and operable with the keyboard", async ({
+    page,
+  }) => {
     await returning(page);
     await page.goto("/ideas/hayes-ai-credit-deflation");
     const watch = page.getByRole("button", { name: "Watch this idea" });
     await watch.focus();
     await expect(watch).toBeFocused();
     await page.keyboard.press("Enter");
-    await expect(page.getByRole("button", { name: "Stop watching this idea" })).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "Stop watching this idea" }),
+    ).toBeVisible();
   });
 
   test("the skip link is the first stop and works", async ({ page }) => {
@@ -83,15 +97,25 @@ test.describe("reduced motion", () => {
   test.use({ reducedMotion: "reduce" });
 
   test("no curtain transition for a returning visitor", async ({ page }) => {
-    await page.addInitScript(() => localStorage.setItem("relay:welcome:v2", "seen"));
+    await page.addInitScript(() =>
+      localStorage.setItem("relay:welcome:v2", "seen"),
+    );
     await page.goto("/");
-    expect(await page.evaluate(() => document.documentElement.dataset.curtain)).toBe("off");
-    await expect(page.getByRole("heading", { name: "Discover", level: 1 })).toBeVisible();
+    expect(
+      await page.evaluate(() => document.documentElement.dataset.curtain),
+    ).toBe("off");
+    await expect(
+      page.getByRole("heading", { name: "Discover", level: 1 }),
+    ).toBeVisible();
   });
 
-  test("the welcome is still shown, and Explore enters without waiting for an animation", async ({ page }) => {
+  test("the welcome is still shown, and Explore enters without waiting for an animation", async ({
+    page,
+  }) => {
     await page.goto("/");
     await page.getByRole("button", { name: "Explore ideas" }).click();
-    await expect(page.getByRole("heading", { name: "Discover", level: 1 })).toBeVisible({ timeout: 5_000 });
+    await expect(
+      page.getByRole("heading", { name: "Discover", level: 1 }),
+    ).toBeVisible({ timeout: 5_000 });
   });
 });

@@ -4,6 +4,7 @@ import { API_URL } from "../../lib/config";
 import {
   DiscoveryNotFoundError,
   fetchChanges,
+  fetchDetectedFeed,
   fetchIdea,
   fetchIdeas,
   fetchMyRequests,
@@ -91,6 +92,16 @@ export function useMyRequests() {
     queryKey: ["discovery", "me", "requests"],
     queryFn: () => fetchMyRequests(API_URL),
     staleTime: 10_000,
+    retry: retryOnce,
+  });
+}
+
+/** New items detected automatically in the authors' own feeds. */
+export function useDetectedFeed() {
+  return useQuery({
+    queryKey: ["discovery", "feed"],
+    queryFn: () => fetchDetectedFeed(API_URL),
+    staleTime: 60_000,
     retry: retryOnce,
   });
 }
