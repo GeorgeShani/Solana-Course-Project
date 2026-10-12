@@ -6,7 +6,6 @@
  * start) therefore refuse a non-local host until the operator names it:
  *
  *   --confirm-db-host=<host>     for the scripts
- *   ALLOW_REMOTE_DB=<host>       for the development server
  *
  * A production server is exempt: it is expected to talk to its real database.
  */
