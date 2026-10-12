@@ -8,14 +8,13 @@ import type { ReactNode } from "react";
 import { Providers } from "../components/Providers";
 import { Cue } from "../components/cue/Cue";
 import { CueCursor } from "../components/cue/CueCursor";
-import {
-  CURTAIN_BOOT_SCRIPT,
-  Drapes,
-} from "../components/theatre/CurtainIntro";
+import { CurtainIntro, Drapes } from "../components/theatre/CurtainIntro";
 import { Valance } from "../components/theatre/Marquee";
+import { Welcome } from "../components/theatre/Welcome";
 import { TabBar } from "../components/ui/TabBar";
 import { WalletDialog } from "../components/wallet/WalletDialog";
 import { CLUSTER, CLUSTER_LABEL } from "../lib/config";
+import { WELCOME_BOOT_SCRIPT } from "../lib/welcome";
 import baseCss from "../styles/base.css?url";
 import discoveryCss from "../styles/discovery.css?url";
 import feedCss from "../styles/feed.css?url";
@@ -58,7 +57,7 @@ function RootDocument({ children }: { children: ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <script>{CURTAIN_BOOT_SCRIPT}</script>
+        <script>{WELCOME_BOOT_SCRIPT}</script>
         <HeadContent />
       </head>
       <body>
@@ -70,6 +69,8 @@ function RootDocument({ children }: { children: ReactNode }) {
             <div className="stage-floor" aria-hidden="true" />
             <Valance clusterLabel={CLUSTER_LABEL[CLUSTER]} />
             <main id="main" className="stage">
+              <Welcome />
+              <CurtainIntro sub="Public ideas, with sources" />
               {children}
             </main>
             <Drapes />

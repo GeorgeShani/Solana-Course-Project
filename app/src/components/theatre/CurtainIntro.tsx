@@ -3,19 +3,6 @@ import { useEffect, type ReactNode } from "react";
 import { useStagePointer } from "../../lib/pointer";
 import { MarqueeSign } from "./Marquee";
 
-export const SEEN_KEY = "relay:curtain-seen";
-/** Set once a visitor has walked through the welcome scene; returning visitors skip it. */
-export const ENTERED_KEY = "relay:entered";
-
-/**
- * Runs in <head> before first paint and picks the stage's first state:
- * - data-welcome="on": a first visit to the feed (or `?welcome`), with the curtains closed and Cue
- *   in front until the visitor chooses to enter. Deep links (`?plan=`) and the preview skip it.
- * - data-curtain="on": a returning visitor's first feed of the session gets the short opening.
- * Reduced motion keeps the welcome (it is content) but drops the opening; storage failures skip both.
- */
-export const CURTAIN_BOOT_SCRIPT = `(function(){var d=document.documentElement;d.dataset.welcome="off";d.dataset.curtain="off";try{if(location.pathname!=="/")return;var q=new URLSearchParams(location.search);if(q.has("welcome")||(!localStorage.getItem("${ENTERED_KEY}")&&!q.has("plan")&&!q.has("preview"))){d.dataset.welcome="on";return}if(!sessionStorage.getItem("${SEEN_KEY}")&&!matchMedia("(prefers-reduced-motion: reduce)").matches){sessionStorage.setItem("${SEEN_KEY}","1");d.dataset.curtain="on"}}catch(e){}})();`;
-
 /** The opening is done after 1.2 s; past this the drapes simply rest at the wings. */
 const OPENING_MS = 1200;
 
@@ -40,8 +27,9 @@ export function Drapes() {
 }
 
 /**
- * The marquee sign shown while the drapes part, once per session and only on the feed. The feed is
- * already live underneath; any key, tap, wheel or touch ends the opening at once.
+ * The marquee sign shown while the drapes part: a returning visitor's first Discover of the
+ * session (the boot script in lib/welcome.ts decides). The page is already live underneath; any
+ * key, tap, wheel or touch ends the opening at once.
  */
 export function CurtainIntro({ sub }: { sub: ReactNode }) {
   useEffect(() => {

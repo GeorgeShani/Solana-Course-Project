@@ -11,6 +11,7 @@ import {
   useGoogleAuth,
 } from "../lib/google-auth";
 import { useMounted } from "../lib/mounted";
+import { requestWelcome } from "../lib/welcome";
 import { disconnectWallet, openWalletDialog, useWallet } from "../lib/wallet";
 
 export const Route = createFileRoute("/account")({
@@ -73,16 +74,16 @@ function Account() {
               Cue
             </h2>
             <p className="page__text">
-              Relay's usher. Replay the opening any time.
+              Relay's usher. Reopen the full welcome any time.
             </p>
             <div className="notice__actions">
-              <Link
-                to="/"
-                search={{ welcome: true }}
+              <button
+                type="button"
                 className="btn btn--glass btn--small"
+                onClick={requestWelcome}
               >
-                Meet Cue again
-              </Link>
+                Show welcome
+              </button>
               <Link to="/demo" className="btn btn--ghost btn--small">
                 Try the demo
               </Link>

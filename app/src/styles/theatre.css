@@ -223,6 +223,7 @@
 }
 
 .hdr-btn--cursor,
+.hdr-btn--welcome,
 .hdr-btn--account {
   display: none;
 }
@@ -236,7 +237,8 @@
     display: block;
   }
 
-  .hdr-btn--account {
+  .hdr-btn--account,
+  .hdr-btn--welcome {
     display: inline-flex;
   }
 
@@ -740,9 +742,8 @@ html[data-welcome="opening"] .welcome {
   overflow-y: hidden;
 }
 
-/* The feed waits behind closed curtains: not visible, not focusable, not announced. */
-html[data-welcome="on"] .feed-wrap,
-html[data-welcome="on"] .stage > .stage-msg,
+/* The page waits behind closed curtains: not visible, not focusable, not announced. */
+html[data-welcome="on"] .stage > :not(.welcome, .opening),
 html[data-welcome="on"] .valance__sign {
   visibility: hidden;
 }

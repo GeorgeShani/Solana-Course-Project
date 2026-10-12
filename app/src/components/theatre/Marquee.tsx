@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { setCueCursor, useCueCursorPref } from "../../lib/cue-cursor";
+import { requestWelcome } from "../../lib/welcome";
 import { HEADER_NAV } from "../../lib/nav";
 import { Cue } from "../cue/Cue";
 import { Icon } from "../ui/Icon";
@@ -37,6 +38,19 @@ export function MarqueeSign({
       {sub && <p className="sign__sub">{sub}</p>}
       <Bulbs count={11} />
     </div>
+  );
+}
+
+/** Reopens the full welcome from any page (the URL does not change). */
+function WelcomeButton() {
+  return (
+    <button
+      type="button"
+      className="hdr-btn hdr-btn--welcome"
+      onClick={requestWelcome}
+    >
+      Meet Cue
+    </button>
   );
 }
 
@@ -89,6 +103,7 @@ export function Valance({ clusterLabel }: { clusterLabel: string | null }) {
         {clusterLabel && (
           <span className="valance__cluster">{clusterLabel}</span>
         )}
+        <WelcomeButton />
         <CursorSwitch />
         <Link
           to="/account"
