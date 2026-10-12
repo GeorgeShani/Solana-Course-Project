@@ -126,14 +126,13 @@ A future outside-Relay wallet-data adapter would live in its own `modules/wallet
 
 ## Safe load, migration and rollback
 
-The root `.env` may point `DATABASE_URL` at a **remote** database. So every command that writes states its target first, and refuses a non-local host until you name it:
+The root `.env` may point `DATABASE_URL` at a **remote** database. So every command that writes states its target first. The scripts below refuse a non-local host until you name it; the server (`dev:server`) only prints the target and starts:
 
 ```bash
 bun run --cwd server curate --check                      # validate only (no database)
 bun run --cwd server curate --report                     # coverage, freshness, warnings (no database)
 bun run --cwd server curate --confirm-db-host=<host>     # load; the host must match exactly if it is not local
 bun run --cwd server migrate --confirm-db-host=<host>
-ALLOW_REMOTE_DB=<host> bun run dev:server                # a development server migrates on start; production is exempt
 ```
 
 For local work, run from `server/` with explicit variables (`DATABASE_URL=postgres://relay:relay_local_only@127.0.0.1:5432/relay`, `APP_ORIGIN`, `NETWORK=devnet`) and `bun run src/index.ts`, which does not read the root `.env`.
