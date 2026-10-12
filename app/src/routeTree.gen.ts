@@ -15,13 +15,19 @@ import { Route as DemoRouteImport } from './routes/demo'
 import { Route as HowItWorksRouteImport } from './routes/how-it-works'
 import { Route as MeRouteImport } from './routes/me'
 import { Route as SearchRouteImport } from './routes/search'
+import { Route as UpdatesRouteImport } from './routes/updates'
 import { Route as WatchlistRouteImport } from './routes/watchlist'
+import { Route as DevPlanStatesRouteImport } from './routes/dev.plan-states'
 import { Route as IdeasIndexRouteImport } from './routes/ideas.index'
 import { Route as IdeasIdeaIdRouteImport } from './routes/ideas.$ideaId'
+import { Route as PlansIndexRouteImport } from './routes/plans.index'
+import { Route as PlansPlanPdaRouteImport } from './routes/plans.$planPda'
 import { Route as ProfilesTraderIdRouteImport } from './routes/profiles.$traderId'
 import { Route as RecordsPlanPdaRouteImport } from './routes/records.$planPda'
 import { Route as TradersIndexRouteImport } from './routes/traders.index'
 import { Route as TradersAddressRouteImport } from './routes/traders.$address'
+import { Route as PlansCreatorsIndexRouteImport } from './routes/plans.creators.index'
+import { Route as PlansCreatorsAddressRouteImport } from './routes/plans.creators.$address'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -53,9 +59,19 @@ const SearchRoute = SearchRouteImport.update({
   path: '/search',
   getParentRoute: () => rootRouteImport,
 } as any)
+const UpdatesRoute = UpdatesRouteImport.update({
+  id: '/updates',
+  path: '/updates',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const WatchlistRoute = WatchlistRouteImport.update({
   id: '/watchlist',
   path: '/watchlist',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DevPlanStatesRoute = DevPlanStatesRouteImport.update({
+  id: '/dev/plan-states',
+  path: '/dev/plan-states',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IdeasIndexRoute = IdeasIndexRouteImport.update({
@@ -66,6 +82,16 @@ const IdeasIndexRoute = IdeasIndexRouteImport.update({
 const IdeasIdeaIdRoute = IdeasIdeaIdRouteImport.update({
   id: '/ideas/$ideaId',
   path: '/ideas/$ideaId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlansIndexRoute = PlansIndexRouteImport.update({
+  id: '/plans/',
+  path: '/plans/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlansPlanPdaRoute = PlansPlanPdaRouteImport.update({
+  id: '/plans/$planPda',
+  path: '/plans/$planPda',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProfilesTraderIdRoute = ProfilesTraderIdRouteImport.update({
@@ -88,6 +114,16 @@ const TradersAddressRoute = TradersAddressRouteImport.update({
   path: '/traders/$address',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PlansCreatorsIndexRoute = PlansCreatorsIndexRouteImport.update({
+  id: '/plans/creators/',
+  path: '/plans/creators/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlansCreatorsAddressRoute = PlansCreatorsAddressRouteImport.update({
+  id: '/plans/creators/$address',
+  path: '/plans/creators/$address',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -96,13 +132,19 @@ export interface FileRoutesByFullPath {
   '/how-it-works': typeof HowItWorksRoute
   '/me': typeof MeRoute
   '/search': typeof SearchRoute
+  '/updates': typeof UpdatesRoute
   '/watchlist': typeof WatchlistRoute
+  '/dev/plan-states': typeof DevPlanStatesRoute
   '/ideas/$ideaId': typeof IdeasIdeaIdRoute
+  '/plans/$planPda': typeof PlansPlanPdaRoute
   '/profiles/$traderId': typeof ProfilesTraderIdRoute
   '/records/$planPda': typeof RecordsPlanPdaRoute
   '/traders/$address': typeof TradersAddressRoute
   '/ideas/': typeof IdeasIndexRoute
+  '/plans/': typeof PlansIndexRoute
   '/traders/': typeof TradersIndexRoute
+  '/plans/creators/$address': typeof PlansCreatorsAddressRoute
+  '/plans/creators/': typeof PlansCreatorsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -111,13 +153,19 @@ export interface FileRoutesByTo {
   '/how-it-works': typeof HowItWorksRoute
   '/me': typeof MeRoute
   '/search': typeof SearchRoute
+  '/updates': typeof UpdatesRoute
   '/watchlist': typeof WatchlistRoute
+  '/dev/plan-states': typeof DevPlanStatesRoute
   '/ideas/$ideaId': typeof IdeasIdeaIdRoute
+  '/plans/$planPda': typeof PlansPlanPdaRoute
   '/profiles/$traderId': typeof ProfilesTraderIdRoute
   '/records/$planPda': typeof RecordsPlanPdaRoute
   '/traders/$address': typeof TradersAddressRoute
   '/ideas': typeof IdeasIndexRoute
+  '/plans': typeof PlansIndexRoute
   '/traders': typeof TradersIndexRoute
+  '/plans/creators/$address': typeof PlansCreatorsAddressRoute
+  '/plans/creators': typeof PlansCreatorsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -127,13 +175,19 @@ export interface FileRoutesById {
   '/how-it-works': typeof HowItWorksRoute
   '/me': typeof MeRoute
   '/search': typeof SearchRoute
+  '/updates': typeof UpdatesRoute
   '/watchlist': typeof WatchlistRoute
+  '/dev/plan-states': typeof DevPlanStatesRoute
   '/ideas/$ideaId': typeof IdeasIdeaIdRoute
+  '/plans/$planPda': typeof PlansPlanPdaRoute
   '/profiles/$traderId': typeof ProfilesTraderIdRoute
   '/records/$planPda': typeof RecordsPlanPdaRoute
   '/traders/$address': typeof TradersAddressRoute
   '/ideas/': typeof IdeasIndexRoute
+  '/plans/': typeof PlansIndexRoute
   '/traders/': typeof TradersIndexRoute
+  '/plans/creators/$address': typeof PlansCreatorsAddressRoute
+  '/plans/creators/': typeof PlansCreatorsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -144,13 +198,19 @@ export interface FileRouteTypes {
     | '/how-it-works'
     | '/me'
     | '/search'
+    | '/updates'
     | '/watchlist'
+    | '/dev/plan-states'
     | '/ideas/$ideaId'
+    | '/plans/$planPda'
     | '/profiles/$traderId'
     | '/records/$planPda'
     | '/traders/$address'
     | '/ideas/'
+    | '/plans/'
     | '/traders/'
+    | '/plans/creators/$address'
+    | '/plans/creators/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -159,13 +219,19 @@ export interface FileRouteTypes {
     | '/how-it-works'
     | '/me'
     | '/search'
+    | '/updates'
     | '/watchlist'
+    | '/dev/plan-states'
     | '/ideas/$ideaId'
+    | '/plans/$planPda'
     | '/profiles/$traderId'
     | '/records/$planPda'
     | '/traders/$address'
     | '/ideas'
+    | '/plans'
     | '/traders'
+    | '/plans/creators/$address'
+    | '/plans/creators'
   id:
     | '__root__'
     | '/'
@@ -174,13 +240,19 @@ export interface FileRouteTypes {
     | '/how-it-works'
     | '/me'
     | '/search'
+    | '/updates'
     | '/watchlist'
+    | '/dev/plan-states'
     | '/ideas/$ideaId'
+    | '/plans/$planPda'
     | '/profiles/$traderId'
     | '/records/$planPda'
     | '/traders/$address'
     | '/ideas/'
+    | '/plans/'
     | '/traders/'
+    | '/plans/creators/$address'
+    | '/plans/creators/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -190,13 +262,19 @@ export interface RootRouteChildren {
   HowItWorksRoute: typeof HowItWorksRoute
   MeRoute: typeof MeRoute
   SearchRoute: typeof SearchRoute
+  UpdatesRoute: typeof UpdatesRoute
   WatchlistRoute: typeof WatchlistRoute
+  DevPlanStatesRoute: typeof DevPlanStatesRoute
   IdeasIdeaIdRoute: typeof IdeasIdeaIdRoute
+  PlansPlanPdaRoute: typeof PlansPlanPdaRoute
   ProfilesTraderIdRoute: typeof ProfilesTraderIdRoute
   RecordsPlanPdaRoute: typeof RecordsPlanPdaRoute
   TradersAddressRoute: typeof TradersAddressRoute
   IdeasIndexRoute: typeof IdeasIndexRoute
+  PlansIndexRoute: typeof PlansIndexRoute
   TradersIndexRoute: typeof TradersIndexRoute
+  PlansCreatorsAddressRoute: typeof PlansCreatorsAddressRoute
+  PlansCreatorsIndexRoute: typeof PlansCreatorsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -243,11 +321,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SearchRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/updates': {
+      id: '/updates'
+      path: '/updates'
+      fullPath: '/updates'
+      preLoaderRoute: typeof UpdatesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/watchlist': {
       id: '/watchlist'
       path: '/watchlist'
       fullPath: '/watchlist'
       preLoaderRoute: typeof WatchlistRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dev/plan-states': {
+      id: '/dev/plan-states'
+      path: '/dev/plan-states'
+      fullPath: '/dev/plan-states'
+      preLoaderRoute: typeof DevPlanStatesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/ideas/': {
@@ -262,6 +354,20 @@ declare module '@tanstack/react-router' {
       path: '/ideas/$ideaId'
       fullPath: '/ideas/$ideaId'
       preLoaderRoute: typeof IdeasIdeaIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/plans/': {
+      id: '/plans/'
+      path: '/plans'
+      fullPath: '/plans/'
+      preLoaderRoute: typeof PlansIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/plans/$planPda': {
+      id: '/plans/$planPda'
+      path: '/plans/$planPda'
+      fullPath: '/plans/$planPda'
+      preLoaderRoute: typeof PlansPlanPdaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/profiles/$traderId': {
@@ -292,6 +398,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TradersAddressRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/plans/creators/': {
+      id: '/plans/creators/'
+      path: '/plans/creators'
+      fullPath: '/plans/creators/'
+      preLoaderRoute: typeof PlansCreatorsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/plans/creators/$address': {
+      id: '/plans/creators/$address'
+      path: '/plans/creators/$address'
+      fullPath: '/plans/creators/$address'
+      preLoaderRoute: typeof PlansCreatorsAddressRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -302,13 +422,19 @@ const rootRouteChildren: RootRouteChildren = {
   HowItWorksRoute: HowItWorksRoute,
   MeRoute: MeRoute,
   SearchRoute: SearchRoute,
+  UpdatesRoute: UpdatesRoute,
   WatchlistRoute: WatchlistRoute,
+  DevPlanStatesRoute: DevPlanStatesRoute,
   IdeasIdeaIdRoute: IdeasIdeaIdRoute,
+  PlansPlanPdaRoute: PlansPlanPdaRoute,
   ProfilesTraderIdRoute: ProfilesTraderIdRoute,
   RecordsPlanPdaRoute: RecordsPlanPdaRoute,
   TradersAddressRoute: TradersAddressRoute,
   IdeasIndexRoute: IdeasIndexRoute,
+  PlansIndexRoute: PlansIndexRoute,
   TradersIndexRoute: TradersIndexRoute,
+  PlansCreatorsAddressRoute: PlansCreatorsAddressRoute,
+  PlansCreatorsIndexRoute: PlansCreatorsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -78,6 +78,8 @@ export interface IdeaSummary {
   original: SourceView;
   eventCount: number;
   latestSeq: string;
+  /** The newest later item and how Relay ties it to the original; null when none is recorded. */
+  latestUpdate: { basis: RelationshipBasis; occurredAt: string | null } | null;
   isDemo: boolean;
 }
 
@@ -331,7 +333,20 @@ export function parseIdeaSummary(v: unknown, path = "idea"): IdeaSummary {
     original: parseSource(r.original, `${path}.original`),
     eventCount: num(r.eventCount, `${path}.eventCount`),
     latestSeq: seq(r.latestSeq, `${path}.latestSeq`),
+    latestUpdate: parseLatestUpdate(r.latestUpdate, `${path}.latestUpdate`),
     isDemo: bool(r.isDemo, `${path}.isDemo`),
+  };
+}
+
+function parseLatestUpdate(
+  v: unknown,
+  path: string,
+): IdeaSummary["latestUpdate"] {
+  if (v === null || v === undefined) return null;
+  const r = rec(v, path);
+  return {
+    basis: choice(r.basis, BASES, `${path}.basis`),
+    occurredAt: strOrNull(r.occurredAt, `${path}.occurredAt`),
   };
 }
 
@@ -802,18 +817,26 @@ export function eventKind(event: {
   type: string;
   relationship: { basis: RelationshipBasis };
 }): { label: string; meaning: string } {
-  if (event.type === "update_published")
-    return event.relationship.basis === "creator_confirmed"
-      ? {
-          label: "Update to this idea",
-          meaning:
-            "A later statement the author links to this idea. A statement is not proof that a trade happened.",
-        }
-      : {
-          label: "Later analysis on the same topic",
-          meaning:
-            "A later item on the same subject that the author has not linked to this idea. It does not mean the author changed or withdrew the idea.",
-        };
+  if (event.type === "update_published") {
+    const basis = event.relationship.basis;
+    if (basis === "creator_confirmed")
+      return {
+        label: "Update to this idea",
+        meaning:
+          "A later statement the author links to this idea. A statement is not proof that a trade happened.",
+      };
+    if (basis === "uncertain")
+      return {
+        label: "Later item · link not established",
+        meaning:
+          "A later item by the same author that Relay cannot confirm is about this idea. It is shown for context only and does not mean the author changed or withdrew the idea.",
+      };
+    return {
+      label: "Later analysis on the same topic",
+      meaning:
+        "A later item on the same subject that the author has not linked to this idea. It does not mean the author changed or withdrew the idea.",
+    };
+  }
   if (event.type === "source_added" && event.relationship.basis === "original")
     return {
       label: "Original source",
@@ -821,6 +844,94 @@ export function eventKind(event: {
         "The public statement this idea comes from. The link opens the exact item.",
     };
   return eventLabel(event.type);
+}
+
+/**
+ * One line for an idea card: what the newest later item is, in the same words as the timeline.
+ * Null when nothing later is recorded.
+ */
+export function latestUpdateLabel(idea: {
+  latestUpdate: IdeaSummary["latestUpdate"];
+}): string | null {
+  if (idea.latestUpdate === null) return null;
+  return eventKind({
+    type: "update_published",
+    relationship: { basis: idea.latestUpdate.basis },
+  }).label;
+}
+
+/**
+ * What Relay can and cannot establish about one idea, written from the record itself. It never
+ * says an idea was right, wrong, traded or profitable; those are always listed as unknown.
+ */
+export function evidenceSummary(idea: {
+  statedConditions: string | null;
+  original: Pick<SourceView, "publishedAt" | "availability" | "contentRemoved">;
+  events: readonly {
+    type: string;
+    relationship: { basis: RelationshipBasis };
+  }[];
+}): { established: string[]; unknown: string[] } {
+  const established: string[] = [];
+  const unknown: string[] = [];
+
+  established.push(
+    idea.original.publishedAt === null
+      ? "A public source says this. It gives no publication time, so Relay cannot date it."
+      : "A public source said this, at the time the source itself gives.",
+  );
+  if (idea.original.availability.state === "available")
+    established.push(
+      "The source could be opened when Relay captured it. Relay does not watch it, so it may have changed since.",
+    );
+  else
+    unknown.push(
+      idea.original.contentRemoved
+        ? "The source was removed by its author; only the record that it existed remains."
+        : "Whether the source can still be opened: it was not available when last checked.",
+    );
+
+  const later = idea.events.filter((e) => e.type === "update_published");
+  for (const e of later) {
+    const basis = e.relationship.basis;
+    if (basis === "creator_confirmed")
+      established.push(
+        "The author links a later item to this idea in their own words.",
+      );
+    else if (basis === "editorially_associated")
+      unknown.push(
+        "Whether a later item on the same topic changes the idea: the author has not linked it, so it is shown as context only.",
+      );
+    else
+      unknown.push(
+        "Whether a later item is about this idea at all: Relay could not confirm the link.",
+      );
+  }
+  if (later.length === 0)
+    unknown.push("Whether anything was said later: no later item is recorded.");
+
+  if (idea.statedConditions === null)
+    unknown.push("Entry or exit conditions: the original states none.");
+  unknown.push(
+    "Whether anyone traded on it, with which wallet, or what happened: Relay links no wallet and shows no result.",
+  );
+  return { established, unknown };
+}
+
+/** The newest time Relay captured any of these ideas' sources, or null when there are none. */
+export function latestCapture(
+  ideas: readonly { original: Pick<SourceView, "retrievedAt"> }[],
+): string | null {
+  let best: string | null = null;
+  let bestMs = -Infinity;
+  for (const i of ideas) {
+    const ms = Date.parse(i.original.retrievedAt);
+    if (!Number.isNaN(ms) && ms > bestMs) {
+      bestMs = ms;
+      best = i.original.retrievedAt;
+    }
+  }
+  return best;
 }
 
 export const RELATIONSHIP_LABEL: Record<RelationshipBasis, string> = {

@@ -105,7 +105,7 @@ export function PlanCard({
           ) : (
             <>
               <Link
-                to="/traders/$address"
+                to="/plans/creators/$address"
                 params={{ address: card.creator.address }}
                 className="act__trader"
                 aria-label={`Trader profile: ${creatorName(card)}`}

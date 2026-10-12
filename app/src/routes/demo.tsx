@@ -306,8 +306,8 @@ function Demo() {
 
       {last && (
         <div className="demo__finish">
-          <Link to="/traders" className="btn btn--primary">
-            Explore real traders
+          <Link to="/" className="btn btn--primary">
+            Explore public ideas
           </Link>
           <button type="button" className="btn btn--glass" onClick={restart}>
             Restart demo

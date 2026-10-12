@@ -2,10 +2,14 @@ import { Link } from "@tanstack/react-router";
 import { KindBadge } from "../ui/KindBadge";
 import {
   PARTICIPATION_LABEL,
+  RECORD_TYPE_LABEL,
   formatWhen,
+  latestUpdateLabel,
+  sourceHost,
   type IdeaSummary,
   type TraderSummary,
 } from "../../lib/discovery";
+import { WatchButton } from "./WatchButton";
 
 function excerpt(text: string | null, max = 180): string | null {
   if (text === null) return null;
@@ -29,7 +33,9 @@ export function IdeaCard({
   const quote = idea.original.contentRemoved
     ? null
     : excerpt(idea.original.displayedContent);
-  const updates = Math.max(0, idea.eventCount - 1);
+  const later = latestUpdateLabel(idea);
+  const kind = RECORD_TYPE_LABEL[idea.original.recordType] ?? "Source";
+  const host = sourceHost(idea.original.url);
   return (
     <li className="icard lift" data-demo={idea.isDemo}>
       <p className="icard__badges">
@@ -53,6 +59,7 @@ export function IdeaCard({
           {idea.trader.displayName}
         </Link>
         {idea.assets.length > 0 && <span>{idea.assets.join(", ")}</span>}
+        <span>{idea.market}</span>
       </p>
       {quote ? (
         <blockquote className="icard__quote">{quote}</blockquote>
@@ -63,16 +70,34 @@ export function IdeaCard({
       )}
       <p className="icard__meta icard__meta--quiet">
         <span>
-          {idea.original.publishedAt === null
-            ? "Original: publication time unknown"
-            : `Original: published ${formatWhen(idea.original.publishedAt)}`}
+          {kind}
+          {host ? ` · ${host}` : ""}
         </span>
         <span>
-          {updates === 0
-            ? "No later entries yet"
-            : `${updates} later ${updates === 1 ? "entry" : "entries"}`}
+          {idea.original.publishedAt === null
+            ? "Publication time unknown"
+            : `Published ${formatWhen(idea.original.publishedAt)}`}
         </span>
       </p>
+      <p className="icard__later" data-later={later !== null}>
+        {later === null ? "No later item recorded yet" : `Later: ${later}`}
+      </p>
+      <div className="icard__actions">
+        <WatchButton
+          type="idea"
+          id={idea.id}
+          label={idea.title}
+          seenSeq={idea.latestSeq}
+        />
+        <Link
+          to="/ideas/$ideaId"
+          params={{ ideaId: idea.id }}
+          className="btn btn--glass btn--small"
+          aria-label={`Open ${idea.title}`}
+        >
+          Open
+        </Link>
+      </div>
     </li>
   );
 }

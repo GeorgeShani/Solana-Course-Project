@@ -224,8 +224,8 @@ function Empty({ children }: { children: ReactNode }) {
     <div className="wl-empty">
       <Cue pose="saved" className="wl-empty__cue" />
       <p className="wl-empty__line">{children}</p>
-      <Link to="/traders" className="btn btn--primary btn--large">
-        Explore traders
+      <Link to="/" className="btn btn--primary btn--large">
+        Discover ideas
       </Link>
     </div>
   );
@@ -298,7 +298,7 @@ function WatchedTraders({ list }: { list: readonly WatchedTrader[] }) {
             </div>
             <div className="wl-card__actions">
               <Link
-                to="/traders/$address"
+                to="/plans/creators/$address"
                 params={{ address: w.address }}
                 className="btn btn--glass btn--small"
               >
@@ -419,7 +419,7 @@ function WatchedRow({ w }: { w: WatchedPlan }) {
       </div>
       <div className="wl-card__actions">
         <Link
-          to="/records/$planPda"
+          to="/plans/$planPda"
           params={{ planPda: w.planPda }}
           className="btn btn--glass btn--small"
         >

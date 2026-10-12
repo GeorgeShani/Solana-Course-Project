@@ -16,6 +16,7 @@ import { WalletDialog } from "../components/wallet/WalletDialog";
 import { CLUSTER, CLUSTER_LABEL } from "../lib/config";
 import { WELCOME_BOOT_SCRIPT } from "../lib/welcome";
 import baseCss from "../styles/base.css?url";
+import discoverCss from "../styles/discover.css?url";
 import discoveryCss from "../styles/discovery.css?url";
 import feedCss from "../styles/feed.css?url";
 import screensCss from "../styles/screens.css?url";
@@ -32,11 +33,11 @@ export const Route = createRootRoute({
       },
       { name: "theme-color", content: "#1b1035" },
       { name: "color-scheme", content: "dark" },
-      { title: "Relay — Solana traders' ideas and the evidence behind them" },
+      { title: "Relay — traders' public ideas and the evidence behind them" },
       {
         name: "description",
         content:
-          "Discover Solana traders, explore their public ideas, and see the activity Relay can verify. Not financial advice.",
+          "See the original idea. Follow what changed. Check the evidence. Not financial advice.",
       },
     ],
     links: [
@@ -47,6 +48,7 @@ export const Route = createRootRoute({
       { rel: "stylesheet", href: feedCss },
       { rel: "stylesheet", href: screensCss },
       { rel: "stylesheet", href: discoveryCss },
+      { rel: "stylesheet", href: discoverCss },
     ],
   }),
   shellComponent: RootDocument,

@@ -45,10 +45,12 @@ export function useSourcedTrader(id: string) {
   });
 }
 
-export function useIdeaFeed() {
+/** Ideas, newest activity first; `trader` narrows the list to one public-source profile. */
+export function useIdeaFeed(trader?: string) {
   return useInfiniteQuery({
-    queryKey: ["discovery", "ideas"],
-    queryFn: ({ pageParam }) => fetchIdeas(API_URL, { cursor: pageParam }),
+    queryKey: ["discovery", "ideas", trader ?? "all"],
+    queryFn: ({ pageParam }) =>
+      fetchIdeas(API_URL, { cursor: pageParam, trader }),
     initialPageParam: FIRST_PAGE,
     getNextPageParam: (last) => last.nextCursor,
     staleTime: 30_000,

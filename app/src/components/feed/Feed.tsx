@@ -25,7 +25,6 @@ import {
   visibleCards,
 } from "../../lib/feed-order";
 import type { FeedLoad } from "../../lib/feed-server";
-import { fictionalPreviewFeed } from "../../lib/fixtures";
 import { formatAge } from "../../lib/format";
 import { creatorName, planLabel } from "../../lib/labels";
 import { chainNowMs, liveEntry } from "../../lib/live-status";
@@ -40,6 +39,8 @@ import { Spotlight } from "./Spotlight";
 import { WatchToast } from "./WatchToast";
 
 const POLL_MS = 15_000;
+/** A fictional preview that failed to load has nothing to refetch: an empty page, never invented cards. */
+const EMPTY_PAGE: FeedPage = { items: [], nextCursor: null, nowMs: 0 };
 const NO_PAGES: FeedPage[] = [];
 const FINALE_ID = "__finale";
 /** A chain clock this far from the wall clock (a fork, time travel) is labelled on the card. */
@@ -95,7 +96,7 @@ export function Feed({
     queryKey: ["feed", preview ? "fictional-preview" : "live"],
     queryFn: ({ pageParam }) =>
       preview
-        ? Promise.resolve(fictionalPreviewFeed(Date.now()))
+        ? Promise.resolve(initial.ok ? initial.page : EMPTY_PAGE)
         : fetchFeedPage(API_URL, pageParam),
     initialPageParam: null,
     getNextPageParam: (last) => last.nextCursor,
