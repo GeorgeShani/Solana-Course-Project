@@ -10,6 +10,7 @@ import {
   formatUsdText,
   shortAddress,
 } from "../../lib/format";
+import { NETWORK_INFO } from "../../lib/config";
 import { creatorName, planLabel, stageName } from "../../lib/labels";
 import { Portrait } from "../theatre/Portrait";
 import { Icon } from "../ui/Icon";
@@ -124,6 +125,11 @@ export function PlanCard({
           <KindBadge
             kind={card.fictionalPreview ? "fictional" : "relay_plan"}
           />
+          {!card.fictionalPreview && (
+            <span className="badge badge--quiet">
+              {NETWORK_INFO.label}: test tokens
+            </span>
+          )}
           {card.versionCount > 1 ? (
             <>
               <Icon name="updated" size={14} />

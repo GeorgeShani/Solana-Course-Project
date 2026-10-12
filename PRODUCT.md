@@ -40,7 +40,7 @@ Every public record carries its exact source URL, source time, Relay's reviewed 
 
 1. **Public-source editorial records (primary).** `server/curation/curated.json`, loaded into Postgres, served under `/discovery`. Profiles are **unclaimed**: "Public-source profile · Not claimed by the author". Initial authorized profiles: **Arthur Hayes, Peter Brandt, Benjamin Cowen**. Coverage is manual and says so; no automatic monitoring is connected.
 2. **Relay-native plans and receipts (separate technical proof).** Relay program on Solana devnet, mirrored by the server. Chain data is authoritative. Lives under Plans.
-3. **Fictional preview and demo data (QA and education only).** `app/src/lib/fixtures.ts` (development builds only) and the `/demo` walkthrough. Never in the technical demo, screenshots or default navigation.
+3. **Fictional preview and demo data (QA and education only).** `app/src/lib/fixtures.ts` (development route only) and the `/demo` walkthrough. Never in the technical demo, screenshots or default navigation.
 
 ### Relationship vocabulary (discovery timelines)
 
@@ -61,7 +61,7 @@ Two items that mention the same asset are not related.
 4. Dismissing the welcome is stored in this browser only (`relay:welcome:v2`). No account sync.
 5. Watching is wallet-free and browser-local, and says so ("Stored in this browser only").
 6. The curated dataset is version-controlled and manually reviewed. Automatic monitoring, scraping, creator claiming, notifications, premium analytics, leaderboards and inferred PnL are deferred.
-7. `/?preview=fictional` is a development-only layout fixture. It is never the technical demo.
+7. The fictional plan fixtures exist only at the development-only route `/dev/plan-states` (404 and absent from production builds). They are never the technical demo.
 8. `docs/research/TRADER_DATA_SOURCES_2026-10.md` covers outside-Relay wallet-data providers only. It does not replace the public-source dataset and must never imply that Brandt, Hayes or Cowen control any wallet.
 9. **Devnet only.** No mainnet in this project, now or later. Burner keys only on the local test fork; the owner signs everything real.
 
