@@ -227,7 +227,7 @@ export function Welcome() {
             Explore ideas
           </button>
           <Link
-            to="/how-it-works"
+            to="/about"
             className="btn btn--glass"
             onClick={() => {
               markWelcomeSeen();

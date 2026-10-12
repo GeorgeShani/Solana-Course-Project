@@ -10,6 +10,7 @@ import {
   signOut,
   useGoogleAuth,
 } from "../features/account/google-auth";
+import { UnlockStrip } from "../features/account/UnlockStrip";
 import { useMounted } from "../lib/mounted";
 import { requestWelcome } from "../features/onboarding/welcome-state";
 import { disconnectWallet, openWalletDialog, useWallet } from "../lib/wallet";
@@ -36,6 +37,7 @@ function Account() {
       </header>
 
       <div className="acct">
+        <UnlockStrip />
         <GoogleSection authError={auth_error} />
         <WalletSection />
         <Preferences />
@@ -84,7 +86,7 @@ function Account() {
               >
                 Show welcome
               </button>
-              <Link to="/how-it-works" className="btn btn--ghost btn--small">
+              <Link to="/about" className="btn btn--ghost btn--small">
                 How it works
               </Link>
               <Link to="/demo" className="btn btn--ghost btn--small">
@@ -114,9 +116,15 @@ function GoogleSection({
   const loading = !mounted || auth.status === "loading";
 
   return (
-    <section className="panel" aria-labelledby="google-auth-title">
-      <h2 id="google-auth-title" className="panel__title">
-        Sign in
+    <section
+      className={`panel${auth.status === "signed_in" ? " panel--me" : ""}`}
+      aria-labelledby="google-auth-title"
+    >
+      <h2
+        id="google-auth-title"
+        className={auth.status === "signed_in" ? "sr-only" : "panel__title"}
+      >
+        {auth.status === "signed_in" ? "Signed in" : "Sign in"}
       </h2>
 
       {authError === "cancelled" && (
@@ -143,33 +151,38 @@ function GoogleSection({
           Checking sign-in…
         </p>
       ) : auth.status === "signed_in" ? (
-        <div className="acct-google">
-          {auth.user.picture ? (
-            <img
-              src={auth.user.picture}
-              alt=""
-              width={48}
-              height={48}
-              className="acct-google__avatar"
-              referrerPolicy="no-referrer"
-            />
-          ) : (
-            <span className="acct-google__avatar acct-google__avatar--placeholder">
-              <Icon name="account" size={24} />
+        <div className="me">
+          <span className="me__avatar">
+            {auth.user.picture ? (
+              <img
+                src={auth.user.picture}
+                alt=""
+                width={64}
+                height={64}
+                referrerPolicy="no-referrer"
+              />
+            ) : (
+              <Icon name="account" size={28} />
+            )}
+            <span className="me__badge" aria-hidden="true">
+              <Icon name="shield" size={12} />
             </span>
-          )}
-          <div className="acct-google__info">
-            <p className="acct-google__name">{auth.user.name}</p>
-            <p className="page__text page__text--quiet">{auth.user.email}</p>
+          </span>
+          <div className="me__info">
+            <p className="me__name">{auth.user.name}</p>
+            <p className="me__mail" title={auth.user.email}>
+              {auth.user.email}
+            </p>
           </div>
           <button
             id="google-sign-out-btn"
             type="button"
-            className="btn btn--ghost btn--small"
-            data-tone="danger"
+            className="me__out"
+            aria-label="Sign out"
+            title="Sign out"
             onClick={() => void signOut()}
           >
-            Sign out
+            <Icon name="close" size={20} />
           </button>
         </div>
       ) : (

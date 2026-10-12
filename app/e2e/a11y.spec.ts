@@ -14,7 +14,7 @@ test.describe("accessibility", () => {
     "/watchlist",
     "/plans",
     "/account",
-    "/how-it-works",
+    "/about",
   ])
     test(`no serious or critical violations on ${path}`, async ({ page }) => {
       await page.goto(path);
