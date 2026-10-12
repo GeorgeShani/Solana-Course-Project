@@ -103,9 +103,14 @@ printf 'DOMAIN=relay.example.test\n' > "$SRV/.env"; : > "$CALLS"; out="$(run --f
 check "plain compose up" "$(grep -c '^compose up -d --build$' "$CALLS")" 1
 check "bundled Postgres: host is postgres" "$(grep -c 'confirm-db-host=postgres$' "$CALLS")" 1
 
-echo "9. DOMAIN with a pasted scheme still checks the right address; localhost uses -k"
-printf 'DOMAIN=https://relay.example.test/\n' > "$SRV/.env"; : > "$T/curl.calls"; run --force >/dev/null
-check "scheme stripped" "$(grep -c 'https://relay.example.test/api/health' "$T/curl.calls")" 1
+echo "9. DOMAIN with a scheme or a slash is refused (Compose would build https://https://...); localhost uses -k"
+for bad in 'https://relay.example.test' 'https://relay.example.test/' 'relay.example.test/app'; do
+  printf 'DOMAIN=%s
+' "$bad" > "$SRV/.env"; : > "$CALLS"; out="$(run --force)"; rc=$?
+  check "refused: $bad" "$rc" 1
+  check "  says bare host name" "$(echo "$out" | grep -c 'bare host name')" 1
+  check "  docker not called" "$(wc -l < "$CALLS" | tr -d ' ')" 0
+done
 printf 'DOMAIN=localhost\n' > "$SRV/.env"; : > "$T/curl.calls"; run --force >/dev/null
 check "-k for localhost" "$(grep -c -- '-k' "$T/curl.calls")" 1
 

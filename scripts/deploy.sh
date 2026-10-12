@@ -46,15 +46,19 @@ env_value() {
   grep -E "^$1=" .env | tail -n1 | cut -d= -f2- | tr -d '"' | tr -d "'" || true
 }
 
-# DOMAIN is a bare host name in Relay's .env. Tolerate a pasted scheme or slash so the health check still asks the right place.
+# DOMAIN must be a bare host name. Compose builds https://$DOMAIN from it, so a pasted scheme becomes
+# https://https://... and the server then refuses to start. Say so now rather than deploy and roll back.
 domain="$(env_value DOMAIN)"
-domain="${domain#https://}"
-domain="${domain#http://}"
-domain="${domain%%/*}"
 if [ -z "$domain" ]; then
   log "DOMAIN is not set in .env; set it (see DEPLOYMENT.md)"
   exit 1
 fi
+case "$domain" in
+  *://* | */* | *" "*)
+    log "DOMAIN in .env is \"$domain\"; it must be a bare host name such as relay.example.com (no https://, no slash). Fix it, then run scripts/deploy.sh --force"
+    exit 1
+    ;;
+esac
 HEALTH_URL="https://${domain}/api/health"
 CURL_ARGS=(-fsS --max-time 10 -o /dev/null)
 # Caddy issues its own local certificate for localhost, which curl does not trust.
