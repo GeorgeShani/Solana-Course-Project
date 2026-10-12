@@ -53,6 +53,18 @@ function IdeaView({ ideaId }: { ideaId: string }) {
     markSeen("idea", idea.id, idea.latestSeq);
   }, [idea, entry]);
 
+  // A link from Updates points at one entry (#event-<id>): bring exactly that entry into view.
+  useEffect(() => {
+    if (!idea) return;
+    const id = window.location.hash.slice(1);
+    if (!id.startsWith("event-")) return;
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.setAttribute("tabindex", "-1");
+    el.scrollIntoView({ block: "center" });
+    el.focus({ preventScroll: true });
+  }, [idea]);
+
   const isNew = (seq: string) =>
     openedAfter.current !== null && seqGreater(seq, openedAfter.current);
 

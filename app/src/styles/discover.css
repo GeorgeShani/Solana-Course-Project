@@ -97,3 +97,12 @@
   color: var(--haze);
   font-size: var(--t-subhead);
 }
+
+/* A saved-item card without a leading avatar: body, then actions, in one column. */
+.wl-card--plain {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.wl-card--plain .wl-card__actions {
+  grid-column: 1;
+}

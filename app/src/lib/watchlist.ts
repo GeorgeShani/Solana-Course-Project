@@ -1,6 +1,6 @@
 import type { EntryStatus } from "@relay/domain";
-import { useSyncExternalStore } from "react";
 import type { PlanCardView } from "./api";
+import { createBrowserStore } from "./storage/browser-store";
 
 /**
  * The local watch list. Watching needs no wallet and no account: it lives in this browser only
@@ -104,11 +104,6 @@ export function snapshotOf(
 }
 
 const EMPTY: readonly WatchedPlan[] = [];
-const listeners = new Set<() => void>();
-let cache: { raw: string | null; list: readonly WatchedPlan[] } = {
-  raw: null,
-  list: EMPTY,
-};
 
 /** Parses the stored JSON defensively: anything unexpected is dropped, never thrown. */
 export function parseWatchList(raw: string | null): WatchedPlan[] {
@@ -142,49 +137,15 @@ export function parseWatchList(raw: string | null): WatchedPlan[] {
   return out;
 }
 
-function storage(): Storage | null {
-  try {
-    return typeof window === "undefined" ? null : window.localStorage;
-  } catch {
-    return null; // blocked storage (privacy mode, sandboxed iframe)
-  }
-}
+const store = createBrowserStore<readonly WatchedPlan[]>({
+  key: WATCH_KEY,
+  empty: EMPTY,
+  parse: parseWatchList,
+  serialize: (list) => JSON.stringify(list),
+});
 
-function read(): readonly WatchedPlan[] {
-  const s = storage();
-  let raw: string | null = null;
-  try {
-    raw = s ? s.getItem(WATCH_KEY) : null;
-  } catch {
-    raw = null;
-  }
-  if (raw !== cache.raw) cache = { raw, list: parseWatchList(raw) };
-  return cache.list;
-}
-
-function subscribe(listener: () => void) {
-  listeners.add(listener);
-  const onStorage = (e: StorageEvent) => {
-    if (e.key === null || e.key === WATCH_KEY) listener();
-  };
-  window.addEventListener("storage", onStorage);
-  return () => {
-    listeners.delete(listener);
-    window.removeEventListener("storage", onStorage);
-  };
-}
-
-function write(list: readonly WatchedPlan[]): boolean {
-  const s = storage();
-  if (!s) return false;
-  try {
-    s.setItem(WATCH_KEY, JSON.stringify(list));
-  } catch {
-    return false; // quota or blocked: the toggle reports failure instead of pretending
-  }
-  for (const l of listeners) l();
-  return true;
-}
+const read = store.read;
+const write = store.write;
 
 /** Adds or removes a plan. Returns the new watching state, or null when storage is unavailable. */
 export function toggleWatched(
@@ -213,6 +174,9 @@ export function removeWatched(planPda: string): boolean {
 }
 
 /** The watch list; empty during server render (it only exists in the browser). */
-export function useWatchList(): readonly WatchedPlan[] {
-  return useSyncExternalStore(subscribe, read, () => EMPTY);
+export const useWatchList = store.use;
+
+/** Forgets every watched plan in this browser (the reader asked to clear them). */
+export function clearWatchedPlans(): boolean {
+  return write(EMPTY);
 }

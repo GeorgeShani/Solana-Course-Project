@@ -1,17 +1,17 @@
 import { formatUnits } from "@relay/domain";
 import { useQuery } from "@tanstack/react-query";
-import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
-  useRef,
-  useState,
-  type FormEvent,
-  type KeyboardEvent,
-  type ReactNode,
-} from "react";
-import { ChangesTab } from "../components/discovery/ChangesTab";
+  Link,
+  createFileRoute,
+  redirect,
+  useNavigate,
+} from "@tanstack/react-router";
+import { useRef, useState, type FormEvent, type KeyboardEvent } from "react";
+import { WatchedList } from "../components/discovery/WatchedList";
 import { Cue } from "../components/cue/Cue";
 import { Avatar } from "../components/theatre/Portrait";
 import { Icon } from "../components/ui/Icon";
+import { StorageNotice } from "../components/ui/StorageNotice";
 import { KindBadge } from "../components/ui/KindBadge";
 import { PairIcon } from "../components/ui/TokenIcon";
 import {
@@ -47,24 +47,46 @@ import {
   type WatchedPlan,
 } from "../lib/watchlist";
 
-const TABS = ["changes", "traders", "records", "history"] as const;
+const TABS = ["ideas", "profiles", "plans", "receipts"] as const;
 type Tab = (typeof TABS)[number];
 const TAB_LABEL: Record<Tab, string> = {
-  changes: "Changes",
-  traders: "Traders",
-  records: "Records",
-  history: "History",
+  ideas: "Ideas",
+  profiles: "Profiles",
+  plans: "Plans",
+  receipts: "Receipts",
 };
 
 function isTab(v: unknown): v is Tab {
   return TABS.some((t) => t === v);
 }
 
+/** Tab names from earlier builds, so old links and bookmarks still land somewhere sensible. */
+const OLD_TABS: Record<string, Tab | "updates"> = {
+  changes: "updates",
+  traders: "plans",
+  records: "plans",
+  history: "receipts",
+};
+
+/**
+ * What this browser saved. Public ideas and profiles (Ideas, Profiles) and Relay-native plans
+ * (Plans, Receipts) are kept apart on purpose: they prove different things and share no authority.
+ * "What changed" lives on /updates.
+ */
 export const Route = createFileRoute("/watchlist")({
   head: () => ({ meta: [{ title: "Watchlist · Relay" }] }),
-  validateSearch: (search: Record<string, unknown>): { tab?: Tab } => ({
-    tab: isTab(search.tab) ? search.tab : undefined,
-  }),
+  validateSearch: (
+    search: Record<string, unknown>,
+  ): { tab?: Tab | "updates" } => {
+    const t = search.tab;
+    if (isTab(t)) return { tab: t };
+    if (typeof t === "string" && t in OLD_TABS) return { tab: OLD_TABS[t] };
+    return {};
+  },
+  beforeLoad: ({ search }) => {
+    if (search.tab === "updates")
+      throw redirect({ to: "/updates", replace: true });
+  },
   component: Watchlist,
 });
 
@@ -99,12 +121,22 @@ function Watchlist() {
   const mounted = useMounted();
   const watching = useWatchList();
   const traders = useWatchedTraders();
-  const ideas = useDiscoveryWatch();
+  const discovery = useDiscoveryWatch();
+  const ideas = discovery.filter((w) => w.type === "idea");
+  const profiles = discovery.filter((w) => w.type === "trader");
   const navigate = useNavigate({ from: "/watchlist" });
-  // Someone who watches ideas lands on what changed in them; everyone else keeps the old default.
-  const tab =
-    Route.useSearch().tab ??
-    (mounted && ideas.length > 0 ? "changes" : "traders");
+  const requested = Route.useSearch().tab;
+  // Land on the first thing the reader actually saved; public ideas come first.
+  const tab: Tab =
+    requested !== undefined && requested !== "updates"
+      ? requested
+      : mounted && ideas.length === 0 && profiles.length === 0
+        ? watching.length > 0 || traders.length > 0
+          ? "plans"
+          : "ideas"
+        : mounted && ideas.length === 0 && profiles.length > 0
+          ? "profiles"
+          : "ideas";
   const tabRefs = useRef<Partial<Record<Tab, HTMLButtonElement | null>>>({});
 
   const select = (t: Tab, focus = false) => {
@@ -130,10 +162,10 @@ function Watchlist() {
   };
 
   const count: Record<Tab, number | null> = {
-    changes: mounted ? ideas.length : null,
-    traders: mounted ? traders.length : null,
-    records: mounted ? watching.length : null,
-    history: null,
+    ideas: mounted ? ideas.length : null,
+    profiles: mounted ? profiles.length : null,
+    plans: mounted ? watching.length + traders.length : null,
+    receipts: null,
   };
 
   return (
@@ -146,10 +178,7 @@ function Watchlist() {
         <h1 id="watchlist-title" className="page__title">
           Watchlist
         </h1>
-        <span className="storage-note">
-          <Icon name="shield" size={13} />
-          Stored in this browser only
-        </span>
+        <StorageNotice />
       </header>
 
       <div className="wl-tabs">
@@ -193,24 +222,12 @@ function Watchlist() {
           <p className="page__text" aria-busy="true">
             Reading your watchlist…
           </p>
-        ) : tab === "changes" ? (
-          <ChangesTab />
-        ) : tab === "traders" ? (
-          traders.length === 0 ? (
-            <Empty>Watch a trader to see their new plans here.</Empty>
-          ) : (
-            <WatchedTraders list={traders} />
-          )
-        ) : tab === "records" ? (
-          watching.length === 0 ? (
-            <Empty>Watch a plan to see what changes after you save it.</Empty>
-          ) : (
-            <ul className="wl-list">
-              {watching.map((w) => (
-                <WatchedRow key={w.planPda} w={w} />
-              ))}
-            </ul>
-          )
+        ) : tab === "ideas" ? (
+          <WatchedList items={ideas} kind="idea" />
+        ) : tab === "profiles" ? (
+          <WatchedList items={profiles} kind="trader" />
+        ) : tab === "plans" ? (
+          <PlansTab watching={watching} traders={traders} />
         ) : (
           <Followed />
         )}
@@ -219,15 +236,46 @@ function Watchlist() {
   );
 }
 
-function Empty({ children }: { children: ReactNode }) {
+/** Relay-native plans saved here: separate from the public ideas above, and devnet only. */
+function PlansTab({
+  watching,
+  traders,
+}: {
+  watching: readonly WatchedPlan[];
+  traders: readonly WatchedTrader[];
+}) {
+  if (watching.length === 0 && traders.length === 0)
+    return (
+      <div className="wl-empty">
+        <Cue pose="saved" className="wl-empty__cue" />
+        <p className="wl-empty__line">
+          Plans published through Relay that you watch appear here. They are
+          separate from public ideas.
+        </p>
+        <Link to="/plans" className="btn btn--primary btn--large">
+          See plans
+        </Link>
+      </div>
+    );
   return (
-    <div className="wl-empty">
-      <Cue pose="saved" className="wl-empty__cue" />
-      <p className="wl-empty__line">{children}</p>
-      <Link to="/" className="btn btn--primary btn--large">
-        Discover ideas
-      </Link>
-    </div>
+    <>
+      {watching.length > 0 && (
+        <>
+          <h2 className="page__subsection">Plans you saved</h2>
+          <ul className="wl-list">
+            {watching.map((w) => (
+              <WatchedRow key={w.planPda} w={w} />
+            ))}
+          </ul>
+        </>
+      )}
+      {traders.length > 0 && (
+        <>
+          <h2 className="page__subsection">Plan creators you watch</h2>
+          <WatchedTraders list={traders} />
+        </>
+      )}
+    </>
   );
 }
 

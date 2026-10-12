@@ -31,11 +31,11 @@ Versioned local welcome preference (`relay:welcome:v2`; the older `relay:entered
 
 `/` is Discover: three public-source profiles ("Public-source profile · Not claimed by the author"), a profile filter, and idea cards with trader, assets, paraphrase, source kind and host, publication time, the newest later item named as the timeline names it, Watch and Open. Idea pages end with "What Relay can and cannot establish" (`evidenceSummary`); Brandt's later item reads "Later item · link not established", Hayes's "Update to this idea". `GET /discovery/ideas` gained `latestUpdate` for the card line. The native feed moved to `/plans` (see M5); the fictional fixtures moved to development-only `/dev/plan-states` and are not in the production bundle; `/?preview=fictional` now only redirects there in development. `server/test/curated-data.test.ts` pins the dataset's promises (unclaimed, no wallets, https sources, relationship bases). Old routes redirect. Navigation is Discover, Updates, Watchlist, Plans (+ Account on phones).
 
-## M4. Watch and return loop: IN PROGRESS
+## M4. Watch and return loop: DONE
 
-One versioned storage service, `/updates` over stored cursors, mark seen only on view, reopen the exact changed event, browser-only storage disclosure and private-mode failure behavior.
+One versioned browser store (`lib/storage/browser-store.ts`) now backs the saved ideas/profiles (`relay:discovery-watch:v1`), saved plans and watched plan creators, with the same keys and formats as before (no migration). `/updates` lists what changed since the stored cursor, and each entry links to the exact timeline entry (`/ideas/:id#event-:id`, which scrolls to it and focuses it); a cursor moves only when the reader opens the idea or taps "Mark as read", never because the list was shown. `/watchlist` is now Ideas, Profiles, Plans (saved native plans and plan creators) and Receipts; old `?tab=` values map or redirect. A "Stored in this browser only" notice appears on both pages and turns into a plain warning when the browser refuses to save. Tests: 13 for the store and watch cursors (`app/test/storage.test.ts`). Rehearsed twice in the browser against the local database (Hayes: author-linked update; Brandt: uncertain later item): watch, reload, Updates, open the exact entry, cursor moves, "You're caught up". The real data has no newer entry than what a new watch starts at, so the rehearsal sets the stored cursor back by hand; a live change needs a new curated entry.
 
-## M5. Native plans separation: NEXT
+## M5. Native plans separation: IN PROGRESS
 
 Native feed at `/plans`, `/plans/:planPda` (legacy `/records/*` redirects), "Published through Relay" labels, `GET /plans/feed` with `/feed` as a compatibility alias. Program and domain invariants untouched.
 
