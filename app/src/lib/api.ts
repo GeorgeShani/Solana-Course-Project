@@ -247,10 +247,10 @@ export function feedPath(cursor?: string | null): string {
   const params = new URLSearchParams();
   if (cursor) params.set("cursor", cursor);
   const qs = params.toString();
-  return qs ? `/feed?${qs}` : "/feed";
+  return qs ? `/plans/feed?${qs}` : "/plans/feed";
 }
 
-/** Fetches and validates one feed page from `${base}/feed`. Network failure and 5xx mean "unavailable". */
+/** Fetches and validates one feed page from `${base}/plans/feed`. Network failure and 5xx mean "unavailable". */
 export async function fetchFeedPage(
   base: string,
   cursor?: string | null,

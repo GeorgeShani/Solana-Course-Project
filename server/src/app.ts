@@ -1,4 +1,4 @@
-import { Hono } from "hono";
+import { Hono, type Context } from "hono";
 import { bodyLimit } from "hono/body-limit";
 import { secureHeaders } from "hono/secure-headers";
 import { SUPPORTED_PAIRS, formatUnits } from "@relay/domain";
@@ -121,7 +121,7 @@ export function createApp({
     );
   });
 
-  app.get("/feed", async (c) => {
+  const feed = async (c: Context<AppEnv>) => {
     const limitText = c.req.query("limit");
     const limit = limitText === undefined ? undefined : Number(limitText);
     if (limit !== undefined && !Number.isInteger(limit)) {
@@ -134,6 +134,15 @@ export function createApp({
         limit,
       }),
     );
+  };
+
+  // The canonical native-plan feed. Registered before /plans/:planPda so "feed" is never read as an address.
+  app.get("/plans/feed", feed);
+  // The earlier path. Same answer; the headers tell clients to move.
+  app.get("/feed", async (c) => {
+    c.header("Deprecation", "true");
+    c.header("Link", '</plans/feed>; rel="successor-version"');
+    return feed(c);
   });
 
   mountDiscovery(app, discovery);

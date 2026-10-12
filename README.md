@@ -22,7 +22,7 @@ Start with [PRODUCT.md](PRODUCT.md) (what Relay is and is not) and [docs/ROADMAP
 - **Discovery (primary).** Public-source editorial records: profiles, sources, ideas and timeline events, loaded from `server/curation/curated.json` and served under `/discovery`. They show what an attributed public source said and when. They do not prove that anyone traded, owns a wallet or profited. See [server/curation/README.md](server/curation/README.md).
 - **Native plans (optional).** Plans signed on Solana devnet, mirrored by the server. Chain data is authoritative. Lives under Plans.
 
-Fictional fixtures (`/demo`, and `?preview=fictional` in development builds) are labelled and isolated from both.
+Fictional fixtures (`/demo`, and the development-only `/dev/plan-states`) are labelled and isolated from both.
 
 ## Prerequisites
 

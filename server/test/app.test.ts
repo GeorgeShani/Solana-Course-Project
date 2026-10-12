@@ -331,6 +331,24 @@ describe("confirm: text is accepted only if it matches the onchain commitment", 
 });
 
 describe("feed", () => {
+  it("serves the canonical /plans/feed, and keeps /feed as a marked alias with the same answer", async () => {
+    await t.chain.publish({ pair: SOL_PAIR, ...SOL_PRICE_IN_RANGE });
+    const canonical = await t.get("/plans/feed");
+    const alias = await t.get("/feed");
+    expect(canonical.status).toBe(200);
+    expect(canonical.headers.get("deprecation")).toBeNull();
+    expect(alias.headers.get("deprecation")).toBe("true");
+    expect(alias.headers.get("link")).toContain("/plans/feed");
+    const a = await json(canonical);
+    const b = await json(alias);
+    expect(list(a.items)).toHaveLength(1);
+    expect(list(b.items).map((i) => i.planPda)).toEqual(
+      list(a.items).map((i) => i.planPda),
+    );
+    // "feed" is a route, never read as a plan address.
+    expect((await t.get("/plans/feed?limit=abc")).status).toBe(400);
+  });
+
   it("shows a plan committed onchain even before its text is confirmed", async () => {
     await t.chain.publish({ pair: SOL_PAIR, ...SOL_PRICE_IN_RANGE });
     const feed = await json(await t.get("/feed"));

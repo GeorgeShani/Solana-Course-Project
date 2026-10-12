@@ -35,11 +35,11 @@ Versioned local welcome preference (`relay:welcome:v2`; the older `relay:entered
 
 One versioned browser store (`lib/storage/browser-store.ts`) now backs the saved ideas/profiles (`relay:discovery-watch:v1`), saved plans and watched plan creators, with the same keys and formats as before (no migration). `/updates` lists what changed since the stored cursor, and each entry links to the exact timeline entry (`/ideas/:id#event-:id`, which scrolls to it and focuses it); a cursor moves only when the reader opens the idea or taps "Mark as read", never because the list was shown. `/watchlist` is now Ideas, Profiles, Plans (saved native plans and plan creators) and Receipts; old `?tab=` values map or redirect. A "Stored in this browser only" notice appears on both pages and turns into a plain warning when the browser refuses to save. Tests: 13 for the store and watch cursors (`app/test/storage.test.ts`). Rehearsed twice in the browser against the local database (Hayes: author-linked update; Brandt: uncertain later item): watch, reload, Updates, open the exact entry, cursor moves, "You're caught up". The real data has no newer entry than what a new watch starts at, so the rehearsal sets the stored cursor back by hand; a live change needs a new curated entry.
 
-## M5. Native plans separation: IN PROGRESS
+## M5. Native plans separation: DONE
 
-Native feed at `/plans`, `/plans/:planPda` (legacy `/records/*` redirects), "Published through Relay" labels, `GET /plans/feed` with `/feed` as a compatibility alias. Program and domain invariants untouched.
+Routes: `/plans`, `/plans/:planPda`, `/plans/creators[/:address]`; `/records/*`, `/traders*` and `/?plan=` redirect. API: `GET /plans/feed` is canonical and `GET /feed` stays as a marked alias (`Deprecation: true`, `Link: </plans/feed>; rel="successor-version"`), registered so `feed` is never read as a plan address; the app now calls `/plans/feed`. Each real plan card says "Published through Relay" and "Solana devnet: test tokens"; "Connect wallet" appears in the header only on Plans, Account and the Watchlist (never on Discover, ideas, profiles or Updates). `app/test/separation.test.ts` reads the source and fails if a discovery screen imports a trade, follow, wallet or fixture module, if a plan screen imports discovery data, or if anything but `/dev/plan-states` imports the fixtures. No change to `program/` or `domain/` (their tests are unchanged).
 
-## M6. Frontend and backend maintainability: NEXT
+## M6. Frontend and backend maintainability: IN PROGRESS
 
 Feature folders moved one at a time behind tests; duplicate trader/profile/plan-creator concepts removed; design tokens aligned with DESIGN.md; backend grouped into `modules/discovery`, `modules/plans`, `shared`; curation report and freshness metadata; readiness checks.
 

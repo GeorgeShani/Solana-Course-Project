@@ -2,7 +2,7 @@ import { entryStatus, formatUnits } from "@relay/domain";
 import type { FeedPage, PlanCardView } from "./api";
 
 /**
- * FICTIONAL PREVIEW. A development-only feed (`/?preview=fictional`) used to check the layout of
+ * FICTIONAL PREVIEW. A development-only feed (`/dev/plan-states`) used to check the layout of
  * every entry status when the API or Postgres is not running. Every card is flagged
  * `fictionalPreview` and badged in the UI. Nothing here exists onchain: there are no plan
  * addresses, hashes, signatures, receipts or follower results, and the names are role labels,
