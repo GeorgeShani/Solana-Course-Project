@@ -89,7 +89,7 @@
   gap: clamp(8px, 2vh, 20px);
   width: min(960px, 100% - 24px);
   padding-top: clamp(16px, 3vh, 28px);
-  padding-bottom: calc(24vh + var(--s3));
+  padding-bottom: calc(var(--house-h) + var(--s3));
   opacity: 0;
 }
 

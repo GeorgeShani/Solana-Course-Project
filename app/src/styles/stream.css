@@ -162,7 +162,7 @@
   margin: 0 auto;
   /* Centred between the people bar above and the stage line below (the floor is a fifth of the
      window), so the content has one fixed free area to fit in at every screen size. */
-  padding: 76px calc(var(--wing) + var(--s3)) calc(24vh + var(--s2));
+  padding: 76px calc(var(--wing) + var(--s3)) calc(var(--house-h) + var(--s2));
   scroll-snap-align: start;
   scroll-snap-stop: always;
   /* A screen never scrolls: everything is sized from the window height to fit its free area. */
@@ -190,7 +190,7 @@
   pointer-events: none;
   background: radial-gradient(
     46% 34% at 50% 26%,
-    color-mix(in srgb, var(--accent) 34%, transparent),
+    color-mix(in srgb, var(--accent) 14%, transparent),
     transparent 72%
   );
 }

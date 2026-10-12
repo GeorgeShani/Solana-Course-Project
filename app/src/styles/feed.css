@@ -683,7 +683,7 @@
   width: clamp(80px, 12dvh, 120px);
   aspect-ratio: 3 / 4;
   margin-bottom: var(--s3);
-  border: 2px dashed rgba(214, 178, 106, 0.45);
+  border: 1px solid var(--hairline-strong);
   border-radius: 999px 999px var(--r-lg) var(--r-lg);
 }
 
@@ -715,11 +715,11 @@
 }
 
 .stage-msg__title {
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: clamp(2.25rem, 9vw, 3rem);
-  line-height: 0.9;
-  letter-spacing: 0.01em;
+  font-family: var(--font-title);
+  font-weight: var(--title-weight);
+  font-size: clamp(1.5rem, 5vw, 1.875rem);
+  line-height: var(--title-lead);
+  letter-spacing: var(--title-track);
   text-wrap: balance;
 }
 
@@ -996,10 +996,11 @@
 }
 
 .script__title {
-  font-family: var(--font-display);
-  font-weight: 800;
+  font-family: var(--font-title);
+  font-weight: var(--title-weight);
   font-size: var(--t-title1);
-  line-height: 0.95;
+  line-height: var(--title-lead);
+  letter-spacing: var(--title-track);
 }
 
 .script__quiet {

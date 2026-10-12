@@ -187,7 +187,7 @@ Motion belongs to the theatre, never to the numbers. The curtain parts once per 
 **Key Characteristics:**
 
 - Theatre materials (velvet, curtain, brass, limelight) frame; a flat plaque (#170d2c) holds every number.
-- Big Shoulders Display 800 for the marquee, names, pairs and the finale; the system text stack on the Apple text scale for everything read.
+- Big Shoulders Display 800 only for brand moments (the marquee, the landing headline, the Interval label, plan pairs and the finale); the system text stack on the Apple text scale for everything read, including every page, idea and card title.
 - Pills everywhere for controls; an arch (round top, 24px base corners) for portraits.
 - Solana green is the "In plan range" cue ink; the Solana gradient appears only on the active tab.
 - Creators are sigils, never faces.
@@ -241,17 +241,17 @@ The fixed status vocabulary maps to five tones, each always paired with an icon,
 **Body Font:** the system text stack (-apple-system, BlinkMacSystemFont, SF Pro Text, system-ui, Segoe UI, Roboto, sans-serif)
 **Label/Mono Font:** ui-monospace, SF Mono, Menlo (code and kbd only)
 
-**Character:** A condensed, heavy marquee face for what is billed (RELAY, creator names, pairs, "Fin."), set tight at 0.88 line height; the platform's own text face for everything read, on Apple's text-style sizes.
+**Character:** A condensed, heavy marquee face for the few things that are billed (RELAY, the landing headline, "Fin."), set tight at 0.88 line height; the platform's own text face for everything read, on Apple's text-style sizes. Titles people read (ideas, pages, cards, empty states) use that text face at weight 700 with a 1.2 line height and -0.015em tracking, so a long title never gets squeezed into the condensed face.
 
 ### Hierarchy
 
 - **Display** (800, clamp(4rem, 22vw, 6rem), 0.88, +0.04em): the opening marquee sign; "Fin." uses the same face at clamp(5rem, 30vw, 6rem) in limelight.
 - **Hero** (`--h-hero`, clamp(2rem, 6vw, 2.5rem)): the record page title and walkthrough scene titles.
-- **Page** (`--h-page`, clamp(1.75rem, 5vw, 2rem), line height 1): page titles. Section headings use `--h-section` (1.25rem) and card titles `--h-card` (1.0625rem). The scale follows the Figma design system's proportions: page titles stay close to body size, so the stage, not the type, carries the drama.
-- **Headline** (800, clamp(2.25rem, 9vw, 3rem), 0.88): stage message titles only.
+- **Page** (`--h-page`, clamp(1.625rem, 4.4vw, 2rem), line height 1.2, text face 700): page titles. Section headings use `--h-section` (1.25rem) and card titles `--h-card` (1.0625rem). The scale follows the Figma design system's proportions: page titles stay close to body size, so a long title stays readable.
+- **Headline** (text face 700, clamp(1.5rem, 5vw, 1.875rem), 1.2): stage message and empty-state titles, kept compact.
 - **Act Pair** (800, clamp(2rem, 4.6dvh, 2.75rem), 0.88; 3.25rem at ≥900px): the pair on each act ("SOL / USDC"). Portrait name plates use the same face at min(2rem, 21cqi).
 - **Marquee Word** (800, 1.375rem, +0.14em): RELAY in the valance sign.
-- **Title** (800, 1.75rem, 0.95): the script sheet title.
+- **Title** (text face 700, 1.75rem, 1.2): the script sheet title.
 - **Section** (700, 1.25rem): page section headings.
 - **Body** (400, 1.0625rem, 1.45): default text. Rationale runs at subhead size, max 34ch (52ch on desktop), clamped to two lines.
 - **Callout** (700, 1rem, tabular): the current price ("Now $X").
@@ -263,11 +263,11 @@ The fixed status vocabulary maps to five tones, each always paired with an icon,
 
 **The Tabular Read Rule.** Every number a reader compares (prices, ranges, counts, countdowns) uses tabular lining numerals.
 
-**The Billing Face Rule.** Big Shoulders is for what is billed on the marquee: the brand, names, pairs, titles, "Fin.". It never sets a price, a hint or a sentence.
+**The Billing Face Rule.** Big Shoulders is for what is billed on the marquee: the brand, the landing headline, the Interval label, plan pairs and "Fin.". It never sets a price, a hint, a sentence, or a title someone has to read (an idea's title, a page title, a card).
 
 ## Layout
 
-A fixed three-row app: the valance (56px plus the top safe area), the stage (fills), the tab bar (56px plus the bottom safe area, phones only; zero on desktop, and covered by the welcome scene). Drapes occupy the wings at 7.5% each (`--wing`), and every column pads past them (wing + 8–24px).
+A fixed three-row app: the valance (56px plus the top safe area), the stage (fills), the tab bar (56px plus the bottom safe area, phones only; zero on desktop, and covered by the welcome scene). Drapes are slim wings (`--wing`, clamp(8px, 2vw, 32px)), and every column pads past them (wing + 8–24px). Every content page starts `--page-top` (32px) from the top so titles line up from page to page. On Discover a low audience strip (`--house-h`, clamp(84px, 13vh, 128px), two rows) sits under the stage line; everything that must stay clear of it reads that one variable.
 
 The feed is native vertical scroll-snap (mandatory, stop always), one act per full stage height, no auto-advance. On phones the act is a centred single column: portrait, byline, pair and range, the status plaque (stretched, max 420px), expiry beside the status pill, rationale, then actions pushed to the thumb zone with `margin-top: auto`. Gaps are 8px, growing to 12px on tall screens (≥900px high); below 760px high the rationale clamps to one line, below 680px the evidence line hides, and when a banner shows the portrait shrinks to 12dvh so the plan's terms keep their room.
 
@@ -292,7 +292,7 @@ Depth is theatrical: layered planes (stage radial, floor in perspective, drapes,
 
 ### Named Rules
 
-**The Light Sources Glow Rule.** Only things that emit light (bulbs, the marquee word, the limelight button, the portrait in the spotlight, "Fin.") carry a warm glow. Plaques and numbers sit in a dark seat shadow or none.
+**The Light Sources Glow Rule.** Only things that emit light (bulbs, the marquee word, the limelight button, the portrait in the spotlight, "Fin.") carry a warm glow. Plaques and numbers sit in a dark seat shadow or none. Inside the app the stage light is a hint, not a wash: the spotlight cone stays under 10% opacity, and a dashed outline is kept only where it carries meaning (fictional, unavailable, unknown, offline), never as decoration.
 
 ## Shapes
 

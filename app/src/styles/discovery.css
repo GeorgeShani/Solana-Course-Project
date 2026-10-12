@@ -463,7 +463,7 @@
   display: grid;
   gap: var(--s3);
   padding: var(--s4);
-  border: 1px dashed rgba(214, 178, 106, 0.5);
+  border: 1px solid var(--hairline-strong);
   border-radius: var(--r-md);
   background: var(--velvet-2);
 }

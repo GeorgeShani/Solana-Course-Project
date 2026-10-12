@@ -50,6 +50,12 @@
   --font-ui:
     -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, "Segoe UI",
     Roboto, sans-serif;
+  /* Titles people actually read (ideas, pages, cards) use the UI face. The condensed display face is for
+     brand moments only: the marquee, the landing headline, the Interval label and the finale. */
+  --font-title: var(--font-ui);
+  --title-weight: 700;
+  --title-track: -0.015em;
+  --title-lead: 1.2;
   --t-large: 2.125rem;
   --t-title1: 1.75rem;
   --t-title2: 1.375rem;
@@ -62,7 +68,7 @@
 
   /* headings: hero 40, page 32, section 24, card 20 (desktop sizes; phones step down) */
   --h-hero: clamp(2rem, 6vw, 2.5rem);
-  --h-page: clamp(1.75rem, 5vw, 2rem);
+  --h-page: clamp(1.625rem, 4.4vw, 2rem);
   --h-section: 1.25rem;
   --h-card: 1.0625rem;
 
@@ -89,7 +95,12 @@
   --valance-h: 56px;
   --tabbar-h: 56px;
   /* The gathered drapes: decoration only, so they never take more than a sliver of a phone. */
-  --wing: clamp(14px, 4vw, 64px);
+  --wing: clamp(8px, 2vw, 32px);
+  /* Every content page starts this far from the top, so titles line up from page to page. */
+  --page-top: var(--s6);
+  /* The audience strip on Discover: low, so the ideas get the room. One value, used by everything that
+     has to stay clear of it. */
+  --house-h: clamp(84px, 13vh, 128px);
   --page-w: 760px;
   --page-w-wide: 1080px;
 }

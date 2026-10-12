@@ -6,7 +6,7 @@
 
 /* The stage floor grows to make room for the house, on the discovery stream only. */
 html[data-house="on"] .stage-floor {
-  height: 24%;
+  height: calc(var(--house-h) * 1.2);
 }
 
 .aud {
@@ -15,7 +15,7 @@ html[data-house="on"] .stage-floor {
   left: 0;
   right: 0;
   bottom: 0;
-  height: 24vh;
+  height: var(--house-h);
   overflow: hidden;
   pointer-events: none;
   /* Opaque house fill — Interval curtains must never show through the crowd. */
@@ -71,6 +71,11 @@ html[data-house="on"] .stage-floor {
   right: 0;
 }
 
+/* A low strip, so the back row is left out; the two front rows keep the crowd feeling like a crowd. */
+.aud__row--0 {
+  display: none;
+}
+
 /* Front row paints above the aisle; middle and back sit further up the house. */
 .aud__row--0 {
   bottom: 52%;
@@ -97,9 +102,9 @@ html[data-house="on"] .stage-floor {
   position: absolute;
   bottom: 28%;
   width: clamp(
-    calc(var(--s) * 26px),
-    calc(var(--s) * 3.4vw),
-    calc(var(--s) * 54px)
+    calc(var(--s) * 18px),
+    calc(var(--s) * 2.4vw),
+    calc(var(--s) * 38px)
   );
   height: auto;
   overflow: visible;
@@ -323,7 +328,6 @@ html[data-house="on"] .stage-floor {
 @media (max-width: 600px) {
   .aud {
     bottom: 0;
-    height: 21vh;
   }
 
   .aud::after {
@@ -347,7 +351,7 @@ html[data-house="on"] .stage-floor {
 
   .aud__p {
     bottom: 30%;
-    width: calc(var(--s) * 7.6vw);
+    width: calc(var(--s) * 6.4vw);
   }
 
   /* Drop every other figure; seats are <i>, so nth-of-type on svg leaves them alone. */
@@ -368,17 +372,11 @@ html[data-house="on"] .stage-floor {
 
 @media (max-width: 600px) {
   .scr {
-    padding-bottom: calc(27vh + var(--s2));
+    padding-bottom: calc(var(--house-h) + var(--s3));
   }
 }
 
 /* Tickets slide away at the stage line; they never pass behind or through the house. */
 html[data-house="on"] .stream {
-  clip-path: inset(0 0 24vh 0);
-}
-
-@media (max-width: 600px) {
-  html[data-house="on"] .stream {
-    clip-path: inset(0 0 21vh 0);
-  }
+  clip-path: inset(0 0 var(--house-h) 0);
 }
