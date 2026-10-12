@@ -68,6 +68,18 @@ describe("native plans never read the discovery layer", () => {
     });
 });
 
+describe("Google sign-in gates nothing", () => {
+  // PRODUCT.md: watching needs no account and a wallet is the only gate for following. Sign-in is
+  // optional and lives on Account; any other importer could hide an action behind it.
+  test("only the Account route reads the Google sign-in state", () => {
+    const users = files(SRC)
+      .filter((f) => !rel(f).endsWith("features/account/google-auth.ts"))
+      .filter((f) => importsOf(f).some((i) => i.endsWith("/google-auth")))
+      .map(rel);
+    expect(users).toEqual(["routes/account.tsx"]);
+  });
+});
+
 describe("fictional fixtures stay out of the product", () => {
   test("only the development-only route imports the fixtures", () => {
     const users = files(SRC).filter(

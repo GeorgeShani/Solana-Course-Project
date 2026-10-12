@@ -1,7 +1,5 @@
 import type { EntryStatus } from "@relay/domain";
-import { Link, useNavigate } from "@tanstack/react-router";
-import { useCallback } from "react";
-import { useGoogleAuth } from "../../account/google-auth";
+import { Link } from "@tanstack/react-router";
 import { reviewUnavailableReason } from "../status";
 import { Icon } from "../../../components/ui/Icon";
 
@@ -9,8 +7,8 @@ import { Icon } from "../../../components/ui/Icon";
  * The thumb-zone actions. Review is never hidden: outside "In plan range" its slot shows the
  * reason instead. Nothing here signs or trades.
  *
- * If the visitor is not signed in, action buttons redirect to /account instead of acting.
- * The feed itself (scrolling, reading plan cards) is always accessible without signing in.
+ * None of these needs an account: watching is browser-local, and the only gate for following is
+ * the wallet, which the follow panel asks for itself (PRODUCT.md). Google sign-in gates nothing.
  */
 export function ActionRow({
   planPda,
@@ -31,19 +29,6 @@ export function ActionRow({
   label: string;
 }) {
   const reason = reviewUnavailableReason(status);
-  const auth = useGoogleAuth();
-  const navigate = useNavigate();
-
-  const requireAuth = useCallback(
-    (action: () => void) => () => {
-      if (auth.status !== "signed_in") {
-        void navigate({ to: "/account", search: {} });
-        return;
-      }
-      action();
-    },
-    [auth.status, navigate],
-  );
 
   return (
     <div className="actions">
@@ -53,7 +38,7 @@ export function ActionRow({
           className="btn btn--glass btn--watch"
           aria-pressed={watching}
           aria-label={watching ? `Stop watching ${label}` : `Watch ${label}`}
-          onClick={requireAuth(onToggleWatch)}
+          onClick={onToggleWatch}
           data-on={watching}
         >
           <Icon name={watching ? "star-filled" : "star"} size={22} />
@@ -62,7 +47,7 @@ export function ActionRow({
         <button
           type="button"
           className="btn btn--glass"
-          onClick={requireAuth(onOpenScript)}
+          onClick={onOpenScript}
           aria-haspopup="dialog"
         >
           <Icon name="script" size={20} />
@@ -75,14 +60,6 @@ export function ActionRow({
             hash="follow"
             className="btn btn--primary"
             aria-describedby={reviewId}
-            onClick={
-              auth.status !== "signed_in"
-                ? (e) => {
-                    e.preventDefault();
-                    void navigate({ to: "/account", search: {} });
-                  }
-                : undefined
-            }
           >
             Review trade
           </Link>
