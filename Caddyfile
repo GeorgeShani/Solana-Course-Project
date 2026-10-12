@@ -10,8 +10,17 @@
 		reverse_proxy server:3001
 	}
 
-	# Everything else is the server-rendered app.
+	# Everything else is the server-rendered app. Its responses carry no security headers of their
+	# own (the API sets its own, stricter ones, so those are left alone). No Content-Security-Policy
+	# yet: it needs testing against wallet extensions first.
 	handle {
+		header {
+			Strict-Transport-Security "max-age=31536000"
+			X-Content-Type-Options "nosniff"
+			X-Frame-Options "DENY"
+			Referrer-Policy "strict-origin-when-cross-origin"
+			Permissions-Policy "camera=(), microphone=(), geolocation=()"
+		}
 		reverse_proxy app:3000
 	}
 }

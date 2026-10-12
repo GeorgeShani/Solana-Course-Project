@@ -10,7 +10,7 @@ How to run Relay on a server: **one stack, one domain**, with Docker Compose and
 | What runs        | `caddy` (HTTPS, one domain), `app` (the website, server-rendered), `server` (the API), and `postgres` (or your own hosted database) |
 | Network          | Solana devnet. Set once with `NETWORK=devnet` in `.env`                                                                             |
 | Settings         | **One file: `.env` in the repo root** (copy `.env.example`)                                                                         |
-| On-chain program | Not in Docker. Deployed to devnet from your computer. See [DEVNET_RELEASE.md](docs/runbooks/DEVNET_RELEASE.md)                               |
+| On-chain program | Not in Docker. Deployed to devnet from your computer. See [DEVNET_RELEASE.md](docs/runbooks/DEVNET_RELEASE.md)                      |
 
 ```
                    ┌────────────────────── one domain ──────────────────────┐
@@ -63,8 +63,13 @@ Both images are built with the **repo root** as the build context, because the B
    nano .env        # set NETWORK=devnet, DOMAIN, POSTGRES_PASSWORD (or DATABASE_URL)
    ```
 6. **Start.** `docker compose up -d --build`. Caddy gets an HTTPS certificate on the first request to your domain.
-7. **Check.** `https://<domain>/` shows the website, `https://<domain>/api/health` returns `{"ok":true}`, and `docker compose ps` shows every service healthy.
-8. **Update later.** `git pull && docker compose up -d --build`.
+7. **Check.** `https://<domain>/` shows the website, `https://<domain>/api/health` returns `{"ok":true}`, `https://<domain>/api/health/ready` shows `database` and `rpc` both `ok`, and `docker compose ps` shows every service healthy. `/dev/plan-states` must answer 404.
+8. **Load the public-source records.** A new database is empty, so Discover has nothing until you load them. Run the loader inside the server container, and name the database host, because the guard treats every host but localhost as remote (with the bundled Postgres the host is `postgres`; with Neon use its host):
+   ```bash
+   docker compose exec server bun run scripts/curate.ts --confirm-db-host=postgres
+   ```
+   Without `--confirm-db-host` it refuses and says which host it would have changed. See [docs/runbooks/EVIDENCE.md](docs/runbooks/EVIDENCE.md) for what to run regularly afterwards.
+9. **Update later.** `git pull && docker compose up -d --build`.
 
 Logs are limited to 10 MB times 5 files per service, so a small disk does not fill up. Use `docker compose logs --tail=100 server` to read them.
 
@@ -80,7 +85,9 @@ Copy the file off the server (to S3, for example). If you use a hosted database,
 
 ## Deploying the Solana program (devnet)
 
-The program is deployed once from your computer, not from the server. The full steps are in [docs/runbooks/DEVNET_RELEASE.md](docs/runbooks/DEVNET_RELEASE.md). In short: `bun run program:build`, deploy to devnet with your own keypair (devnet SOL is free from `solana airdrop`), then `bun run sync-idl` and rebuild the app.
+The program is deployed once from your computer, not from the server. The full steps are in [docs/runbooks/DEVNET_RELEASE.md](docs/runbooks/DEVNET_RELEASE.md). In short: make a keypair for Relay and one for the simulated swap venue, run `bun run scripts/set-program-id.ts <relay address> --venue <venue address>`, then `bun run program:build:devnet` (not `program:build`, which builds for the local test fork), `bun run sync-idl` and the test suites, deploy both programs to devnet, and rebuild the app so the new addresses are baked in. Devnet SOL is free, but the public faucet rate-limits `solana airdrop`; deploying Relay holds about 2.7 SOL at its peak (a copy of the program is uploaded before it replaces itself), and about 1.9 SOL stays locked as rent for both programs.
+
+Current deployment (2026-10-13): Relay `GyfA1Cfni44zwHc5FB9nxtmMRhnLv5YtTY1KZY5NsK6F`, simulated venue `CvopiSHQabzQfWnEzhpaLwNRM5MbyGmhLe643NFSSp8K`. `bun run --cwd server check-network` reads the network and says whether both are there.
 
 ## Things to know
 
@@ -92,9 +99,18 @@ The program is deployed once from your computer, not from the server. The full s
 
 ## Status
 
-Not yet run on a machine with Docker and a real domain. Checked so far: `docker compose config` accepts `compose.yaml`; the Caddyfile routes `/api/health` to the API and `/` to the website in a local run; the server and website start from their built output.
+**First bring-up verified on 2026-10-13, on a local machine, not yet on a real domain.** The whole stack was built from scratch from the current code (`docker compose up -d --build`) as a separate Compose project with its own database and ports, so a stack already running was not touched. Results:
 
-Still to do on a real instance: `docker compose up --build`, open the site and `/api/health`, and confirm `docker compose ps` shows everything healthy.
+- All four services came up healthy; only Caddy published ports (the others are internal).
+- `/`, `/plans`, `/about`, `/favicon.svg` and `/api/health` answered 200; `/api/health/ready` showed `database` and `rpc` ok and the plan mirror in sync; `/dev/plan-states` answered 404; plain HTTP redirected to HTTPS.
+- A cross-origin write to the API was refused with 403.
+- The documented `pg_dump` backup produced a dump containing the loaded records, and the records survived a restart of the database and server.
+- The loader refused to run without `--confirm-db-host`, then loaded 3 profiles and 4 ideas with it.
+- The website sent no security headers, so the Caddyfile now adds `Strict-Transport-Security`, `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy` and `Permissions-Policy` to website responses only (the API already sets its own, stricter ones). There is no Content-Security-Policy yet: it needs testing against wallet extensions.
+
+**Not verified:** a real domain with a Let's Encrypt certificate, an EC2 instance, a wallet extension against the hosted site, the Google sign-in flow (it is `off` in the test stack), and the Playwright suite against the stack. Those need the owner's domain, host and settings.
+
+To rehearse the stack on a machine that already runs Relay without disturbing it, copy `compose.yaml`, change the Caddy ports (for example `18080:80` and `18443:443`), and start it as its own project with its own settings: `docker compose -p relay-verify -f <copy> --project-directory . --env-file <settings> up -d --build`. Remove it with `docker compose -p relay-verify down -v`. Remember that a root `.env` with `DATABASE_URL` set makes any stack started from it use that database.
 
 ## Troubleshooting
 
