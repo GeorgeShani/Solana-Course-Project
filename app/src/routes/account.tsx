@@ -172,7 +172,8 @@ function GoogleSection({
       ) : (
         <div className="acct-google">
           <p className="page__text page__text--quiet" style={{ flexGrow: 1 }}>
-            Sign in to watch traders and interact with plans.
+            Optional. Discovering ideas, opening sources and watching need no
+            account.
           </p>
           <button
             id="google-sign-in-btn"
@@ -298,7 +299,10 @@ function Preferences() {
   const mounted = useMounted();
   const [blocked, setBlocked] = useState(false);
   return (
-    <section className="panel" aria-labelledby="prefs-title">
+    <section
+      className="panel panel--pointer-only"
+      aria-labelledby="prefs-title"
+    >
       <h2 id="prefs-title" className="panel__title">
         Preferences
       </h2>

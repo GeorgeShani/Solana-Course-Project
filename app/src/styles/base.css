@@ -453,6 +453,9 @@ kbd {
 }
 
 .page > * {
+  /* A definite width, so the centring margins never shrink a block to its content (in a grid page
+     they did, and every block landed on a different left edge). */
+  width: min(100%, var(--page-max));
   max-width: min(100%, var(--page-max));
   margin-left: auto;
   margin-right: auto;
