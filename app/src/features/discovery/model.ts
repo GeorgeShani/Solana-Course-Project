@@ -11,7 +11,7 @@ import {
 } from "../../lib/api/http";
 
 /**
- * Client for Relay's discovery API (server/src/discovery): sourced traders, their ideas, each
+ * Client for Relay's discovery API (server/src/modules/discovery): sourced traders, their ideas, each
  * idea's timeline, the changes feed and evidence requests.
  *
  * Everything here is manual coverage: a person at Relay recorded it. JSON from the network is
@@ -1007,7 +1007,7 @@ export const PARTICIPATION_LABEL: Record<
 
 // -------------------------------------------------------------------------- form validation
 
-/** The same limits the server enforces (server/src/discovery/evidence.ts), so a form can say so early. */
+/** The same limits the server enforces (server/src/modules/discovery/evidence.ts), so a form can say so early. */
 export const QUESTION_MIN = 10;
 export const QUESTION_MAX = 280;
 export const EXPLANATION_MIN = 10;

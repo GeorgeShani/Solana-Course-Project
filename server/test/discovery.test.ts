@@ -1,7 +1,13 @@
 import { afterAll, describe, expect, it } from "bun:test";
-import { applyCuration, CurationConflictError } from "../src/discovery/apply";
-import { CurationError, parseCuration } from "../src/discovery/curation";
-import { eventHash, type EventHashInput } from "../src/discovery/hash";
+import {
+  applyCuration,
+  CurationConflictError,
+} from "../src/modules/discovery/apply";
+import {
+  CurationError,
+  parseCuration,
+} from "../src/modules/discovery/curation";
+import { eventHash, type EventHashInput } from "../src/modules/discovery/hash";
 import { createTestApp, type TestApp } from "./helpers";
 
 // ------------------------------------------------------------------------------------ helpers
@@ -1089,8 +1095,9 @@ describe("GET /discovery", () => {
     expect((await live.get("/discovery/ideas/demo-watch")).status).toBe(404);
 
     // The same database, read by a server in demo mode.
-    const { loadEnv } = await import("../src/env");
-    const { createDiscoveryService } = await import("../src/discovery/service");
+    const { loadEnv } = await import("../src/shared/env");
+    const { createDiscoveryService } =
+      await import("../src/modules/discovery/service");
     const demoService = createDiscoveryService({
       env: loadEnv({ NETWORK: "localnet", DEMO_MODE: "true" }),
       db: live.db,

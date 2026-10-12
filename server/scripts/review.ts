@@ -16,13 +16,14 @@
  * accepting it. Accepting publishes YOUR summary and the link, not the submitter's words, and does
  * not say the claim is true or false.
  */
-import { connect } from "../src/db";
-import { loadEnv } from "../src/env";
+import { connect } from "../src/shared/db";
+import { requireConfirmedTarget } from "../src/shared/db-target";
+import { loadEnv } from "../src/shared/env";
 import {
   ReviewError,
   createReviewService,
   type ReviewBasis,
-} from "../src/discovery/evidence";
+} from "../src/modules/discovery/evidence";
 
 const [command, id, ...rest] = process.argv.slice(2);
 
@@ -40,6 +41,7 @@ function need(name: string): string {
 }
 
 const env = loadEnv();
+requireConfirmedTarget(env.databaseDirectUrl, process.argv.slice(2));
 const db = connect(env.databaseDirectUrl);
 const review = createReviewService({ db });
 // Untrusted text is printed as a JSON string so control characters cannot reach the terminal.

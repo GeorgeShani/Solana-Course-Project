@@ -28,4 +28,4 @@ Summaries are Relay's paraphrase, never the author's words. Re-open every source
 - No dates in the future. Text has no control characters and is NFC-normalised.
 - Sources, ideas and events are append-only. If a recorded entry is wrong, add a `correction` event; a file that contradicts a recorded entry is refused whole. A source that disappears gets a new availability entry (`unavailable` or `removed`) and a `source_unavailable` event; the app then shows a tombstone, not the text.
 
-Run `bun run --cwd server curate --check` before loading.
+Before loading: `bun run --cwd server curate --check` (valid?) and `bun run --cwd server curate --report` (coverage, capture freshness, what to re-check; sources older than 30 days are flagged). Neither touches a database. Loading refuses a remote database until you name its host (`--confirm-db-host=<host>`); see server/README.md, "Safe load".

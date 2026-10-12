@@ -16,7 +16,7 @@ import {
   decodePlanVersion,
   getVersionAddress,
 } from "@relay/domain/solana";
-import type { Cluster } from "../env";
+import type { Cluster } from "../../shared/env";
 import type {
   ChainInstruction,
   ChainReader,

@@ -1,19 +1,38 @@
 import { createApp } from "./app";
-import { connect, migrate } from "./db";
-import { loadEnv } from "./env";
-import { createLogger } from "./logger";
-import { assertRpcMatchesNetwork } from "./network-check";
-import { createEvidenceService } from "./discovery/evidence";
-import { createDiscoveryService } from "./discovery/service";
-import { createChain } from "./services/chain";
-import { createFollowService } from "./services/follow";
-import { createJupiterClient } from "./services/jupiter";
-import { createPlanService } from "./services/plans";
-import { createRpcForward } from "./services/rpc-proxy";
-import { createJupiterPrices } from "./services/prices";
+import { connect, migrate } from "./shared/db";
+import {
+  describeDbTarget,
+  targetLine,
+  targetRefusal,
+} from "./shared/db-target";
+import { loadEnv } from "./shared/env";
+import { createLogger } from "./shared/logger";
+import { assertRpcMatchesNetwork } from "./shared/network-check";
+import { createEvidenceService } from "./modules/discovery/evidence";
+import { createDiscoveryService } from "./modules/discovery/service";
+import { createChain } from "./modules/plans/chain";
+import { createFollowService } from "./modules/plans/follow";
+import { createJupiterClient } from "./modules/plans/jupiter";
+import { createPlanService } from "./modules/plans/plans";
+import { createRpcForward } from "./modules/plans/rpc-proxy";
+import { createJupiterPrices } from "./modules/plans/prices";
 
 const env = loadEnv();
 const logger = createLogger();
+
+// A development server migrates on start, so it must not do that to a remote database by accident.
+// (A production server is expected to use its real database.)
+if (!env.production) {
+  const target = describeDbTarget(env.databaseUrl);
+  const refusal = targetRefusal(target, process.env.ALLOW_REMOTE_DB);
+  logger.info("database_target", { target: targetLine(target) });
+  if (refusal) {
+    logger.error("database_target_refused", {
+      note: refusal.replace("--confirm-db-host=", "ALLOW_REMOTE_DB="),
+    });
+    process.exit(1);
+  }
+}
 
 // A wrong RPC network would label real funds as test funds (or the reverse), so it stops the start.
 if (

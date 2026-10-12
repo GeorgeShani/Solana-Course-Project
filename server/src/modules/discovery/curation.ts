@@ -1,5 +1,5 @@
 import { decodeAddress } from "@relay/domain";
-import { isRecord } from "../util";
+import { isRecord } from "../../shared/util";
 
 /**
  * The curation file: owner-reviewed traders, their captured public statements, and the ideas and

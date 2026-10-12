@@ -86,7 +86,7 @@ So you could show a wallet's PnL, but you could not build a "smart money leaderb
 
 ## Using an MCP server vs an API
 
-An MCP server is useful for **exploring** (asking an agent "show me this wallet's last 30 days") and for building fixtures. It is not what the app should call at runtime: the Relay server should call the vendor's REST API directly, with the key kept on the server, caching and rate limits in place (see `server/src/services/prices.ts` for the pattern). Candidates with an MCP: Helius (official), Vybe (hosted), Nansen (official), Bitquery (hosted). Add one to Claude Code with its own install command; I have not installed any of them.
+An MCP server is useful for **exploring** (asking an agent "show me this wallet's last 30 days") and for building fixtures. It is not what the app should call at runtime: the Relay server should call the vendor's REST API directly, with the key kept on the server, caching and rate limits in place (see `server/src/modules/plans/prices.ts` for the pattern). Candidates with an MCP: Helius (official), Vybe (hosted), Nansen (official), Bitquery (hosted). Add one to Claude Code with its own install command; I have not installed any of them.
 
 ## How this fits Relay
 

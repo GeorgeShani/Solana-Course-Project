@@ -18,7 +18,7 @@ import { verifyFollow, type ExecutionView, type QuoteView } from "../api";
 import { ApiRequestError } from "../../../lib/api/http";
 import { getRpc } from "../../../lib/solana";
 
-/** The server's limits on one approved follow (server/src/services/follow.ts), in USDC. */
+/** The server's limits on one approved follow (server/src/modules/plans/follow.ts), in USDC. */
 export const MIN_FOLLOW_USDC = "1";
 export const MAX_FOLLOW_USDC = "1000";
 /** The server composes with this cap; the client must compose the identical transaction. */

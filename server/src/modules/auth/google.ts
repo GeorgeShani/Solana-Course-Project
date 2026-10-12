@@ -14,9 +14,9 @@
 
 import type { Hono } from "hono";
 import { getCookie, setCookie, deleteCookie } from "hono/cookie";
-import type { Db } from "../db";
-import type { Env } from "../env";
-import type { AppEnv } from "../middleware";
+import type { Db } from "../../shared/db";
+import type { Env } from "../../shared/env";
+import type { AppEnv } from "../../shared/middleware";
 
 const GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth";
 const GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token";
@@ -103,10 +103,7 @@ async function fetchProfile(accessToken: string): Promise<GoogleProfile> {
   };
 }
 
-async function upsertSession(
-  db: Db,
-  profile: GoogleProfile,
-): Promise<string> {
+async function upsertSession(db: Db, profile: GoogleProfile): Promise<string> {
   const token = randomHex(32);
 
   // Prune expired sessions lazily.
@@ -145,16 +142,17 @@ async function deleteSession(db: Db, token: string): Promise<void> {
   await db`delete from google_sessions where session_token = ${token}`;
 }
 
-export function mountGoogleAuth(
-  app: Hono<AppEnv>,
-  env: Env,
-  db: Db,
-): void {
+export function mountGoogleAuth(app: Hono<AppEnv>, env: Env, db: Db): void {
   // ── Redirect to Google ────────────────────────────────────────────────────
   app.get("/auth/google", (c) => {
     if (!env.googleClientId || !env.googleRedirectUri) {
       return c.json(
-        { error: { code: "oauth_not_configured", message: "Google OAuth is not configured" } },
+        {
+          error: {
+            code: "oauth_not_configured",
+            message: "Google OAuth is not configured",
+          },
+        },
         503,
       );
     }

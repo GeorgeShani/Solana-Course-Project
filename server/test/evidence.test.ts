@@ -1,15 +1,15 @@
 import { afterAll, describe, expect, it } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { applyCuration } from "../src/discovery/apply";
-import { parseCuration } from "../src/discovery/curation";
+import { applyCuration } from "../src/modules/discovery/apply";
+import { parseCuration } from "../src/modules/discovery/curation";
 import {
   LIMITS,
   ReviewError,
   hashToken,
   newId,
   newSessionToken,
-} from "../src/discovery/evidence";
+} from "../src/modules/discovery/evidence";
 import { createTestApp, type TestApp } from "./helpers";
 
 const IDEA = "demo-sol-140-area";
@@ -435,8 +435,9 @@ describe("asking for evidence", () => {
   it("does not take requests for an idea on the other side of the demo/live line", async () => {
     // A live server (no DEMO_MODE) sharing the database cannot see the demo idea at all.
     const app = await demoApp();
-    const { createEvidenceService } = await import("../src/discovery/evidence");
-    const { loadEnv } = await import("../src/env");
+    const { createEvidenceService } =
+      await import("../src/modules/discovery/evidence");
+    const { loadEnv } = await import("../src/shared/env");
     const live = createEvidenceService({
       env: loadEnv({ NETWORK: "localnet" }),
       db: app.db,

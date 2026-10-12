@@ -8,7 +8,7 @@ export function connect(url: string): Db {
   return new SQL(url);
 }
 
-const MIGRATIONS_DIR = join(import.meta.dir, "..", "migrations");
+const MIGRATIONS_DIR = join(import.meta.dir, "..", "..", "migrations");
 
 /**
  * Applies server/migrations/*.sql in filename order, each in its own transaction, recording the

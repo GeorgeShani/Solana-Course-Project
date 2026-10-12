@@ -3,6 +3,7 @@
  *
  *   bun run --cwd server curate                 # curation/curated.json (real traders)
  *   bun run --cwd server curate --check         # validate only, touch nothing
+ *   bun run --cwd server curate --report        # validate, then print coverage, freshness and warnings; touches nothing
  *   bun run --cwd server curate --demo          # curation/demo.json (fictional; refused in production)
  *   bun run --cwd server curate --file path.json
  *
@@ -11,10 +12,18 @@
  */
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { connect, migrate } from "../src/db";
-import { applyCuration, CurationConflictError } from "../src/discovery/apply";
-import { CurationError, parseCuration } from "../src/discovery/curation";
-import { loadEnv } from "../src/env";
+import { connect, migrate } from "../src/shared/db";
+import {
+  applyCuration,
+  CurationConflictError,
+} from "../src/modules/discovery/apply";
+import {
+  CurationError,
+  parseCuration,
+} from "../src/modules/discovery/curation";
+import { requireConfirmedTarget } from "../src/shared/db-target";
+import { curationReport, formatReport } from "../src/modules/discovery/report";
+import { loadEnv } from "../src/shared/env";
 
 const args = process.argv.slice(2);
 const flag = (name: string) => args.includes(name);
@@ -46,8 +55,13 @@ try {
   console.log(
     `${path}: ${curation.demo ? "FICTIONAL DEMO" : "live"} file, ${curation.traders.length} trader(s), ${ideas} idea(s) — valid.`,
   );
+  if (flag("--report")) {
+    console.log(formatReport(curationReport(curation, new Date())));
+    process.exit(0);
+  }
   if (flag("--check")) process.exit(0);
 
+  requireConfirmedTarget(env.databaseDirectUrl, args);
   const db = connect(env.databaseDirectUrl);
   await migrate(db);
   const report = await applyCuration(db, curation);

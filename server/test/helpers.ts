@@ -28,25 +28,25 @@ import {
   type ReferencePrice,
 } from "@relay/domain";
 import { createApp } from "../src/app";
-import { connect, migrate, type Db } from "../src/db";
-import { loadEnv, type Env } from "../src/env";
-import { silentLogger, type Logger } from "../src/logger";
+import { connect, migrate, type Db } from "../src/shared/db";
+import { loadEnv, type Env } from "../src/shared/env";
+import { silentLogger, type Logger } from "../src/shared/logger";
 import {
   createEvidenceService,
   createReviewService,
   type ReviewService,
-} from "../src/discovery/evidence";
-import { createDiscoveryService } from "../src/discovery/service";
-import { createFollowService } from "../src/services/follow";
-import type { BuildParams, JupiterClient } from "../src/services/jupiter";
-import { createPlanService } from "../src/services/plans";
-import type { RpcForward, RpcRequest } from "../src/services/rpc-proxy";
+} from "../src/modules/discovery/evidence";
+import { createDiscoveryService } from "../src/modules/discovery/service";
+import { createFollowService } from "../src/modules/plans/follow";
+import type { BuildParams, JupiterClient } from "../src/modules/plans/jupiter";
+import { createPlanService } from "../src/modules/plans/plans";
+import type { RpcForward, RpcRequest } from "../src/modules/plans/rpc-proxy";
 import type {
   ChainReader,
   ChainTransaction,
   PriceSource,
   SimulationResult,
-} from "../src/services/types";
+} from "../src/modules/plans/types";
 
 export const T0 = 1_790_000_000;
 export const ORIGIN = "http://localhost:5173";
