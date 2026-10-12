@@ -1,8 +1,8 @@
 import { createFileRoute, notFound, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Feed } from "../components/feed/Feed";
-import { FeedLoading } from "../components/feed/FeedStates";
-import type { FeedLoad } from "../lib/feed-server";
+import { Feed } from "../features/plans/feed/Feed";
+import { FeedLoading } from "../features/plans/feed/FeedStates";
+import type { FeedLoad } from "../features/plans/feed-server";
 
 /**
  * DEVELOPMENT ONLY. A gallery of every entry status, built from invented plans (`lib/fixtures.ts`),
@@ -25,7 +25,7 @@ export const Route = createFileRoute("/dev/plan-states")({
   }),
   loader: async (): Promise<{ feed: FeedLoad }> => {
     if (!import.meta.env.DEV) throw notFound();
-    const { fictionalPreviewFeed } = await import("../lib/fixtures");
+    const { fictionalPreviewFeed } = await import("../features/plans/fixtures");
     const now = Date.now();
     return {
       feed: { ok: true, page: fictionalPreviewFeed(now), receivedAt: now },

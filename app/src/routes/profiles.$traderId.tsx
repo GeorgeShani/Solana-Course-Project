@@ -1,6 +1,6 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { DemoBadge, IdeaCard } from "../components/discovery/Cards";
-import { WatchButton } from "../components/discovery/WatchButton";
+import { DemoBadge, IdeaCard } from "../features/discovery/components/Cards";
+import { WatchButton } from "../features/discovery/components/WatchButton";
 import { Cue } from "../components/cue/Cue";
 import { BackLink } from "../components/ui/BackLink";
 import { Icon } from "../components/ui/Icon";
@@ -13,8 +13,8 @@ import {
   formatWhen,
   latestCapture,
   safeHref,
-} from "../lib/discovery";
-import { useSourcedTrader } from "../lib/discovery-queries";
+} from "../features/discovery/model";
+import { useSourcedTrader } from "../features/discovery/queries";
 
 export const Route = createFileRoute("/profiles/$traderId")({
   head: () => ({ meta: [{ title: "Profile · Relay" }] }),

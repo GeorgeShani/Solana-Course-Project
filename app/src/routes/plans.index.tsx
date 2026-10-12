@@ -1,9 +1,9 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Feed } from "../components/feed/Feed";
-import { FeedLoading } from "../components/feed/FeedStates";
-import { getChainStatus } from "../lib/chain";
-import { getFirstFeedPage, type FeedLoad } from "../lib/feed-server";
+import { Feed } from "../features/plans/feed/Feed";
+import { FeedLoading } from "../features/plans/feed/FeedStates";
+import { getChainStatus } from "../features/plans/chain";
+import { getFirstFeedPage, type FeedLoad } from "../features/plans/feed-server";
 
 interface PlansSearch {
   /** The active plan, for deep links and restoring the reader's place. */

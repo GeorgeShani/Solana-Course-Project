@@ -6,13 +6,12 @@ import {
 import {
   DISCOVERY_WATCH_KEY,
   MAX_WATCHED,
-  clearDiscoveryWatch,
   isWatched,
   markSeen,
   parseDiscoveryWatch,
   removeWatch,
   toggleWatch,
-} from "../src/lib/discovery-watch";
+} from "../src/features/discovery/watch";
 
 /** A localStorage stand-in that can be told to refuse reads or writes, like a private window. */
 class FakeStorage {
@@ -160,13 +159,11 @@ describe("watching ideas and profiles", () => {
     expect(watching()).toHaveLength(MAX_WATCHED);
   });
 
-  test("removing and clearing forget only what was asked", () => {
+  test("removing forgets only what was asked", () => {
     toggleWatch("idea", "idea-one-test", "One", "1");
     toggleWatch("trader", "trader-one-test", "T", "1");
     expect(removeWatch("idea", "idea-one-test")).toBe(true);
     expect(watching().map((w) => w.id)).toEqual(["trader-one-test"]);
-    expect(clearDiscoveryWatch()).toBe(true);
-    expect(watching()).toEqual([]);
   });
 
   test("damaged storage never hides the rest or crashes", () => {

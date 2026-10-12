@@ -1,9 +1,12 @@
 import { Link, createFileRoute, redirect } from "@tanstack/react-router";
-import { IdeaCard, SourcedTraderCard } from "../components/discovery/Cards";
+import {
+  IdeaCard,
+  SourcedTraderCard,
+} from "../features/discovery/components/Cards";
 import { Cue } from "../components/cue/Cue";
 import { Icon } from "../components/ui/Icon";
-import { formatWhen, latestCapture } from "../lib/discovery";
-import { useIdeaFeed, useSourcedTraders } from "../lib/discovery-queries";
+import { formatWhen, latestCapture } from "../features/discovery/model";
+import { useIdeaFeed, useSourcedTraders } from "../features/discovery/queries";
 
 interface DiscoverSearch {
   /** Narrow the ideas to one public-source profile. */

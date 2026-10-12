@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ChangesTab } from "../components/discovery/ChangesTab";
+import { ChangesTab } from "../features/discovery/components/ChangesTab";
 import { StorageNotice } from "../components/ui/StorageNotice";
 import { useMounted } from "../lib/mounted";
 

@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { setCueCursor, useCueCursorPref } from "../../lib/cue-cursor";
-import { requestWelcome } from "../../lib/welcome";
+import { requestWelcome } from "../../features/onboarding/welcome-state";
 import { HEADER_NAV } from "../../lib/nav";
 import { Cue } from "../cue/Cue";
 import { Icon } from "../ui/Icon";

@@ -2,26 +2,30 @@ import { useQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { Cue } from "../components/cue/Cue";
-import { StatusBlock } from "../components/feed/StatusBlock";
-import { WatchToast } from "../components/feed/WatchToast";
-import { TradePanel } from "../components/trade/TradePanel";
+import { StatusBlock } from "../features/plans/feed/StatusBlock";
+import { WatchToast } from "../features/plans/feed/WatchToast";
+import { TradePanel } from "../features/plans/execution/TradePanel";
 import { BackLink } from "../components/ui/BackLink";
 import { Icon } from "../components/ui/Icon";
 import { KindBadge } from "../components/ui/KindBadge";
 import { PairIcon } from "../components/ui/TokenIcon";
 import {
-  ApiUnavailableError,
   fetchPlan,
   type PlanCardView,
   type VersionView,
-} from "../lib/api";
+} from "../features/plans/api";
+import { ApiUnavailableError } from "../lib/api/http";
 import { useWallClock } from "../lib/clock";
 import { API_URL, CLUSTER_LABEL } from "../lib/config";
 import { formatDuration, formatUsdText } from "../lib/format";
-import { creatorName, planLabel } from "../lib/labels";
-import { chainNowMs, liveEntry } from "../lib/live-status";
+import { creatorName, planLabel } from "../features/plans/labels";
+import { chainNowMs, liveEntry } from "../features/plans/live-status";
 import { explorerAccountUrl, formatTimestamp } from "../lib/sources";
-import { snapshotOf, toggleWatched, useWatchList } from "../lib/watchlist";
+import {
+  snapshotOf,
+  toggleWatched,
+  useWatchList,
+} from "../features/plans/plan-watch";
 
 export const Route = createFileRoute("/plans/$planPda")({
   head: () => ({ meta: [{ title: "Record · Relay" }] }),

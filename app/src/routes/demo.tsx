@@ -2,7 +2,7 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "motion/react";
 import { useRef, useState } from "react";
 import { Cue, type CuePose } from "../components/cue/Cue";
-import { StatusBlock } from "../components/feed/StatusBlock";
+import { StatusBlock } from "../features/plans/feed/StatusBlock";
 import { Portrait } from "../components/theatre/Portrait";
 import { Icon } from "../components/ui/Icon";
 import { KindBadge } from "../components/ui/KindBadge";
@@ -17,7 +17,7 @@ import { formatClock, formatDuration, formatUsdText } from "../lib/format";
 import { useMounted } from "../lib/mounted";
 import { useCalmMotion } from "../lib/motion";
 import { useCueGaze, useStagePointer } from "../lib/pointer";
-import { STATUS_HEADLINE } from "../lib/status";
+import { STATUS_HEADLINE } from "../features/plans/status";
 
 export const Route = createFileRoute("/demo")({
   head: () => ({ meta: [{ title: "Try the demo · Relay" }] }),
