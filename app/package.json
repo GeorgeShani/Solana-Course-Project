@@ -9,6 +9,7 @@
     "lint": "oxlint",
     "test": "bun test test",
     "e2e": "playwright test",
+    "screens": "bun run scripts/capture-screens.ts",
     "start": "bun run serve.ts"
   },
   "dependencies": {
@@ -24,6 +25,7 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
+    "@playwright/cli": "^0.1.22",
     "@playwright/test": "^1.64.0",
     "@types/bun": "^1.4.2",
     "@types/node": "^24.13.3",
