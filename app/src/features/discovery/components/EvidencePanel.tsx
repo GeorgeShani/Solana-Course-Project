@@ -59,7 +59,7 @@ export function EvidencePanel({
   return (
     <section
       id="evidence"
-      className="evidence"
+      className="evidence-requests"
       aria-labelledby="evidence-title"
     >
       <h2 id="evidence-title" className="page__subsection">

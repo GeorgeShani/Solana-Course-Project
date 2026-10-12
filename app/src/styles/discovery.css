@@ -170,6 +170,12 @@
   background: var(--velvet-2);
 }
 
+/* As a block of a page, the card is centred with its siblings (.page > * in base.css). The reset above
+   zeroes its side margins and loads later, so without this it sat on the left edge of a wide window. */
+.page > .source {
+  margin-inline: auto;
+}
+
 .source[data-availability="removed"],
 .source[data-availability="unavailable"] {
   border-style: dashed;
@@ -391,7 +397,10 @@
 
 /* ------------------------------------------------------------------ evidence requests */
 
-.evidence {
+/* Not ".evidence": feed.css owns that name for the one-line note on a plan, which is capped at 40ch,
+   set small and grey, and hidden below 680px of height. Sharing it left this panel a 336px strip
+   floating mid-page, and gone altogether on a short window. */
+.evidence-requests {
   display: grid;
   gap: var(--s4);
 }
