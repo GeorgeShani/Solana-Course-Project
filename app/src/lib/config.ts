@@ -7,6 +7,15 @@ import { NETWORKS, parseNetwork, type Network } from "@relay/domain";
 export const API_URL: string = import.meta.env.VITE_API_URL || "/api";
 
 /**
+ * The public address of the site, without a trailing slash, or "" when not built for one (local
+ * development). Only the social-preview image needs it: those tags must be absolute URLs.
+ */
+export const SITE_URL: string = (import.meta.env.VITE_SITE_URL || "").replace(
+  /\/+$/,
+  "",
+);
+
+/**
  * Browser RPC endpoint. By default Relay's own proxy (`POST /api/rpc`), which forwards an
  * allowlisted set of methods to the server's provider, so a keyed RPC URL never ships in the
  * bundle. `VITE_RPC_URL` overrides it, for example `http://127.0.0.1:8899` for the local fork.

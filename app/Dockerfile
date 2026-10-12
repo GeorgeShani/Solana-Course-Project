@@ -21,8 +21,9 @@ COPY domain domain
 # VITE_* values are inlined into the client bundle at build time.
 ARG VITE_RPC_URL=
 ARG VITE_API_URL=/api
+ARG VITE_SITE_URL=
 ARG NETWORK=devnet
-ENV VITE_RPC_URL=$VITE_RPC_URL VITE_API_URL=$VITE_API_URL NETWORK=$NETWORK
+ENV VITE_RPC_URL=$VITE_RPC_URL VITE_API_URL=$VITE_API_URL VITE_SITE_URL=$VITE_SITE_URL NETWORK=$NETWORK
 RUN bun run --cwd app build
 
 # The SSR bundle imports react, @tanstack/react-router, @solana/kit, ...

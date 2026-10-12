@@ -13,7 +13,7 @@ import { Valance } from "../components/theatre/Marquee";
 import { Welcome } from "../features/onboarding/Welcome";
 import { TabBar } from "../components/ui/TabBar";
 import { WalletDialog } from "../components/wallet/WalletDialog";
-import { CLUSTER, CLUSTER_LABEL } from "../lib/config";
+import { CLUSTER, CLUSTER_LABEL, SITE_URL } from "../lib/config";
 import { WELCOME_BOOT_SCRIPT } from "../features/onboarding/welcome-state";
 import aboutCss from "../styles/about.css?url";
 import audienceCss from "../styles/audience.css?url";
@@ -29,6 +29,33 @@ import streamCss from "../styles/stream.css?url";
 import ticketCss from "../styles/ticket.css?url";
 import tokensCss from "../styles/tokens.css?url";
 
+const SITE_TITLE = "Relay — traders' public ideas and the evidence behind them";
+const SITE_DESCRIPTION =
+  "See the original idea. Follow what changed. Check the evidence. Not financial advice.";
+
+/**
+ * What a link to the site looks like when pasted into a chat or a feed. The image tags need an
+ * absolute URL, so they appear only in a build made for an address (VITE_SITE_URL, from DOMAIN).
+ */
+const SHARE_META = [
+  { property: "og:type", content: "website" },
+  { property: "og:site_name", content: "Relay" },
+  { property: "og:title", content: SITE_TITLE },
+  { property: "og:description", content: SITE_DESCRIPTION },
+  { name: "twitter:title", content: SITE_TITLE },
+  { name: "twitter:description", content: SITE_DESCRIPTION },
+  ...(SITE_URL
+    ? [
+        { property: "og:image", content: `${SITE_URL}/og-image.jpg` },
+        { property: "og:image:width", content: "1040" },
+        { property: "og:image:height", content: "520" },
+        { property: "og:image:alt", content: "Relay" },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:image", content: `${SITE_URL}/og-image.jpg` },
+      ]
+    : [{ name: "twitter:card", content: "summary" }]),
+];
+
 export const Route = createRootRoute({
   head: () => ({
     meta: [
@@ -39,12 +66,9 @@ export const Route = createRootRoute({
       },
       { name: "theme-color", content: "#1b1035" },
       { name: "color-scheme", content: "dark" },
-      { title: "Relay — traders' public ideas and the evidence behind them" },
-      {
-        name: "description",
-        content:
-          "See the original idea. Follow what changed. Check the evidence. Not financial advice.",
-      },
+      { title: SITE_TITLE },
+      { name: "description", content: SITE_DESCRIPTION },
+      ...SHARE_META,
     ],
     links: [
       { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },

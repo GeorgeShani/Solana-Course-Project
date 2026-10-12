@@ -22,6 +22,8 @@ services:
       dockerfile: app/Dockerfile
       args:
         VITE_API_URL: /api
+        # The public address, for the social-preview image tags (they need an absolute URL).
+        VITE_SITE_URL: https://${DOMAIN:?set DOMAIN in .env}
         NETWORK: ${NETWORK:-devnet}
     restart: unless-stopped
     environment:
