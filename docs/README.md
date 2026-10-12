@@ -10,6 +10,7 @@ Product authority is [../PRODUCT.md](../PRODUCT.md). The active roadmap is [ROAD
 | [screenshots/audit-m9-followup/](screenshots/audit-m9-followup/)                   | The same 26 screens after the M9 fixes, for comparison with the first audit.                                   |
 | [../DEPLOYMENT.md](../DEPLOYMENT.md)                                               | Docker Compose + Caddy runbook for one host.                                                                   |
 | [runbooks/DEVNET_RELEASE.md](runbooks/DEVNET_RELEASE.md)                           | How the owner deploys the program to devnet, and the internal program review.                                  |
+| [runbooks/GO_LIVE.md](runbooks/GO_LIVE.md)                                         | Short path to a live site: the DNS record, the settings file and the Docker Compose commands.                  |
 | [runbooks/EVIDENCE.md](runbooks/EVIDENCE.md)                                       | The reviewer's routine: evidence requests, references, coverage freshness and the feed poll. No faked answers. |
 | [runbooks/DEMO.md](runbooks/DEMO.md)                                               | How to demonstrate Relay honestly: real records first, devnet plans optional, fictional fallback labelled.     |
 | [research/TRADER_DATA_SOURCES_2026-10.md](research/TRADER_DATA_SOURCES_2026-10.md) | Outside-Relay Solana wallet-data providers. Deferred; unrelated to the public-source profiles.                 |

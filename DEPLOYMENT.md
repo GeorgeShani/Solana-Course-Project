@@ -2,6 +2,8 @@
 
 How to run Relay on a server: **one stack, one domain**, with Docker Compose and Caddy, on an AWS EC2 instance. Relay runs on Solana **devnet** (free test tokens, no real value), so nothing here costs more than the server.
 
+> **Going live for the first time?** [docs/runbooks/GO_LIVE.md](docs/runbooks/GO_LIVE.md) is the short version: the DNS record, the settings, and the Compose commands, in order.
+
 ## Summary
 
 | Question         | Answer                                                                                                                              |
