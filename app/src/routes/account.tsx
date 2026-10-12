@@ -84,6 +84,9 @@ function Account() {
               >
                 Show welcome
               </button>
+              <Link to="/how-it-works" className="btn btn--ghost btn--small">
+                How it works
+              </Link>
               <Link to="/demo" className="btn btn--ghost btn--small">
                 Try the demo
               </Link>

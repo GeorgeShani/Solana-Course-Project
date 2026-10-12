@@ -236,13 +236,6 @@
     gap: var(--s4);
   }
 
-  /* Narrower desktops: the controls need their room, so the nav sits between the sign and them. */
-  @media (max-width: 1359px) {
-    .valance {
-      grid-template-columns: auto 1fr auto;
-    }
-  }
-
   .valance__sign {
     grid-column: 1;
     justify-self: start;
@@ -966,9 +959,4 @@ html[data-welcome="opening"] .welcome::after {
   html[data-welcome="opening"] .valance__sign {
     animation: none;
   }
-}
-
-/* A wallet button off its pages: same width, so the header is identical everywhere, but not seen or reachable. */
-.wallet-btn[data-quiet="true"] {
-  visibility: hidden;
 }

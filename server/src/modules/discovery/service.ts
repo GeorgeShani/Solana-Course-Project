@@ -82,6 +82,29 @@ export interface IdeaSummary {
   isDemo: boolean;
 }
 
+/** An item detected in an author's own feed. Not an idea, an update or evidence; nobody has reviewed it. */
+export interface FeedItemView {
+  id: string;
+  title: string;
+  url: string;
+  publishedAt: string | null;
+  firstSeenAt: string;
+  source: string;
+  trader: { id: string; displayName: string };
+}
+
+export interface FeedView {
+  provenance: "automatic_unreviewed";
+  items: FeedItemView[];
+  sources: {
+    label: string;
+    traderId: string;
+    lastCheckedAt: string | null;
+    lastOkAt: string | null;
+    lastError: string | null;
+  }[];
+}
+
 export interface EventView {
   /** The global order, as a decimal string. This is the cursor, not the time. */
   seq: string;
@@ -816,7 +839,53 @@ export function createDiscoveryService({ env, db }: DiscoveryServiceDeps) {
     };
   }
 
-  return { listTraders, getTrader, listIdeas, getIdea, getChanges };
+  /**
+   * New items detected automatically in the authors' own feeds, newest first, with how fresh each
+   * feed is. Live profiles only: a demo server has no feeds. Title, link and date; nothing else.
+   */
+  async function listFeed(limitIn?: number): Promise<FeedView> {
+    if (demo)
+      return { provenance: "automatic_unreviewed", items: [], sources: [] };
+    const limit =
+      limitIn !== undefined && Number.isInteger(limitIn)
+        ? Math.min(Math.max(limitIn, 1), 50)
+        : 20;
+    const items = rows(
+      await db`
+        select f.id, f.title, f.url, f.published_at, f.first_seen_at, f.trader_id, t.display_name, s.label
+        from feed_items f
+          join traders t on t.id = f.trader_id and t.is_demo = false
+          join feed_sources s on s.feed_url = f.feed_url
+        order by f.published_at desc nulls last, f.first_seen_at desc, f.id desc
+        limit ${limit}`,
+    ).map((r) => ({
+      id: text(r, "id"),
+      title: text(r, "title"),
+      url: text(r, "url"),
+      publishedAt: dateOrNull(r, "published_at"),
+      firstSeenAt: dateReq(r, "first_seen_at"),
+      source: text(r, "label"),
+      trader: {
+        id: text(r, "trader_id"),
+        displayName: text(r, "display_name"),
+      },
+    }));
+    const sources = rows(
+      await db`
+        select s.label, s.trader_id, s.last_checked_at, s.last_ok_at, s.last_error
+        from feed_sources s join traders t on t.id = s.trader_id and t.is_demo = false
+        order by s.trader_id, s.label`,
+    ).map((r) => ({
+      label: text(r, "label"),
+      traderId: text(r, "trader_id"),
+      lastCheckedAt: dateOrNull(r, "last_checked_at"),
+      lastOkAt: dateOrNull(r, "last_ok_at"),
+      lastError: textOrNull(r, "last_error"),
+    }));
+    return { provenance: "automatic_unreviewed", items, sources };
+  }
+
+  return { listTraders, getTrader, listIdeas, getIdea, getChanges, listFeed };
 }
 
 export type DiscoveryService = ReturnType<typeof createDiscoveryService>;

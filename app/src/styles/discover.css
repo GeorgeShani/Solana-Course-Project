@@ -113,3 +113,247 @@
     display: none;
   }
 }
+
+/* The Cue cursor needs a mouse: on touch screens its preference does nothing, so it is not offered. */
+@media (hover: none), (pointer: coarse) {
+  .panel--pointer-only {
+    display: none;
+  }
+}
+
+/* ------------------------------------------------------------------ the stream (Discover) */
+
+.stream-wrap {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.stream {
+  position: relative;
+  z-index: 10;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scroll-snap-type: y mandatory;
+  scrollbar-width: none;
+}
+
+.stream::-webkit-scrollbar {
+  display: none;
+}
+
+.stream__filters {
+  position: absolute;
+  z-index: 20;
+  top: var(--s3);
+  left: 50%;
+  translate: -50% 0;
+  display: flex;
+  gap: var(--s2);
+  max-width: calc(100% - 2 * var(--wing) - var(--s4));
+  overflow-x: auto;
+  padding: var(--s1);
+  border: 1px solid var(--hairline);
+  border-radius: 999px;
+  background: rgba(15, 8, 32, 0.88);
+  scrollbar-width: none;
+}
+
+.stream__filters::-webkit-scrollbar {
+  display: none;
+}
+
+.stream__filters .filters__chip {
+  min-height: var(--ctl-sm);
+  padding: 0 var(--s3);
+  font-size: var(--t-footnote);
+  white-space: nowrap;
+  border-color: transparent;
+}
+
+.stream__count {
+  position: absolute;
+  z-index: 20;
+  right: calc(var(--wing) + var(--s3));
+  bottom: var(--s3);
+  margin: 0;
+  color: var(--mute);
+  font-size: var(--t-footnote);
+  font-variant-numeric: tabular-nums;
+}
+
+/* One idea per screen. Calm velvet, readable type; the theatre is the frame, not the text. */
+.scr {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--s3);
+  width: min(100%, 760px);
+  margin: 0 auto;
+  /* The perspective floor takes the lowest fifth of the stage; the content sits above it. */
+  padding: calc(var(--s7) + var(--s3)) calc(var(--wing) + var(--s4))
+    calc(20% + var(--s3));
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  overflow-y: auto;
+}
+
+.scr:focus-visible {
+  outline-offset: -6px;
+  border-radius: var(--r-lg);
+}
+
+.scr--intro {
+  align-items: center;
+  text-align: center;
+}
+
+.scr__cue {
+  width: min(46vw, 200px);
+}
+
+.scr__h1 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--h-hero);
+  line-height: 1.05;
+}
+
+.scr__lede {
+  margin: 0;
+  max-width: 34ch;
+  font-size: var(--t-title3);
+  font-weight: 600;
+  color: var(--chalk);
+  text-wrap: balance;
+}
+
+.scr__fine {
+  margin: 0;
+  max-width: 56ch;
+  color: var(--haze);
+  font-size: var(--t-subhead);
+}
+
+.scr__fine--quiet {
+  color: var(--mute);
+  font-size: var(--t-footnote);
+}
+
+.scr__people {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  width: 100%;
+  max-width: 720px;
+  gap: var(--s2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.scr__person {
+  display: grid;
+  gap: 2px;
+  padding: var(--s2) var(--s3);
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--r-md);
+  color: var(--chalk);
+  text-decoration: none;
+  text-align: left;
+}
+
+.scr__person span {
+  color: var(--haze);
+  font-size: var(--t-caption);
+}
+
+.scr__badges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s2);
+  margin: 0;
+}
+
+.scr__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 5vw, 2.75rem);
+  line-height: 1.1;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+
+.scr__by {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s1) var(--s3);
+  margin: 0;
+  color: var(--haze);
+}
+
+.scr__by a {
+  color: var(--limelight);
+  font-weight: 700;
+}
+
+.scr__quote {
+  margin: 0;
+  padding-left: var(--s3);
+  border-left: 3px solid var(--brass);
+  color: var(--chalk);
+  font-size: var(--t-callout);
+  line-height: 1.5;
+}
+
+.scr__quote--gone {
+  color: var(--mute);
+  font-style: italic;
+}
+
+.scr__meta {
+  margin: 0;
+  color: var(--haze);
+  font-size: var(--t-footnote);
+}
+
+.scr__later {
+  margin: 0;
+  color: var(--haze);
+  font-size: var(--t-subhead);
+}
+
+.scr__later[data-later="true"] {
+  color: var(--chalk);
+  font-weight: 700;
+}
+
+.scr__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--s2);
+  margin-top: var(--s2);
+}
+
+.scr__actions--center {
+  justify-content: center;
+}
+
+.scr--detected .scr__title {
+  font-size: clamp(1.5rem, 4.4vw, 2.25rem);
+}
+
+@media (max-height: 640px) {
+  .scr {
+    justify-content: flex-start;
+    padding-top: calc(var(--s7) + var(--s2));
+    padding-bottom: var(--s5);
+  }
+}

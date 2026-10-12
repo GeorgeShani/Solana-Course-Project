@@ -60,6 +60,10 @@ Routes: `/plans`, `/plans/:planPda`, `/plans/creators[/:address]`; `/records/*`,
 
 Not verified, and stated so: the program was not rebuilt (`program:build`/`program:test` need WSL and were not run; `program/` is unchanged); no devnet plan or receipt was exercised, so Part 2 of the demo has not been rehearsed; no screen reader pass and no full keyboard audit beyond focus handling in the welcome and exact-entry links; reduced motion was reasoned from CSS and the boot script test, not observed; the `design-md` lint and the `impeccable`/`web-design-guidelines` skills were not installed (the plan makes that optional). The Google sign-in added before this restructure still gates "Review trade"; that is an open owner decision.
 
+## M8. Discover as a stream, automatic feed, browser suite: DONE
+
+`/` is a full-screen, one-idea-per-screen snap feed (swipe, wheel, J/K): an intro, the 4 hand-recorded ideas, then the newest items detected automatically in the authors' own public feeds (Hayes' Substack, Brandt's site, Cowen's YouTube channel), each marked "Detected automatically · not reviewed" with only title, link and date stored (`feed_items`, migration 007; `GET /discovery/feed`; polled every 30 minutes by the server, or `bun run --cwd server feeds`). Items already recorded by hand are not repeated. Playwright suite in `app/e2e` (journey, phone, accessibility with axe, keyboard, reduced motion, states): `bun run --cwd app e2e` against the running stack. A wallet-activity feed still needs a Solana Tracker key (not provided).
+
 ## Deferred
 
 Automatic X/Telegram/newsletter/exchange ingestion · creator claiming and identity verification · notifications · premium history and comparison · leaderboards, inferred PnL, universal wallet attribution · outside-Relay wallet PnL providers (see [research](research/TRADER_DATA_SOURCES_2026-10.md)) · more chains · copy trading · a large curation admin UI.

@@ -1,0 +1,20 @@
+{
+  "note": "The authors' own public feeds, polled automatically. Only the title, link and date of each item are kept. Add a feed only for a profile that already exists in curated.json.",
+  "feeds": [
+    {
+      "traderId": "arthur-hayes",
+      "label": "Crypto Trader Digest (Substack)",
+      "url": "https://cryptohayes.substack.com/feed"
+    },
+    {
+      "traderId": "peter-brandt",
+      "label": "peterlbrandt.com",
+      "url": "https://www.peterlbrandt.com/feed/"
+    },
+    {
+      "traderId": "benjamin-cowen",
+      "label": "Benjamin Cowen (YouTube)",
+      "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCRvqjQPSeaWn-uEx-w0XOIg"
+    }
+  ]
+}

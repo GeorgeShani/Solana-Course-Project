@@ -639,6 +639,85 @@ async function request(
 
 const enc = encodeURIComponent;
 
+// ------------------------------------------------------------------ automatically detected items
+
+/** An item found in an author's own feed. Not an idea, an update or evidence; nobody at Relay has reviewed it. */
+export interface FeedItemView {
+  id: string;
+  title: string;
+  url: string;
+  publishedAt: string | null;
+  firstSeenAt: string;
+  source: string;
+  trader: { id: string; displayName: string };
+}
+
+export interface DetectedFeed {
+  items: FeedItemView[];
+  sources: {
+    label: string;
+    traderId: string;
+    lastCheckedAt: string | null;
+    lastOkAt: string | null;
+    lastError: string | null;
+  }[];
+}
+
+export function parseDetectedFeed(v: unknown): DetectedFeed {
+  const r = rec(v, "feed");
+  return {
+    items: list(r.items, "feed.items").map((x, i) => {
+      const p = `feed.items[${i}]`;
+      const o = rec(x, p);
+      const t = rec(o.trader, `${p}.trader`);
+      return {
+        id: str(o.id, `${p}.id`),
+        title: str(o.title, `${p}.title`),
+        url: str(o.url, `${p}.url`),
+        publishedAt: strOrNull(o.publishedAt, `${p}.publishedAt`),
+        firstSeenAt: str(o.firstSeenAt, `${p}.firstSeenAt`),
+        source: str(o.source, `${p}.source`),
+        trader: {
+          id: str(t.id, `${p}.trader.id`),
+          displayName: str(t.displayName, `${p}.trader.displayName`),
+        },
+      };
+    }),
+    sources: list(r.sources, "feed.sources").map((x, i) => {
+      const p = `feed.sources[${i}]`;
+      const o = rec(x, p);
+      return {
+        label: str(o.label, `${p}.label`),
+        traderId: str(o.traderId, `${p}.traderId`),
+        lastCheckedAt: strOrNull(o.lastCheckedAt, `${p}.lastCheckedAt`),
+        lastOkAt: strOrNull(o.lastOkAt, `${p}.lastOkAt`),
+        lastError: strOrNull(o.lastError, `${p}.lastError`),
+      };
+    }),
+  };
+}
+
+export async function fetchDetectedFeed(base: string): Promise<DetectedFeed> {
+  return parseDetectedFeed(await request(`${base}/discovery/feed?limit=30`));
+}
+
+/** The same page, or the same video, however the link is written (trailing slash, tracking, www). */
+export function sameSource(a: string, b: string): boolean {
+  const key = (u: string): string => {
+    try {
+      const x = new URL(u);
+      const v = x.searchParams.get("v");
+      const host = x.hostname.replace(/^www\./, "");
+      return v
+        ? `${host}/watch?v=${v}`
+        : `${host}${x.pathname.replace(/\/+$/, "")}`;
+    } catch {
+      return u;
+    }
+  };
+  return key(a) === key(b);
+}
+
 export async function fetchTraders(
   base: string,
   cursor?: string | null,
@@ -973,7 +1052,7 @@ export function formatWhen(iso: string | null): string {
 
 /** Shown wherever curated records appear: the coverage is manual and nothing updates on its own. */
 export const CURATION_NOTE =
-  "Editorially curated from public sources; automatic updates are not connected.";
+  "Editorially curated from public sources: ideas and their updates are recorded by hand. Only new posts in the authors' own feeds are detected automatically, as a title and a link.";
 
 export const RECORD_TYPE_LABEL: Record<string, string> = {
   post: "Post",

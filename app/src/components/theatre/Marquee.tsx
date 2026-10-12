@@ -1,9 +1,6 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import type { ReactNode } from "react";
-import { setCueCursor, useCueCursorPref } from "../../lib/cue-cursor";
-import { requestWelcome } from "../../features/onboarding/welcome-state";
 import { HEADER_NAV } from "../../lib/nav";
-import { Cue } from "../cue/Cue";
 import { Icon } from "../ui/Icon";
 import { WalletButton } from "../wallet/WalletButton";
 
@@ -41,41 +38,15 @@ export function MarqueeSign({
   );
 }
 
-/** Reopens the full welcome from any page (the URL does not change). */
-function WelcomeButton() {
-  return (
-    <button
-      type="button"
-      className="hdr-btn hdr-btn--welcome"
-      onClick={requestWelcome}
-    >
-      Meet Cue
-    </button>
-  );
-}
-
-function CursorSwitch() {
-  const on = useCueCursorPref();
-  return (
-    <button
-      type="button"
-      className="hdr-btn hdr-btn--icon hdr-btn--cursor"
-      aria-pressed={on}
-      aria-label="Cue cursor"
-      title={on ? "Cue cursor on" : "Cue cursor off"}
-      onClick={() => setCueCursor(!on)}
-    >
-      <Cue pose="mascot" />
-    </button>
-  );
-}
-
 /**
  * The valance over the stage: scalloped burgundy with a brass hem, carrying the small RELAY sign.
  * On desktop it is the header: the sign at left, the destinations centred, the network, the Cue cursor switch
  * and the wallet at right. The welcome shows none of it; the bulbs stop under reduced motion.
  */
 export function Valance({ clusterLabel }: { clusterLabel: string | null }) {
+  // The network matters where plans and wallets are; on public discovery it is only noise.
+  const path = useRouterState({ select: (s) => s.location.pathname });
+  const showNetwork = path.startsWith("/plans") || path === "/account";
   return (
     <header className="valance">
       <Link to="/" className="valance__sign" aria-label="Relay, go to Discover">
@@ -100,11 +71,9 @@ export function Valance({ clusterLabel }: { clusterLabel: string | null }) {
         </ul>
       </nav>
       <div className="valance__end">
-        {clusterLabel && (
+        {clusterLabel && showNetwork && (
           <span className="valance__cluster">{clusterLabel}</span>
         )}
-        <WelcomeButton />
-        <CursorSwitch />
         <Link
           to="/account"
           className="hdr-btn hdr-btn--icon hdr-btn--account"

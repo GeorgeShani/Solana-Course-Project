@@ -21,6 +21,7 @@ import discoveryCss from "../styles/discovery.css?url";
 import feedCss from "../styles/feed.css?url";
 import screensCss from "../styles/screens.css?url";
 import theatreCss from "../styles/theatre.css?url";
+import streamCss from "../styles/stream.css?url";
 import tokensCss from "../styles/tokens.css?url";
 
 export const Route = createRootRoute({
@@ -49,6 +50,7 @@ export const Route = createRootRoute({
       { rel: "stylesheet", href: screensCss },
       { rel: "stylesheet", href: discoveryCss },
       { rel: "stylesheet", href: discoverCss },
+      { rel: "stylesheet", href: streamCss },
     ],
   }),
   shellComponent: RootDocument,

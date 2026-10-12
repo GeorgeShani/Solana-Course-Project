@@ -18,5 +18,4 @@ export const HEADER_NAV: { to: Dest; label: string }[] = [
   { to: "/updates", label: "Updates" },
   { to: "/watchlist", label: "Watchlist" },
   { to: "/plans", label: "Plans" },
-  { to: "/how-it-works", label: "How it works" },
 ];
