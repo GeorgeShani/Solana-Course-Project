@@ -18,6 +18,7 @@ check() { if [ "$2" = "$3" ]; then pass=$((pass+1)); echo "  ok   $1"; else fail
 cat > "$BIN/docker" <<EOF
 #!/usr/bin/env bash
 echo "\$*" >> "$CALLS"
+case "\$*" in *"exec "*) [ -n "\${FAIL_CURATE:-}" ] && { echo "boom: contradicts history" >&2; exit 1; };; esac
 exit 0
 EOF
 # Fake curl: the app is "healthy" unless the working copy's VERSION says bad.
@@ -52,6 +53,8 @@ check "external DB: --no-deps and only three services" "$(grep -c 'compose up -d
 check "health asked at https://DOMAIN/api/health" "$(grep -c 'https://relay.example.test/api/health' "$T/curl.calls")" 1
 check "no -k for a real domain" "$(grep -c -- ' -k' "$T/curl.calls")" 0
 check "logged 'deployed'" "$(echo "$out" | grep -c 'deployed')" 1
+check "curation loaded inside the server container, host named" "$(grep -c 'compose exec -T server bun run scripts/curate.ts --confirm-db-host=x$' "$CALLS")" 1
+check "says records are up to date" "$(echo "$out" | grep -c 'public-source records are up to date')" 1
 check "no failure marker" "$(test -e "$SRV/.deploy-last-failed" && echo yes || echo no)" no
 
 echo "3. new bad commit: does not come up, rolls back, remembers it"
@@ -65,6 +68,8 @@ check "rebuilt twice (new, then rollback)" "$(grep -c 'compose up -d --build' "$
 check "logs were printed" "$(grep -c 'compose logs' "$CALLS")" 1
 check "says rolled back" "$(echo "$out" | grep -c 'rolled back')" 1
 
+check "no curation after a bad deploy" "$(grep -c 'curate.ts' "$CALLS")" 0
+
 echo "4. same bad commit again: skipped silently, nothing rebuilt"
 : > "$CALLS"; out="$(run)"; rc=$?
 check "exit 0" "$rc" 0; check "no output" "$out" ""; check "docker not called" "$(wc -l < "$CALLS" | tr -d ' ')" 0
@@ -74,6 +79,13 @@ push good c; : > "$CALLS"; out="$(run)"; rc=$?
 check "exit 0" "$rc" 0
 check "HEAD follows origin" "$(git -C "$SRV" rev-parse HEAD)" "$(git -C "$ORIGIN" rev-parse main)"
 check "marker removed" "$(test -e "$SRV/.deploy-last-failed" && echo yes || echo no)" no
+
+echo "5b. a failing curation does not undo a healthy deploy"
+push good e; : > "$CALLS"; out="$(FAIL_CURATE=1 run)"; rc=$?
+check "exit 0" "$rc" 0
+check "HEAD follows origin" "$(git -C "$SRV" rev-parse HEAD)" "$(git -C "$ORIGIN" rev-parse main)"
+check "warns, names the reason" "$(echo "$out" | grep -c 'NOT loaded')" 1
+check "only one build (no rollback)" "$(grep -c 'compose up -d --build' "$CALLS")" 1
 
 echo "6. --force with nothing new rebuilds the current commit"
 : > "$CALLS"; out="$(run --force)"; rc=$?
@@ -89,6 +101,7 @@ git -C "$SRV" reset -q --hard origin/main
 echo "8. no external DB: no service list, no --no-deps"
 printf 'DOMAIN=relay.example.test\n' > "$SRV/.env"; : > "$CALLS"; out="$(run --force)"
 check "plain compose up" "$(grep -c '^compose up -d --build$' "$CALLS")" 1
+check "bundled Postgres: host is postgres" "$(grep -c 'confirm-db-host=postgres$' "$CALLS")" 1
 
 echo "9. DOMAIN with a pasted scheme still checks the right address; localhost uses -k"
 printf 'DOMAIN=https://relay.example.test/\n' > "$SRV/.env"; : > "$T/curl.calls"; run --force >/dev/null

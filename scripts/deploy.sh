@@ -9,7 +9,10 @@
 #   2. `git fetch`, and stops if there is nothing new (or if that exact commit already failed to start once);
 #   3. `git merge --ff-only`: the server never makes its own commits, it only follows the branch;
 #   4. `docker compose up -d --build`. The server applies new database migrations itself as it starts;
-#   5. waits for https://<DOMAIN>/api/health (the same address a visitor uses, through Caddy);
+#   5. waits for https://<DOMAIN>/api/health (the same address a visitor uses, through Caddy), then loads the
+#      public-source records (server/curation/curated.json) into the database, so a pushed change to them goes live
+#      too. That load is idempotent and refuses a file that contradicts recorded history; if it fails, the deploy
+#      still stands and the reason is logged;
 #   6. if that never answers, goes back to the previous commit and rebuilds it, and remembers the bad commit so it is
 #      not tried again every few minutes. A fix pushed afterwards is a different commit and is deployed normally.
 #
@@ -81,6 +84,27 @@ wait_until_healthy() {
 
 launch() { "${COMPOSE[@]}" up -d --build "${SERVICES[@]}"; }
 
+# The database host the loader must be told about (it treats every host but localhost as remote and asks for it by name).
+db_host() {
+  local url
+  url="$(env_value DATABASE_DIRECT_URL)"
+  [ -n "$url" ] || url="$(env_value DATABASE_URL)"
+  if [ -z "$url" ]; then echo postgres; return; fi # the bundled Postgres
+  echo "$url" | sed -E 's#^[a-z]+://([^@/]*@)?([^/:?]+).*#\2#'
+}
+
+# Loads curated.json. A failure is logged, never a reason to roll back: the app itself is up and healthy.
+load_curation() {
+  local host
+  host="$(db_host)"
+  if "${COMPOSE[@]}" exec -T server bun run scripts/curate.ts "--confirm-db-host=$host" >/tmp/relay-curate.log 2>&1; then
+    log "public-source records are up to date"
+  else
+    log "public-source records were NOT loaded (the app is unaffected): $(tail -n 3 /tmp/relay-curate.log | tr '
+' ' ')"
+  fi
+}
+
 git fetch --quiet origin "$BRANCH"
 current="$(git rev-parse HEAD)"
 target="$(git rev-parse "origin/$BRANCH")"
@@ -104,6 +128,7 @@ if launch && wait_until_healthy; then
   rm -f "$STATE_FILE"
   docker image prune -f >/dev/null 2>&1 || true
   log "deployed ${target:0:7}; $HEALTH_URL answers"
+  load_curation
   exit 0
 fi
 

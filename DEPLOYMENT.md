@@ -110,13 +110,24 @@ Things to know:
 2. **The server must not have commits of its own.** The script only fast-forwards; if the checkout has diverged it stops and says so.
 3. **Rollback does not undo database migrations.** The server applies migrations as it starts, and a rolled-back version runs against the already-migrated database. Keep migrations additive (a column, a table, a value), which the previous version tolerates.
 4. **`.env` is not in Git**, so a change to it is not deployed by the timer. After editing it, run `scripts/deploy.sh --force`, or `docker compose up -d --no-deps app server caddy` (`NETWORK` and `VITE_*` are baked into the website at build time).
-5. **It uses `DOMAIN` and `DATABASE_URL` from `.env`:** with a hosted database it starts only `app`, `server` and `caddy` (with `--no-deps`), otherwise the bundled Postgres too.
-6. **The program is separate.** Deploying a new Solana program version is still the owner's step from their own machine; the timer only rebuilds the website and API (which carry the program address).
-7. The scripts are tested without touching Docker or systemd: `bash scripts/test-deploy.sh` and `bash scripts/test-install-auto-deploy.sh` (they need bash and `flock`, so Linux or WSL).
+5. **After a healthy deploy it loads the public-source records** (`server/curation/curated.json`) into the database, naming the database host for you, so a pushed change to them goes live with the code. The load is idempotent and refuses a file that contradicts recorded history; if it fails the deploy stands and the reason is logged (`journalctl -u relay-deploy`).
+6. **It uses `DOMAIN` and `DATABASE_URL` from `.env`:** with a hosted database it starts only `app`, `server` and `caddy` (with `--no-deps`), otherwise the bundled Postgres too.
+7. **The program is separate.** Deploying a new Solana program version is still the owner's step from their own machine; the timer only rebuilds the website and API (which carry the program address).
+8. The scripts are tested without touching Docker or systemd: `bash scripts/test-deploy.sh` and `bash scripts/test-install-auto-deploy.sh` (they need bash and `flock`, so Linux or WSL).
 
 ## Deploying the Solana program (devnet)
 
 The program is deployed once from your computer, not from the server. The full steps are in [docs/runbooks/DEVNET_RELEASE.md](docs/runbooks/DEVNET_RELEASE.md). In short: make a keypair for Relay and one for the simulated swap venue, run `bun run scripts/set-program-id.ts <relay address> --venue <venue address>`, then `bun run program:build:devnet` (not `program:build`, which builds for the local test fork), `bun run sync-idl` and the test suites, deploy both programs to devnet, and rebuild the app so the new addresses are baked in. Devnet SOL is free, but the public faucet rate-limits `solana airdrop`; deploying Relay holds about 2.7 SOL at its peak (a copy of the program is uploaded before it replaces itself), and about 1.9 SOL stays locked as rent for both programs.
+
+### Publishing a plan
+
+There is no publish screen in the app yet. A creator publishes with their own keypair file, from any machine that can reach the API (the creator needs about 0.01 devnet SOL):
+
+```bash
+bun run --cwd server publish-plan --keypair <creator keypair file>   --entry-low 140 --entry-high 145 --expires-in 24h   --rationale "why this plan, in your words" --exit-thesis "how you will decide to exit" --dry-run
+```
+
+Drop `--dry-run` to send it. The script checks the RPC is devnet and the program is deployed, validates the terms and text with the program's own rules, sends `create_plan` signed by that key, and posts the text to `/plans/:planPda/confirm`. Use `--api https://<DOMAIN>/api --origin https://<DOMAIN>` for a hosted server, `--content-file plan.json` for longer text, and see `--help` for the rest. The text is never filled in for you, and a plan is an onchain commitment, so do not publish text you would not stand behind. Set `CREATOR_ALLOWLIST` to the creator's address, or the plan is reachable by link but marked Unlisted in the feed. If the text step fails after the plan is sent, re-send it with `--confirm-only <planPda>`.
 
 Current deployment (2026-10-13): Relay `GyfA1Cfni44zwHc5FB9nxtmMRhnLv5YtTY1KZY5NsK6F`, simulated venue `CvopiSHQabzQfWnEzhpaLwNRM5MbyGmhLe643NFSSp8K`. `bun run --cwd server check-network` reads the network and says whether both are there.
 
