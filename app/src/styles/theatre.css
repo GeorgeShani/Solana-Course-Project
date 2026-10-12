@@ -786,6 +786,8 @@ html[data-welcome="opening"] .welcome {
 
 html[data-welcome="opening"] .welcome {
   overflow-y: hidden;
+  /* The app is already underneath: let it take clicks as soon as the drapes start to part. */
+  pointer-events: none;
 }
 
 /* The page waits behind closed curtains: not visible, not focusable, not announced. */
@@ -796,12 +798,12 @@ html[data-welcome="on"] .valance__sign {
 
 /* As the drapes part, the big sign hands over to the small one in the valance. */
 html[data-welcome="opening"] .valance__sign {
-  animation: sign-settle 0.4s var(--ease-out) 0.75s both;
+  animation: sign-settle 0.3s var(--ease-out) 0.4s both;
 }
 
 html[data-welcome="opening"] .topnav,
 html[data-welcome="opening"] .valance__end {
-  animation: tabbar-in 0.4s var(--ease-out) 0.8s both;
+  animation: tabbar-in 0.3s var(--ease-out) 0.4s both;
 }
 
 .welcome__drape {
@@ -898,18 +900,28 @@ html[data-welcome="opening"] .welcome::after {
   margin: -8% 0 -10%;
 }
 
-.welcome__line {
-  max-width: 30ch;
-  font-size: var(--t-body);
-  font-weight: 600;
-  line-height: 1.4;
+.welcome__headline {
+  max-width: 22ch;
+  font-family: var(--font-title);
+  font-size: clamp(1.5rem, 6vw, 1.875rem);
+  font-weight: var(--title-weight);
+  line-height: var(--title-lead);
+  letter-spacing: var(--title-track);
   color: var(--chalk);
+  text-wrap: balance;
+}
+
+.welcome__line {
+  max-width: 36ch;
+  font-size: var(--t-callout);
+  line-height: 1.45;
+  color: var(--haze);
   text-wrap: balance;
 }
 
 .welcome__actions {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1.4fr 1fr;
   gap: var(--s3);
   width: min(100%, 360px);
 }
@@ -941,6 +953,7 @@ html[data-welcome="opening"] .welcome::after {
     grid-template-columns: min(34vw, 56dvh, 460px) 380px;
     grid-template-areas:
       "cue sign"
+      "cue headline"
       "cue line"
       "cue actions";
     align-content: center;
@@ -974,10 +987,16 @@ html[data-welcome="opening"] .welcome::after {
     width: min(34vw, 56dvh, 460px);
   }
 
+  .welcome__headline {
+    grid-area: headline;
+    max-width: 18ch;
+    font-size: 2.25rem;
+  }
+
   .welcome__line {
     grid-area: line;
-    max-width: 32ch;
-    font-size: 1.125rem;
+    max-width: 36ch;
+    font-size: 1.0625rem;
   }
 
   .welcome__actions {
