@@ -971,6 +971,16 @@ describe("GET /discovery", () => {
     // update) was recorded before them.
     expect(seen).toEqual(["idea-three", "idea-two", "idea-one", "sol-watch"]);
     expect(new Set(seen).size).toBe(seen.length);
+    // A card can say what the newest later item is without opening the timeline.
+    const all = list(
+      (await json(await app.get("/discovery/ideas?limit=30"))).items,
+    );
+    const updateOf = (id: string) => all.find((i) => i.id === id)?.latestUpdate;
+    expect(updateOf("idea-one")).toBeNull();
+    expect(obj(updateOf("sol-watch"))).toEqual({
+      basis: "creator_confirmed",
+      occurredAt: "2026-10-02T09:00:00.000Z",
+    });
     const filtered = await json(
       await app.get("/discovery/ideas?trader=ada-test&limit=30"),
     );

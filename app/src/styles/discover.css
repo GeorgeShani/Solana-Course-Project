@@ -1,0 +1,99 @@
+/*
+ * Discover (the home page): profile cards, filters and the idea list. Uses only tokens.css and the
+ * atoms in base.css; card bodies live in discovery.css.
+ */
+
+.icard__later {
+  color: var(--haze);
+  font-size: var(--t-footnote);
+}
+
+.icard__later[data-later="true"] {
+  color: var(--chalk);
+  font-weight: 600;
+}
+
+.icard__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--s2);
+  margin-top: var(--s1);
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.filters__chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--ctl-sm);
+  padding: 0 var(--s4);
+  border: 1px solid var(--hairline-strong);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--chalk);
+  font-size: var(--t-subhead);
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.filters__chip[aria-current="true"] {
+  border-color: var(--limelight);
+  background: rgba(255, 217, 138, 0.12);
+  color: var(--limelight);
+}
+
+.discover__section {
+  display: grid;
+  gap: var(--s3);
+  margin-top: var(--s5);
+}
+
+.discover__plans {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s3);
+  margin-top: var(--s6);
+  padding: var(--s4);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-lg);
+}
+
+/* ------------------------------------------------------------------ idea: what is established */
+
+.known {
+  display: grid;
+  gap: var(--s4);
+}
+
+@media (min-width: 700px) {
+  .known {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.known__title {
+  margin: 0 0 var(--s2);
+  font-size: var(--t-subhead);
+  font-weight: 700;
+  color: var(--chalk);
+}
+
+.known__list {
+  display: grid;
+  gap: var(--s2);
+  margin: 0;
+  padding-left: var(--s4);
+  color: var(--haze);
+  font-size: var(--t-subhead);
+}

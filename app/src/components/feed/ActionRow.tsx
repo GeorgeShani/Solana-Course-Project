@@ -70,7 +70,7 @@ export function ActionRow({
         </button>
         {status === "in_range" && planPda && (
           <Link
-            to="/records/$planPda"
+            to="/plans/$planPda"
             params={{ planPda }}
             hash="follow"
             className="btn btn--primary"

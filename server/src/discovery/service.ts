@@ -73,6 +73,12 @@ export interface IdeaSummary {
   original: SourceView;
   eventCount: number;
   latestSeq: string;
+  /**
+   * The newest later item (an `update_published` entry) and how Relay ties it to the original, so a
+   * card can say "update the author linked" or "later analysis on the same topic" without opening
+   * the timeline. Null when nothing later is recorded.
+   */
+  latestUpdate: { basis: RelationshipBasis; occurredAt: string | null } | null;
   isDemo: boolean;
 }
 
@@ -379,7 +385,13 @@ export function createDiscoveryService({ env, db }: DiscoveryServiceDeps) {
       await db`
         select i.*, t.display_name as trader_name, t.is_demo as trader_demo,
                (select count(*) from timeline_events e where e.idea_id = i.id) as event_count,
-               (select max(e.seq) from timeline_events e where e.idea_id = i.id) as latest_seq
+               (select max(e.seq) from timeline_events e where e.idea_id = i.id) as latest_seq,
+               (select e.relationship_basis from timeline_events e
+                 where e.idea_id = i.id and e.event_type = 'update_published'
+                 order by e.seq desc limit 1) as update_basis,
+               (select e.occurred_at from timeline_events e
+                 where e.idea_id = i.id and e.event_type = 'update_published'
+                 order by e.seq desc limit 1) as update_at
         from ideas i join traders t on t.id = i.trader_id
         where i.is_demo = ${demo} ${where}
         order by latest_seq desc, i.id asc
@@ -405,6 +417,16 @@ export function createDiscoveryService({ env, db }: DiscoveryServiceDeps) {
         original,
         eventCount: count(r, "event_count"),
         latestSeq: seqOrNull(r, "latest_seq") ?? "0",
+        latestUpdate:
+          r.update_basis === null || r.update_basis === undefined
+            ? null
+            : {
+                basis: oneOf(r, "update_basis", BASES),
+                occurredAt:
+                  r.update_at instanceof Date
+                    ? r.update_at.toISOString()
+                    : null,
+              },
         isDemo: r.is_demo === true,
       };
     });

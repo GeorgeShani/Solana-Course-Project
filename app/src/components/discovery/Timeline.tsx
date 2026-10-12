@@ -83,7 +83,7 @@ function Evidence({ event }: { event: EventView }) {
     return (
       <p className="tl__evidence">
         <Icon name="plans" size={14} />
-        <Link to="/records/$planPda" params={{ planPda: e.ref }}>
+        <Link to="/plans/$planPda" params={{ planPda: e.ref }}>
           Open the plan
         </Link>
       </p>

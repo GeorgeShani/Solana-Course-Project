@@ -40,7 +40,7 @@ export function ChangesTab() {
         <p className="wl-empty__line">
           Watch an idea or a trader to see what changes after you look away.
         </p>
-        <Link to="/ideas" className="btn btn--primary btn--large">
+        <Link to="/" className="btn btn--primary btn--large">
           See ideas
         </Link>
       </div>

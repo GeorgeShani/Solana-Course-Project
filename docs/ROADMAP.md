@@ -27,11 +27,11 @@ PRODUCT.md, README.md, ROADMAP.md, AGENTS.md rewritten; historical plans archive
 
 Versioned local welcome preference (`relay:welcome:v2`; the older `relay:entered` still counts), replay from Account ("Show welcome") and the desktop header ("Meet Cue") over any page without changing the URL, `?welcome=true` kept only as a trigger that is replaced by the clean path, Escape skips, focus lands on the action and then on the page, deep links never get the overlay. The scene now lives in the root shell, not in the feed route. Tested by running the real boot script against fake pages (`app/test/welcome.test.ts`); checked in the browser at desktop and 375 wide. Navigation simplification moves to M3, when `/` becomes Discover.
 
-## M3. Public discovery golden journey: IN PROGRESS
+## M3. Public discovery golden journey: DONE
 
-Public ideas are the default Discover content. Cards, profiles (unclaimed and manual-coverage disclosures), idea detail (Original → Later item → Evidence/unknowns), explicit relationship labels, safe external links. No `preview=fictional` anywhere in the real journey. Fictional plan states moved behind a development-only route.
+`/` is Discover: three public-source profiles ("Public-source profile · Not claimed by the author"), a profile filter, and idea cards with trader, assets, paraphrase, source kind and host, publication time, the newest later item named as the timeline names it, Watch and Open. Idea pages end with "What Relay can and cannot establish" (`evidenceSummary`); Brandt's later item reads "Later item · link not established", Hayes's "Update to this idea". `GET /discovery/ideas` gained `latestUpdate` for the card line. The native feed moved to `/plans` (see M5); the fictional fixtures moved to development-only `/dev/plan-states` and are not in the production bundle; `/?preview=fictional` now only redirects there in development. `server/test/curated-data.test.ts` pins the dataset's promises (unclaimed, no wallets, https sources, relationship bases). Old routes redirect. Navigation is Discover, Updates, Watchlist, Plans (+ Account on phones).
 
-## M4. Watch and return loop: NEXT
+## M4. Watch and return loop: IN PROGRESS
 
 One versioned storage service, `/updates` over stored cursors, mark seen only on view, reopen the exact changed event, browser-only storage disclosure and private-mode failure behavior.
 

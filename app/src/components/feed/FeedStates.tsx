@@ -103,14 +103,13 @@ export function UnavailableState({
           <p>
             A 502 here means the dev proxy could not reach the API on port 3001.
             Start it with <code>bun run dev:server</code>. It reads{" "}
-            <code>DATABASE_URL</code> from <code>server/.env</code>; for a local
-            database run <code>docker compose -f compose.dev.yaml up -d</code>.
+            <code>DATABASE_URL</code> from the root <code>.env</code>; for a
+            local database run{" "}
+            <code>docker compose -f compose.dev.yaml up -d</code>.
           </p>
           <p>
-            <Link to="/" search={{ preview: "fictional" }}>
-              Open the fictional feed preview
-            </Link>{" "}
-            to check layout without the API.
+            <Link to="/dev/plan-states">Open the fictional plan states</Link> to
+            check layout without the API.
           </p>
         </details>
       )}
@@ -141,9 +140,9 @@ export function EmptyState({
             <Icon name="refresh" />
             {refreshing ? "Checking…" : "Check again"}
           </button>
-          <Link to="/traders" className="btn btn--glass">
-            <Icon name="traders" />
-            Browse traders
+          <Link to="/" className="btn btn--glass">
+            <Icon name="post" />
+            Discover ideas
           </Link>
         </>
       }
@@ -370,7 +369,7 @@ export function Finale({
           </button>
         </div>
         <div className="finale__links">
-          <Link to="/traders">Browse traders</Link>
+          <Link to="/">Discover ideas</Link>
           <button type="button" onClick={onRefresh} disabled={refreshing}>
             {refreshing ? "Refreshing…" : "Refresh the lineup"}
           </button>

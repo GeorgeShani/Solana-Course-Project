@@ -366,14 +366,14 @@ export function ScriptSheet({
               </section>
               <p className="script__links">
                 <Link
-                  to="/records/$planPda"
+                  to="/plans/$planPda"
                   params={{ planPda: card.planPda }}
                   className="btn btn--glass btn--small"
                 >
                   Full record
                 </Link>
                 <Link
-                  to="/traders/$address"
+                  to="/plans/creators/$address"
                   params={{ address: card.creator.address }}
                   className="btn btn--glass btn--small"
                 >
