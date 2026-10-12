@@ -23,11 +23,11 @@ Fixed in M1 so every later milestone starts green: the two Google-auth regressio
 
 PRODUCT.md, README.md, ROADMAP.md, AGENTS.md rewritten; historical plans archived; trader-data research rescoped; subsystem READMEs corrected; lint and type regressions fixed.
 
-## M2. Welcome and application shell: IN PROGRESS
+## M2. Welcome and application shell: DONE
 
-Versioned local welcome preference (`relay:welcome:v2`), replay from Account and header ("Meet Cue"), `?welcome=true` as a temporary redirecting trigger only, Discover at `/`, navigation reduced to Discover, Updates, Watchlist, Plans.
+Versioned local welcome preference (`relay:welcome:v2`; the older `relay:entered` still counts), replay from Account ("Show welcome") and the desktop header ("Meet Cue") over any page without changing the URL, `?welcome=true` kept only as a trigger that is replaced by the clean path, Escape skips, focus lands on the action and then on the page, deep links never get the overlay. The scene now lives in the root shell, not in the feed route. Tested by running the real boot script against fake pages (`app/test/welcome.test.ts`); checked in the browser at desktop and 375 wide. Navigation simplification moves to M3, when `/` becomes Discover.
 
-## M3. Public discovery golden journey: NEXT
+## M3. Public discovery golden journey: IN PROGRESS
 
 Public ideas are the default Discover content. Cards, profiles (unclaimed and manual-coverage disclosures), idea detail (Original → Later item → Evidence/unknowns), explicit relationship labels, safe external links. No `preview=fictional` anywhere in the real journey. Fictional plan states moved behind a development-only route.
 

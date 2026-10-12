@@ -1,11 +1,15 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useRouter } from "@tanstack/react-router";
 import { motion, useTransform } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { Cue } from "../cue/Cue";
 import { useCalmMotion } from "../../lib/motion";
 import { useCueGaze, useStagePointer } from "../../lib/pointer";
-import { ENTER_EVENT, leaveWelcome } from "../../lib/stage";
-import { ENTERED_KEY, SEEN_KEY } from "./CurtainIntro";
+import { ENTER_EVENT } from "../../lib/stage";
+import {
+  WELCOME_EVENT,
+  leaveWelcome,
+  markWelcomeSeen,
+} from "../../lib/welcome";
 import { MarqueeSign } from "./Marquee";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
@@ -14,33 +18,21 @@ const DRAPE_EASE = [0.33, 1, 0.68, 1] as const;
 const DRAPES_DELAY = 0.3;
 const DRAPES_S = 0.9;
 
-function remember() {
-  try {
-    localStorage.setItem(ENTERED_KEY, "1");
-    sessionStorage.setItem(SEEN_KEY, "1");
-  } catch {
-    // Storage blocked: the welcome simply shows again next time.
-  }
-}
-
 /**
  * The first scene of Relay: closed curtains, the lit RELAY sign and Cue in front of the drapes
  * until the visitor chooses to enter. Then Cue turns to the plans, the drapes gather to the wings
  * where the feed's drapes rest, and the feed (already rendered underneath) takes the stage.
  *
  * Whether it shows is decided before paint by the head script (html[data-welcome]); this component
- * is always in the markup and CSS hides it otherwise, so server and client render the same tree.
+ * is always in the root markup and CSS hides it otherwise, so server and client render the same
+ * tree. "Meet Cue" (header, Account) reopens it from any page through `requestWelcome`; the URL
+ * never changes, and entering from another page takes the visitor to Discover.
  */
-export function Welcome({
-  forced,
-  onEntered,
-}: {
-  /** `?welcome` asked for the scene again (Account → Meet Cue again). */
-  forced: boolean;
-  onEntered: () => void;
-}) {
+export function Welcome() {
   const reduce = useCalmMotion();
+  const router = useRouter();
   const [opening, setOpening] = useState(false);
+  const primary = useRef<HTMLButtonElement>(null);
 
   const pointer = useStagePointer();
   const lightX = useTransform(pointer.x, (v) => v * 64);
@@ -51,22 +43,39 @@ export function Welcome({
   const cueRef = useRef<HTMLDivElement>(null);
   useCueGaze(cueRef, pointer);
 
-  useEffect(() => {
-    if (forced) document.documentElement.dataset.welcome = "on";
-  }, [forced]);
-
   const finish = () => {
     document.documentElement.dataset.welcome = "off";
     setOpening(false);
-    onEntered();
+    if (window.location.pathname !== "/") void router.navigate({ to: "/" });
+    requestAnimationFrame(focusPageStart);
   };
+
+  // Compatibility: an old `?welcome` link opens this scene (the boot script did) and is then
+  // replaced by the clean path, so no product link or reload depends on the parameter.
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    if (!url.searchParams.has("welcome")) return;
+    url.searchParams.delete("welcome");
+    router.history.replace(`${url.pathname}${url.search}${url.hash}`);
+  }, [router]);
+
+  // Reopened from the header or Account: start from closed curtains and put focus on the action.
+  useEffect(() => {
+    const onReopen = () => {
+      setOpening(false);
+      setGather(0.14);
+      requestAnimationFrame(() => primary.current?.focus());
+    };
+    window.addEventListener(WELCOME_EVENT, onReopen);
+    return () => window.removeEventListener(WELCOME_EVENT, onReopen);
+  }, []);
 
   /** The drapes gather to exactly the wings the app's frame rests on, so the handover doesn't jump. */
   const [gather, setGather] = useState(0.14);
 
   const enter = () => {
     if (opening) return;
-    remember();
+    markWelcomeSeen();
     const wing = document
       .querySelector(".drapes > .drape")
       ?.getBoundingClientRect().width;
@@ -88,6 +97,35 @@ export function Welcome({
     };
     window.addEventListener(ENTER_EVENT, onEnter);
     return () => window.removeEventListener(ENTER_EVENT, onEnter);
+  }, []);
+
+  // Safety net: if the browser throttles animation (a background tab), the scene still hands over.
+  const finishRef = useRef(finish);
+  useEffect(() => {
+    finishRef.current = finish;
+  });
+  useEffect(() => {
+    if (!opening) return;
+    const t = window.setTimeout(
+      () => {
+        if (document.documentElement.dataset.welcome === "opening")
+          finishRef.current();
+      },
+      (DRAPES_DELAY + DRAPES_S) * 1000 + 1500,
+    );
+    return () => window.clearTimeout(t);
+  }, [opening]);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (
+        e.key === "Escape" &&
+        document.documentElement.dataset.welcome === "on"
+      )
+        enterRef.current();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
   }, []);
 
   const drape = (side: 1 | -1) => (
@@ -168,7 +206,7 @@ export function Welcome({
                 className="cue--lit"
                 label={
                   opening
-                    ? "Cue holds up a trade plan under his spotlight"
+                    ? "Cue holds up an idea under his spotlight"
                     : "Cue, Relay's usher, waves from the curtain"
                 }
               />
@@ -177,22 +215,40 @@ export function Welcome({
         </div>
 
         <p className="welcome__line">
-          Discover Solana traders. Explore their ideas. Check the evidence.
+          See the original idea. Follow what changed. Check the evidence.
         </p>
         <div className="welcome__actions">
           <button
+            ref={primary}
             type="button"
             className="btn btn--primary"
             onClick={enter}
             disabled={opening}
           >
-            Explore traders
+            Explore ideas
           </button>
-          <Link to="/demo" className="btn btn--glass" onClick={leaveWelcome}>
-            Try the demo
+          <Link
+            to="/how-it-works"
+            className="btn btn--glass"
+            onClick={() => {
+              markWelcomeSeen();
+              leaveWelcome();
+            }}
+          >
+            See how Relay works
           </Link>
         </div>
       </motion.div>
     </motion.section>
   );
+}
+
+/** After the curtains open the reader lands on the page's own title, not on a hidden control. */
+function focusPageStart() {
+  const target =
+    document.querySelector<HTMLElement>("#main [data-page-start]") ??
+    document.querySelector<HTMLElement>("#main h1");
+  if (!target) return;
+  if (!target.hasAttribute("tabindex")) target.setAttribute("tabindex", "-1");
+  target.focus({ preventScroll: true });
 }
