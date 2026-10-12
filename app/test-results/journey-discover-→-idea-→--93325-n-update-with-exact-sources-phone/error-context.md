@@ -1,0 +1,632 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: journey.spec.ts >> discover → idea → source → watch >> Hayes: the author's own link makes it an update, with exact sources
+- Location: e2e\journey.spec.ts:81:3
+
+# Error details
+
+```
+Test timeout of 45000ms exceeded.
+```
+
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - link "Skip to content" [ref=e2] [cursor=pointer]:
+    - /url: "#main"
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - link "Relay, go to Discover" [ref=e5] [cursor=pointer]:
+        - /url: /
+        - generic [ref=e14]: RELAY
+    - main [ref=e23]:
+      - generic [ref=e24]:
+        - 'button "Pull the cord: show how Relay works" [ref=e27] [cursor=pointer]'
+        - dialog "How Relay works" [ref=e32]:
+          - list [ref=e37]:
+            - listitem [ref=e38]:
+              - generic [ref=e44]: Pick
+            - listitem [ref=e45]:
+              - generic [ref=e50]: Source
+            - listitem [ref=e51]:
+              - generic [ref=e55]: Watch
+            - listitem [ref=e56]:
+              - generic [ref=e61]: Update
+          - button "Open the curtains and continue" [active] [ref=e64] [cursor=pointer]
+        - heading "Discover" [level=1] [ref=e67]
+        - navigation "Show ideas by" [ref=e68]:
+          - link "Everyone" [ref=e69] [cursor=pointer]:
+            - /url: /
+          - link "Arthur Hayes" [ref=e75] [cursor=pointer]:
+            - /url: /?trader=arthur-hayes
+          - link "Benjamin Cowen" [ref=e78] [cursor=pointer]:
+            - /url: /?trader=benjamin-cowen
+          - link "Peter Brandt" [ref=e81] [cursor=pointer]:
+            - /url: /?trader=peter-brandt
+        - feed "Public trading ideas" [ref=e84]:
+          - 'article "Bitcoin: \"The Line in the Sand\" and an $83K thesis, Benjamin Cowen" [ref=e85]':
+            - link "Benjamin Cowen" [ref=e86] [cursor=pointer]:
+              - /url: /profiles/benjamin-cowen
+            - 'heading "Bitcoin: \"The Line in the Sand\" and an $83K thesis" [level=2] [ref=e89]'
+            - generic "No later item recorded yet" [ref=e90]:
+              - img "No update yet" [ref=e91]
+              - generic [ref=e93]: No update yet
+            - generic [ref=e94]:
+              - generic [ref=e95]: BTC
+              - generic [ref=e96]: youtube.com
+              - generic "7 Oct 2026, 15:10 UTC" [ref=e97]: 5d
+            - group [ref=e101]:
+              - generic "What it says" [ref=e102] [cursor=pointer]
+            - generic [ref=e105]:
+              - button "Watch this idea" [ref=e107] [cursor=pointer]:
+                - generic [ref=e110]: Watch
+              - link "Open the original" [ref=e111] [cursor=pointer]:
+                - /url: https://www.youtube.com/watch?v=aEd5onhPxUs
+                - generic [ref=e115]: Source
+              - link "See the timeline" [ref=e116] [cursor=pointer]:
+                - /url: /ideas/cowen-btc-83k-line
+                - generic [ref=e120]: Story
+          - 'article "Crypto market excluding Bitcoin (TOTAL2): a cup-with-handle chart, Peter Brandt" [ref=e121]':
+            - link "Peter Brandt" [ref=e122] [cursor=pointer]:
+              - /url: /profiles/peter-brandt
+            - 'heading "Crypto market excluding Bitcoin (TOTAL2): a cup-with-handle chart" [level=2] [ref=e125]'
+            - generic "No later item recorded yet" [ref=e126]:
+              - img "No update yet" [ref=e127]
+              - generic [ref=e129]: No update yet
+            - generic [ref=e130]:
+              - generic [ref=e131]: TOTAL2
+              - generic [ref=e132]: peterlbrandt.com
+              - generic "19 Sept 2026, 21:44 UTC" [ref=e133]: 19 Sept
+            - group [ref=e137]:
+              - generic "What it says" [ref=e138] [cursor=pointer]
+            - generic [ref=e141]:
+              - button "Watch this idea" [ref=e143] [cursor=pointer]:
+                - generic [ref=e146]: Watch
+              - link "Open the original" [ref=e147] [cursor=pointer]:
+                - /url: https://www.peterlbrandt.com/my-focus-is-bitcoin/
+                - generic [ref=e151]: Source
+              - link "See the timeline" [ref=e152] [cursor=pointer]:
+                - /url: /ideas/brandt-total2-cup-handle
+                - generic [ref=e156]: Story
+          - article "Bitcoin's cycle bottom expected on 4 October 2026, Peter Brandt" [ref=e157]:
+            - link "Peter Brandt" [ref=e158] [cursor=pointer]:
+              - /url: /profiles/peter-brandt
+            - heading "Bitcoin's cycle bottom expected on 4 October 2026" [level=2] [ref=e161]
+            - generic "Later item · link not established" [ref=e162]:
+              - img "Link unconfirmed" [ref=e163]
+              - generic [ref=e166]: Link unconfirmed
+            - generic [ref=e167]:
+              - generic [ref=e168]: BTC
+              - generic [ref=e169]: cointelegraph.com
+              - generic "20 Jul 2026, 13:30 UTC" [ref=e170]: 20 Jul
+            - group [ref=e174]:
+              - generic "What it says" [ref=e175] [cursor=pointer]
+            - generic [ref=e178]:
+              - button "Watch this idea" [ref=e180] [cursor=pointer]:
+                - generic [ref=e183]: Watch
+              - link "Open the original" [ref=e184] [cursor=pointer]:
+                - /url: https://cointelegraph.com/magazine/peter-brandt-says-bitcoins-bear-market-isnt-over-predicts-final-bottom-in-october
+                - generic [ref=e188]: Source
+              - link "See the timeline" [ref=e189] [cursor=pointer]:
+                - /url: /ideas/brandt-btc-bottom-oct-4
+                - generic [ref=e193]: Story
+          - 'article "AI-driven credit deflation: add risk only after a Fed \"all-clear\", Arthur Hayes" [ref=e194]':
+            - link "Arthur Hayes" [ref=e195] [cursor=pointer]:
+              - /url: /profiles/arthur-hayes
+            - 'heading "AI-driven credit deflation: add risk only after a Fed \"all-clear\"" [level=2] [ref=e198]'
+            - generic "Update to this idea" [ref=e199]:
+              - img "Author-linked update" [ref=e200]
+              - generic [ref=e203]: Author-linked update
+            - generic [ref=e204]:
+              - generic [ref=e205]: BTC · HYPE · ZEC
+              - generic [ref=e206]: cryptohayes.substack.com
+              - generic "17 Feb 2026, 23:01 UTC" [ref=e207]: 17 Feb
+            - group [ref=e211]:
+              - generic "What it says" [ref=e212] [cursor=pointer]
+            - generic [ref=e215]:
+              - button "Watch this idea" [ref=e217] [cursor=pointer]:
+                - generic [ref=e220]: Watch
+              - link "Open the original" [ref=e221] [cursor=pointer]:
+                - /url: https://cryptohayes.substack.com/p/this-is-fine
+                - generic [ref=e225]: Source
+              - link "See the timeline" [ref=e226] [cursor=pointer]:
+                - /url: /ideas/hayes-ai-credit-deflation
+                - generic [ref=e230]: Story
+          - article "Factor Update, October 10, 2026, Peter Brandt" [ref=e231]:
+            - link "Peter Brandt" [ref=e232] [cursor=pointer]:
+              - /url: /profiles/peter-brandt
+            - paragraph [ref=e235]:
+              - generic [ref=e236]: New
+              - generic "Found automatically in the author's own feed. Relay has not read it or checked that it is a trading idea." [ref=e238]: Unreviewed
+            - heading "Factor Update, October 10, 2026" [level=2] [ref=e239]
+            - generic [ref=e240]:
+              - generic [ref=e241]: peterlbrandt.com
+              - generic "10 Oct 2026, 01:53 UTC" [ref=e242]: 2d
+            - generic [ref=e246]:
+              - button "Watch Peter Brandt" [ref=e248] [cursor=pointer]:
+                - generic [ref=e251]: Watch
+              - link "Open the original" [ref=e252] [cursor=pointer]:
+                - /url: https://www.peterlbrandt.com/factor-update-october-10-2026/
+                - generic [ref=e256]: Source
+          - article "Is It Smart To Completely Ignore This?, Benjamin Cowen" [ref=e257]:
+            - link "Benjamin Cowen" [ref=e258] [cursor=pointer]:
+              - /url: /profiles/benjamin-cowen
+            - paragraph [ref=e261]:
+              - generic [ref=e262]: New
+              - generic "Found automatically in the author's own feed. Relay has not read it or checked that it is a trading idea." [ref=e264]: Unreviewed
+            - heading "Is It Smart To Completely Ignore This?" [level=2] [ref=e265]
+            - generic [ref=e266]:
+              - generic [ref=e267]: youtube.com
+              - generic "9 Oct 2026, 20:32 UTC" [ref=e268]: 3d
+            - generic [ref=e272]:
+              - button "Watch Benjamin Cowen" [ref=e274] [cursor=pointer]:
+                - generic [ref=e277]: Watch
+              - link "Open the original" [ref=e278] [cursor=pointer]:
+                - /url: https://www.youtube.com/shorts/F5REX5QjuxA
+                - generic [ref=e282]: Source
+          - article "This Is The Line In The Sand, Benjamin Cowen" [ref=e283]:
+            - link "Benjamin Cowen" [ref=e284] [cursor=pointer]:
+              - /url: /profiles/benjamin-cowen
+            - paragraph [ref=e287]:
+              - generic [ref=e288]: New
+              - generic "Found automatically in the author's own feed. Relay has not read it or checked that it is a trading idea." [ref=e290]: Unreviewed
+            - heading "This Is The Line In The Sand" [level=2] [ref=e291]
+            - generic [ref=e292]:
+              - generic [ref=e293]: youtube.com
+              - generic "8 Oct 2026, 18:36 UTC" [ref=e294]: 4d
+            - generic [ref=e298]:
+              - button "Watch Benjamin Cowen" [ref=e300] [cursor=pointer]:
+                - generic [ref=e303]: Watch
+              - link "Open the original" [ref=e304] [cursor=pointer]:
+                - /url: https://www.youtube.com/shorts/QXUycNpja3M
+                - generic [ref=e308]: Source
+          - 'article "Bitcoin: Q4 2026, Benjamin Cowen" [ref=e309]':
+            - link "Benjamin Cowen" [ref=e310] [cursor=pointer]:
+              - /url: /profiles/benjamin-cowen
+            - paragraph [ref=e313]:
+              - generic [ref=e314]: New
+              - generic "Found automatically in the author's own feed. Relay has not read it or checked that it is a trading idea." [ref=e316]: Unreviewed
+            - 'heading "Bitcoin: Q4 2026" [level=2] [ref=e317]'
+            - generic [ref=e318]:
+              - generic [ref=e319]: youtube.com
+              - generic "8 Oct 2026, 16:59 UTC" [ref=e320]: 4d
+            - generic [ref=e324]:
+              - button "Watch Benjamin Cowen" [ref=e326] [cursor=pointer]:
+                - generic [ref=e329]: Watch
+              - link "Open the original" [ref=e330] [cursor=pointer]:
+                - /url: https://www.youtube.com/watch?v=se6UlLbDTEo
+                - generic [ref=e334]: Source
+          - article "NFA Live! Bond Yields Surge, Crypto Stalls, & is AI Overhyped?, Benjamin Cowen" [ref=e335]:
+            - link "Benjamin Cowen" [ref=e336] [cursor=pointer]:
+              - /url: /profiles/benjamin-cowen
+            - paragraph [ref=e339]:
+              - generic [ref=e340]: New
+              - generic "Found automatically in the author's own feed. Relay has not read it or checked that it is a trading idea." [ref=e342]: Unreviewed
+            - heading "NFA Live! Bond Yields Surge, Crypto Stalls, & is AI Overhyped?" [level=2] [ref=e343]
+            - generic [ref=e344]:
+              - generic [ref=e345]: youtube.com
+              - generic "8 Oct 2026, 13:40 UTC" [ref=e346]: 4d
+            - generic [ref=e350]:
+              - button "Watch Benjamin Cowen" [ref=e352] [cursor=pointer]:
+                - generic [ref=e355]: Watch
+              - link "Open the original" [ref=e356] [cursor=pointer]:
+                - /url: https://www.youtube.com/watch?v=7lBaoC08nEQ
+                - generic [ref=e360]: Source
+          - article "Bitcoin vs Silver-Comparing Historical Cycles & Returns, Benjamin Cowen" [ref=e361]:
+            - link "Benjamin Cowen" [ref=e362] [cursor=pointer]:
+              - /url: /profiles/benjamin-cowen
+            - paragraph [ref=e365]:
+              - generic [ref=e366]: New
+              - generic "Found automatically in the author's own feed. Relay has not read it or checked that it is a trading idea." [ref=e368]: Unreviewed
+            - heading "Bitcoin vs Silver-Comparing Historical Cycles & Returns" [level=2] [ref=e369]
+            - generic [ref=e370]:
+              - generic [ref=e371]: youtube.com
+              - generic "7 Oct 2026, 13:39 UTC" [ref=e372]: 5d
+            - generic [ref=e376]:
+              - button "Watch Benjamin Cowen" [ref=e378] [cursor=pointer]:
+                - generic [ref=e381]: Watch
+              - link "Open the original" [ref=e382] [cursor=pointer]:
+                - /url: https://www.youtube.com/shorts/tatwV9ZVx0k
+                - generic [ref=e386]: Source
+          - article "Silver Price Drops-Why It's Happening Now, Benjamin Cowen" [ref=e387]:
+            - link "Benjamin Cowen" [ref=e388] [cursor=pointer]:
+              - /url: /profiles/benjamin-cowen
+            - paragraph [ref=e391]:
+              - generic [ref=e392]: New
+              - generic "Found automatically in the author's own feed. Relay has not read it or checked that it is a trading idea." [ref=e394]: Unreviewed
+            - heading "Silver Price Drops-Why It's Happening Now" [level=2] [ref=e395]
+            - generic [ref=e396]:
+              - generic [ref=e397]: youtube.com
+              - generic "6 Oct 2026, 15:36 UTC" [ref=e398]: 6d
+            - generic [ref=e402]:
+              - button "Watch Benjamin Cowen" [ref=e404] [cursor=pointer]:
+                - generic [ref=e407]: Watch
+              - link "Open the original" [ref=e408] [cursor=pointer]:
+                - /url: https://www.youtube.com/shorts/UGiJaLDut50
+                - generic [ref=e412]: Source
+          - article "Grain markets – Best is yet to come, Peter Brandt" [ref=e413]:
+            - link "Peter Brandt" [ref=e414] [cursor=pointer]:
+              - /url: /profiles/peter-brandt
+            - paragraph [ref=e417]:
+              - generic [ref=e418]: New
+              - generic "Found automatically in the author's own feed. Relay has not read it or checked that it is a trading idea." [ref=e420]: Unreviewed
+            - heading "Grain markets – Best is yet to come" [level=2] [ref=e421]
+            - generic [ref=e422]:
+              - generic [ref=e423]: peterlbrandt.com
+              - generic "6 Oct 2026, 15:11 UTC" [ref=e424]: 6d
+            - generic [ref=e428]:
+              - button "Watch Peter Brandt" [ref=e430] [cursor=pointer]:
+                - generic [ref=e433]: Watch
+              - link "Open the original" [ref=e434] [cursor=pointer]:
+                - /url: https://www.peterlbrandt.com/grain-markets-best-is-yet-to-come/
+                - generic [ref=e438]: Source
+          - article "Explaining the bear trap – an example, Peter Brandt" [ref=e439]:
+            - link "Peter Brandt" [ref=e440] [cursor=pointer]:
+              - /url: /profiles/peter-brandt
+            - paragraph [ref=e443]:
+              - generic [ref=e444]: New
+              - generic "Found automatically in the author's own feed. Relay has not read it or checked that it is a trading idea." [ref=e446]: Unreviewed
+            - heading "Explaining the bear trap – an example" [level=2] [ref=e447]
+            - generic [ref=e448]:
+              - generic [ref=e449]: peterlbrandt.com
+              - generic "6 Oct 2026, 10:47 UTC" [ref=e450]: 6d
+            - generic [ref=e454]:
+              - button "Watch Peter Brandt" [ref=e456] [cursor=pointer]:
+                - generic [ref=e459]: Watch
+              - link "Open the original" [ref=e460] [cursor=pointer]:
+                - /url: https://www.peterlbrandt.com/explaining-the-bear-trap-an-example/
+                - generic [ref=e464]: Source
+          - 'article "Silver: Dubious Speculation, Benjamin Cowen" [ref=e465]':
+            - link "Benjamin Cowen" [ref=e466] [cursor=pointer]:
+              - /url: /profiles/benjamin-cowen
+            - paragraph [ref=e469]:
+              - generic [ref=e470]: New
+              - generic "Found automatically in the author's own feed. Relay has not read it or checked that it is a trading idea." [ref=e472]: Unreviewed
+            - 'heading "Silver: Dubious Speculation" [level=2] [ref=e473]'
+            - generic [ref=e474]:
+              - generic [ref=e475]: youtube.com
+              - generic "6 Oct 2026, 04:23 UTC" [ref=e476]: 6d
+            - generic [ref=e480]:
+              - button "Watch Benjamin Cowen" [ref=e482] [cursor=pointer]:
+                - generic [ref=e485]: Watch
+              - link "Open the original" [ref=e486] [cursor=pointer]:
+                - /url: https://www.youtube.com/watch?v=s4U8s754p9w
+                - generic [ref=e490]: Source
+          - article "I Do Think That With Where Expectations Are.., Benjamin Cowen" [ref=e491]:
+            - link "Benjamin Cowen" [ref=e492] [cursor=pointer]:
+              - /url: /profiles/benjamin-cowen
+            - paragraph [ref=e495]:
+              - generic [ref=e496]: New
+              - generic "Found automatically in the author's own feed. Relay has not read it or checked that it is a trading idea." [ref=e498]: Unreviewed
+            - heading "I Do Think That With Where Expectations Are.." [level=2] [ref=e499]
+            - generic [ref=e500]:
+              - generic [ref=e501]: youtube.com
+              - generic "5 Oct 2026, 15:10 UTC" [ref=e502]: 7d
+            - generic [ref=e506]:
+              - button "Watch Benjamin Cowen" [ref=e508] [cursor=pointer]:
+                - generic [ref=e511]: Watch
+              - link "Open the original" [ref=e512] [cursor=pointer]:
+                - /url: https://www.youtube.com/shorts/JVtjNu5A8bU
+                - generic [ref=e516]: Source
+          - article "When Will Interest Rates Drop?, Benjamin Cowen" [ref=e517]:
+            - link "Benjamin Cowen" [ref=e518] [cursor=pointer]:
+              - /url: /profiles/benjamin-cowen
+            - paragraph [ref=e521]:
+              - generic [ref=e522]: New
+              - generic "Found automatically in the author's own feed. Relay has not read it or checked that it is a trading idea." [ref=e524]: Unreviewed
+            - heading "When Will Interest Rates Drop?" [level=2] [ref=e525]
+            - generic [ref=e526]:
+              - generic [ref=e527]: youtube.com
+              - generic "5 Oct 2026, 04:17 UTC" [ref=e528]: 7d
+            - generic [ref=e532]:
+              - button "Watch Benjamin Cowen" [ref=e534] [cursor=pointer]:
+                - generic [ref=e537]: Watch
+              - link "Open the original" [ref=e538] [cursor=pointer]:
+                - /url: https://www.youtube.com/watch?v=FVcHFIPVI40
+                - generic [ref=e542]: Source
+          - article "Premium Member Alert, Peter Brandt" [ref=e543]:
+            - link "Peter Brandt" [ref=e544] [cursor=pointer]:
+              - /url: /profiles/peter-brandt
+            - paragraph [ref=e547]:
+              - generic [ref=e548]: New
+              - generic "Found automatically in the author's own feed. Relay has not read it or checked that it is a trading idea." [ref=e550]: Unreviewed
+            - heading "Premium Member Alert" [level=2] [ref=e551]
+            - generic [ref=e552]:
+              - generic [ref=e553]: peterlbrandt.com
+              - generic "4 Oct 2026, 19:39 UTC" [ref=e554]: 8d
+            - generic [ref=e558]:
+              - button "Watch Peter Brandt" [ref=e560] [cursor=pointer]:
+                - generic [ref=e563]: Watch
+              - link "Open the original" [ref=e564] [cursor=pointer]:
+                - /url: https://www.peterlbrandt.com/premium-member-alert/
+                - generic [ref=e568]: Source
+          - article "Factor Special Situation Update, Sugar, Oct 4 2026, Peter Brandt" [ref=e569]:
+            - link "Peter Brandt" [ref=e570] [cursor=pointer]:
+              - /url: /profiles/peter-brandt
+            - paragraph [ref=e573]:
+              - generic [ref=e574]: New
+              - generic "Found automatically in the author's own feed. Relay has not read it or checked that it is a trading idea." [ref=e576]: Unreviewed
+            - heading "Factor Special Situation Update, Sugar, Oct 4 2026" [level=2] [ref=e577]
+            - generic [ref=e578]:
+              - generic [ref=e579]: peterlbrandt.com
+              - generic "4 Oct 2026, 12:16 UTC" [ref=e580]: 8d
+            - generic [ref=e584]:
+              - button "Watch Peter Brandt" [ref=e586] [cursor=pointer]:
+                - generic [ref=e589]: Watch
+              - link "Open the original" [ref=e590] [cursor=pointer]:
+                - /url: https://www.peterlbrandt.com/factor-special-situation-update-sugar-oct-4-2026/
+                - generic [ref=e594]: Source
+          - article "Factor Update, October 3, 2026, Peter Brandt" [ref=e595]:
+            - link "Peter Brandt" [ref=e596] [cursor=pointer]:
+              - /url: /profiles/peter-brandt
+            - paragraph [ref=e599]:
+              - generic [ref=e600]: New
+              - generic "Found automatically in the author's own feed. Relay has not read it or checked that it is a trading idea." [ref=e602]: Unreviewed
+            - heading "Factor Update, October 3, 2026" [level=2] [ref=e603]
+            - generic [ref=e604]:
+              - generic [ref=e605]: peterlbrandt.com
+              - generic "3 Oct 2026, 20:51 UTC" [ref=e606]: 9d
+            - generic [ref=e610]:
+              - button "Watch Peter Brandt" [ref=e612] [cursor=pointer]:
+                - generic [ref=e615]: Watch
+              - link "Open the original" [ref=e616] [cursor=pointer]:
+                - /url: https://www.peterlbrandt.com/factor-update-october-3-2026/
+                - generic [ref=e620]: Source
+          - article "Stock Market at All Time Highs-What's Next, Benjamin Cowen" [ref=e621]:
+            - link "Benjamin Cowen" [ref=e622] [cursor=pointer]:
+              - /url: /profiles/benjamin-cowen
+            - paragraph [ref=e625]:
+              - generic [ref=e626]: New
+              - generic "Found automatically in the author's own feed. Relay has not read it or checked that it is a trading idea." [ref=e628]: Unreviewed
+            - heading "Stock Market at All Time Highs-What's Next" [level=2] [ref=e629]
+            - generic [ref=e630]:
+              - generic [ref=e631]: youtube.com
+              - generic "3 Oct 2026, 17:38 UTC" [ref=e632]: 9d
+            - generic [ref=e636]:
+              - button "Watch Benjamin Cowen" [ref=e638] [cursor=pointer]:
+                - generic [ref=e641]: Watch
+              - link "Open the original" [ref=e642] [cursor=pointer]:
+                - /url: https://www.youtube.com/shorts/6gGqXyRnnRU
+                - generic [ref=e646]: Source
+          - article "Payrolls Come in Weak, Unemployment Ticks Higher, Benjamin Cowen" [ref=e647]:
+            - link "Benjamin Cowen" [ref=e648] [cursor=pointer]:
+              - /url: /profiles/benjamin-cowen
+            - paragraph [ref=e651]:
+              - generic [ref=e652]: New
+              - generic "Found automatically in the author's own feed. Relay has not read it or checked that it is a trading idea." [ref=e654]: Unreviewed
+            - heading "Payrolls Come in Weak, Unemployment Ticks Higher" [level=2] [ref=e655]
+            - generic [ref=e656]:
+              - generic [ref=e657]: youtube.com
+              - generic "2 Oct 2026, 18:25 UTC" [ref=e658]: 10d
+            - generic [ref=e662]:
+              - button "Watch Benjamin Cowen" [ref=e664] [cursor=pointer]:
+                - generic [ref=e667]: Watch
+              - link "Open the original" [ref=e668] [cursor=pointer]:
+                - /url: https://www.youtube.com/watch?v=kDJcse482Eo
+                - generic [ref=e672]: Source
+          - 'article "Bitcoin: The Beauty of Mathematics (Part 73), Benjamin Cowen" [ref=e673]':
+            - link "Benjamin Cowen" [ref=e674] [cursor=pointer]:
+              - /url: /profiles/benjamin-cowen
+            - paragraph [ref=e677]:
+              - generic [ref=e678]: New
+              - generic "Found automatically in the author's own feed. Relay has not read it or checked that it is a trading idea." [ref=e680]: Unreviewed
+            - 'heading "Bitcoin: The Beauty of Mathematics (Part 73)" [level=2] [ref=e681]'
+            - generic [ref=e682]:
+              - generic [ref=e683]: youtube.com
+              - generic "2 Oct 2026, 01:49 UTC" [ref=e684]: 10d
+            - generic [ref=e688]:
+              - button "Watch Benjamin Cowen" [ref=e690] [cursor=pointer]:
+                - generic [ref=e693]: Watch
+              - link "Open the original" [ref=e694] [cursor=pointer]:
+                - /url: https://www.youtube.com/watch?v=vMz4H9OK_fs
+                - generic [ref=e698]: Source
+          - article "Gold Price Analysis, Benjamin Cowen" [ref=e699]:
+            - link "Benjamin Cowen" [ref=e700] [cursor=pointer]:
+              - /url: /profiles/benjamin-cowen
+            - paragraph [ref=e703]:
+              - generic [ref=e704]: New
+              - generic "Found automatically in the author's own feed. Relay has not read it or checked that it is a trading idea." [ref=e706]: Unreviewed
+            - heading "Gold Price Analysis" [level=2] [ref=e707]
+            - generic [ref=e708]:
+              - generic [ref=e709]: youtube.com
+              - generic "1 Oct 2026, 13:53 UTC" [ref=e710]: 11d
+            - generic [ref=e714]:
+              - button "Watch Benjamin Cowen" [ref=e716] [cursor=pointer]:
+                - generic [ref=e719]: Watch
+              - link "Open the original" [ref=e720] [cursor=pointer]:
+                - /url: https://www.youtube.com/shorts/lDp-3E66kBI
+                - generic [ref=e724]: Source
+          - article "NFA Live! Bitcoin in 2026, Benjamin Cowen" [ref=e725]:
+            - link "Benjamin Cowen" [ref=e726] [cursor=pointer]:
+              - /url: /profiles/benjamin-cowen
+            - paragraph [ref=e729]:
+              - generic [ref=e730]: New
+              - generic "Found automatically in the author's own feed. Relay has not read it or checked that it is a trading idea." [ref=e732]: Unreviewed
+            - heading "NFA Live! Bitcoin in 2026" [level=2] [ref=e733]
+            - generic [ref=e734]:
+              - generic [ref=e735]: youtube.com
+              - generic "1 Oct 2026, 13:44 UTC" [ref=e736]: 11d
+            - generic [ref=e740]:
+              - button "Watch Benjamin Cowen" [ref=e742] [cursor=pointer]:
+                - generic [ref=e745]: Watch
+              - link "Open the original" [ref=e746] [cursor=pointer]:
+                - /url: https://www.youtube.com/watch?v=-Mb-s09YdL0
+                - generic [ref=e750]: Source
+          - article "Factor Member Webinar September 2026, Peter Brandt" [ref=e751]:
+            - link "Peter Brandt" [ref=e752] [cursor=pointer]:
+              - /url: /profiles/peter-brandt
+            - paragraph [ref=e755]:
+              - generic [ref=e756]: New
+              - generic "Found automatically in the author's own feed. Relay has not read it or checked that it is a trading idea." [ref=e758]: Unreviewed
+            - heading "Factor Member Webinar September 2026" [level=2] [ref=e759]
+            - generic [ref=e760]:
+              - generic [ref=e761]: peterlbrandt.com
+              - generic "30 Sept 2026, 23:59 UTC" [ref=e762]: 11d
+            - generic [ref=e766]:
+              - button "Watch Peter Brandt" [ref=e768] [cursor=pointer]:
+                - generic [ref=e771]: Watch
+              - link "Open the original" [ref=e772] [cursor=pointer]:
+                - /url: https://www.peterlbrandt.com/factor-member-webinar-september-2026/
+                - generic [ref=e776]: Source
+          - 'article "WEBINAR: September 29, 2026 at 11:00 am Central – Ask Peter, Peter Brandt" [ref=e777]':
+            - link "Peter Brandt" [ref=e778] [cursor=pointer]:
+              - /url: /profiles/peter-brandt
+            - paragraph [ref=e781]:
+              - generic [ref=e782]: New
+              - generic "Found automatically in the author's own feed. Relay has not read it or checked that it is a trading idea." [ref=e784]: Unreviewed
+            - 'heading "WEBINAR: September 29, 2026 at 11:00 am Central – Ask Peter" [level=2] [ref=e785]'
+            - generic [ref=e786]:
+              - generic [ref=e787]: peterlbrandt.com
+              - generic "29 Sept 2026, 13:33 UTC" [ref=e788]: 13d
+            - generic [ref=e792]:
+              - button "Watch Peter Brandt" [ref=e794] [cursor=pointer]:
+                - generic [ref=e797]: Watch
+              - link "Open the original" [ref=e798] [cursor=pointer]:
+                - /url: https://www.peterlbrandt.com/webinar-december-30-2025-at-800-am-mountain-ask-peter-2/
+                - generic [ref=e802]: Source
+          - article "Factor Report Update, September 26 2026, Peter Brandt" [ref=e803]:
+            - link "Peter Brandt" [ref=e804] [cursor=pointer]:
+              - /url: /profiles/peter-brandt
+            - paragraph [ref=e807]:
+              - generic [ref=e808]: New
+              - generic "Found automatically in the author's own feed. Relay has not read it or checked that it is a trading idea." [ref=e810]: Unreviewed
+            - heading "Factor Report Update, September 26 2026" [level=2] [ref=e811]
+            - generic [ref=e812]:
+              - generic [ref=e813]: peterlbrandt.com
+              - generic "26 Sept 2026, 10:39 UTC" [ref=e814]: 26 Sept
+            - generic [ref=e818]:
+              - button "Watch Peter Brandt" [ref=e820] [cursor=pointer]:
+                - generic [ref=e823]: Watch
+              - link "Open the original" [ref=e824] [cursor=pointer]:
+                - /url: https://www.peterlbrandt.com/factor-report-update-september-26-2026/
+                - generic [ref=e828]: Source
+          - article "Interview with Cointelegraph, Peter Brandt" [ref=e829]:
+            - link "Peter Brandt" [ref=e830] [cursor=pointer]:
+              - /url: /profiles/peter-brandt
+            - paragraph [ref=e833]:
+              - generic [ref=e834]: New
+              - generic "Found automatically in the author's own feed. Relay has not read it or checked that it is a trading idea." [ref=e836]: Unreviewed
+            - heading "Interview with Cointelegraph" [level=2] [ref=e837]
+            - generic [ref=e838]:
+              - generic [ref=e839]: peterlbrandt.com
+              - generic "26 Sept 2026, 00:30 UTC" [ref=e840]: 26 Sept
+            - generic [ref=e844]:
+              - button "Watch Peter Brandt" [ref=e846] [cursor=pointer]:
+                - generic [ref=e849]: Watch
+              - link "Open the original" [ref=e850] [cursor=pointer]:
+                - /url: https://www.peterlbrandt.com/interview-with-cointelegraph/
+                - generic [ref=e854]: Source
+          - article "Safety First, Arthur Hayes" [ref=e855]:
+            - link "Arthur Hayes" [ref=e856] [cursor=pointer]:
+              - /url: /profiles/arthur-hayes
+            - paragraph [ref=e859]:
+              - generic [ref=e860]: New
+              - generic "Found automatically in the author's own feed. Relay has not read it or checked that it is a trading idea." [ref=e862]: Unreviewed
+            - heading "Safety First" [level=2] [ref=e863]
+            - generic [ref=e864]:
+              - generic [ref=e865]: cryptohayes.substack.com
+              - generic "21 Sept 2026, 23:07 UTC" [ref=e866]: 21 Sept
+            - generic [ref=e870]:
+              - button "Watch Arthur Hayes" [ref=e872] [cursor=pointer]:
+                - generic [ref=e875]: Watch
+              - link "Open the original" [ref=e876] [cursor=pointer]:
+                - /url: https://cryptohayes.substack.com/p/safety-first
+                - generic [ref=e880]: Source
+          - article "Atención, Arthur Hayes" [ref=e881]:
+            - link "Arthur Hayes" [ref=e882] [cursor=pointer]:
+              - /url: /profiles/arthur-hayes
+            - paragraph [ref=e885]:
+              - generic [ref=e886]: New
+              - generic "Found automatically in the author's own feed. Relay has not read it or checked that it is a trading idea." [ref=e888]: Unreviewed
+            - heading "Atención" [level=2] [ref=e889]
+            - generic [ref=e890]:
+              - generic [ref=e891]: cryptohayes.substack.com
+              - generic "2 Sept 2026, 23:01 UTC" [ref=e892]: 2 Sept
+            - generic [ref=e896]:
+              - button "Watch Arthur Hayes" [ref=e898] [cursor=pointer]:
+                - generic [ref=e901]: Watch
+              - link "Open the original" [ref=e902] [cursor=pointer]:
+                - /url: https://cryptohayes.substack.com/p/atencion
+                - generic [ref=e906]: Source
+          - article "Same Same But Different, Arthur Hayes" [ref=e907]:
+            - link "Arthur Hayes" [ref=e908] [cursor=pointer]:
+              - /url: /profiles/arthur-hayes
+            - paragraph [ref=e911]:
+              - generic [ref=e912]: New
+              - generic "Found automatically in the author's own feed. Relay has not read it or checked that it is a trading idea." [ref=e914]: Unreviewed
+            - heading "Same Same But Different" [level=2] [ref=e915]
+            - generic [ref=e916]:
+              - generic [ref=e917]: cryptohayes.substack.com
+              - generic "24 Aug 2026, 23:01 UTC" [ref=e918]: 24 Aug
+            - generic [ref=e922]:
+              - button "Watch Arthur Hayes" [ref=e924] [cursor=pointer]:
+                - generic [ref=e927]: Watch
+              - link "Open the original" [ref=e928] [cursor=pointer]:
+                - /url: https://cryptohayes.substack.com/p/same-same-but-different
+                - generic [ref=e932]: Source
+          - article "The Book of Genesis, Arthur Hayes" [ref=e933]:
+            - link "Arthur Hayes" [ref=e934] [cursor=pointer]:
+              - /url: /profiles/arthur-hayes
+            - paragraph [ref=e937]:
+              - generic [ref=e938]: New
+              - generic "Found automatically in the author's own feed. Relay has not read it or checked that it is a trading idea." [ref=e940]: Unreviewed
+            - heading "The Book of Genesis" [level=2] [ref=e941]
+            - generic [ref=e942]:
+              - generic [ref=e943]: cryptohayes.substack.com
+              - generic "19 Aug 2026, 23:01 UTC" [ref=e944]: 19 Aug
+            - generic [ref=e948]:
+              - button "Watch Arthur Hayes" [ref=e950] [cursor=pointer]:
+                - generic [ref=e953]: Watch
+              - link "Open the original" [ref=e954] [cursor=pointer]:
+                - /url: https://cryptohayes.substack.com/p/the-book-of-genesis
+                - generic [ref=e958]: Source
+          - article "Yen-quake, Arthur Hayes" [ref=e959]:
+            - link "Arthur Hayes" [ref=e960] [cursor=pointer]:
+              - /url: /profiles/arthur-hayes
+            - paragraph [ref=e963]:
+              - generic [ref=e964]: New
+              - generic "Found automatically in the author's own feed. Relay has not read it or checked that it is a trading idea." [ref=e966]: Unreviewed
+            - heading "Yen-quake" [level=2] [ref=e967]
+            - generic [ref=e968]:
+              - generic [ref=e969]: cryptohayes.substack.com
+              - generic "11 Aug 2026, 01:00 UTC" [ref=e970]: 11 Aug
+            - generic [ref=e974]:
+              - button "Watch Arthur Hayes" [ref=e976] [cursor=pointer]:
+                - generic [ref=e979]: Watch
+              - link "Open the original" [ref=e980] [cursor=pointer]:
+                - /url: https://cryptohayes.substack.com/p/yen-quake
+                - generic [ref=e984]: Source
+          - article "End" [ref=e985]:
+            - generic [ref=e1055]:
+              - button "Back to the top" [ref=e1056] [cursor=pointer]
+              - link "Updates" [ref=e1059] [cursor=pointer]:
+                - /url: /updates
+              - link "How Relay works" [ref=e1063] [cursor=pointer]:
+                - /url: /about
+              - link "Plans published through Relay" [ref=e1066] [cursor=pointer]:
+                - /url: /plans
+    - navigation "Main" [ref=e1070]:
+      - list [ref=e1071]:
+        - listitem [ref=e1072]:
+          - link "Discover" [ref=e1073] [cursor=pointer]:
+            - /url: /
+        - listitem [ref=e1078]:
+          - link "Updates" [ref=e1079] [cursor=pointer]:
+            - /url: /updates
+        - listitem [ref=e1084]:
+          - link "Watchlist" [ref=e1085] [cursor=pointer]:
+            - /url: /watchlist
+        - listitem [ref=e1089]:
+          - link "Plans" [ref=e1090] [cursor=pointer]:
+            - /url: /plans
+        - listitem [ref=e1095]:
+          - link "Account" [ref=e1096] [cursor=pointer]:
+            - /url: /account
+```
