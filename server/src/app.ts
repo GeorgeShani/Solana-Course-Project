@@ -130,7 +130,11 @@ export function createApp({
         providers: {
           jupiterPrices: env.jupiterApiKey ? "keyed" : "keyless",
           googleSignIn:
-            env.googleClientId && env.googleClientSecret ? "configured" : "off",
+            env.googleClientId &&
+            env.googleClientSecret &&
+            env.googleRedirectUri
+              ? "configured"
+              : "off",
           walletData: "none",
         },
       },

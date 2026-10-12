@@ -107,6 +107,20 @@ function GoogleSection({
 }) {
   const auth = useGoogleAuth();
   const mounted = useMounted();
+  const [signingOut, setSigningOut] = useState(false);
+  const [signOutError, setSignOutError] = useState<string | null>(null);
+
+  const handleSignOut = async () => {
+    setSigningOut(true);
+    setSignOutError(null);
+    try {
+      await signOut();
+    } catch {
+      setSignOutError("Sign-out failed. Please try again.");
+    } finally {
+      setSigningOut(false);
+    }
+  };
 
   // If we've just come back from the Google callback, refresh auth state once.
   useEffect(() => {
@@ -145,6 +159,11 @@ function GoogleSection({
           Sign-in failed. Please try again.
         </p>
       )}
+      {signOutError && (
+        <p className="field__error" role="alert">
+          {signOutError}
+        </p>
+      )}
 
       {loading ? (
         <p className="page__text" aria-busy="true">
@@ -181,9 +200,11 @@ function GoogleSection({
             id="google-sign-out-btn"
             type="button"
             className="me__out"
-            aria-label="Sign out"
+            aria-label={signingOut ? "Signing out…" : "Sign out"}
+            aria-busy={signingOut}
+            disabled={signingOut}
             title="Sign out"
-            onClick={() => void signOut()}
+            onClick={() => void handleSignOut()}
           >
             <Icon name="close" size={20} />
           </button>
