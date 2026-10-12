@@ -1,3 +1,5 @@
+> **Historical context only; not current product authority.** Superseded by [PRODUCT.md](../../PRODUCT.md) and [docs/ROADMAP.md](../ROADMAP.md) (2026-10-12).
+
 # Relay: the 2-minute pitch
 
 Spoken at a slow pace (about 125 words a minute) with real pauses. The text is about 210 words, which lands at roughly 2:05-2:15 once the pauses are counted. Rehearse it once with a timer and trim using the "if you run long" list below.

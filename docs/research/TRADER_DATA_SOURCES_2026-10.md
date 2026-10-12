@@ -1,6 +1,16 @@
-# Real trader data for Relay: sources compared
+# Outside-Relay Solana Wallet Data Providers
 
-Research date: 2026-10-10. Everything below was read from vendor documentation or search results on that date. Prices and limits change, so re-check the linked page before you subscribe. **[V]** means read on the vendor's own docs page. **[S]** means only seen in a search snippet or a third-party page, so treat it as unconfirmed.
+Research date: 2026-10-10 (rescoped 2026-10-12). Everything below was read from vendor documentation or search results on that date. **Prices, limits and licences change: every vendor figure here is dated and must be re-verified before use.** **[V]** means read on the vendor's own docs page. **[S]** means only seen in a search snippet or a third-party page, so treat it as unconfirmed.
+
+## Scope: read this first
+
+This document is about **one narrow problem**: showing a Solana wallet's activity that happened _outside Relay_, when Relay already holds a wallet address and has a lawful, supported reason to display it. It is **not** about public-source editorial records.
+
+- It does **not** cover Relay's primary data. Peter Brandt, Arthur Hayes and Benjamin Cowen are public-source profiles recorded by hand in `server/curation/curated.json`. **No wallet is attributed to any of them**, and nothing here may be used to imply that they control one. A wallet becomes associated with a person only with independent identity evidence (see `PRODUCT.md`).
+- It does **not** supply Relay receipts. Provider-derived estimates and Relay receipt evidence are different kinds of proof and are never mixed in one statistic.
+- **No API subscription is required** for the core real-data technical demo (curated discovery, plus optional devnet plans and receipts).
+- **Leaderboard discovery is deferred research.** It does not deliver the core original/update story and adds privacy, recommendation and licensing risk.
+- If this is ever implemented (a later, separately approved milestone): vendor keys stay server-side, responses are cached, provider, window, method and fetch time are displayed, and _unavailable never renders as zero_. The adapter would live under a separately named `wallet-intelligence` (outside-Relay) server module, apart from `discovery` and `curation`.
 
 ## The rule that decides everything
 
@@ -11,7 +21,7 @@ Relay's product claim is that numbers are _verified from the chain_. Third-party
 | Follower outcomes, creator observed entry, receipts                      | **Relay's own program and server** (already built, free) | "Verified by Relay receipt"                                       |
 | Anything about a wallet's trading outside Relay (PnL, win rate, history) | A third-party API from this document                     | "Third-party estimate. Not verified by Relay. May be incomplete." |
 
-Never mix the two in one statistic, and never rank the feed by third-party PnL (the plan already forbids ranking by claimed return).
+Never mix the two in one statistic, and never rank anything by third-party PnL (Relay forbids ranking by claimed return).
 
 ## Shortlist
 
@@ -85,13 +95,16 @@ An MCP server is useful for **exploring** (asking an agent "show me this wallet'
 3. **Do not name or rank real people from their trading.** A leaderboard of real wallets is public chain data, but pairing it with a name or social account, or implying they endorse Relay, is a privacy and legal risk. Show shortened addresses, or only labels the vendor publishes openly.
 4. **Server-side only.** Keys never go in `VITE_*`. Cache for minutes, key by wallet, and respect the free-tier limits (Solana Tracker free is 2.5K requests a month, so a demo must cache hard).
 5. **Fail visibly.** If the vendor is down or the wallet is outside its index, show "Outside-Relay history unavailable", never a zero or an empty chart.
-6. **Fictional stays fictional.** Seeded demo creators keep their fictional badge. Real wallets from a vendor are a separate "Discover real traders" view, clearly not Relay creators and with no Relay plan attached.
+6. **Fictional stays fictional.** Seeded demo creators keep their fictional badge. Real wallets from a vendor would live in a separate **"Explore public wallet activity"** view, clearly not Relay creators and with no Relay plan attached. Do not call it "real traders" unless identity association is independently supported.
 
-## Recommended plan
+## Recommended plan (deferred)
 
-- **Demo (3 days):** pick **Solana Tracker's free tier** (confirm the PnL endpoints work on it with one `curl`), add one server route that wraps it (for example `GET /traders/{address}/outside-relay`), cache it, and show it in the creator profile block described above. If the free tier does not include PnL, use Vybe's free tier or a Helius key for history only, or skip the block and keep Relay-only numbers (the demo does not depend on it).
-- **Pilot:** add Helius for `funded-by` and identity (paid plan), and keep Solana Tracker or Vybe for PnL.
-- **Later:** if you want your own PnL rules (so the number matches the plan's Section S method), compute it from raw swaps through Helius history or Bitquery rather than trusting a vendor figure.
+Nothing here is scheduled. If the owner later approves an outside-Relay wallet block:
+
+1. Run one real-request validation per candidate (see below) and a licensing and UI-disclosure review first. Write provider contract tests and privacy acceptance criteria before any adapter code.
+2. Start with the cheapest provider that passes validation (candidates on 2026-10-10: Solana Tracker free tier, Vybe free tier, Helius for history only), behind one server route and a cache.
+3. Pilot later: add Helius for `funded-by` and identity (paid plan).
+4. If Relay wants its own PnL rules, compute them from raw swaps (Helius history or Bitquery) instead of trusting a vendor figure.
 
 ## Before you commit money
 

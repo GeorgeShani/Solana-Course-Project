@@ -1,3 +1,5 @@
+> **Historical context only; not current product authority.** Superseded by [PRODUCT.md](../../PRODUCT.md) and [docs/ROADMAP.md](../ROADMAP.md) (2026-10-12).
+
 # Continue here (handoff for the next session)
 
 Written 2026-10-10. This is the short, current "what to do next" for an agent that picks the work up, for example a cloud session. The full plan is `docs/RELAY_IMPLEMENTATION_PLAN.md` (read all of it, Stage 3 first); the product brief is `docs/RELAY_HANDOFF_2026-10-10.md`. If this page and the plan disagree, say so and ask.

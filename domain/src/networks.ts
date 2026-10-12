@@ -25,7 +25,7 @@ export interface NetworkInfo {
   /**
    * True when following works end to end on this network. For the simulated venue this stays false
    * until the owner has deployed the venue, funded its pool and run a verified follow (see
-   * docs/DEVNET_RELEASE.md); the code path exists before that.
+   * docs/runbooks/DEVNET_RELEASE.md); the code path exists before that.
    */
   swapsAvailable: boolean;
   /** One plain sentence shown next to the network name. */

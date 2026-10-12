@@ -146,7 +146,7 @@ export async function runNetworkReport(
       add(
         "Relay program",
         "warn",
-        `not deployed on ${network.label} at ${RELAY_PROGRAM_ADDRESS}. The owner deploys it (docs/DEVNET_RELEASE.md)`,
+        `not deployed on ${network.label} at ${RELAY_PROGRAM_ADDRESS}. The owner deploys it (docs/runbooks/DEVNET_RELEASE.md)`,
       );
     else
       add(

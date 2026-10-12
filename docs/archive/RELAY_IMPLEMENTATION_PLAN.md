@@ -1,3 +1,5 @@
+> **Historical context only; not current product authority.** Superseded by [PRODUCT.md](../../PRODUCT.md) and [docs/ROADMAP.md](../ROADMAP.md) (2026-10-12).
+
 # Relay — Product & Implementation Plan
 
 > **When this plan is approved:**

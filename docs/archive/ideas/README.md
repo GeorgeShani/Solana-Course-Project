@@ -1,3 +1,5 @@
+> **Historical context only; not current product authority.** Superseded by [PRODUCT.md](../../PRODUCT.md) and [docs/ROADMAP.md](../ROADMAP.md) (2026-10-12).
+
 # Ideas
 
 One folder per candidate idea. Keep ideas here until one is chosen; then promote it to the top-level docs and rename the program and app accordingly.

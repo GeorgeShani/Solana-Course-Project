@@ -86,7 +86,7 @@ bun run dev:server                            # applies migrations, then serves 
 bun run --cwd server seed                     # optional: real onchain demo plans with labelled fictional creators
 bun run --cwd server curate --demo            # optional: the fictional discovery demo (DEMO_MODE=true serves it)
 bun run --cwd server review list             # evidence requests and references waiting for a reviewer (also: approve-request, reject-request, close-request, accept, reject)
-bun run --cwd server curate --check           # validate server/curation/curated.json (the real traders; empty until the owner supplies them)
+bun run --cwd server curate --check           # validate server/curation/curated.json (the three public-source profiles)
 bun run --cwd server test                     # needs the dev Postgres and a relay_test database
 ```
 
