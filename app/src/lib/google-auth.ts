@@ -36,6 +36,10 @@ function setState(next: AuthState) {
   emit();
 }
 
+function isRecord(v: unknown): v is Record<string, unknown> {
+  return typeof v === "object" && v !== null;
+}
+
 async function fetchMe(): Promise<void> {
   try {
     const res = await fetch(`${API_URL}/auth/me`, { credentials: "include" });
@@ -44,14 +48,8 @@ async function fetchMe(): Promise<void> {
       return;
     }
     const json: unknown = await res.json();
-    if (
-      typeof json === "object" &&
-      json !== null &&
-      "user" in json &&
-      json.user !== null &&
-      typeof json.user === "object"
-    ) {
-      const u = json.user as Record<string, unknown>;
+    if (isRecord(json) && isRecord(json.user)) {
+      const u = json.user;
       if (
         typeof u.sub === "string" &&
         typeof u.email === "string" &&

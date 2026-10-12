@@ -10,7 +10,7 @@ How to run Relay on a server: **one stack, one domain**, with Docker Compose and
 | What runs        | `caddy` (HTTPS, one domain), `app` (the website, server-rendered), `server` (the API), and `postgres` (or your own hosted database) |
 | Network          | Solana devnet. Set once with `NETWORK=devnet` in `.env`                                                                             |
 | Settings         | **One file: `.env` in the repo root** (copy `.env.example`)                                                                         |
-| On-chain program | Not in Docker. Deployed to devnet from your computer. See [DEVNET_RELEASE.md](docs/DEVNET_RELEASE.md)                               |
+| On-chain program | Not in Docker. Deployed to devnet from your computer. See [DEVNET_RELEASE.md](docs/runbooks/DEVNET_RELEASE.md)                               |
 
 ```
                    ┌────────────────────── one domain ──────────────────────┐
@@ -80,7 +80,7 @@ Copy the file off the server (to S3, for example). If you use a hosted database,
 
 ## Deploying the Solana program (devnet)
 
-The program is deployed once from your computer, not from the server. The full steps are in [docs/DEVNET_RELEASE.md](docs/DEVNET_RELEASE.md). In short: `bun run program:build`, deploy to devnet with your own keypair (devnet SOL is free from `solana airdrop`), then `bun run sync-idl` and rebuild the app.
+The program is deployed once from your computer, not from the server. The full steps are in [docs/runbooks/DEVNET_RELEASE.md](docs/runbooks/DEVNET_RELEASE.md). In short: `bun run program:build`, deploy to devnet with your own keypair (devnet SOL is free from `solana airdrop`), then `bun run sync-idl` and rebuild the app.
 
 ## Things to know
 

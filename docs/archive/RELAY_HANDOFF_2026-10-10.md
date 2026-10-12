@@ -1,3 +1,5 @@
+> **Historical context only; not current product authority.** Superseded by [PRODUCT.md](../../PRODUCT.md) and [docs/ROADMAP.md](../ROADMAP.md) (2026-10-12).
+
 # Relay — Product and Implementation Handoff
 
 Version: 1.0 · 10 October 2026 · Owner-requested continuation brief

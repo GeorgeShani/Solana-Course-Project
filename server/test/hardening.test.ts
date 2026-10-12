@@ -608,7 +608,8 @@ describe("chain reader timeouts", () => {
       await expect(chain.health()).rejects.toThrow();
       expect(Date.now() - started).toBeLessThan(3000);
     } finally {
-      await hang.stop(true);
+      // Not awaited: with a request that never answers, awaiting stop() can outlast the test on Windows.
+      void hang.stop(true);
     }
   });
 });

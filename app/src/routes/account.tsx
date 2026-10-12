@@ -14,11 +14,11 @@ import { useMounted } from "../lib/mounted";
 import { disconnectWallet, openWalletDialog, useWallet } from "../lib/wallet";
 
 export const Route = createFileRoute("/account")({
-  validateSearch: (search: Record<string, unknown>) => {
+  validateSearch: (
+    search: Record<string, unknown>,
+  ): { auth_error?: "cancelled" | "failed" } => {
     const e = search.auth_error;
-    const auth_error =
-      e === "cancelled" || e === "failed" ? e : undefined;
-    return { auth_error };
+    return e === "cancelled" || e === "failed" ? { auth_error: e } : {};
   },
   head: () => ({ meta: [{ title: "Account · Relay" }] }),
   component: Account,
@@ -116,12 +116,20 @@ function GoogleSection({
       </h2>
 
       {authError === "cancelled" && (
-        <p className="field__error" role="alert" style={{ marginBottom: "var(--s2)" }}>
+        <p
+          className="field__error"
+          role="alert"
+          style={{ marginBottom: "var(--s2)" }}
+        >
           Sign-in was cancelled.
         </p>
       )}
       {authError === "failed" && (
-        <p className="field__error" role="alert" style={{ marginBottom: "var(--s2)" }}>
+        <p
+          className="field__error"
+          role="alert"
+          style={{ marginBottom: "var(--s2)" }}
+        >
           Sign-in failed. Please try again.
         </p>
       )}

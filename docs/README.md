@@ -1,8 +1,14 @@
 # Docs
 
-The project idea is **Relay** (see the plan below). Candidate ideas that were not chosen stay under `ideas/`.
+Product authority is [../PRODUCT.md](../PRODUCT.md). The active roadmap is [ROADMAP.md](ROADMAP.md). Everything in `archive/` is historical context only.
 
-| Path | What it is |
-|---|---|
-| [RELAY_IMPLEMENTATION_PLAN.md](RELAY_IMPLEMENTATION_PLAN.md) | Product and implementation plan for Relay: repo audit, architecture, program design, security model, and the phased roadmap (Phases 0-18). |
-| [ideas/](ideas/README.md) | Candidate project ideas, one folder each, with a template for adding more. |
+| Path                                                                               | What it is                                                                                          |
+| ---------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| [ROADMAP.md](ROADMAP.md)                                                           | Short active roadmap, with the recorded baseline and per-milestone results.                         |
+| [../DEPLOYMENT.md](../DEPLOYMENT.md)                                               | Docker Compose + Caddy runbook for one host.                                                        |
+| [runbooks/DEVNET_RELEASE.md](runbooks/DEVNET_RELEASE.md)                           | How the owner deploys the program to devnet, and the internal program review.                       |
+| [research/TRADER_DATA_SOURCES_2026-10.md](research/TRADER_DATA_SOURCES_2026-10.md) | Outside-Relay Solana wallet-data providers. Deferred; unrelated to the public-source profiles.      |
+| [spikes/surfpool-jupiter.md](spikes/surfpool-jupiter.md)                           | Local-fork (Surfpool + Jupiter) spike notes for automated tests.                                    |
+| [../server/curation/README.md](../server/curation/README.md)                       | How public-source records are curated and loaded.                                                   |
+| [../DESIGN.md](../DESIGN.md)                                                       | The design system.                                                                                  |
+| [archive/](archive)                                                                | Superseded plan, handoff, continuation notes, pitch and candidate ideas. **Not current authority.** |
