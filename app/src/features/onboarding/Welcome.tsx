@@ -7,6 +7,7 @@ import { useCueGaze, useStagePointer } from "../../lib/pointer";
 import { ENTER_EVENT } from "./stage";
 import { WELCOME_EVENT, leaveWelcome, markWelcomeSeen } from "./welcome-state";
 import { MarqueeSign } from "../../components/theatre/Marquee";
+import { useMounted } from "../../lib/mounted";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 const DRAPE_EASE = [0.33, 1, 0.68, 1] as const;
@@ -26,6 +27,7 @@ const DRAPES_S = 0.9;
  */
 export function Welcome() {
   const reduce = useCalmMotion();
+  const mounted = useMounted();
   const router = useRouter();
   const [opening, setOpening] = useState(false);
   const primary = useRef<HTMLButtonElement>(null);
@@ -219,7 +221,8 @@ export function Welcome() {
             type="button"
             className="btn btn--primary"
             onClick={enter}
-            disabled={opening}
+            // Until the page has hydrated the button cannot work; saying so beats a dead click.
+            disabled={opening || !mounted}
           >
             Explore ideas
           </button>

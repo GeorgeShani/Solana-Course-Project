@@ -106,3 +106,10 @@
 .wl-card--plain .wl-card__actions {
   grid-column: 1;
 }
+
+/* The Cue cursor needs a mouse: on touch screens its preference does nothing, so it is not offered. */
+@media (hover: none), (pointer: coarse) {
+  .panel--pointer-only {
+    display: none;
+  }
+}

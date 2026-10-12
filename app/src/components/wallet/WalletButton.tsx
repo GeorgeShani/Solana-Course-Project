@@ -52,12 +52,16 @@ export function WalletButton() {
   }, [open]);
 
   if (state.status !== "connected") {
-    if (!isWalletPath(pathname)) return null;
     const busy = state.status === "connecting";
     return (
       <button
         type="button"
         className="hdr-btn wallet-btn"
+        // Off the pages where a wallet matters the button keeps its space (so the header never
+        // shifts between pages) but is invisible and cannot be reached.
+        data-quiet={!isWalletPath(pathname)}
+        tabIndex={isWalletPath(pathname) ? 0 : -1}
+        aria-hidden={!isWalletPath(pathname)}
         onClick={openWalletDialog}
         aria-busy={busy}
       >
