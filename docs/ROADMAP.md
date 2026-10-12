@@ -64,6 +64,12 @@ Not verified, and stated so: the program was not rebuilt (`program:build`/`progr
 
 `/` is a full-screen, one-idea-per-screen snap feed (swipe, wheel, J/K): an intro, the 4 hand-recorded ideas, then the newest items detected automatically in the authors' own public feeds (Hayes' Substack, Brandt's site, Cowen's YouTube channel), each marked "Detected automatically · not reviewed" with only title, link and date stored (`feed_items`, migration 007; `GET /discovery/feed`; polled every 30 minutes by the server, or `bun run --cwd server feeds`). Items already recorded by hand are not repeated. Playwright suite in `app/e2e` (journey, phone, accessibility with axe, keyboard, reduced motion, states): `bun run --cwd app e2e` against the running stack. A wallet-activity feed still needs a Solana Tracker key (not provided).
 
+## M9. Screen-audit follow-up: IN PROGRESS
+
+Plan from [AGENT_HANDOFF_SCREEN_AUDIT.md](AGENT_HANDOFF_SCREEN_AUDIT.md) and the 2026-10-12 captures, worked on `main` at the owner's request. Steps: H1 baseline, H2 plan watch and follow gate, H3 honest plans states, H4 copy and layout, H5 plans on devnet (owner deploys), H6 evidence operations, H7 hosting, H8 wrap-up.
+
+**H1 baseline: DONE.** After merging the hermes-fix Discover polish, two checks failed on `main` and are fixed: lint (three type assertions in `app/scripts/capture-screens.ts`, now narrowed at runtime) and app `tsc -b` (the `--s` custom property in `Audience.tsx`, now a typed style object). The capture script also seeds its watched idea with the label a real Watch stores (the audit's "Hayes idea" was the script's own placeholder) and writes to `audit-<today>` so it never overwrites an earlier audit. Green: lint, domain 90, server 215, app 151 (`bun run test`; a bare `bun test` also picks up the Playwright specs and fails), app `tsc -b` and build. In the browser at 1280×800 and 375×812, Discover and the Interval have no horizontal overflow or scroll offset and all four Interval scenes render once the animation settles; the shifted frames in the audit's `03`/`04` do not reproduce after the merged CSS. Not run: `e2e`, `program:test`.
+
 ## Deferred
 
 Automatic X/Telegram/newsletter/exchange ingestion · creator claiming and identity verification · notifications · premium history and comparison · leaderboards, inferred PnL, universal wallet attribution · outside-Relay wallet PnL providers (see [research](research/TRADER_DATA_SOURCES_2026-10.md)) · more chains · copy trading · a large curation admin UI.

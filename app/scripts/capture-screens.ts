@@ -3,7 +3,8 @@
  *
  *   bun run --cwd app scripts/capture-screens.ts
  *
- * Requires app on :5173 and API on :3001 with curated data loaded.
+ * Requires app on :5173 and API on :3001 with curated data loaded. Writes to
+ * docs/screenshots/audit-<today>/ (or AUDIT_DIR), so an earlier audit is never overwritten.
  */
 import { chromium, type Page } from "@playwright/test";
 import { mkdirSync, writeFileSync } from "node:fs";
@@ -17,10 +18,28 @@ const OUT = join(
   "..",
   "docs",
   "screenshots",
-  "audit-2026-10-12",
+  process.env.AUDIT_DIR ?? `audit-${new Date().toISOString().slice(0, 10)}`,
 );
 
 type Shot = { id: string; note: string };
+
+function isRecord(v: unknown): v is Record<string, unknown> {
+  return typeof v === "object" && v !== null;
+}
+
+/** The `items` array of a list endpoint. */
+async function listItems(path: string): Promise<Record<string, unknown>[]> {
+  const body: unknown = await (await fetch(`${API}${path}`)).json();
+  const items = isRecord(body) ? body.items : undefined;
+  if (!Array.isArray(items)) throw new Error(`${path}: no items array`);
+  return items.filter(isRecord);
+}
+
+function text(r: Record<string, unknown>, key: string): string {
+  const v = r[key];
+  if (typeof v !== "string") throw new Error(`item without text "${key}"`);
+  return v;
+}
 
 async function asReturning(page: Page) {
   await page.addInitScript(() => {
@@ -40,15 +59,18 @@ async function shot(page: Page, id: string, note: string, shots: Shot[]) {
 
 async function main() {
   mkdirSync(OUT, { recursive: true });
-  const ideas = (await (await fetch(`${API}/discovery/ideas`)).json()) as {
-    items: { id: string; title: string }[];
-  };
-  const traders = (await (await fetch(`${API}/discovery/traders`)).json()) as {
-    items: { id: string; displayName: string }[];
-  };
-  const plans = (await (await fetch(`${API}/plans/feed?limit=5`)).json()) as {
-    items: { planPda: string }[];
-  };
+  const ideas = (await listItems("/discovery/ideas")).map((r) => ({
+    id: text(r, "id"),
+    title: text(r, "title"),
+    traderName: isRecord(r.trader) ? text(r.trader, "displayName") : "",
+  }));
+  const traders = (await listItems("/discovery/traders")).map((r) => ({
+    id: text(r, "id"),
+    displayName: text(r, "displayName"),
+  }));
+  const plans = (await listItems("/plans/feed?limit=5")).map((r) => ({
+    planPda: text(r, "planPda"),
+  }));
 
   const browser = await chromium.launch();
   const shots: Shot[] = [];
@@ -101,7 +123,7 @@ async function main() {
     await page.waitForTimeout(700);
     await shot(page, "04-discover-ticket-2", "Discover second ticket", shots);
 
-    for (const t of traders.items) {
+    for (const t of traders) {
       await page.goto(`${BASE}/profiles/${t.id}`, { waitUntil: "networkidle" });
       await shot(
         page,
@@ -111,7 +133,7 @@ async function main() {
       );
     }
 
-    for (const idea of ideas.items) {
+    for (const idea of ideas) {
       await page.goto(`${BASE}/ideas/${idea.id}`, {
         waitUntil: "networkidle",
       });
@@ -121,20 +143,27 @@ async function main() {
     await page.goto(`${BASE}/updates`, { waitUntil: "networkidle" });
     await shot(page, "07-updates-empty", "Updates (nothing watched)", shots);
 
-    // Seed a watch so Updates / Watchlist have content
-    await page.evaluate(() => {
-      const item = {
-        type: "idea",
-        id: "hayes-ai-credit-deflation",
-        label: "Hayes idea",
-        after: "0",
-        savedAt: Date.now(),
-      };
-      localStorage.setItem(
-        "relay:discovery-watch:v1",
-        JSON.stringify({ v: 1, items: [item] }),
-      );
-    });
+    // Seed a watch so Updates / Watchlist have content. The label matches what Watch on a ticket
+    // stores ("title · trader"), and the cursor sits at 0 so the real later entry shows as new.
+    const hayes = ideas.find((i) => i.id === "hayes-ai-credit-deflation");
+    if (!hayes)
+      throw new Error("curated idea hayes-ai-credit-deflation is missing");
+    await page.evaluate(
+      ({ id, label }) => {
+        const item = {
+          type: "idea",
+          id,
+          label,
+          after: "0",
+          savedAt: Date.now(),
+        };
+        localStorage.setItem(
+          "relay:discovery-watch:v1",
+          JSON.stringify({ v: 1, items: [item] }),
+        );
+      },
+      { id: hayes.id, label: `${hayes.title} · ${hayes.traderName}` },
+    );
     await page.goto(`${BASE}/updates`, { waitUntil: "networkidle" });
     await page.waitForTimeout(800);
     await shot(
@@ -157,7 +186,7 @@ async function main() {
     await page.goto(`${BASE}/plans/creators`, { waitUntil: "networkidle" });
     await shot(page, "11-plans-creators", "Plan creators index", shots);
 
-    for (const p of plans.items.slice(0, 2)) {
+    for (const p of plans.slice(0, 2)) {
       await page.goto(`${BASE}/plans/${p.planPda}`, {
         waitUntil: "networkidle",
       });

@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, type CSSProperties } from "react";
 
 /**
  * The house: three rows of people watching the stage from their seats. Every person is drawn from
@@ -141,18 +141,20 @@ function Hair({ style, color }: { style: number; color: string }) {
 
 /** One person, seen from the back of the house: they are looking up at the stage. */
 function Figure({ p }: { p: Person }) {
+  // `--s` scales the figure in audience.css; React's style type has no slot for custom properties.
+  const style: CSSProperties & { "--s": string } = {
+    left: `${p.x}%`,
+    "--s": p.scale.toFixed(3),
+    animationDelay: `${p.delay.toFixed(2)}s`,
+    animationDuration: `${p.duration.toFixed(2)}s`,
+  };
   return (
     <svg
       viewBox="0 0 64 92"
       className="aud__p"
       data-row={p.row}
       data-lean={p.lean > 0.55 ? "r" : p.lean < -0.55 ? "l" : "n"}
-      style={{
-        left: `${p.x}%`,
-        "--s": p.scale.toFixed(3),
-        animationDelay: `${p.delay.toFixed(2)}s`,
-        animationDuration: `${p.duration.toFixed(2)}s`,
-      }}
+      style={style}
       aria-hidden="true"
     >
       {/* raised arms, hidden until they applaud */}
