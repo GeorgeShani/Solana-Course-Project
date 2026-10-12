@@ -1,7 +1,8 @@
 import { describe, expect, it } from "bun:test";
-import { NETWORKS, SUPPORTED_PAIRS } from "@relay/domain";
+import { NETWORKS, pairsFor } from "@relay/domain";
 import {
   RELAY_PROGRAM_ADDRESS,
+  SIMULATED_VENUE_PROGRAM_ADDRESS,
   TOKEN_PROGRAM_ADDRESS,
 } from "@relay/domain/solana";
 import { loadEnv } from "../src/shared/env";
@@ -17,6 +18,8 @@ function isRecord(v: unknown): v is Record<string, unknown> {
 interface World {
   genesis?: string;
   programExecutable?: boolean | "missing";
+  /** The simulated venue program (devnet's swap venue). Deployed and executable unless set. */
+  venue?: boolean | "missing";
   /** mint -> account, or absent when the mint does not exist. */
   mints?: Map<string, { owner: string; decimals: number }>;
   jupiterStatus?: number;
@@ -55,6 +58,16 @@ function world(w: World): FetchLike {
             },
           });
         }
+        if (target === SIMULATED_VENUE_PROGRAM_ADDRESS) {
+          if (w.venue === "missing") return reply({ value: null });
+          return reply({
+            value: {
+              owner: "BPFLoaderUpgradeab1e11111111111111111111111",
+              executable: w.venue ?? true,
+              data: ["", "base64"],
+            },
+          });
+        }
         const mint =
           typeof target === "string" ? w.mints?.get(target) : undefined;
         if (!mint) return reply({ value: null });
@@ -72,10 +85,10 @@ function world(w: World): FetchLike {
   };
 }
 
-/** Every mint the supported pairs use, as a healthy network would hold them. */
+/** Every mint devnet's pairs use (devnet USDC, not the mainnet mint), as a healthy devnet holds them. */
 function allMints(): Map<string, { owner: string; decimals: number }> {
   const m = new Map<string, { owner: string; decimals: number }>();
-  for (const pair of SUPPORTED_PAIRS) {
+  for (const pair of pairsFor("devnet")) {
     m.set(pair.base.mint, {
       owner: TOKEN_PROGRAM_ADDRESS,
       decimals: pair.base.decimals,
@@ -106,6 +119,9 @@ describe("runNetworkReport", () => {
     expect(s["Relay program"]).toBe("pass");
     expect(s["token SOL"]).toBe("pass");
     expect(s["token USDC"]).toBe("pass");
+    // Devnet has one pair: the mainnet-only JUP mint is not checked there.
+    expect(s["token JUP"]).toBeUndefined();
+    expect(s["simulated venue program"]).toBe("pass");
     expect(s["feed policy"]).toBe("pass");
     // Devnet has no swap venue yet: a warning, not a failure.
     expect(s["swap venue"]).toBe("warn");
@@ -142,7 +158,7 @@ describe("runNetworkReport", () => {
 
   it("fails on an account that is not a program, a non-classic token, or wrong decimals", async () => {
     const mints = allMints();
-    const usdc = SUPPORTED_PAIRS[0]?.quote;
+    const usdc = pairsFor("devnet")[0]?.quote;
     if (!usdc) throw new Error("no pair");
     mints.set(usdc.mint, {
       owner: "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
@@ -160,7 +176,29 @@ describe("runNetworkReport", () => {
     expect(status(wrongDecimals)["token USDC"]).toBe("fail");
   });
 
-  it("warns about a missing token (the mainnet USDC mint does not exist on devnet)", async () => {
+  it("warns, rather than fails, when the simulated venue is not deployed, and fails on a non-program", async () => {
+    const missing = await runNetworkReport(
+      env(),
+      world({ mints: allMints(), venue: "missing" }),
+    );
+    expect(status(missing)["simulated venue program"]).toBe("warn");
+    expect(reportOk(missing)).toBe(true);
+    const notProgram = await runNetworkReport(
+      env(),
+      world({ mints: allMints(), venue: false }),
+    );
+    expect(status(notProgram)["simulated venue program"]).toBe("fail");
+  });
+
+  it("does not look for the venue on a network that swaps through Jupiter", async () => {
+    const results = await runNetworkReport(
+      loadEnv({ NETWORK: "localnet", SOLANA_RPC_URL: SECRET_URL }),
+      world({ genesis: "anything", mints: new Map() }),
+    );
+    expect(status(results)["simulated venue program"]).toBeUndefined();
+  });
+
+  it("warns about a missing token (a mint that does not exist on this network)", async () => {
     const results = await runNetworkReport(env(), world({ mints: new Map() }));
     expect(status(results)["token USDC"]).toBe("warn");
     expect(reportOk(results)).toBe(true);

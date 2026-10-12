@@ -1,6 +1,7 @@
-import { NETWORKS, SUPPORTED_PAIRS } from "@relay/domain";
+import { NETWORKS, pairsFor } from "@relay/domain";
 import {
   RELAY_PROGRAM_ADDRESS,
+  SIMULATED_VENUE_PROGRAM_ADDRESS,
   TOKEN_PROGRAM_ADDRESS,
 } from "@relay/domain/solana";
 import type { Env } from "./env";
@@ -161,8 +162,10 @@ export async function runNetworkReport(
   }
 
   // 4. Do the supported tokens exist here, with the decimals the program expects?
+  // This network's own pairs: devnet has its test USDC, not the mainnet mint the local fork copies.
+  const pairs = pairsFor(network.id);
   const mints = new Map<string, { symbol: string; decimals: number }>();
-  for (const pair of SUPPORTED_PAIRS) {
+  for (const pair of pairs) {
     mints.set(pair.base.mint, pair.base);
     mints.set(pair.quote.mint, pair.quote);
   }
@@ -192,7 +195,37 @@ export async function runNetworkReport(
     }
   }
 
-  // 5. Swaps and prices.
+  // 5. Swaps and prices. A network that swaps through the simulated venue needs that program too.
+  if (network.swapVenue === "simulated_venue") {
+    try {
+      const result = await rpcCall(
+        fetchImpl,
+        env.solanaRpcUrl,
+        "getAccountInfo",
+        [
+          SIMULATED_VENUE_PROGRAM_ADDRESS,
+          { encoding: "base64", dataSlice: { offset: 0, length: 0 } },
+        ],
+      );
+      const account = readAccount(result);
+      if (account === null)
+        add(
+          "simulated venue program",
+          "warn",
+          `not deployed on ${network.label} at ${SIMULATED_VENUE_PROGRAM_ADDRESS}`,
+        );
+      else
+        add(
+          "simulated venue program",
+          account.executable ? "pass" : "fail",
+          account.executable
+            ? `deployed at ${SIMULATED_VENUE_PROGRAM_ADDRESS}`
+            : `${SIMULATED_VENUE_PROGRAM_ADDRESS} exists but is not a program`,
+        );
+    } catch (e) {
+      add("simulated venue program", "fail", safeMessage(e));
+    }
+  }
   add(
     "swap venue",
     network.swapsAvailable ? "pass" : "warn",
@@ -204,7 +237,7 @@ export async function runNetworkReport(
     const headers: Record<string, string> = {};
     if (env.jupiterApiKey) headers["x-api-key"] = env.jupiterApiKey;
     const res = await fetchImpl(
-      `${env.jupiterBaseUrl}/price/v3?ids=${SUPPORTED_PAIRS[0]?.base.mint ?? ""}`,
+      `${env.jupiterBaseUrl}/price/v3?ids=${pairs[0]?.base.mint ?? ""}`,
       { headers, signal: AbortSignal.timeout(TIMEOUT_MS) },
     );
     add(
