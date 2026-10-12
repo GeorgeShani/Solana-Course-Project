@@ -48,7 +48,7 @@ describe("one name, one component", () => {
   for (const other of [
     "discovery.css",
     "discover.css",
-    "ticket.css",
+    "card.css",
     "interval.css",
     "showtime.css",
     "audience.css",

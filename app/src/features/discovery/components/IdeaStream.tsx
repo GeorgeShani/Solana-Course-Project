@@ -24,21 +24,17 @@ import { WatchStory } from "./WatchStory";
 
 type Screen =
   | { kind: "idea"; key: string; idea: IdeaSummary }
-  | { kind: "detected"; key: string; item: FeedItemView }
-  | { kind: "end" };
-
-/** The index of the ticket the reader reaches when the curtains close for the interval. */
-const INTERVAL_AT = 3;
+  | { kind: "detected"; key: string; item: FeedItemView };
 
 /** Cap the stream so a visit stays short; recorded ideas first, then detected posts. */
-const MAX_EXAMPLES = 5;
+const MAX_EXAMPLES = 6;
 
 /**
- * Discover: one ticket per screen, snapping as you swipe, scroll or press J / K. Recorded ideas
- * first, then the newest posts detected automatically in the authors' own feeds (marked
- * "Unreviewed"). The reader stamps tickets by really looking at, opening and watching them; the
- * audience below the stage line reacts, and the curtains close for an interval after the third
- * ticket (once) and again when the reader reaches the end. No auto-advance, no ranking by
+ * Discover: one idea per screen, browsed with the previous and next buttons, a swipe, the wheel or
+ * J / K. Recorded ideas first, then the newest posts detected automatically in the authors' own
+ * feeds (marked "not reviewed"). A card is marked seen once it has been looked at for a moment; the
+ * audience below the stage line applauds when a source is opened or something is watched. The
+ * curtains close only when the reader asks ("How it works"). No auto-advance, no ranking by
  * anything but time.
  */
 export function IdeaStream({
@@ -72,7 +68,7 @@ export function IdeaStream({
   );
 
   const screens = useMemo<Screen[]>(() => {
-    const content: Screen[] = [
+    return [
       ...ideas.map((idea): Screen => ({ kind: "idea", key: idea.id, idea })),
       ...extra.map((item): Screen => ({
         kind: "detected",
@@ -80,17 +76,12 @@ export function IdeaStream({
         item,
       })),
     ].slice(0, MAX_EXAMPLES);
-    return [
-      ...content,
-      ...(loading && ideas.length === 0 ? [] : [{ kind: "end" } as const]),
-    ];
-  }, [ideas, extra, loading]);
+  }, [ideas, extra]);
 
   const feedRef = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
   // Where the reader is heading, so quick key presses keep moving instead of waiting for the scroll.
   const heading = useRef(0);
-  const [now] = useState(() => Date.now());
   const book = useStamps();
   const [showtime, setShowtime] = useState(false);
   const [story, setStory] = useState(false);
@@ -124,18 +115,6 @@ export function IdeaStream({
     window.clearTimeout(applauseTimer.current);
     applauseTimer.current = window.setTimeout(() => setApplause(false), 1800);
   }, []);
-
-  // After the third ticket the curtains close once per visit and show the whole journey.
-  useEffect(() => {
-    if (active !== INTERVAL_AT) return;
-    try {
-      if (sessionStorage.getItem("relay:showtime") === "1") return;
-      sessionStorage.setItem("relay:showtime", "1");
-    } catch {
-      return;
-    }
-    setShowtime(true);
-  }, [active]);
 
   // The first Watch of a visit shows what watching does, with a real example.
   const onFirstWatch = useCallback(() => {
@@ -190,19 +169,16 @@ export function IdeaStream({
     el.focus({ preventScroll: true });
   }, []);
 
-  // Past the last ticket: close the curtains over that ticket — never a Cue end card.
+  // Choosing a different author starts again from that author's first card, not from wherever the
+  // scroll position happened to be.
   useEffect(() => {
-    if (screens[active]?.kind !== "end") return;
-    setShowtime(true);
-    const lastTicket = screens.length - 2;
-    if (lastTicket >= 0) go(lastTicket, "auto");
-  }, [active, screens, go]);
+    heading.current = 0;
+    setActive(0);
+    feedRef.current?.scrollTo({ top: 0, behavior: "auto" });
+  }, [trader]);
 
-  // Curtains open back at the first ticket.
-  const closeShowtime = useCallback(() => {
-    go(0, "auto");
-    setShowtime(false);
-  }, [go]);
+  // Opening the curtains again leaves the reader on the card they were looking at.
+  const closeShowtime = useCallback(() => setShowtime(false), []);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -233,7 +209,6 @@ export function IdeaStream({
 
   const latestSeqOf = (traderId: string) =>
     people.find((p) => p.id === traderId)?.latestSeq ?? null;
-  const pct = screens.length > 1 ? (active / (screens.length - 1)) * 100 : 0;
   const current = screens[Math.min(active, screens.length - 1)];
   const activeAuthor =
     current?.kind === "idea"
@@ -250,22 +225,6 @@ export function IdeaStream({
     >
       <Audience mood={mood} />
 
-      <div className="stream__bar" aria-hidden="true">
-        <span style={{ width: `${pct}%` }} />
-      </div>
-
-      <button
-        type="button"
-        className="cord"
-        onClick={() => setShowtime(true)}
-        aria-label="Pull the cord: show how Relay works"
-        title="Pull the cord"
-      >
-        <span className="cord__rope" />
-        <span className="cord__tassel">
-          <Icon name="star-filled" size={16} />
-        </span>
-      </button>
       <Showtime open={showtime} onClose={closeShowtime} />
       {story && <WatchStory onClose={closeStory} />}
 
@@ -273,35 +232,67 @@ export function IdeaStream({
         Discover
       </h1>
 
-      {people.length > 1 && (
-        <div className="stream__top">
-          <nav className="stream__people" aria-label="Show ideas by">
+      <div className="stream__toolbar">
+        {people.length > 1 && (
+          <nav className="authors" aria-label="Show ideas by">
             <Link
               to="/"
               search={{}}
-              className="ring ring--all"
-              aria-current={trader === undefined}
-              title="Everyone"
+              className="authors__pill"
+              activeOptions={{ exact: true, includeSearch: true }}
             >
-              <Icon name="traders" size={20} />
-              <span className="sr-only">Everyone</span>
+              Everyone
             </Link>
             {people.map((p) => (
               <Link
                 key={p.id}
                 to="/"
                 search={{ trader: p.id }}
-                className="ring"
-                aria-current={trader === p.id}
-                title={p.displayName}
+                className="authors__pill"
+                activeOptions={{ exact: true, includeSearch: true }}
               >
                 <Avatar id={p.id} name={p.displayName} />
-                <span className="sr-only">{p.displayName}</span>
+                {p.displayName}
               </Link>
             ))}
           </nav>
+        )}
+        <div className="stream__tools">
+          <button
+            type="button"
+            className="howto"
+            onClick={() => setShowtime(true)}
+          >
+            <Icon name="star" size={16} />
+            How it works
+          </button>
+          <div className="pager" role="group" aria-label="Browse ideas">
+            <button
+              type="button"
+              className="pager__btn"
+              onClick={() => go(active - 1)}
+              disabled={active <= 0}
+              aria-label="Previous idea"
+            >
+              <Icon name="arrow-up" size={18} />
+            </button>
+            <span className="pager__count" aria-live="polite">
+              {screens.length === 0
+                ? "–"
+                : `${Math.min(active + 1, screens.length)} of ${screens.length}`}
+            </span>
+            <button
+              type="button"
+              className="pager__btn"
+              onClick={() => go(active + 1)}
+              disabled={active >= screens.length - 1}
+              aria-label="Next idea"
+            >
+              <Icon name="arrow-down" size={18} />
+            </button>
+          </div>
         </div>
-      )}
+      </div>
 
       <div
         ref={feedRef}
@@ -336,16 +327,6 @@ export function IdeaStream({
             "aria-setsize": screens.length,
           } as const;
 
-          if (s.kind === "end")
-            return (
-              <article
-                key="end"
-                className="scr scr--end"
-                {...common}
-                aria-hidden="true"
-              />
-            );
-
           const ticketScreen: TicketScreen =
             s.kind === "idea"
               ? { kind: "idea", idea: s.idea }
@@ -364,7 +345,6 @@ export function IdeaStream({
               <Ticket
                 screen={ticketScreen}
                 active={i === active}
-                now={now}
                 stamps={stampsOf(book, s.key)}
                 latestSeq={latestSeqOf(person.id)}
                 onStamp={(k) => {
