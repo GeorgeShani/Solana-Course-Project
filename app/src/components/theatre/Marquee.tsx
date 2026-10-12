@@ -72,12 +72,17 @@ function CursorSwitch() {
 
 /**
  * The valance over the stage: scalloped burgundy with a brass hem, carrying the small RELAY sign.
- * On desktop it is the header: the app's destinations at left, the network, the Cue cursor switch
+ * On desktop it is the header: the sign at left, the destinations centred, the network, the Cue cursor switch
  * and the wallet at right. The welcome shows none of it; the bulbs stop under reduced motion.
  */
 export function Valance({ clusterLabel }: { clusterLabel: string | null }) {
   return (
     <header className="valance">
+      <Link to="/" className="valance__sign" aria-label="Relay, go to Discover">
+        <Bulbs count={7} />
+        <span className="valance__word">RELAY</span>
+        <Bulbs count={7} />
+      </Link>
       <nav className="topnav" aria-label="Main">
         <ul className="topnav__list">
           {HEADER_NAV.map((t) => (
@@ -94,11 +99,6 @@ export function Valance({ clusterLabel }: { clusterLabel: string | null }) {
           ))}
         </ul>
       </nav>
-      <Link to="/" className="valance__sign" aria-label="Relay, go to Discover">
-        <Bulbs count={7} />
-        <span className="valance__word">RELAY</span>
-        <Bulbs count={7} />
-      </Link>
       <div className="valance__end">
         {clusterLabel && (
           <span className="valance__cluster">{clusterLabel}</span>
