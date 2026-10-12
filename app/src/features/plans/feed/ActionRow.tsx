@@ -1,5 +1,6 @@
 import type { EntryStatus } from "@relay/domain";
 import { Link } from "@tanstack/react-router";
+import { useGoogleAuth } from "../../account/google-auth";
 import { reviewUnavailableReason } from "../status";
 import { Icon } from "../../../components/ui/Icon";
 
@@ -7,8 +8,9 @@ import { Icon } from "../../../components/ui/Icon";
  * The thumb-zone actions. Review is never hidden: outside "In plan range" its slot shows the
  * reason instead. Nothing here signs or trades.
  *
- * None of these needs an account: watching is browser-local, and the only gate for following is
- * the wallet, which the follow panel asks for itself (PRODUCT.md). Google sign-in gates nothing.
+ * Watch and View plan need no account (watching is browser-local). Reviewing a trade is the one
+ * action behind a Google sign-in (owner exception in PRODUCT.md); the button says so instead of
+ * redirecting silently, and the follow panel then asks for the wallet.
  */
 export function ActionRow({
   planPda,
@@ -29,6 +31,7 @@ export function ActionRow({
   label: string;
 }) {
   const reason = reviewUnavailableReason(status);
+  const signedIn = useGoogleAuth().status === "signed_in";
 
   return (
     <div className="actions">
@@ -53,17 +56,29 @@ export function ActionRow({
           <Icon name="script" size={20} />
           View plan
         </button>
-        {status === "in_range" && planPda && (
-          <Link
-            to="/plans/$planPda"
-            params={{ planPda }}
-            hash="follow"
-            className="btn btn--primary"
-            aria-describedby={reviewId}
-          >
-            Review trade
-          </Link>
-        )}
+        {status === "in_range" &&
+          planPda &&
+          (signedIn ? (
+            <Link
+              to="/plans/$planPda"
+              params={{ planPda }}
+              hash="follow"
+              className="btn btn--primary"
+              aria-describedby={reviewId}
+            >
+              Review trade
+            </Link>
+          ) : (
+            <Link
+              to="/account"
+              search={{}}
+              className="btn btn--primary"
+              aria-describedby={reviewId}
+            >
+              <Icon name="account" size={20} />
+              Sign in to review trade
+            </Link>
+          ))}
       </div>
       <p id={reviewId} className="actions__reason">
         {reason}

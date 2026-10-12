@@ -188,8 +188,8 @@ function GoogleSection({
       ) : (
         <div className="acct-google">
           <p className="page__text page__text--quiet" style={{ flexGrow: 1 }}>
-            Optional. Discovering ideas, opening sources and watching need no
-            account, and following a plan needs only a wallet.
+            Discovering ideas, opening sources and watching need no account.
+            Following a plan needs this sign-in and a wallet.
           </p>
           <button
             id="google-sign-in-btn"

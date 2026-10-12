@@ -68,15 +68,30 @@ describe("native plans never read the discovery layer", () => {
     });
 });
 
-describe("Google sign-in gates nothing", () => {
-  // PRODUCT.md: watching needs no account and a wallet is the only gate for following. Sign-in is
-  // optional and lives on Account; any other importer could hide an action behind it.
-  test("only the Account route reads the Google sign-in state", () => {
+describe("Google sign-in gates following only", () => {
+  // PRODUCT.md owner exception: following a plan needs a Google sign-in and a wallet; discovery,
+  // watching and reading plans need no account. Any new reader could hide another action behind it.
+  test("only Account and the follow entry points read the Google sign-in state", () => {
     const users = files(SRC)
       .filter((f) => !rel(f).endsWith("features/account/google-auth.ts"))
       .filter((f) => importsOf(f).some((i) => i.endsWith("/google-auth")))
-      .map(rel);
-    expect(users).toEqual(["routes/account.tsx"]);
+      .map(rel)
+      .sort();
+    expect(users).toEqual([
+      "features/account/UnlockStrip.tsx",
+      "features/plans/execution/TradePanel.tsx",
+      "features/plans/feed/ActionRow.tsx",
+      "routes/account.tsx",
+    ]);
+  });
+
+  test("watching and reading a plan never wait on sign-in", () => {
+    const row = readFileSync(
+      join(SRC, "features", "plans", "feed", "ActionRow.tsx"),
+      "utf8",
+    );
+    expect(row).toContain("onClick={onToggleWatch}");
+    expect(row).toContain("onClick={onOpenScript}");
   });
 });
 

@@ -64,6 +64,7 @@ Two items that mention the same asset are not related.
 7. The fictional plan fixtures exist only at the development-only route `/dev/plan-states` (404 and absent from production builds). They are never the technical demo.
 8. `docs/research/TRADER_DATA_SOURCES_2026-10.md` covers outside-Relay wallet-data providers only. It does not replace the public-source dataset and must never imply that Brandt, Hayes or Cowen control any wallet.
 9. **Devnet only.** No mainnet in this project, now or later. Burner keys only on the local test fork; the owner signs everything real.
+10. **Google sign-in gates following (owner exception, 2026-10-12).** Following a plan needs a Google sign-in on Account _and_ a wallet; the "Review trade" button and the follow panel say "Sign in" plainly instead of redirecting silently. Nothing else needs an account: Discover, sources, watching (ideas, profiles and plans) and reading plans stay open. Sign-in shares nothing with the wallet and never authorizes a trade; only the wallet signs.
 
 ## Capabilities and constraints
 
@@ -73,7 +74,7 @@ Two items that mention the same asset are not related.
 - Stack is fixed: TanStack Start, Hono, Postgres, Anchor, Bun, `@solana/kit`.
 - The server is required for discovery and the feed; when it is down the app says so instead of showing stale or invented data.
 - A wallet is requested only to follow a plan or publish one, through the Wallet Standard. Connecting shares the address and never asks for a signature.
-- Following (Plans only): amount → fresh quote → review minimum, fees, expiry, range and window → explicit approval in the wallet → Relay sends it to this build's network → pending → verified receipt, or a failure that stays a failure.
+- Following (Plans only): Google sign-in (decision 10) → amount → fresh quote → review minimum, fees, expiry, range and window → explicit approval in the wallet → Relay sends it to this build's network → pending → verified receipt, or a failure that stays a failure.
 
 ## Brand commitments
 

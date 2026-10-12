@@ -1,6 +1,8 @@
 import { formatUnits, type EntryStatus } from "@relay/domain";
 import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
 import { useId, useState } from "react";
+import { useGoogleAuth } from "../../account/google-auth";
 import {
   fetchQuote,
   type ExecutionView,
@@ -82,6 +84,9 @@ export function TradePanel({
   const pair = pairById(card.pair.id);
   const { state: wallet } = useWallet();
   const connected = wallet.status === "connected" ? wallet : null;
+  // Owner exception in PRODUCT.md: following also needs a Google sign-in, asked before the wallet.
+  const auth = useGoogleAuth();
+  const navigate = useNavigate();
   const wall = useWallClock();
   const [amount, setAmount] = useState("");
   const [step, setStep] = useState<Step>({ k: "edit" });
@@ -210,7 +215,11 @@ export function TradePanel({
     label = `Swaps aren't available on ${NETWORK_INFO.label}`;
   else if (!open)
     label = pair ? reviewUnavailableReason(status) : "Pair not supported";
-  else if (!connected) {
+  else if (auth.status === "loading") label = "Checking sign-in…";
+  else if (auth.status !== "signed_in") {
+    label = "Sign in with Google to follow";
+    action = () => void navigate({ to: "/account", search: {} });
+  } else if (!connected) {
     label = wallet.status === "connecting" ? "Connecting…" : "Connect wallet";
     action = openWalletDialog;
   } else if (step.k === "quoting") label = "Getting a quote…";

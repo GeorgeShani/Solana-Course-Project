@@ -1,18 +1,21 @@
 import { useEffect, useRef, useState } from "react";
 import { Icon, type IconName } from "../../components/ui/Icon";
 import { useWallet } from "../../lib/wallet";
+import { useGoogleAuth } from "./google-auth";
 
 /**
  * What the reader can do, as three lit or dark orbs. Discover and Watch are always lit: they need
- * nothing. Following a plan needs a connected wallet, the only gate PRODUCT.md allows; Google
- * sign-in is optional and unlocks nothing here. When something is newly unlocked the orb opens
- * with a short flourish and says so to screen readers. It reflects the real gates in the app; it
- * grants nothing.
+ * nothing. Following a plan needs a Google sign-in (owner exception in PRODUCT.md) and a wallet,
+ * and lights up only when both are there. When something is newly unlocked the orb opens with a
+ * short flourish and says so to screen readers. It reflects the real gates in the app; it grants
+ * nothing.
  */
 export function UnlockStrip() {
+  const auth = useGoogleAuth();
   const { state } = useWallet();
+  const signedIn = auth.status === "signed_in";
   const walletOn = state.status === "connected";
-  const follow = walletOn;
+  const follow = signedIn && walletOn;
 
   const [announce, setAnnounce] = useState("");
   const before = useRef(follow);
@@ -34,7 +37,10 @@ export function UnlockStrip() {
       icon: "plans",
       label: "Follow a plan",
       on: follow,
-      needs: [{ icon: "wallet", ok: walletOn, label: "Wallet" }],
+      needs: [
+        { icon: "account", ok: signedIn, label: "Google sign-in" },
+        { icon: "wallet", ok: walletOn, label: "Wallet" },
+      ],
     },
   ];
 
