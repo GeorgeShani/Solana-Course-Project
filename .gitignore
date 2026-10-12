@@ -25,3 +25,6 @@ Thumbs.db
 .claude/worktrees/
 app/test-results/
 app/playwright-report/
+
+# Written by scripts/deploy.sh: the commit that last failed to start
+.deploy-last-failed

@@ -40,6 +40,10 @@ Copy `.env.example` to `.env` and fill in only what you need. On a server you us
 
 Everything else has a default. Do not create `server/.env` or `app/.env.local`: they are not used.
 
+### With a hosted database (Neon)
+
+Set `DATABASE_URL` (and `DATABASE_DIRECT_URL` for migrations) in `.env`, and start without the bundled Postgres: `docker compose up -d --build --no-deps app server caddy`. **Keep `--no-deps`.** Naming the services is not enough, because Compose still starts everything they depend on, and on a machine that also runs `compose.dev.yaml` (same project name, same `postgres` service) that replaces the development database container with a production one that cannot start. The data is not lost (it stays in its volume), but the container has to be recreated from `compose.dev.yaml`.
+
 ## Files
 
 | File                                     | Purpose                                                               |
@@ -85,6 +89,30 @@ docker compose exec -T postgres pg_dump -U relay relay | gzip > ~/relay-$(date +
 ```
 
 Copy the file off the server (to S3, for example). If you use a hosted database, its own backups apply.
+
+## Automatic deploys
+
+Instead of `git pull && docker compose up -d --build` by hand, the server can follow GitHub on its own. A systemd timer runs `scripts/deploy.sh` every 5 minutes. It fetches `main`, and only if there is something new it fast-forwards the checkout, rebuilds, and waits for `https://<DOMAIN>/api/health` to answer. If the new version does not come up, it goes back to the previous commit, rebuilds that, and remembers the bad commit so it is not retried every five minutes; a fix pushed later is a new commit and deploys normally.
+
+Install it once on the server, as the normal user that owns the checkout and is in the `docker` group:
+
+```bash
+sudo scripts/install-auto-deploy.sh          # every 5 minutes (DEPLOY_INTERVAL=10min changes it)
+journalctl -u relay-deploy -f                # watch it
+systemctl list-timers relay-deploy.timer     # next runs
+scripts/deploy.sh --force                    # rebuild the current commit now
+sudo scripts/install-auto-deploy.sh --remove # turn it off
+```
+
+Things to know:
+
+1. **Whatever is pushed to `main` goes live within minutes.** Protect the branch on GitHub (require a pull request, limit who can push) before you turn this on.
+2. **The server must not have commits of its own.** The script only fast-forwards; if the checkout has diverged it stops and says so.
+3. **Rollback does not undo database migrations.** The server applies migrations as it starts, and a rolled-back version runs against the already-migrated database. Keep migrations additive (a column, a table, a value), which the previous version tolerates.
+4. **`.env` is not in Git**, so a change to it is not deployed by the timer. After editing it, run `scripts/deploy.sh --force`, or `docker compose up -d --no-deps app server caddy` (`NETWORK` and `VITE_*` are baked into the website at build time).
+5. **It uses `DOMAIN` and `DATABASE_URL` from `.env`:** with a hosted database it starts only `app`, `server` and `caddy` (with `--no-deps`), otherwise the bundled Postgres too.
+6. **The program is separate.** Deploying a new Solana program version is still the owner's step from their own machine; the timer only rebuilds the website and API (which carry the program address).
+7. The scripts are tested without touching Docker or systemd: `bash scripts/test-deploy.sh` and `bash scripts/test-install-auto-deploy.sh` (they need bash and `flock`, so Linux or WSL).
 
 ## Deploying the Solana program (devnet)
 

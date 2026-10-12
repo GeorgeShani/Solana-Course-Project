@@ -6,7 +6,8 @@
 #
 # NETWORK in .env (devnet) names the Solana network for the whole stack.
 # With an external database (for example Neon), set DATABASE_URL in .env and start without the
-# bundled Postgres:  docker compose up -d --build app server caddy
+# bundled Postgres:  docker compose up -d --build --no-deps app server caddy
+# (--no-deps matters: without it Compose still starts "postgres" as a dependency.)
 
 x-logging: &logging
   driver: json-file
