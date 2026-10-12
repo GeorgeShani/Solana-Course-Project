@@ -7,6 +7,7 @@ Product authority is [../PRODUCT.md](../PRODUCT.md). The active roadmap is [ROAD
 | [ROADMAP.md](ROADMAP.md)                                                           | Short active roadmap, with the recorded baseline and per-milestone results.                                    |
 | [AGENT_HANDOFF_SCREEN_AUDIT.md](AGENT_HANDOFF_SCREEN_AUDIT.md)                     | Full screen audit (2026-10-12), consistency gaps for backend/program, and host checklist for the next agent.   |
 | [screenshots/audit-2026-10-12/](screenshots/audit-2026-10-12/)                     | 26 Playwright PNGs of every user-facing screen from that audit.                                                |
+| [screenshots/audit-m9-followup/](screenshots/audit-m9-followup/)                   | The same 26 screens after the M9 fixes, for comparison with the first audit.                                   |
 | [../DEPLOYMENT.md](../DEPLOYMENT.md)                                               | Docker Compose + Caddy runbook for one host.                                                                   |
 | [runbooks/DEVNET_RELEASE.md](runbooks/DEVNET_RELEASE.md)                           | How the owner deploys the program to devnet, and the internal program review.                                  |
 | [runbooks/EVIDENCE.md](runbooks/EVIDENCE.md)                                       | The reviewer's routine: evidence requests, references, coverage freshness and the feed poll. No faked answers. |

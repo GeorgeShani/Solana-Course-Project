@@ -1,0 +1,111 @@
+{
+  "capturedAt": "2026-10-12T20:12:51.515Z",
+  "base": "http://localhost:5173",
+  "count": 26,
+  "shots": [
+    {
+      "id": "01-welcome",
+      "note": "Closed-curtain welcome (first visit)"
+    },
+    {
+      "id": "02-discover",
+      "note": "Discover stream (first ticket)"
+    },
+    {
+      "id": "03-interval",
+      "note": "Interval / Showtime (curtains closed)"
+    },
+    {
+      "id": "04-discover-ticket-2",
+      "note": "Discover second ticket"
+    },
+    {
+      "id": "05-profile-arthur-hayes",
+      "note": "Profile: Arthur Hayes"
+    },
+    {
+      "id": "05-profile-benjamin-cowen",
+      "note": "Profile: Benjamin Cowen"
+    },
+    {
+      "id": "05-profile-peter-brandt",
+      "note": "Profile: Peter Brandt"
+    },
+    {
+      "id": "06-idea-cowen-btc-83k-line",
+      "note": "Idea: Bitcoin: \"The Line in the Sand\" and an $83K thesis"
+    },
+    {
+      "id": "06-idea-brandt-total2-cup-handle",
+      "note": "Idea: Crypto market excluding Bitcoin (TOTAL2): a cup-with-handle chart"
+    },
+    {
+      "id": "06-idea-brandt-btc-bottom-oct-4",
+      "note": "Idea: Bitcoin's cycle bottom expected on 4 October 2026"
+    },
+    {
+      "id": "06-idea-hayes-ai-credit-deflation",
+      "note": "Idea: AI-driven credit deflation: add risk only after a Fed \"all-clear\""
+    },
+    {
+      "id": "07-updates-empty",
+      "note": "Updates (nothing watched)"
+    },
+    {
+      "id": "08-updates-watching",
+      "note": "Updates (watching one idea)"
+    },
+    {
+      "id": "09-watchlist-ideas",
+      "note": "Watchlist · ideas"
+    },
+    {
+      "id": "09-watchlist-profiles",
+      "note": "Watchlist · profiles"
+    },
+    {
+      "id": "09-watchlist-plans",
+      "note": "Watchlist · plans"
+    },
+    {
+      "id": "09-watchlist-receipts",
+      "note": "Watchlist · receipts"
+    },
+    {
+      "id": "10-plans-feed",
+      "note": "Plans feed"
+    },
+    {
+      "id": "11-plans-creators",
+      "note": "Plan creators index"
+    },
+    {
+      "id": "13-account",
+      "note": "Account"
+    },
+    {
+      "id": "14-about",
+      "note": "About / How Relay works"
+    },
+    {
+      "id": "15-demo",
+      "note": "Fictional demo walkthrough"
+    },
+    {
+      "id": "16-dev-plan-states",
+      "note": "Dev-only plan state fixtures"
+    },
+    {
+      "id": "17-discover-phone",
+      "note": "Discover on phone (390×844)"
+    },
+    {
+      "id": "18-plans-phone",
+      "note": "Plans on phone (390×844)"
+    },
+    {
+      "id": "19-account-phone",
+      "note": "Account on phone (390×844)"
+    }
+  ]
+}

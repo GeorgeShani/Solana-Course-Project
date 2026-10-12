@@ -7,7 +7,7 @@
  * docs/screenshots/audit-<today>/ (or AUDIT_DIR), so an earlier audit is never overwritten.
  */
 import { chromium, type Page } from "@playwright/test";
-import { mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 const BASE = process.env.E2E_BASE_URL ?? "http://localhost:5173";
@@ -58,6 +58,11 @@ async function shot(page: Page, id: string, note: string, shots: Shot[]) {
 }
 
 async function main() {
+  // A dated folder is an audit someone may have committed; never write over it.
+  if (existsSync(join(OUT, "index.json")))
+    throw new Error(
+      `${OUT} already holds an audit. Pick a new folder: AUDIT_DIR=audit-<name> bun run screens`,
+    );
   mkdirSync(OUT, { recursive: true });
   const ideas = (await listItems("/discovery/ideas")).map((r) => ({
     id: text(r, "id"),
@@ -106,7 +111,8 @@ async function main() {
     const cord = page.locator(".cord");
     if (await cord.count()) {
       await cord.click();
-      await page.waitForTimeout(1400);
+      // The four scenes (Pick, Source, Watch, Update) slide in one after another; wait for the last.
+      await page.waitForTimeout(3500);
       await shot(
         page,
         "03-interval",
