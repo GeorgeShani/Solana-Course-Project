@@ -531,6 +531,29 @@ html[data-curtain="on"] .valance__sign {
   transform-origin: top;
 }
 
+html[data-house="on"] .stage-floor {
+  height: 26%;
+  background:
+    linear-gradient(180deg, rgba(255, 217, 138, 0.12), transparent 40%),
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.04) 0 1px,
+      transparent 1px 52px
+    ),
+    linear-gradient(180deg, #321a4a 0%, #1a0d2e 42%, #0c0618 100%);
+  border-top: 1px solid rgba(214, 178, 106, 0.22);
+}
+
+/* Interval sits inside the stage; lift the stage and hide the wing drapes so they do not cover it. */
+html[data-showtime="on"] .stage {
+  z-index: 31;
+}
+
+html[data-showtime="on"] .drapes {
+  opacity: 0;
+  visibility: hidden;
+}
+
 /* The floor belongs to the feed's acts; on reading pages it would draw a band across the text. */
 .app:has(.stage > .page) .stage-floor {
   display: none;
@@ -670,6 +693,11 @@ html[data-cue-cursor="show"] * {
   opacity: 1;
 }
 
+html[data-showtime="on"],
+html[data-showtime="on"] * {
+  cursor: auto;
+}
+
 /* The hotspot: a brass tip exactly at the pointer, so aiming never depends on Cue's outline. */
 .cue-cursor__tip {
   position: absolute;
@@ -717,6 +745,14 @@ html[data-cue-cursor="show"] * {
 
 .cue-cursor[data-state="react"] .cue {
   animation: cue-react 420ms var(--ease-out);
+}
+
+/* After react styles: curtains closed means Cue stays off, including mid-react. */
+html[data-showtime="on"] .cue-cursor,
+html[data-showtime="on"] .cue-cursor[data-state="show"],
+html[data-showtime="on"] .cue-cursor[data-state="react"] {
+  opacity: 0;
+  visibility: hidden;
 }
 
 @keyframes cue-react {

@@ -1,8 +1,8 @@
 /*
- * The interval: curtains with depth that close over the stream, a valance, four small scenes and
- * the stamp book. Laid out from the window, not a device: a row of four where there is room, a
- * 2x2 grid where there is not, shorter art on short windows. Motion is decoration only; under
- * reduced motion the curtains are simply open or closed and every scene is drawn finished.
+ * The interval: curtains with depth that close over the stream, four small scenes and the stamp
+ * book. Laid out from the window, not a device: a row of four where there is room, a 2x2 grid
+ * where there is not, shorter art on short windows. Motion is decoration only; under reduced
+ * motion the curtains are simply open or closed and every scene is drawn finished.
  */
 
 .showtime {
@@ -36,13 +36,7 @@
   bottom: 0;
   width: 52%;
   background:
-    linear-gradient(
-      180deg,
-      rgba(7, 2, 15, 0.55),
-      transparent 22%,
-      transparent 70%,
-      rgba(7, 2, 15, 0.4)
-    ),
+    linear-gradient(180deg, rgba(7, 2, 15, 0.55), transparent 22%),
     repeating-linear-gradient(
       90deg,
       var(--curtain-dark) 0 5px,
@@ -71,30 +65,6 @@
   transform: translateX(0);
 }
 
-/* The valance drops from the top, scalloped, with a brass hem. */
-.showtime__valance {
-  position: absolute;
-  z-index: 2;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: clamp(46px, 8vh, 72px);
-  background: radial-gradient(
-      circle at 50% 0,
-      var(--curtain-light) 0 24%,
-      var(--curtain) 25% 62%,
-      var(--curtain-dark) 63% 100%
-    )
-    0 0 / 72px 100% repeat-x;
-  border-bottom: 3px solid var(--brass);
-  transform: translateY(-110%);
-  transition: transform 0.7s cubic-bezier(0.34, 1.3, 0.64, 1) 0.15s;
-}
-
-.showtime[data-open="true"] .showtime__valance {
-  transform: translateY(0);
-}
-
 /* House lights down: the dark behind the curtains, so the scenes read. */
 .showtime::before {
   content: "";
@@ -118,7 +88,7 @@
   justify-items: center;
   gap: clamp(8px, 2vh, 20px);
   width: min(960px, 100% - 24px);
-  padding-top: clamp(40px, 7vh, 64px);
+  padding-top: clamp(16px, 3vh, 28px);
   padding-bottom: calc(24vh + var(--s3));
   opacity: 0;
 }
@@ -148,10 +118,11 @@
 /* ------------------------------------------------------------------ four scenes */
 
 .scenes {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: clamp(10px, 2.4vw, 32px);
-  width: 100%;
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: center;
+  gap: 12px;
+  width: auto;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -159,8 +130,10 @@
 
 @media (max-width: 760px) {
   .scenes {
+    display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     width: min(100%, 380px);
+    gap: 6px 8px;
   }
 }
 
@@ -170,6 +143,7 @@
   justify-items: center;
   gap: 6px;
   min-width: 0;
+  flex: 0 1 190px;
 }
 
 /* The path from one scene to the next, where they sit in a row. */
@@ -178,8 +152,8 @@
     content: "";
     position: absolute;
     top: calc((100% - 28px) / 2);
-    left: calc(50% + min(50%, 95px));
-    width: clamp(10px, 2.4vw, 32px);
+    left: calc(100% + 2px);
+    width: 8px;
     border-top: 3px dashed var(--limelight);
     opacity: 0.8;
   }
@@ -376,7 +350,7 @@
   transform-origin: 96px 42px;
 }
 
-/* ------------------------------------------------------------------ the stamp book */
+/* ------------------------------------------------------------------ live watch strip */
 
 .book {
   display: flex;
@@ -406,22 +380,6 @@
   color: var(--chalk);
 }
 
-.book__bar {
-  position: relative;
-  width: 84px;
-  height: 6px;
-  overflow: hidden;
-  border-radius: 3px;
-  background: rgba(246, 241, 255, 0.14);
-}
-
-.book__bar i {
-  display: block;
-  height: 100%;
-  border-radius: 3px;
-  background: var(--limelight);
-}
-
 .book__counts {
   display: flex;
   gap: var(--s3);
@@ -440,8 +398,8 @@
 
 .showtime__actions {
   display: flex;
+  justify-content: center;
   align-items: center;
-  gap: var(--s3);
 }
 
 /* ------------------------------------------------------------------ the scenes play */
@@ -587,5 +545,56 @@
 
   .scene__frame {
     max-height: 17vh;
+  }
+}
+
+@media (max-width: 600px) {
+  .showtime {
+    place-items: start center;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .showtime__stage {
+    width: min(100%, 390px);
+    min-height: 100%;
+    align-content: start;
+    gap: 6px;
+    padding: clamp(16px, 3vh, 28px) 10px calc(var(--tabbar-space) + var(--s3));
+  }
+
+  .interval {
+    padding: 2px var(--s4);
+    font-size: var(--t-title2);
+  }
+
+  .scenes {
+    width: 100%;
+    gap: 6px 8px;
+  }
+
+  .scene {
+    gap: 2px;
+  }
+
+  .scene__frame {
+    max-width: 158px;
+    max-height: none;
+    border-radius: 20px;
+  }
+
+  .scene__label {
+    display: block;
+    font-size: var(--t-footnote);
+  }
+
+  .book {
+    max-width: 350px;
+    gap: 4px var(--s2);
+    padding: 5px var(--s3);
+  }
+
+  .showtime__actions .btn {
+    min-height: 50px;
   }
 }

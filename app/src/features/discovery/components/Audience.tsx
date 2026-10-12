@@ -64,7 +64,11 @@ function crowd(): Person[] {
       out.push({
         id: id++,
         row: r === 0 ? 0 : r === 1 ? 1 : 2,
-        x: ((i + 0.5) / row.n) * 100 + (rnd() - 0.5) * (80 / row.n),
+        // Keep heads inside the house; edge jitter used to shove figures off-screen at some widths.
+        x:
+          5 +
+          ((i + 0.5) / row.n) * 90 +
+          (rnd() - 0.5) * Math.min(2.5, 36 / row.n),
         skin: pick(SKIN),
         hair: pick(HAIR),
         shirt: pick(SHIRT),

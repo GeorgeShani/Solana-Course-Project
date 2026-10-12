@@ -1,6 +1,12 @@
 import { Link } from "@tanstack/react-router";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Cue } from "../../../components/cue/Cue";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { Icon } from "../../../components/ui/Icon";
 import {
   sameSource,
@@ -8,14 +14,7 @@ import {
   type IdeaSummary,
   type TraderSummary,
 } from "../model";
-import {
-  addStamp,
-  levelOf,
-  stampsOf,
-  totalStamps,
-  useStamps,
-  type Stamp,
-} from "../stamps";
+import { addStamp, stampsOf, useStamps, type Stamp } from "../stamps";
 import { swayDrapes } from "../drapes";
 import { Audience, type Mood } from "./Audience";
 import { Avatar } from "./Avatar";
@@ -31,12 +30,16 @@ type Screen =
 /** The index of the ticket the reader reaches when the curtains close for the interval. */
 const INTERVAL_AT = 3;
 
+/** Cap the stream so a visit stays short; recorded ideas first, then detected posts. */
+const MAX_EXAMPLES = 5;
+
 /**
  * Discover: one ticket per screen, snapping as you swipe, scroll or press J / K. Recorded ideas
  * first, then the newest posts detected automatically in the authors' own feeds (marked
  * "Unreviewed"). The reader stamps tickets by really looking at, opening and watching them; the
- * audience below the stage line reacts, and after the third ticket the curtains close for an
- * interval that replays the journey. No auto-advance, no ranking by anything but time.
+ * audience below the stage line reacts, and the curtains close for an interval after the third
+ * ticket (once) and again when the reader reaches the end. No auto-advance, no ranking by
+ * anything but time.
  */
 export function IdeaStream({
   ideas,
@@ -68,18 +71,20 @@ export function IdeaStream({
     [detected, ideas, trader, loading],
   );
 
-  const screens = useMemo<Screen[]>(
-    () => [
+  const screens = useMemo<Screen[]>(() => {
+    const content: Screen[] = [
       ...ideas.map((idea): Screen => ({ kind: "idea", key: idea.id, idea })),
       ...extra.map((item): Screen => ({
         kind: "detected",
         key: `d${item.id}`,
         item,
       })),
+    ].slice(0, MAX_EXAMPLES);
+    return [
+      ...content,
       ...(loading && ideas.length === 0 ? [] : [{ kind: "end" } as const]),
-    ],
-    [ideas, extra, loading],
-  );
+    ];
+  }, [ideas, extra, loading]);
 
   const feedRef = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
@@ -99,6 +104,14 @@ export function IdeaStream({
       delete document.documentElement.dataset.house;
     };
   }, []);
+
+  // Before paint, so CueCursor CSS/JS see closed curtains on the same frame the drapes start.
+  useLayoutEffect(() => {
+    document.documentElement.dataset.showtime = showtime ? "on" : "off";
+    return () => {
+      delete document.documentElement.dataset.showtime;
+    };
+  }, [showtime]);
 
   const mood: Mood = showtime ? "cheer" : applause ? "clap" : "idle";
 
@@ -134,7 +147,6 @@ export function IdeaStream({
     }
     setStory(true);
   }, []);
-  const closeShowtime = useCallback(() => setShowtime(false), []);
   const closeStory = useCallback(() => setStory(false), []);
 
   useEffect(() => {
@@ -161,18 +173,36 @@ export function IdeaStream({
     return () => io.disconnect();
   }, [screens.length]);
 
-  const go = useCallback((to: number) => {
+  const go = useCallback((to: number, behavior?: ScrollBehavior) => {
     const root = feedRef.current;
     const el = root?.querySelector<HTMLElement>(`[data-index="${to}"]`);
     if (!el) return;
     heading.current = to;
+    setActive(to);
     const reduce = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
     // Scroll the feed itself, never the page around it.
-    root?.scrollTo({ top: el.offsetTop, behavior: reduce ? "auto" : "smooth" });
+    root?.scrollTo({
+      top: el.offsetTop,
+      behavior: behavior ?? (reduce ? "auto" : "smooth"),
+    });
     el.focus({ preventScroll: true });
   }, []);
+
+  // Past the last ticket: close the curtains over that ticket — never a Cue end card.
+  useEffect(() => {
+    if (screens[active]?.kind !== "end") return;
+    setShowtime(true);
+    const lastTicket = screens.length - 2;
+    if (lastTicket >= 0) go(lastTicket, "auto");
+  }, [active, screens, go]);
+
+  // Curtains open back at the first ticket.
+  const closeShowtime = useCallback(() => {
+    go(0, "auto");
+    setShowtime(false);
+  }, [go]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -211,9 +241,6 @@ export function IdeaStream({
       : current?.kind === "detected"
         ? current.item.trader.id
         : undefined;
-  const total = totalStamps(book);
-  const level = levelOf(total);
-
   return (
     <div
       className="stream-wrap"
@@ -246,8 +273,8 @@ export function IdeaStream({
         Discover
       </h1>
 
-      <div className="stream__top">
-        {people.length > 1 && (
+      {people.length > 1 && (
+        <div className="stream__top">
           <nav className="stream__people" aria-label="Show ideas by">
             <Link
               to="/"
@@ -273,24 +300,18 @@ export function IdeaStream({
               </Link>
             ))}
           </nav>
-        )}
-        <p
-          className="level"
-          title={
-            level.toNext === null
-              ? "Top of the house"
-              : `${level.toNext} more stamps for the next title`
-          }
-        >
-          <Icon name="star-filled" size={12} /> {level.name} · {total}
-        </p>
-      </div>
+        </div>
+      )}
 
       <div
         ref={feedRef}
         className="stream"
         role="feed"
-        aria-label="Public trading ideas"
+        aria-label={
+          feedError
+            ? "Public trading ideas. Live feed unavailable."
+            : "Public trading ideas"
+        }
         aria-busy={loading}
       >
         {screens.length === 0 && (
@@ -321,42 +342,8 @@ export function IdeaStream({
                 key="end"
                 className="scr scr--end"
                 {...common}
-                aria-label="End"
-              >
-                <Cue pose="saved" className="scr__cue cue--lit" />
-                <div className="scr__row">
-                  <button
-                    type="button"
-                    className="orb"
-                    onClick={() => go(0)}
-                    aria-label="Back to the top"
-                  >
-                    <Icon name="arrow-up" size={26} />
-                  </button>
-                  <Link to="/updates" className="orb" aria-label="Updates">
-                    <Icon name="updated" size={26} />
-                  </Link>
-                  <Link
-                    to="/about"
-                    className="orb"
-                    aria-label="How Relay works"
-                  >
-                    <Icon name="details" size={26} />
-                  </Link>
-                  <Link
-                    to="/plans"
-                    className="orb"
-                    aria-label="Plans published through Relay"
-                  >
-                    <Icon name="plans" size={26} />
-                  </Link>
-                </div>
-                {feedError && (
-                  <p className="scr__warn" role="status">
-                    <Icon name="alert" size={16} /> Live feed unavailable
-                  </p>
-                )}
-              </article>
+                aria-hidden="true"
+              />
             );
 
           const ticketScreen: TicketScreen =

@@ -89,8 +89,13 @@ export function CueCursor() {
       frame = 0;
       x.set(px);
       y.set(py);
-      const show = isOpenStage(target);
-      const state = show ? "show" : reacting ? "react" : "hide";
+      const curtainsClosed = doc.dataset.showtime === "on";
+      const show = !curtainsClosed && isOpenStage(target);
+      const state = show
+        ? "show"
+        : reacting && !curtainsClosed
+          ? "react"
+          : "hide";
       if (node.dataset.state !== state) node.dataset.state = state;
       if (show) doc.dataset.cueCursor = "show";
       else delete doc.dataset.cueCursor;
@@ -109,7 +114,14 @@ export function CueCursor() {
       target = null;
       schedule();
     };
+    // Wheel / snap scrolling does not move the pointer; hide Cue so he does not linger on the stage.
+    const onScroll = () => {
+      target = null;
+      reacting = false;
+      schedule();
+    };
     const onReact = () => {
+      if (doc.dataset.showtime === "on") return;
       reacting = true;
       setPose("saved");
       window.clearTimeout(reactTimer);
@@ -120,6 +132,16 @@ export function CueCursor() {
       }, REACT_MS);
       schedule();
     };
+    // Interval flips data-showtime without a pointer move; re-paint so Cue leaves with the drapes.
+    const onShowtime = () => {
+      if (doc.dataset.showtime === "on") {
+        reacting = false;
+        window.clearTimeout(reactTimer);
+        setPose("mascot");
+      }
+      schedule();
+    };
+    const showtimeWatch = new MutationObserver(onShowtime);
 
     const start = () => {
       live = true;
@@ -127,7 +149,15 @@ export function CueCursor() {
       window.addEventListener("pointerdown", onMove, { passive: true });
       doc.addEventListener("pointerleave", onLeave);
       window.addEventListener("blur", onLeave);
+      window.addEventListener("scroll", onScroll, {
+        passive: true,
+        capture: true,
+      });
       window.addEventListener(CUE_REACT_EVENT, onReact);
+      showtimeWatch.observe(doc, {
+        attributes: true,
+        attributeFilter: ["data-showtime"],
+      });
     };
     const stop = () => {
       live = false;
@@ -135,9 +165,13 @@ export function CueCursor() {
       window.removeEventListener("pointerdown", onMove);
       doc.removeEventListener("pointerleave", onLeave);
       window.removeEventListener("blur", onLeave);
+      window.removeEventListener("scroll", onScroll, true);
       window.removeEventListener(CUE_REACT_EVENT, onReact);
+      showtimeWatch.disconnect();
       cancelAnimationFrame(frame);
       frame = 0;
+      reacting = false;
+      window.clearTimeout(reactTimer);
       node.dataset.state = "hide";
       delete doc.dataset.cueCursor;
     };

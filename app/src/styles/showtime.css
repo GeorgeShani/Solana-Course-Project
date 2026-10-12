@@ -26,7 +26,8 @@
 
 .cord {
   position: absolute;
-  z-index: 22;
+  /* Above .drapes (30) so the tassel stays clickable; below .valance (35). */
+  z-index: 32;
   top: 0;
   left: calc(var(--wing) + var(--s3));
   display: grid;
@@ -38,6 +39,7 @@
   color: var(--limelight);
   cursor: pointer;
   transform-origin: top center;
+  pointer-events: auto;
 }
 
 .cord__rope {

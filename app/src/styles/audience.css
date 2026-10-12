@@ -18,19 +18,51 @@ html[data-house="on"] .stage-floor {
   height: 24vh;
   overflow: hidden;
   pointer-events: none;
+  /* Opaque house fill — Interval curtains must never show through the crowd. */
+  background: #10091d;
 }
 
-/* The stage light spilling over the front of the house. */
+/* Dark house wall behind the rows so drape stripes cannot peek between heads. */
 .aud::before {
   content: "";
   position: absolute;
-  z-index: 5;
+  z-index: 0;
   inset: 0;
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--accent, #ffd98a) 18%, transparent),
-    transparent 55%
+  background: radial-gradient(
+    120% 80% at 50% 0%,
+    #24143c 0%,
+    #140a24 55%,
+    #0a0514 100%
   );
+}
+
+/*
+ * Short aisle strip under the seats. Stays behind the front row so heads are never covered.
+ */
+.aud::after {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 14%;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(214, 178, 106, 0.55) 0,
+      rgba(214, 178, 106, 0.55) 2px,
+      transparent 2px
+    ),
+    repeating-linear-gradient(
+      180deg,
+      #2a1844 0 4px,
+      #1a0f30 4px 9px,
+      #12091f 9px 10px
+    ),
+    #12091f;
+  border-top: 2px solid var(--brass, #d6b26a);
+  box-shadow: inset 0 12px 20px rgba(7, 2, 15, 0.6);
 }
 
 .aud__row {
@@ -39,34 +71,35 @@ html[data-house="on"] .stage-floor {
   right: 0;
 }
 
+/* Front row paints above the aisle; middle and back sit further up the house. */
 .aud__row--0 {
-  bottom: 50%;
-  height: 50%;
-  z-index: 1;
-  --dim: 0.5;
+  bottom: 52%;
+  height: 42%;
+  z-index: 3;
+  --dim: 0.82;
 }
 
 .aud__row--1 {
-  bottom: 22%;
-  height: 58%;
-  z-index: 2;
-  --dim: 0.72;
+  bottom: 30%;
+  height: 46%;
+  z-index: 4;
+  --dim: 0.92;
 }
 
 .aud__row--2 {
-  bottom: -10%;
-  height: 74%;
-  z-index: 3;
+  bottom: 10%;
+  height: 48%;
+  z-index: 5;
   --dim: 1;
 }
 
 .aud__p {
   position: absolute;
-  bottom: 0;
+  bottom: 28%;
   width: clamp(
-    calc(var(--s) * 28px),
-    calc(var(--s) * 3.9vw),
-    calc(var(--s) * 60px)
+    calc(var(--s) * 26px),
+    calc(var(--s) * 3.4vw),
+    calc(var(--s) * 54px)
   );
   height: auto;
   overflow: visible;
@@ -84,8 +117,8 @@ html[data-house="on"] .stage-floor {
   left: -2%;
   right: -2%;
   bottom: 0;
-  height: 40%;
-  border-radius: 14px 14px 0 0;
+  height: 42%;
+  border-radius: 8px 8px 0 0;
   background:
     repeating-linear-gradient(
       90deg,
@@ -95,6 +128,18 @@ html[data-house="on"] .stage-floor {
     linear-gradient(#3a1a55, #1a0b30);
   box-shadow: 0 -8px 18px rgba(7, 2, 15, 0.5);
   border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.aud__row--0 .aud__seats {
+  height: 36%;
+}
+
+.aud__row--2 .aud__seats {
+  height: 48%;
+  /* Soft contact shadow onto the aisle. */
+  box-shadow:
+    0 -3px 8px rgba(7, 2, 15, 0.42),
+    0 10px 18px rgba(7, 2, 15, 0.55);
 }
 
 .aud__rim {
@@ -259,33 +304,65 @@ html[data-house="on"] .stage-floor {
   }
 }
 
-/* Phones: fewer, bigger people so the house fills the width and still reads as people. */
-@media (max-width: 600px) {
-  .aud {
-    height: 26vh;
+/* Mid widths: thin the back rows so heads do not pile up between phone and desktop. */
+@media (max-width: 900px) {
+  .aud__row--0 .aud__p:nth-of-type(3n) {
+    display: none;
   }
 
   .aud__p {
-    width: calc(var(--s) * 10.5vw);
+    width: clamp(
+      calc(var(--s) * 28px),
+      calc(var(--s) * 4.2vw),
+      calc(var(--s) * 50px)
+    );
+  }
+}
+
+/* Phones: fewer, bigger people; house sits above the tab bar with every seat row visible. */
+@media (max-width: 600px) {
+  .aud {
+    bottom: 0;
+    height: 21vh;
+  }
+
+  .aud::after {
+    height: 12%;
   }
 
   .aud__row--0 {
-    bottom: 54%;
-    height: 46%;
+    bottom: 50%;
+    height: 40%;
   }
 
   .aud__row--1 {
-    bottom: 26%;
-    height: 54%;
+    bottom: 28%;
+    height: 44%;
   }
 
   .aud__row--2 {
-    bottom: -4%;
-    height: 66%;
+    bottom: 8%;
+    height: 46%;
+  }
+
+  .aud__p {
+    bottom: 30%;
+    width: calc(var(--s) * 7.6vw);
+  }
+
+  /* Drop every other figure; seats are <i>, so nth-of-type on svg leaves them alone. */
+  .aud__row--0 .aud__p:nth-of-type(even),
+  .aud__row--1 .aud__p:nth-of-type(even),
+  .aud__row--2 .aud__p:nth-of-type(3n) {
+    display: none;
   }
 
   .aud__seats {
-    height: 34%;
+    height: 40%;
+  }
+
+  .aud__row--2 .aud__seats {
+    height: 46%;
   }
 }
 
@@ -302,6 +379,6 @@ html[data-house="on"] .stream {
 
 @media (max-width: 600px) {
   html[data-house="on"] .stream {
-    clip-path: inset(0 0 26vh 0);
+    clip-path: inset(0 0 21vh 0);
   }
 }
