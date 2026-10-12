@@ -1,16 +1,16 @@
 import { afterAll, describe, expect, it } from "bun:test";
 import { JUP, SOL, USDC } from "@relay/domain";
 import { generateKeyPairSigner } from "@solana/kit";
-import { loadEnv } from "../src/env";
-import { createLogger, formatLine, safeMessage } from "../src/logger";
-import { ApiError } from "../src/middleware";
-import { createChain } from "../src/services/chain";
-import { createJupiterClient } from "../src/services/jupiter";
+import { loadEnv } from "../src/shared/env";
+import { createLogger, formatLine, safeMessage } from "../src/shared/logger";
+import { ApiError } from "../src/shared/middleware";
+import { createChain } from "../src/modules/plans/chain";
+import { createJupiterClient } from "../src/modules/plans/jupiter";
 import {
   BACKOFF_CAP_MS,
   BACKOFF_START_MS,
   createJupiterPrices,
-} from "../src/services/prices";
+} from "../src/modules/plans/prices";
 import {
   GOOD_TEXT,
   SOL_PRICE_IN_RANGE,
@@ -202,6 +202,12 @@ describe("GET /health/ready", () => {
       network: "localnet",
       cluster: "localnet",
       checks: { database: "ok", rpc: "ok" },
+      // Configured, not called: no wallet-data provider exists for public-source coverage.
+      providers: {
+        jupiterPrices: "keyless",
+        googleSignIn: "off",
+        walletData: "none",
+      },
     });
   });
 

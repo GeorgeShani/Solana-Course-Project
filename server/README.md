@@ -13,7 +13,7 @@ Reached publicly under `/api` (Caddy and the Vite dev proxy strip the prefix).
 | Method | Path                            | What it does                                                                                                                                                                                                                                                                                                                            |
 | ------ | ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `GET`  | `/health`                       | Liveness: `{ "ok": true }`.                                                                                                                                                                                                                                                                                                             |
-| `GET`  | `/health/ready`                 | Readiness: `200` when the database and the Solana RPC both answer, otherwise `503` with `checks: { database, rpc }` saying which is down. The container healthcheck uses `/health`, which must not depend on Solana.                                                                                                                    |
+| `GET`  | `/health/ready`                 | Readiness: `200` when the database and the Solana RPC both answer, otherwise `503` with `checks: { database, rpc }` saying which is down. Also lists configured `providers` (Jupiter price key, Google sign-in, wallet data: none) without calling them. The container healthcheck uses `/health`, which must not depend on Solana.     |
 | `GET`  | `/plans/feed?pair&cursor&limit` | Ranked native-plan cards with the advisory entry status. Deterministic ranking; never ranked by claimed return. With `CREATOR_ALLOWLIST` set, only those creators' plans are listed. `GET /feed` is a deprecated alias with the same answer (it adds `Deprecation: true` and a `Link` to the new path).                                 |
 | `GET`  | `/plans/:planPda`               | One plan with every version, its text (or `null` when unverified) and its hash chain. Every card carries `listed`: `false` for a plan whose creator is not on the allowlist (reachable by link, not in the feed).                                                                                                                       |
 | `POST` | `/plans/:planPda/confirm`       | Stores a version's text if it matches the onchain `content_hash`. Idempotent.                                                                                                                                                                                                                                                           |
@@ -101,19 +101,44 @@ The tests use `postgres://relay:relay_local_only@127.0.0.1:5432/relay_test` (ove
 
 ## Layout
 
+Two domains with different authority, kept in separate modules:
+
+- **Discovery** (`modules/discovery`): editorial, manually curated public-source records. They show what a source said and when; they never prove a trade, and the server never visits a link.
+- **Plans** (`modules/plans`): Relay-native plans. The chain is authoritative; the server mirrors it, and nothing from a client is trusted for amounts, prices or outcomes.
+
 ```
 src/
-├── index.ts         entry: migrate, wire services, serve
-├── app.ts           routes and middleware
-├── env.ts           typed environment
-├── db.ts            Bun.sql client and migration runner
-├── middleware.ts    origin guard, rate limiter, ApiError
-└── services/        chain reader (Kit), plans, follow (quote/verify), jupiter client, prices, feed ranking
+├── index.ts         entry: check the database target, migrate, wire services, serve
+├── app.ts           routes and middleware (health, plan feed and detail, follow, rpc, prices)
+├── migrate.ts       `bun run migrate`
+├── modules/
+│   ├── discovery/   curation (parse, validate, apply, report), service, routes, evidence requests, hashes
+│   ├── plans/       chain reader (Kit), plans, feed ranking, follow (quote/verify), jupiter, prices, rpc proxy
+│   └── auth/        Google sign-in
+└── shared/          env, db and migrations, db-target guard, logging, middleware (ApiError, rate limits), util, network checks
 migrations/          SQL files applied in order
-scripts/seed-demo.ts real onchain plans with labelled demo creators
-scripts/follow-via-api.ts a follower end to end through the HTTP API
+curation/            curated.json (real, hand-reviewed), demo.json (fictional), README
+scripts/             curate, review, seed-demo, check-network, follow-via-api
 test/                API tests (Postgres + an in-memory chain built with the real encoders)
 ```
+
+A future outside-Relay wallet-data adapter would live in its own `modules/wallet-intelligence`, never inside `discovery` or `curation` (see docs/research). None exists.
+
+## Safe load, migration and rollback
+
+The root `.env` may point `DATABASE_URL` at a **remote** database. So every command that writes states its target first, and refuses a non-local host until you name it:
+
+```bash
+bun run --cwd server curate --check                      # validate only (no database)
+bun run --cwd server curate --report                     # coverage, freshness, warnings (no database)
+bun run --cwd server curate --confirm-db-host=<host>     # load; the host must match exactly if it is not local
+bun run --cwd server migrate --confirm-db-host=<host>
+ALLOW_REMOTE_DB=<host> bun run dev:server                # a development server migrates on start; production is exempt
+```
+
+For local work, run from `server/` with explicit variables (`DATABASE_URL=postgres://relay:relay_local_only@127.0.0.1:5432/relay`, `APP_ORIGIN`, `NETWORK=devnet`) and `bun run src/index.ts`, which does not read the root `.env`.
+
+Rollback boundaries: migrations are forward-only SQL, each in its own transaction (a failed one leaves nothing behind). Curated sources, ideas and events are append-only in the database itself; the loader refuses a file that contradicts a recorded entry, and fixes are new `correction` events, never edits. So a wrong load is corrected by a correction event or, for a throwaway database, by recreating it; there is no "undo". Check `curate --report` and the target line before every load.
 
 ## Docker
 

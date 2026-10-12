@@ -1,6 +1,6 @@
 import type { TransactionSQL } from "bun";
-import type { Db } from "../db";
-import { isRecord } from "../util";
+import type { Db } from "../../shared/db";
+import { isRecord } from "../../shared/util";
 import type {
   CuratedEvent,
   CuratedIdea,

@@ -4,9 +4,9 @@ import {
   RELAY_PROGRAM_ADDRESS,
   TOKEN_PROGRAM_ADDRESS,
 } from "@relay/domain/solana";
-import { loadEnv } from "../src/env";
-import type { FetchLike } from "../src/network-check";
-import { reportOk, runNetworkReport } from "../src/network-report";
+import { loadEnv } from "../src/shared/env";
+import type { FetchLike } from "../src/shared/network-check";
+import { reportOk, runNetworkReport } from "../src/shared/network-report";
 
 const SECRET_URL = "https://devnet.provider.example/?api-key=SUPERSECRETKEY";
 

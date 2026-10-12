@@ -37,14 +37,16 @@ import {
   revisePlanInstruction,
   sendInstructions,
 } from "@relay/domain/solana";
-import { connect } from "../src/db";
-import { loadEnv } from "../src/env";
-import { isRecord } from "../src/util";
+import { connect } from "../src/shared/db";
+import { requireConfirmedTarget } from "../src/shared/db-target";
+import { loadEnv } from "../src/shared/env";
+import { isRecord } from "../src/shared/util";
 
 const env = loadEnv();
 assertLocalFork(env.solanaRpcUrl, "seed-demo");
 const API_URL = process.env.API_URL ?? "http://127.0.0.1:3001";
 const rpc = createSolanaRpc(env.solanaRpcUrl);
+requireConfirmedTarget(env.databaseUrl, process.argv.slice(2));
 const db = connect(env.databaseUrl);
 
 async function chainNowSec(): Promise<number> {

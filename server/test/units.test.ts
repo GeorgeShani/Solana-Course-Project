@@ -1,19 +1,19 @@
 import { describe, expect, it } from "bun:test";
 import { Hono } from "hono";
-import { loadEnv } from "../src/env";
+import { loadEnv } from "../src/shared/env";
 import {
   bucketOf,
   decodeCursor,
   encodeCursor,
   rankFeed,
   type Rankable,
-} from "../src/services/feed-rank";
+} from "../src/modules/plans/feed-rank";
 import {
   ApiError,
   clientKey,
   createRateLimiter,
   originGuard,
-} from "../src/middleware";
+} from "../src/shared/middleware";
 
 describe("rate limiter", () => {
   it("allows up to the limit per window, per key, then resets", () => {

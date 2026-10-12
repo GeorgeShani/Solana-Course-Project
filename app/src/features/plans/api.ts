@@ -12,7 +12,7 @@ import {
 } from "../../lib/api/http";
 
 /**
- * Client view of the Hono feed contract (server/src/services/plans.ts). JSON from the network is
+ * Client view of the Hono feed contract (server/src/modules/plans/plans.ts). JSON from the network is
  * `unknown` until these parsers have checked every field; nothing is cast.
  */
 

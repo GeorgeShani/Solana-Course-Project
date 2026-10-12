@@ -39,11 +39,13 @@ One versioned browser store (`lib/storage/browser-store.ts`) now backs the saved
 
 Routes: `/plans`, `/plans/:planPda`, `/plans/creators[/:address]`; `/records/*`, `/traders*` and `/?plan=` redirect. API: `GET /plans/feed` is canonical and `GET /feed` stays as a marked alias (`Deprecation: true`, `Link: </plans/feed>; rel="successor-version"`), registered so `feed` is never read as a plan address; the app now calls `/plans/feed`. Each real plan card says "Published through Relay" and "Solana devnet: test tokens"; "Connect wallet" appears in the header only on Plans, Account and the Watchlist (never on Discover, ideas, profiles or Updates). `app/test/separation.test.ts` reads the source and fails if a discovery screen imports a trade, follow, wallet or fixture module, if a plan screen imports discovery data, or if anything but `/dev/plan-states` imports the fixtures. No change to `program/` or `domain/` (their tests are unchanged).
 
-## M6. Frontend and backend maintainability: IN PROGRESS
+## M6. Frontend and backend maintainability: DONE
 
-Feature folders moved one at a time behind tests; duplicate trader/profile/plan-creator concepts removed; design tokens aligned with DESIGN.md; backend grouped into `modules/discovery`, `modules/plans`, `shared`; curation report and freshness metadata; readiness checks.
+**Frontend:** `app/src/features/{discovery,onboarding,plans,account}` (moved with an automated import rewrite, `tsc`, lint and 142 tests green); `lib/api/http.ts` holds the shared error and JSON-checking layer, `features/plans/api.ts` the plan contract; one `creatorLabel` replaces `traderName`/`creatorName` duplication, and wallet-signed "traders" are consistently "plan creators" (storage keys unchanged, so no one loses saved items); 190 lines of dead CSS and an unused helper removed. Not done: aligning every CSS value with DESIGN.md tokens and the contrast lint (see M7 follow-ups).
 
-## M7. Demo, rehearsal and release gate: NEXT
+**Backend:** `server/src/modules/{discovery,plans,auth}` and `shared/`; endpoints unchanged. New: `curate --report` (coverage, freshness, warnings), `/health/ready` lists configured providers without calling them, and a database-target guard (`shared/db-target.ts`): migrate, curate, review, seed and a development server print the target host and refuse a remote one unless named (`--confirm-db-host`, `ALLOW_REMOTE_DB`). Added after a load reached a remote database by way of the root `.env`. Documented safe load, migration and rollback boundaries in `server/README.md`. No wallet-data adapter was added.
+
+## M7. Demo, rehearsal and release gate: IN PROGRESS
 
 `/demo` stays fictional and isolated; the technical demo uses only real curated records (and real devnet plans if shown); desktop, mobile, keyboard, reduced motion, empty and backend-down states verified; limitations match narration and docs.
 

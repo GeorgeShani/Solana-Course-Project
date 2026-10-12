@@ -9,7 +9,7 @@ import {
   type FollowReceiptAccount,
 } from "@relay/domain/solana";
 import { address, type Address } from "@solana/kit";
-import { ApiError } from "../src/middleware";
+import { ApiError } from "../src/shared/middleware";
 import fixture from "../../domain/test/fixtures/jupiter-build.json";
 import { T0, createTestApp, fakeSignature, type TestApp } from "./helpers";
 

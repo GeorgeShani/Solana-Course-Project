@@ -1,5 +1,5 @@
 import type { EntryStatus } from "@relay/domain";
-import { isRecord } from "../util";
+import { isRecord } from "../../shared/util";
 
 /**
  * Deterministic feed ranking. Deliberately NOT based on claimed or simulated return: ranking by

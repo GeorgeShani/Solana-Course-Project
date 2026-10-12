@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { parseCuration } from "../src/discovery/curation";
+import { parseCuration } from "../src/modules/discovery/curation";
 
 /**
  * The real editorial dataset (`server/curation/curated.json`), checked as a whole. These are the

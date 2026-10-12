@@ -1,5 +1,5 @@
-import { ApiError } from "../middleware";
-import { isRecord } from "../util";
+import { ApiError } from "../../shared/middleware";
+import { isRecord } from "../../shared/util";
 
 /**
  * The JSON-RPC methods the browser may call through POST /rpc. Everything the app needs to read
