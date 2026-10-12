@@ -4,31 +4,55 @@ How to show Relay honestly. Two parts, never mixed. Product rules: [../../PRODUC
 
 ## Before you start
 
-1. Local Postgres up: `docker compose -f compose.dev.yaml up -d`.
-2. **Check the database target.** The root `.env` may point at a remote database. For a demo use the local one: from `server/`, `DATABASE_URL=postgres://relay:relay_local_only@127.0.0.1:5432/relay DATABASE_DIRECT_URL=<same> APP_ORIGIN=http://localhost:5175 NETWORK=devnet bun run src/index.ts`.
-3. Load the real records: `bun run --cwd server curate --report` (read the warnings), then the same variables with `bun run scripts/curate.ts` from `server/`.
-4. App: `bun run --cwd app dev --port 5175 --strictPort`. Clear this site's storage so the welcome shows.
+1. Local Postgres up: `docker compose -f compose.dev.yaml up -d` (or the Neon database in `.env`).
+2. **Check the database target.** The root `.env` may point at a remote database. For a local demo: from `server/`, `DATABASE_URL=postgres://relay:relay_local_only@127.0.0.1:5432/relay DATABASE_DIRECT_URL=<same> APP_ORIGIN=http://localhost:5173 NETWORK=devnet bun run src/index.ts`.
+3. Load the real records: `bun run --cwd server curate --report` (read the warnings), then load with `bun run scripts/curate.ts` from `server/` against the database you name.
+4. App: `bun run --cwd app dev --port 5173 --strictPort`. Clear this site's storage so the welcome shows.
+5. `DOMAIN` in `.env` must be a bare host (no `https://`); a scheme breaks Google return and CORS.
 
-## Part 1: the product (public-source records, no wallet)
+## 2–3 minute product demo (Part 1 only)
 
-Narration limits: say "recorded by hand from public sources"; never say "live", "verified trader", "returns" or "signal".
+Narration limits: "recorded by hand from public sources"; never "live", "verified trader", "returns" or "signal".
+
+| Time | Click                                                   | Say                                                                                                          |
+| ---- | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| 0:00 | Clean `/`                                               | "Relay is a memory for traders' public ideas." Welcome: Cue, **See the original idea. Follow what changed.** |
+| 0:15 | **Explore ideas**                                       | Discover: one idea at a time. Titles, author, source, date, update status.                                   |
+| 0:35 | Hayes card → **Open story**                             | Original idea first. Timeline: later essay is **Author update** — he links it himself.                       |
+| 1:00 | **Open the original**                                   | Exact Substack link. Close the tab; stay on Relay.                                                           |
+| 1:15 | Expand **What Relay can and cannot establish**          | Statement and link, not a trade or a result.                                                                 |
+| 1:30 | **Watch** → **Watchlist**                               | Real title and author. "Stored in this browser only."                                                        |
+| 1:50 | (Optional) set cursor back, open **Updates** → **Open** | Shows **Newly recorded by Relay** or **Newly published**. Open lands on the exact timeline entry.            |
+| 2:10 | Brandt idea (Discover or profile)                       | Later item is **Link not established** — Relay could not confirm the link.                                   |
+| 2:30 | Header → Account (optional)                             | Sign-in is only for following plans; wallet is separate; watching needs neither.                             |
+
+Stop here for a discovery-only recording. Do not open Plans unless Part 2 is ready.
+
+## Part 1 checklist (longer rehearsal)
 
 1. Clean `/` shows the welcome. **Explore ideas**.
-2. Discover: three profiles, each "Public-source profile · Not claimed by the author".
-3. Open **Arthur Hayes → "AI-driven credit deflation"**. Original source and time; the later essay is **"Author update"** with his own sentence quoted in the note. **Open the original** (exact link).
-4. Read "What Relay can and cannot establish": the record shows a statement and a link, not a trade or a result.
-5. Open **Peter Brandt → "Bitcoin's cycle bottom…"**. The later item reads **"Link not established"**: say plainly that Relay could not confirm what it refers to.
-6. **Watch** the idea, reload, open **Updates**: nothing is new yet ("You're caught up"). A change appears only when a curator records a new entry; to rehearse, set the stored cursor back by hand (`relay:discovery-watch:v1`, field `after`) and show **Open this entry in the timeline**.
-7. Header → **Meet Cue** reopens the welcome; Account → **Show welcome** does the same.
+2. Discover: browsing controls, **Open story** / **Open source** / **Watch**.
+3. **Arthur Hayes → "AI-driven credit deflation"**. **Author update** with his own sentence in the note. **Open the original**.
+4. **What Relay can and cannot establish** (expandable).
+5. **Peter Brandt → "Bitcoin's cycle bottom…"**. **Link not established**.
+6. **Watch** → reload → **Watchlist** (live title) → **Updates** (cursor rehearsal if needed).
+7. Header account icon stays generic until Google sign-in; after sign-in it shows the avatar.
 
 ## Part 2: native plans (optional, devnet)
 
-Only with a deployed program, a funded creator and a follower, all on **devnet** (test tokens): see [DEVNET_RELEASE.md](DEVNET_RELEASE.md). Say the network out loud. Show **Plans → a plan → Published through Relay**, its entry status, and the receipt on the explorer. If no real devnet plan exists, skip Part 2; do not substitute fixtures.
+Only with a deployed program and a real plan on **devnet** (test tokens): see [DEVNET_RELEASE.md](DEVNET_RELEASE.md) and [GO_LIVE.md](GO_LIVE.md). Say the network out loud. Show **Plans → a plan → Published through Relay** and the network badge. **Follow is not demo-ready** until the venue swap path exists in the server and the pool is funded. If Follow is unavailable, say so and stop — do not substitute fixtures.
 
 ## The fictional fallback
 
-`/demo` is an educational walkthrough with an invented trader and simulated prices, bannered "Fictional demo". Announce that before opening it, show it only when explaining empty or error behaviour, and never alongside Part 1 as if it were the same data. `/dev/plan-states` exists only in development builds (404 in production) and is not for presentations.
+`/demo` is an educational walkthrough with an invented trader and simulated prices, bannered "Fictional demo". Announce that before opening it. `/dev/plan-states` exists only in development builds (404 in production).
 
 ## Checks before presenting
 
-`bun run lint`; `(cd domain && bun test)`; `(cd server && bun test)`; `(cd app && bunx tsc -b && bun test)`; `bun run build:app`. Try phone width, keyboard-only navigation, reduced motion, and the server stopped (the app must say it cannot reach Relay's service, not show stale or invented data).
+`bun run lint`; `(cd domain && bun test)`; `(cd server && bun test)`; `(cd app && bunx tsc -b && bun run test)`. Try phone width, reduced motion, and the server stopped (the app must say it cannot reach Relay's service).
+
+## Limits (say these if asked)
+
+- Coverage is manual; Relay does not watch accounts live.
+- Profiles are unclaimed public-source pages.
+- Watching and the watchlist are browser-local, not synced to Google sign-in.
+- Plans are optional and separate; Follow on devnet still needs server venue wiring.
