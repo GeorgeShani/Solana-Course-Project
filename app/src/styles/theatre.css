@@ -228,6 +228,31 @@
   display: none;
 }
 
+.hdr-btn__avatar {
+  display: block;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.hdr-btn__initials {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--velvet-4);
+  color: var(--limelight);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.hdr-btn--signed-in {
+  padding: 3px;
+  overflow: hidden;
+}
+
 @media (min-width: 900px) {
   /* Desktop: the sign at the left, the navigation centred on the page (equal side columns, so a
      wider control group on some pages never moves it), the controls at the right. */

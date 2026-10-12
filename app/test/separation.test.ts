@@ -78,6 +78,7 @@ describe("Google sign-in gates following only", () => {
       .map(rel)
       .sort();
     expect(users).toEqual([
+      "components/theatre/Marquee.tsx",
       "features/account/UnlockStrip.tsx",
       "features/plans/execution/TradePanel.tsx",
       "features/plans/feed/ActionRow.tsx",

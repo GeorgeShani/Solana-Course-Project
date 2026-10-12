@@ -1,5 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import type { ReactNode } from "react";
+import { useGoogleAuth } from "../../features/account/google-auth";
 import { HEADER_NAV } from "../../lib/nav";
 import { Icon } from "../ui/Icon";
 import { WalletButton } from "../wallet/WalletButton";
@@ -74,17 +75,52 @@ export function Valance({ clusterLabel }: { clusterLabel: string | null }) {
         {clusterLabel && showNetwork && (
           <span className="valance__cluster">{clusterLabel}</span>
         )}
-        <Link
-          to="/account"
-          className="hdr-btn hdr-btn--icon hdr-btn--account"
-          aria-label="Account"
-          title="Account"
-          activeProps={{ "aria-current": "page" }}
-        >
-          <Icon name="account" size={18} />
-        </Link>
+        <AccountLink />
         <WalletButton />
       </div>
     </header>
+  );
+}
+
+/** Shows who is signed in when a Google session exists; never implies the wallet is linked. */
+function AccountLink() {
+  const auth = useGoogleAuth();
+  if (auth.status === "signed_in") {
+    const label = `${auth.user.name} · Account`;
+    return (
+      <Link
+        to="/account"
+        className="hdr-btn hdr-btn--icon hdr-btn--account hdr-btn--signed-in"
+        aria-label={label}
+        title={label}
+        activeProps={{ "aria-current": "page" }}
+      >
+        {auth.user.picture ? (
+          <img
+            className="hdr-btn__avatar"
+            src={auth.user.picture}
+            alt=""
+            width={22}
+            height={22}
+            referrerPolicy="no-referrer"
+          />
+        ) : (
+          <span className="hdr-btn__initials" aria-hidden="true">
+            {auth.user.name.trim().slice(0, 1).toUpperCase() || "?"}
+          </span>
+        )}
+      </Link>
+    );
+  }
+  return (
+    <Link
+      to="/account"
+      className="hdr-btn hdr-btn--icon hdr-btn--account"
+      aria-label="Account"
+      title="Account"
+      activeProps={{ "aria-current": "page" }}
+    >
+      <Icon name="account" size={18} />
+    </Link>
   );
 }

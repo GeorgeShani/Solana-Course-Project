@@ -140,6 +140,9 @@ function Record({
         <div className="record-hero__text">
           <p className="record__kinds">
             <KindBadge kind="relay_plan" />
+            <span className="badge badge--quiet">
+              {CLUSTER_LABEL[card.cluster]} · test tokens
+            </span>
             {card.creator.isDemo && <span className="badge">Demo creator</span>}
             {!card.listed && <span className="badge">Unlisted</span>}
           </p>
@@ -177,12 +180,8 @@ function Record({
             <Icon name={watching ? "star-filled" : "star"} size={18} />
             {watching ? "Watching" : "Watch"}
           </button>
-          <Link
-            to="/"
-            search={{ plan: card.planPda }}
-            className="btn btn--ghost"
-          >
-            Open in Discover
+          <Link to="/plans" className="btn btn--ghost">
+            Back to Plans
           </Link>
         </div>
       </header>

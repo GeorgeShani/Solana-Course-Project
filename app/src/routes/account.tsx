@@ -173,6 +173,9 @@ function GoogleSection({
             <p className="me__mail" title={auth.user.email}>
               {auth.user.email}
             </p>
+            <p className="page__text page__text--quiet">
+              Signed in for following plans. Not linked to a wallet.
+            </p>
           </div>
           <button
             id="google-sign-out-btn"
@@ -188,8 +191,10 @@ function GoogleSection({
       ) : (
         <div className="acct-google">
           <p className="page__text page__text--quiet" style={{ flexGrow: 1 }}>
-            Discovering ideas, opening sources and watching need no account.
-            Following a plan needs this sign-in and a wallet.
+            Discover, sources and watching need no account. Following a plan
+            needs this sign-in and a wallet. Sign-in is separate from the wallet
+            below and never authorizes a trade. Watchlist items stay in this
+            browser only — they are not synced to the account.
           </p>
           <button
             id="google-sign-in-btn"

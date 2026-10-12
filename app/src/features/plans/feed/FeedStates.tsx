@@ -197,8 +197,9 @@ export function EmptyState({
       }
     >
       <p className="stage-msg__text">
-        Plans appear here once a creator commits one onchain. Expired and closed
-        plans stay listed with their history.
+        Plans appear here once a creator commits one on Solana (devnet: test
+        tokens). Expired and closed plans stay listed with their history. This
+        feed is separate from public-source ideas on Discover.
       </p>
     </StageMessage>
   );
