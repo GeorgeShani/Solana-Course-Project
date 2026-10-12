@@ -1,39 +1,45 @@
 import { describe, expect, test } from "bun:test";
 import {
+  IDENTITY_LABEL,
   PARTICIPATION_LABEL,
+  RELATIONSHIP_LABEL,
   eventKind,
   evidenceSummary,
   latestCapture,
   latestUpdateLabel,
+  relationshipTone,
   sourceHost,
 } from "../src/features/discovery/model";
 
 describe("eventKind", () => {
-  test("an update the author links is an update to the idea", () => {
+  test("an update the author links is an author update", () => {
     const k = eventKind({
       type: "update_published",
       relationship: { basis: "creator_confirmed" },
     });
-    expect(k.label).toBe("Update to this idea");
+    expect(k.label).toBe("Author update");
+    expect(relationshipTone("creator_confirmed")).toBe("linked");
   });
 
-  test("an unlinked later item is only later analysis on the same topic", () => {
+  test("an unlinked later item is related commentary", () => {
     const k = eventKind({
       type: "update_published",
       relationship: { basis: "editorially_associated" },
     });
-    expect(k.label).toBe("Later analysis on the same topic");
+    expect(k.label).toBe("Related commentary");
     expect(k.meaning).toContain("does not mean the author changed");
+    expect(relationshipTone("editorially_associated")).toBe("related");
   });
 
-  test("an uncertain link is never called an update or analysis of the idea", () => {
+  test("an uncertain link is never called an update or commentary on the idea", () => {
     const k = eventKind({
       type: "update_published",
       relationship: { basis: "uncertain" },
     });
-    expect(k.label).toBe("Later item · link not established");
+    expect(k.label).toBe("Link not established");
     expect(k.meaning).toContain("cannot confirm");
     expect(k.meaning).toContain("does not mean the author changed");
+    expect(relationshipTone("uncertain")).toBe("unsure");
   });
 
   test("a card names the newest later item the same way as the timeline", () => {
@@ -42,21 +48,34 @@ describe("eventKind", () => {
       latestUpdateLabel({
         latestUpdate: { basis: "creator_confirmed", occurredAt: null },
       }),
-    ).toBe("Update to this idea");
+    ).toBe("Author update");
     expect(
       latestUpdateLabel({
         latestUpdate: { basis: "uncertain", occurredAt: null },
       }),
-    ).toBe("Later item · link not established");
+    ).toBe("Link not established");
   });
 
-  test("the first entry is the original source", () => {
+  test("the first entry is the original", () => {
     expect(
       eventKind({
         type: "source_added",
         relationship: { basis: "original" },
       }).label,
-    ).toBe("Original source");
+    ).toBe("Original");
+  });
+
+  test("relationship labels match the timeline words", () => {
+    expect(RELATIONSHIP_LABEL.creator_confirmed).toBe("Author update");
+    expect(RELATIONSHIP_LABEL.editorially_associated).toBe(
+      "Related commentary",
+    );
+    expect(RELATIONSHIP_LABEL.uncertain).toBe("Link not established");
+  });
+
+  test("identity labels stay about accounts, not idea updates", () => {
+    expect(IDENTITY_LABEL.editorially_associated).toBe("Linked by Relay");
+    expect(IDENTITY_LABEL.uncertain).toBe("Link uncertain");
   });
 });
 

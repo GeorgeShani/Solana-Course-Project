@@ -2,7 +2,6 @@ import { Link } from "@tanstack/react-router";
 import { Cue } from "../../../components/cue/Cue";
 import { Icon } from "../../../components/ui/Icon";
 import {
-  RELATIONSHIP_LABEL,
   eventKind,
   formatWhen,
   safeHref,
@@ -197,11 +196,6 @@ function TargetCard({ t, w }: { t: TargetChanges; w: WatchedItem }) {
                     <li key={e.id}>
                       <p className="chg__head">
                         <span className="tl__label">{eventKind(e).label}</span>
-                        {e.relationship.basis !== "original" && (
-                          <span className="badge badge--quiet">
-                            {RELATIONSHIP_LABEL[e.relationship.basis]}
-                          </span>
-                        )}
                         <span className="wl-card__meta">
                           {e.occurredAt
                             ? `Happened ${formatWhen(e.occurredAt)}`

@@ -3,12 +3,13 @@ import { useEffect } from "react";
 import { Icon } from "../../../components/ui/Icon";
 import {
   formatWhen,
+  latestUpdateLabel,
+  relationshipTone,
   safeHref,
   shortDate,
   sourceHost,
   type FeedItemView,
   type IdeaSummary,
-  type RelationshipBasis,
 } from "../model";
 import type { Stamp } from "../stamps";
 import { Avatar } from "./Avatar";
@@ -18,13 +19,6 @@ export type TicketScreen =
   | { kind: "idea"; idea: IdeaSummary }
   | { kind: "detected"; item: FeedItemView };
 
-const UPDATE_LABEL: Record<RelationshipBasis, string> = {
-  creator_confirmed: "Update from the author",
-  editorially_associated: "Later analysis, same topic",
-  uncertain: "Later item, link not established",
-  original: "Original",
-};
-
 /** What the recorded history says, in words: never a verdict, never an invented link. */
 function updateStatus(idea: IdeaSummary): {
   text: string;
@@ -33,15 +27,11 @@ function updateStatus(idea: IdeaSummary): {
   const u = idea.latestUpdate;
   if (u === null) return { text: "No later update recorded", tone: "none" };
   const when = shortDate(u.occurredAt);
-  const label = UPDATE_LABEL[u.basis];
+  const label = latestUpdateLabel(idea);
+  const tone = relationshipTone(u.basis);
   return {
-    text: when ? `${label} · ${when}` : label,
-    tone:
-      u.basis === "creator_confirmed"
-        ? "linked"
-        : u.basis === "editorially_associated"
-          ? "related"
-          : "unsure",
+    text: when && label ? `${label} · ${when}` : (label ?? "Later item"),
+    tone: tone === "original" ? "none" : tone,
   };
 }
 

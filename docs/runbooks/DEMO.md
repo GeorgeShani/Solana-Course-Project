@@ -15,9 +15,9 @@ Narration limits: say "recorded by hand from public sources"; never say "live", 
 
 1. Clean `/` shows the welcome. **Explore ideas**.
 2. Discover: three profiles, each "Public-source profile · Not claimed by the author".
-3. Open **Arthur Hayes → "AI-driven credit deflation"**. Original source and time; the later essay is **"Update to this idea · Linked by the author"** with his own sentence quoted in the note. **Open the original** (exact link).
+3. Open **Arthur Hayes → "AI-driven credit deflation"**. Original source and time; the later essay is **"Author update"** with his own sentence quoted in the note. **Open the original** (exact link).
 4. Read "What Relay can and cannot establish": the record shows a statement and a link, not a trade or a result.
-5. Open **Peter Brandt → "Bitcoin's cycle bottom…"**. The later item reads **"Later item · link not established"**: say plainly that Relay could not confirm what it refers to.
+5. Open **Peter Brandt → "Bitcoin's cycle bottom…"**. The later item reads **"Link not established"**: say plainly that Relay could not confirm what it refers to.
 6. **Watch** the idea, reload, open **Updates**: nothing is new yet ("You're caught up"). A change appears only when a curator records a new entry; to rehearse, set the stored cursor back by hand (`relay:discovery-watch:v1`, field `after`) and show **Open this entry in the timeline**.
 7. Header → **Meet Cue** reopens the welcome; Account → **Show welcome** does the same.
 

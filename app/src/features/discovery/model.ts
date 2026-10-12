@@ -888,9 +888,22 @@ export function eventLabel(type: string): { label: string; meaning: string } {
 }
 
 /**
- * The label for one timeline entry. A later statement is called an update to the idea only when
- * the author links it to the original; anything else is later analysis on the same topic, which
- * says nothing about whether the author changed position.
+ * Visual tone for a relationship basis: author-linked updates, related commentary, and
+ * unconfirmed links must read as three different things at a glance.
+ */
+export function relationshipTone(
+  basis: RelationshipBasis,
+): "original" | "linked" | "related" | "unsure" {
+  if (basis === "original") return "original";
+  if (basis === "creator_confirmed") return "linked";
+  if (basis === "editorially_associated") return "related";
+  return "unsure";
+}
+
+/**
+ * The label for one timeline entry. A later statement is an author update only when the author
+ * links it to the original; related commentary and unconfirmed links stay visibly distinct and
+ * never imply a change of position.
  */
 export function eventKind(event: {
   type: string;
@@ -900,25 +913,25 @@ export function eventKind(event: {
     const basis = event.relationship.basis;
     if (basis === "creator_confirmed")
       return {
-        label: "Update to this idea",
+        label: "Author update",
         meaning:
           "A later statement the author links to this idea. A statement is not proof that a trade happened.",
       };
     if (basis === "uncertain")
       return {
-        label: "Later item · link not established",
+        label: "Link not established",
         meaning:
           "A later item by the same author that Relay cannot confirm is about this idea. It is shown for context only and does not mean the author changed or withdrew the idea.",
       };
     return {
-      label: "Later analysis on the same topic",
+      label: "Related commentary",
       meaning:
         "A later item on the same subject that the author has not linked to this idea. It does not mean the author changed or withdrew the idea.",
     };
   }
   if (event.type === "source_added" && event.relationship.basis === "original")
     return {
-      label: "Original source",
+      label: "Original",
       meaning:
         "The public statement this idea comes from. The link opens the exact item.",
     };
@@ -1013,10 +1026,18 @@ export function latestCapture(
   return best;
 }
 
+/** How a later idea entry relates to the original. Same words as `eventKind` for updates. */
 export const RELATIONSHIP_LABEL: Record<RelationshipBasis, string> = {
-  original: "Original statement",
-  creator_confirmed: "Linked by the author",
-  editorially_associated: "Linked by Relay's curator",
+  original: "Original",
+  creator_confirmed: "Author update",
+  editorially_associated: "Related commentary",
+  uncertain: "Link not established",
+};
+
+/** Why a public account is shown on a profile. Separate from idea-timeline relationships. */
+export const IDENTITY_LABEL: Record<IdentityBasis, string> = {
+  creator_confirmed: "Confirmed by the author",
+  editorially_associated: "Linked by Relay",
   uncertain: "Link uncertain",
 };
 

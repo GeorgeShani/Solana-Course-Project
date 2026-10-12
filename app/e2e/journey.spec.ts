@@ -85,11 +85,10 @@ test.describe("discover → idea → source → watch", () => {
     await page.locator("[data-index]").nth(1).waitFor();
     await page
       .locator('article[aria-label^="AI-driven credit deflation"]')
-      .getByRole("link", { name: "See the timeline" })
+      .getByRole("link", { name: "Open story" })
       .click();
     await expect(page).toHaveURL(new RegExp(HAYES));
-    await expect(page.getByText("Update to this idea").first()).toBeVisible();
-    await expect(page.getByText("Linked by the author").first()).toBeVisible();
+    await expect(page.getByText("Author update").first()).toBeVisible();
 
     const links = page.locator(
       'a[target="_blank"][href*="cryptohayes.substack.com"]',
@@ -103,11 +102,7 @@ test.describe("discover → idea → source → watch", () => {
       await expect(l).toHaveAttribute("rel", /noopener/);
       await expect(l).toHaveAttribute("rel", /noreferrer/);
     }
-    await expect(
-      page.getByRole("heading", {
-        name: "What Relay can and cannot establish",
-      }),
-    ).toBeVisible();
+    await page.getByText("What Relay can and cannot establish").click();
     await expect(page.getByText(/Whether anyone traded/)).toBeVisible();
   });
 
@@ -115,11 +110,8 @@ test.describe("discover → idea → source → watch", () => {
     page,
   }) => {
     await page.goto(BRANDT);
-    await expect(
-      page.getByText("Later item · link not established").first(),
-    ).toBeVisible();
-    await expect(page.getByText("Update to this idea")).toHaveCount(0);
-    await expect(page.getByText("Link uncertain").first()).toBeVisible();
+    await expect(page.getByText("Link not established").first()).toBeVisible();
+    await expect(page.getByText("Author update")).toHaveCount(0);
   });
 
   test("watching needs no wallet, survives a reload, and Updates is caught up", async ({

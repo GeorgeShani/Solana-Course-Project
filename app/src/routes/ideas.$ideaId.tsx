@@ -12,7 +12,6 @@ import { Cue } from "../components/cue/Cue";
 import { BackLink } from "../components/ui/BackLink";
 import { Icon } from "../components/ui/Icon";
 import {
-  CURATION_NOTE,
   DiscoveryNotFoundError,
   evidenceSummary,
   type IdeaDetail,
@@ -115,6 +114,9 @@ function IdeaView({ ideaId }: { ideaId: string }) {
 
   const data = q.data;
   const label = `${data.title} · ${data.trader.displayName}`;
+  const laterCount = data.events.filter(
+    (e) => e.type === "update_published",
+  ).length;
   return (
     <article
       className="page page--wide idea"
@@ -146,7 +148,7 @@ function IdeaView({ ideaId }: { ideaId: string }) {
 
       <section aria-labelledby="stated-title" className="idea__stated">
         <h2 id="stated-title" className="page__subsection">
-          What the original says
+          The original idea
         </h2>
         <p className="page__text">
           {data.statedConditions ??
@@ -155,11 +157,12 @@ function IdeaView({ ideaId }: { ideaId: string }) {
       </section>
 
       <SourceCard source={data.original} />
-      <p className="page__text page__text--quiet">{CURATION_NOTE}</p>
 
       <section aria-labelledby="timeline-title" className="idea__timeline">
         <h2 id="timeline-title" className="page__subsection">
-          Timeline
+          {laterCount === 0
+            ? "Story so far"
+            : `What happened next (${laterCount})`}
         </h2>
         <p
           className="idea__chain"
@@ -168,9 +171,9 @@ function IdeaView({ ideaId }: { ideaId: string }) {
         >
           <Icon name={data.chain.verified ? "shield" : "alert"} size={14} />
           {data.chain.verified
-            ? `Relay's record of this timeline is intact: ${data.chain.checkedEvents} ${
-                data.chain.checkedEvents === 1 ? "entry links" : "entries link"
-              } up in order. This checks Relay's own record, not whether a claim is true.`
+            ? `Relay's record is intact (${data.chain.checkedEvents} ${
+                data.chain.checkedEvents === 1 ? "entry" : "entries"
+              }). This checks Relay's chain, not whether a claim is true.`
             : "Relay's record of this timeline does not check out. Treat the entries below as unverified."}
         </p>
         <Timeline
@@ -192,24 +195,28 @@ function IdeaView({ ideaId }: { ideaId: string }) {
 
       <p className="page__text page__text--quiet">
         Not financial advice. Relay records what was said and what evidence
-        exists. It does not say an idea was right or wrong, and it does not
-        recommend one.
+        exists. It does not recommend a trade.
       </p>
     </article>
   );
 }
 
-/** Original → later item → what is established and what is not, in words. */
+/** Short visible line; the established / not-established lists open on demand. */
 function EvidenceSummarySection({ idea }: { idea: IdeaDetail }) {
   const { established, unknown } = evidenceSummary(idea);
   return (
-    <section aria-labelledby="known-title" className="idea__known">
-      <h2 id="known-title" className="page__subsection">
+    <details className="disclosure idea__known">
+      <summary>
         What Relay can and cannot establish
-      </h2>
+        <Icon name="details" size={16} />
+      </summary>
+      <p className="page__text page__text--quiet">
+        Relay recorded the public source and later items. It does not prove a
+        trade, a wallet or a result.
+      </p>
       <div className="known">
         <div>
-          <h3 className="known__title">Established by the record</h3>
+          <h3 className="known__title">Established</h3>
           <ul className="known__list">
             {established.map((t) => (
               <li key={t}>{t}</li>
@@ -225,6 +232,6 @@ function EvidenceSummarySection({ idea }: { idea: IdeaDetail }) {
           </ul>
         </div>
       </div>
-    </section>
+    </details>
   );
 }
