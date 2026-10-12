@@ -89,7 +89,7 @@ function About() {
             <Icon name="traders" size={18} /> Feed member
           </h2>
 
-          <ol className="steps" aria-label="Share, check, live">
+          <ol className="steps" aria-label="Share, check, recorded">
             <li className="steps__item">
               <span className="steps__orb">
                 <Icon name="external" size={26} />
@@ -103,10 +103,11 @@ function About() {
               <span className="steps__label">Check</span>
             </li>
             <li className="steps__item">
-              <span className="steps__orb steps__orb--live">
+              {/* Coverage is recorded by hand, never live: same ring as "Recorded" below. */}
+              <span className="steps__orb steps__orb--recorded">
                 <Avatar id="benjamin-cowen" name="Benjamin Cowen" />
               </span>
-              <span className="steps__label">Live</span>
+              <span className="steps__label">Recorded</span>
             </li>
           </ol>
 
@@ -127,13 +128,6 @@ function About() {
               <small>never real</small>
             </li>
           </ul>
-
-          <span
-            className="soon"
-            title="Claiming a profile opens later; today people at Relay record each profile by hand."
-          >
-            <Icon name="shield" size={16} /> Claim your profile · soon
-          </span>
         </article>
       </div>
     </section>

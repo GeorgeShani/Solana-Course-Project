@@ -554,8 +554,10 @@ html[data-showtime="on"] .drapes {
   visibility: hidden;
 }
 
-/* The floor belongs to the feed's acts; on reading pages it would draw a band across the text. */
-.app:has(.stage > .page) .stage-floor {
+/* The floor belongs to the feed's acts; on reading pages it would draw a band across the text,
+   and under a plans message (loading, unavailable, empty) there is no act to stand on. */
+.app:has(.stage > .page) .stage-floor,
+.app:has(.stage-msg) .stage-floor {
   display: none;
 }
 

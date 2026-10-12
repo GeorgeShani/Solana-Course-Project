@@ -362,8 +362,8 @@
   overflow: hidden;
 }
 
-.steps__orb--live {
-  border-color: #3fa4ff;
+.steps__orb--recorded {
+  border-color: var(--sol-green);
   padding: 0;
 }
 
@@ -451,19 +451,6 @@
   .legend__ring--auto {
     animation: flow-glow 1.8s ease-in-out infinite;
   }
-}
-
-.soon {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--s2);
-  min-height: var(--ctl-sm);
-  padding: 0 var(--s4);
-  border: 1px dashed var(--hairline-strong);
-  border-radius: 999px;
-  color: var(--haze);
-  font-size: var(--t-footnote);
-  font-weight: 700;
 }
 
 /* ------------------------------------------------------------------ what is unlocked (Account) */
