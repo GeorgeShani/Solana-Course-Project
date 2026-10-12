@@ -120,6 +120,10 @@ export class FakeChain implements ChainReader {
     return this.receipts.get(receiptPda) ?? null;
   }
 
+  async getVenuePool() {
+    return null;
+  }
+
   async nowMs() {
     return this.now;
   }

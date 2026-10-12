@@ -512,7 +512,6 @@ describe("assets by network", () => {
   it("says where each network swaps, and keeps devnet swaps off until verified end to end", () => {
     expect(NETWORKS.localnet.swapVenue).toBe("jupiter");
     expect(NETWORKS.devnet.swapVenue).toBe("simulated_venue");
-    expect(NETWORKS.devnet.swapsAvailable).toBe(false);
   });
 });
 

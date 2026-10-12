@@ -88,6 +88,66 @@ export interface FeedPage {
   sync: PlanSync | null;
 }
 
+export interface FollowAvailability {
+  network: "devnet" | "localnet";
+  available: boolean;
+  venue: "simulated_venue" | "jupiter";
+  label: string;
+  message: string;
+  poolAddress: string | null;
+  priceUnits: string | null;
+}
+
+export function parseFollowAvailability(value: unknown): FollowAvailability {
+  const r = rec(value, "followAvailability");
+  const network = r.network;
+  const venue = r.venue;
+  if (network !== "devnet" && network !== "localnet")
+    throw new ApiContractError("Unknown follow network");
+  if (
+    (network === "devnet" && venue !== "simulated_venue") ||
+    (network === "localnet" && venue !== "jupiter")
+  )
+    throw new ApiContractError("Unexpected follow venue");
+  if (venue !== "simulated_venue" && venue !== "jupiter")
+    throw new ApiContractError("Unknown follow venue");
+  const available = bool(r.available, "followAvailability.available");
+  const poolAddress = strOrNull(
+    r.poolAddress,
+    "followAvailability.poolAddress",
+  );
+  const priceUnits =
+    r.priceUnits === null
+      ? null
+      : digits(r.priceUnits, "followAvailability.priceUnits");
+  if (
+    available &&
+    network === "devnet" &&
+    (!poolAddress || !priceUnits || BigInt(priceUnits) <= 0n)
+  )
+    throw new ApiContractError(
+      "Available devnet venue must report an onchain pool and price",
+    );
+  return {
+    network,
+    venue,
+    available,
+    poolAddress,
+    priceUnits,
+    label: str(r.label, "followAvailability.label"),
+    message: str(r.message, "followAvailability.message"),
+  };
+}
+
+export async function fetchFollowAvailability(
+  base: string,
+  pairId: string,
+): Promise<FollowAvailability> {
+  return parseFollowAvailability(
+    await getJson(`${base}/follow/status?pair=${encodeURIComponent(pairId)}`),
+  );
+}
+
 const ENTRY_STATUSES: readonly EntryStatus[] = [
   "in_range",
   "above_range",

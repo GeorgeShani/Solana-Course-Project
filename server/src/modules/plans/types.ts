@@ -4,6 +4,7 @@ import type {
   FollowReceiptAccount,
   PlanAccount,
   PlanVersionAccount,
+  VenuePool,
 } from "@relay/domain/solana";
 
 /** A Plan account as stored by the Relay program (numbers are exact bigints). */
@@ -64,6 +65,14 @@ export interface ChainReader {
   getTransaction(signature: Signature): Promise<ChainTransaction | null>;
   /** Null when absent. Throws if it exists but is not a Relay FollowReceipt. */
   getFollowReceipt(receiptPda: string): Promise<FollowReceiptAccount | null>;
+  /** Reads and validates the configured venue pool and both token vaults from one chain snapshot. */
+  getVenuePool(admin: string, pair: Pair): Promise<VenuePoolSnapshot | null>;
+}
+
+export interface VenuePoolSnapshot {
+  address: Address;
+  data: VenuePool;
+  baseAvailable: bigint;
 }
 
 /** Advisory reference prices. Never used for anything the program enforces. */

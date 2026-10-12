@@ -1,11 +1,17 @@
 import {
-  SUPPORTED_PAIRS,
+  findPair,
   formatUnits,
   parseJupiterBuild,
   parseUnits,
   type Pair,
+  type Network,
 } from "@relay/domain";
-import { composeFollowTx, waitForSignature } from "@relay/domain/solana";
+import {
+  composeFollowTx,
+  waitForSignature,
+  swapProgramsFor,
+} from "@relay/domain/solana";
+import { CLUSTER } from "../../../lib/config";
 import {
   address,
   blockhash,
@@ -50,8 +56,11 @@ export function checkFollowAmount(raw: string, decimals: number): AmountCheck {
   return { ok: true, units, text };
 }
 
-export function pairById(id: string): Pair | undefined {
-  return SUPPORTED_PAIRS.find((p) => p.id === id);
+export function pairById(
+  id: string,
+  network: Network = CLUSTER,
+): Pair | undefined {
+  return findPair(id, network);
 }
 
 export function formatSol(lamports: bigint): string {
@@ -76,6 +85,7 @@ export async function composeFromQuote(quote: QuoteView, pair: Pair) {
     },
     computeUnitLimit: c.computeUnitLimit,
     computeUnitPriceCap: PRIORITY_FEE_CAP_MICRO_LAMPORTS,
+    swapPrograms: swapProgramsFor(CLUSTER),
   });
 }
 

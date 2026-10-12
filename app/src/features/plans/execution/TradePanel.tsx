@@ -5,6 +5,7 @@ import { useId, useState } from "react";
 import { useGoogleAuth } from "../../account/google-auth";
 import {
   fetchQuote,
+  fetchFollowAvailability,
   type ExecutionView,
   type PlanCardView,
   type QuoteView,
@@ -93,8 +94,19 @@ export function TradePanel({
   const [notice, setNotice] = useState<string | null>(null);
 
   const check = checkFollowAmount(amount, card.pair.quoteDecimals);
+  const availability = useQuery({
+    queryKey: ["follow-availability", CLUSTER, card.pair.id],
+    queryFn: () => fetchFollowAvailability(API_URL, card.pair.id),
+    staleTime: 10_000,
+    refetchInterval: 15_000,
+    retry: 1,
+  });
+  const swapsAvailable =
+    availability.data?.network === CLUSTER &&
+    availability.data.available &&
+    card.cluster === CLUSTER;
   const open =
-    NETWORK_INFO.swapsAvailable &&
+    swapsAvailable &&
     status === "in_range" &&
     card.planStatus === "open" &&
     pair !== undefined;
@@ -211,9 +223,14 @@ export function TradePanel({
 
   let label: string;
   let action: (() => void) | null = null;
-  if (!NETWORK_INFO.swapsAvailable)
-    label = `Swaps aren't available on ${NETWORK_INFO.label}`;
-  else if (!open)
+  if (!swapsAvailable) {
+    label = availability.isPending
+      ? "Checking swap availability…"
+      : availability.isError
+        ? "Couldn't check swap availability"
+        : (availability.data?.message ?? "Swap availability is unknown");
+    if (availability.isError) action = () => void availability.refetch();
+  } else if (!open)
     label = pair ? reviewUnavailableReason(status) : "Pair not supported";
   else if (auth.status === "loading") label = "Checking sign-in…";
   else if (auth.status !== "signed_in") {
@@ -431,12 +448,18 @@ export function TradePanel({
         </p>
       )}
 
-      {(open || !NETWORK_INFO.swapsAvailable) && (
+      {(open || !swapsAvailable) && (
         <p className="trade__note" role="note">
           <Icon name="shield" size={16} />
           {NETWORK_INFO.note}
           {open &&
             " Relay sends the signed transaction to this network itself."}
+        </p>
+      )}
+      {CLUSTER === "devnet" && (
+        <p className="trade__note" role="note">
+          Test-token swaps use an onchain simulated venue. Its configured price
+          can differ from the reference price in the feed.
         </p>
       )}
 

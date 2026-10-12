@@ -7,6 +7,7 @@ import {
   formatUnits,
   parseJupiterBuild,
   parseUnits,
+  findPair,
   type JupiterBuild,
 } from "@relay/domain";
 import {
@@ -19,6 +20,11 @@ import {
   priorityFeeMicroLamports,
   relayErrorByCode,
   relayErrorByName,
+  buildVenueRoute,
+  venueRouteJson,
+  venueSwapOut,
+  SIMULATED_VENUE_LABEL,
+  swapProgramsFor,
   type ComposedFollowTx,
 } from "@relay/domain/solana";
 import {
@@ -176,6 +182,68 @@ export function createFollowService(deps: FollowServiceDeps) {
   const { env, db, chain, jupiter } = deps;
   const logger = deps.logger ?? silentLogger;
 
+  async function availability(pairId = "sol-usdc") {
+    const pair = findPair(pairId, env.cluster);
+    const base = {
+      network: env.cluster,
+      venue: NETWORKS[env.cluster].swapVenue,
+      label:
+        env.cluster === "devnet"
+          ? SIMULATED_VENUE_LABEL
+          : "Jupiter (local test fork)",
+      poolAddress: null,
+      priceUnits: null,
+    };
+    if (!pair)
+      return {
+        ...base,
+        available: false,
+        message: "This pair isn't supported on this network.",
+      };
+    if (env.cluster === "localnet")
+      return {
+        ...base,
+        available: true,
+        message: "Swaps use the local test fork.",
+      };
+    if (!env.simulatedVenueAdmin)
+      return {
+        ...base,
+        available: false,
+        message: "The devnet swap venue hasn't been set up yet.",
+      };
+    try {
+      const pool = await chain.getVenuePool(env.simulatedVenueAdmin, pair);
+      if (!pool)
+        return {
+          ...base,
+          available: false,
+          message: "The devnet pool or its token vaults aren't set up yet.",
+        };
+      const minimumOut = venueSwapOut(
+        MIN_QUOTE_UNITS,
+        pool.data.price,
+        pair.base.decimals,
+      );
+      const available = minimumOut > 0n && pool.baseAvailable >= minimumOut;
+      return {
+        ...base,
+        poolAddress: pool.address,
+        priceUnits: pool.data.price.toString(),
+        available,
+        message: available
+          ? "Devnet test swaps are available through the simulated venue."
+          : "The devnet pool needs more test SOL before it can swap.",
+      };
+    } catch {
+      return {
+        ...base,
+        available: false,
+        message: "Relay can't validate the devnet swap venue right now.",
+      };
+    }
+  }
+
   async function loadPlan(planPda: Address): Promise<OnchainPlan> {
     let plan: OnchainPlan | null;
     try {
@@ -208,7 +276,7 @@ export function createFollowService(deps: FollowServiceDeps) {
     if (!isRecord(input))
       throw new ApiError(400, "invalid_input", "Body must be an object");
     // Without a swap venue there is nothing to route through. Say so plainly, before any work.
-    if (!NETWORKS[env.cluster].swapsAvailable) {
+    if (env.cluster === "devnet" && !env.simulatedVenueAdmin) {
       throw new ApiError(
         422,
         "swaps_unavailable",
@@ -231,7 +299,7 @@ export function createFollowService(deps: FollowServiceDeps) {
     }
 
     const plan = await loadPlan(planPda);
-    const pair = findPairByMints(plan.baseMint, plan.quoteMint);
+    const pair = findPairByMints(plan.baseMint, plan.quoteMint, env.cluster);
     if (!pair)
       throw new ApiError(
         422,
@@ -292,14 +360,52 @@ export function createFollowService(deps: FollowServiceDeps) {
     let build: JupiterBuild | null = null;
     let composed: ComposedFollowTx | null = null;
     for (const maxAccounts of MAX_ACCOUNT_STEPS) {
-      rawBuild = await jupiter.build({
-        inputMint: pair.quote.mint,
-        outputMint: pair.base.mint,
-        amount: quoteIn.toString(),
-        taker: follower,
-        destinationTokenAccount: destination,
-        maxAccounts,
-      });
+      if (env.cluster === "devnet") {
+        const admin = env.simulatedVenueAdmin;
+        if (!admin)
+          throw new ApiError(
+            422,
+            "swaps_unavailable",
+            "The devnet swap venue isn't configured.",
+          );
+        let pool;
+        try {
+          pool = await chain.getVenuePool(admin, pair);
+        } catch {
+          throw new ApiError(
+            503,
+            "venue_unavailable",
+            "Relay can't validate the devnet swap venue right now.",
+          );
+        }
+        if (!pool)
+          throw new ApiError(
+            422,
+            "swaps_unavailable",
+            "The devnet swap pool isn't ready yet.",
+          );
+        const route = await buildVenueRoute({
+          pool: pool.data,
+          poolAddress: pool.address,
+          follower,
+          amountIn: quoteIn,
+        });
+        if (pool.baseAvailable < route.outAmount)
+          throw new ApiError(
+            422,
+            "venue_liquidity",
+            "The devnet pool doesn't have enough test SOL for this amount.",
+          );
+        rawBuild = venueRouteJson(route);
+      } else
+        rawBuild = await jupiter.build({
+          inputMint: pair.quote.mint,
+          outputMint: pair.base.mint,
+          amount: quoteIn.toString(),
+          taker: follower,
+          destinationTokenAccount: destination,
+          maxAccounts,
+        });
       build = parseBuild(rawBuild);
       composed = await compose(build, {
         plan: planPda,
@@ -464,6 +570,7 @@ export function createFollowService(deps: FollowServiceDeps) {
         blockhash: o.blockhash,
         computeUnitLimit: o.limit,
         computeUnitPriceCap: PRIORITY_FEE_CAP_MICRO_LAMPORTS,
+        swapPrograms: swapProgramsFor(env.cluster),
       });
     } catch (e) {
       // composeFollowTx fails closed on anything it does not recognise. Keep the detail in logs.
@@ -618,7 +725,7 @@ export function createFollowService(deps: FollowServiceDeps) {
     return rows.map(toExecutionView);
   }
 
-  return { quote, verify, executionsFor };
+  return { quote, verify, executionsFor, availability };
 }
 
 export type FollowService = ReturnType<typeof createFollowService>;

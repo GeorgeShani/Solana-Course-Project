@@ -68,6 +68,7 @@ services:
       # Wallets whose plans are listed in the feed (comma separated). Empty lists every plan, which on
       # a public network includes spam; plans from other wallets stay reachable by link, marked unlisted.
       CREATOR_ALLOWLIST: ${CREATOR_ALLOWLIST:-}
+      SIMULATED_VENUE_ADMIN: ${SIMULATED_VENUE_ADMIN:-}
       # Google sign-in, which following a plan needs. Empty turns it off (and with it, following).
       # GOOGLE_REDIRECT_URI must be exactly https://<DOMAIN>/api/auth/google/callback.
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}

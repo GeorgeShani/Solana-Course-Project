@@ -1212,6 +1212,7 @@ describe("GET /discovery/changes", () => {
       title: "Watching SOL near 140",
       assets: ["SOL"],
       traderId: "ada-test",
+      traderDisplayName: "Ada Test (test fixture)",
     });
     const event = list(group.events)[0] ?? {};
     expect(event.seq).toBe("2");

@@ -204,6 +204,15 @@ describe("GET /health/ready", () => {
       checks: { database: "ok", rpc: "ok" },
       // No feed request yet, so the plan mirror has not been read.
       planSync: { state: "not_yet", lastSyncedAtMs: null },
+      follow: {
+        network: "localnet",
+        available: true,
+        venue: "jupiter",
+        label: "Jupiter (local test fork)",
+        message: "Swaps use the local test fork.",
+        poolAddress: null,
+        priceUnits: null,
+      },
       // Configured, not called: no wallet-data provider exists for public-source coverage.
       providers: {
         jupiterPrices: "keyless",

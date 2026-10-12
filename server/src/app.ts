@@ -109,9 +109,10 @@ export function createApp({
           return "down";
         },
       );
-    const [database, rpcState] = await Promise.all([
+    const [database, rpcState, followStatus] = await Promise.all([
       check(() => db`select 1`),
       check(() => chain.health()),
+      follow.availability(),
     ]);
     const ok = database === "ok" && rpcState === "ok";
     return c.json(
@@ -123,6 +124,7 @@ export function createApp({
         checks: { database, rpc: rpcState },
         // The plan mirror, as of the last feed request; informational, so it never fails readiness.
         planSync: plans.syncStatus(),
+        follow: followStatus,
         // What is configured, never called here (a provider outage must not fail readiness).
         // No wallet-data provider exists; public-source coverage needs none.
         providers: {
@@ -183,6 +185,9 @@ export function createApp({
   );
 
   const quoteLimiter = createRateLimiter(10, 60_000);
+  app.get("/follow/status", async (c) =>
+    c.json(await follow.availability(c.req.query("pair"))),
+  );
   const quoteFollowerLimiter = createRateLimiter(10, 60_000);
   /** Builds the transaction a follower may sign: fresh route, simulated, nothing sent. */
   app.post("/follow/quote", rateLimit(quoteLimiter), async (c) => {
