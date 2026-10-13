@@ -4,7 +4,7 @@ The Relay on-chain program (Rust + [Anchor](https://www.anchor-lang.com)). It is
 
 ## Program
 
-`relay` (program ID `Dzm5tgMCdhJZfXeHYuALst4hvZYiCebfyKf1ctx6WBF6`, in `declare_id!` and `Anchor.toml`). Instructions:
+`relay` (program ID `GyfA1Cfni44zwHc5FB9nxtmMRhnLv5YtTY1KZY5NsK6F`, in `declare_id!` and `Anchor.toml`). Instructions:
 
 | Instruction     | Who signs | What it does                                                                                                     |
 | --------------- | --------- | ---------------------------------------------------------------------------------------------------------------- |
