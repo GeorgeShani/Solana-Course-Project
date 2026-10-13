@@ -40,7 +40,14 @@ Stop here for a discovery-only recording. Do not open Plans unless Part 2 is rea
 
 ## Part 2: native plans (optional, devnet)
 
-Only with a deployed program and a real plan on **devnet** (test tokens): see [DEVNET_RELEASE.md](DEVNET_RELEASE.md) and [GO_LIVE.md](GO_LIVE.md). Say the network out loud. Show **Plans → a plan → Published through Relay** and the network badge. **Follow is not demo-ready** until the venue swap path exists in the server and the pool is funded. If Follow is unavailable, say so and stop — do not substitute fixtures.
+Needs the devnet plans from [DEVNET_REHEARSAL.md](DEVNET_REHEARSAL.md) (they expire; check the date and republish if needed) and `/follow/status` reporting `available: true`. Say the network out loud: devnet, test tokens, no value. Also say the venue price is a fixed test price, not the market.
+
+1. Sign in with Google (Account). Following is gated on it; reading and watching are not.
+2. Plans → open a plan → show **Published through Relay**, the network badge and the entry range. An entry status states whether the price is inside the stated range; it is never advice.
+3. **Review trade** → amount → **Get quote**. Connect a Wallet Standard wallet set to Solana Devnet and approve in the popup. Never ask the audience to use a real-funds wallet.
+4. Watchlist → Receipts shows the **Verified receipt**, re-read from the chain. A failed transaction is never shown as a receipt.
+
+If Follow reports unavailable, or no wallet popup can be shown, say so and stop. Do not substitute fixtures. The wallet popup path has not yet been rehearsed with a real extension; only a CLI-signed follow has been verified.
 
 ## The fictional fallback
 
@@ -55,4 +62,4 @@ Only with a deployed program and a real plan on **devnet** (test tokens): see [D
 - Coverage is manual; Relay does not watch accounts live.
 - Profiles are unclaimed public-source pages.
 - Watching and the watchlist are browser-local, not synced to Google sign-in.
-- Plans are optional and separate; Follow on devnet still needs server venue wiring.
+- Plans are optional and separate. Follow runs on devnet only, through a simulated venue at a fixed test price; there is no mainnet.
