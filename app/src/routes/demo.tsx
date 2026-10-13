@@ -9,7 +9,7 @@ import { KindBadge } from "../components/ui/KindBadge";
 import {
   DEMO_LABEL,
   DEMO_PLAN,
-  DEMO_STEPS,
+  DEMO_SCENARIOS,
   demoState,
   type DemoState,
 } from "../lib/demo";
@@ -57,6 +57,11 @@ function scene(
           ? "The price moved above Mika's original range. Watching saved the plan; it did not place a trade."
           : "The price moved above Mika's original range. Watching would have saved the plan; it would not have placed a trade.",
       };
+    case "below_range":
+      return {
+        pose: "discover",
+        line: "The simulated price is below Mika's entry range. The plan's conditions do not match. Advance the clock to see whether that changes.",
+      };
     default:
       return {
         pose: "bow",
@@ -70,6 +75,7 @@ function Demo() {
   const mounted = useMounted();
   const [startMs, setStartMs] = useState(() => Date.now());
   const [step, setStep] = useState(0);
+  const [scenario, setScenario] = useState(DEMO_SCENARIOS[0]);
   const [watched, setWatched] = useState<Watched | null>(null);
   const pointer = useStagePointer();
   const cueRef = useRef<HTMLDivElement>(null);
@@ -97,12 +103,12 @@ function Demo() {
     );
   }
 
-  const state = demoState(step, startMs);
+  const state = demoState(step, startMs, scenario);
   const { pose, line } = scene(state, watched);
-  const last = step >= DEMO_STEPS.length - 1;
+  const last = step >= scenario.steps.length - 1;
   const nowSec = Math.floor(state.nowMs / 1000);
   const ended = state.entry.status === "expired";
-  const original = watched?.state ?? demoState(0, startMs);
+  const original = watched?.state ?? demoState(0, startMs, scenario);
 
   return (
     <section className="page demo" aria-labelledby="demo-title">
@@ -111,10 +117,34 @@ function Demo() {
         Try the demo
       </h1>
       <p className="page__text">
-        Follow one fictional trader from a public idea to a plan, and watch the
-        plan until its entry passes. A simulated clock moves only when you press
-        the advance button.
+        Explore when a price matches a fictional plan's conditions. Being in
+        range does not mean a trade is safe or profitable. The simulated clock
+        moves only when you press the advance button.
       </p>
+
+      <fieldset className="demo__scenarios">
+        <legend className="page__section">Choose a scenario</legend>
+        <div className="demo__scenario-options">
+          {DEMO_SCENARIOS.map((option) => (
+            <button
+              key={option.id}
+              type="button"
+              className="btn btn--glass"
+              aria-pressed={scenario.id === option.id}
+              data-on={scenario.id === option.id}
+              onClick={() => {
+                setScenario(option);
+                restart();
+              }}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+        <p className="page__text" aria-live="polite">
+          {scenario.description}
+        </p>
+      </fieldset>
 
       <section className="demo__records" aria-labelledby="demo-records-title">
         <h2 id="demo-records-title" className="page__section">
@@ -268,7 +298,7 @@ function Demo() {
               className="btn btn--primary"
               onClick={() => (last ? restart() : setStep(step + 1))}
             >
-              {last ? "Restart demo" : DEMO_STEPS[step + 1].advanceLabel}
+              {last ? "Restart demo" : scenario.steps[step + 1].advanceLabel}
             </button>
           </div>
           <p className="page__text page__text--quiet">

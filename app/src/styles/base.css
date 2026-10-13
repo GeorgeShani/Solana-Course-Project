@@ -445,7 +445,7 @@ kbd {
   z-index: 10;
   height: 100%;
   overflow-y: auto;
-  padding: var(--s5) calc(var(--wing) + var(--s4)) var(--s7);
+  padding: var(--page-top) calc(var(--wing) + var(--s4)) var(--s7);
 }
 
 .page--wide {
@@ -501,11 +501,11 @@ kbd {
 }
 
 .page__title {
-  font-family: var(--font-display);
-  font-weight: 800;
+  font-family: var(--font-title);
+  font-weight: var(--title-weight);
   font-size: var(--h-page);
-  line-height: 1;
-  letter-spacing: 0.01em;
+  line-height: var(--title-lead);
+  letter-spacing: var(--title-track);
   margin-bottom: var(--s3);
   text-wrap: balance;
 }
@@ -792,6 +792,17 @@ kbd {
   text-align: center;
 }
 
+.demo__scenarios {
+  border: 0;
+  padding: 0;
+  margin: 24px 0;
+}
+.demo__scenario-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0;
+}
 .demo__grid {
   display: grid;
   gap: var(--s5);
@@ -1025,7 +1036,7 @@ kbd {
   gap: var(--s3);
   margin-top: var(--s4);
   padding: var(--s3) var(--s4) var(--s3) var(--s2);
-  border: 1px dashed rgba(214, 178, 106, 0.5);
+  border: 1px solid var(--hairline-strong);
   border-radius: var(--r-md);
   background: var(--velvet-2);
 }
@@ -1222,7 +1233,7 @@ a.record-row:active {
 
 .gaps li {
   padding: var(--s3) var(--s4);
-  border: 1px dashed var(--hairline-strong);
+  border: 1px solid var(--hairline-strong);
   border-radius: var(--r-md);
   color: var(--haze);
   font-size: var(--t-footnote);

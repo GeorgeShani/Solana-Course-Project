@@ -20,6 +20,7 @@ export default defineConfig({
   reporter: [["list"]],
   use: {
     baseURL: process.env.E2E_BASE_URL ?? "http://localhost:5173",
+    launchOptions: { channel: process.env.E2E_BROWSER_CHANNEL },
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
   },

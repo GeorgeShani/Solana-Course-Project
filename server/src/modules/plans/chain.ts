@@ -5,6 +5,7 @@ import {
   getBase64Encoder,
   getBase64EncodedWireTransaction,
   getI64Codec,
+  getAddressDecoder,
   type Address,
 } from "@solana/kit";
 import {
@@ -15,6 +16,11 @@ import {
   decodePlan,
   decodePlanVersion,
   getVersionAddress,
+  decodeVenuePool,
+  getVenuePoolAddress,
+  getVenueVaultAddress,
+  SIMULATED_VENUE_PROGRAM_ADDRESS,
+  TOKEN_PROGRAM_ADDRESS,
 } from "@relay/domain/solana";
 import type { Cluster } from "../../shared/env";
 import type {
@@ -98,6 +104,74 @@ export function createChain(
       return { slot };
     },
     nowMs,
+    async getVenuePool(adminInput, pair) {
+      if (cluster !== "devnet")
+        throw new Error("The simulated venue is devnet only");
+      const admin = address(adminInput);
+      const baseMint = address(pair.base.mint);
+      const quoteMint = address(pair.quote.mint);
+      const derived = await getVenuePoolAddress(admin, baseMint, quoteMint);
+      const [baseVault, quoteVault] = await Promise.all([
+        getVenueVaultAddress(derived.address, baseMint),
+        getVenueVaultAddress(derived.address, quoteMint),
+      ]);
+      const { value } = await rpc
+        .getMultipleAccounts(
+          [
+            SIMULATED_VENUE_PROGRAM_ADDRESS,
+            derived.address,
+            baseVault,
+            quoteVault,
+          ],
+          { encoding: "base64", commitment: "confirmed" },
+        )
+        .send(timeout());
+      const [program, poolAccount, baseAccount, quoteAccount] = value;
+      if (!program || !poolAccount || !baseAccount || !quoteAccount)
+        return null;
+      if (
+        !program.executable ||
+        poolAccount.owner !== SIMULATED_VENUE_PROGRAM_ADDRESS ||
+        poolAccount.executable
+      )
+        throw new Error("Invalid simulated venue program or pool owner");
+      const data = decodeVenuePool(
+        Uint8Array.from(base64.encode(poolAccount.data[0])),
+      );
+      if (
+        data.admin !== admin ||
+        data.baseMint !== baseMint ||
+        data.quoteMint !== quoteMint ||
+        data.baseDecimals !== pair.base.decimals ||
+        data.bump !== derived.bump ||
+        data.price <= 0n
+      )
+        throw new Error("Invalid simulated venue pool");
+      const tokenBalance = (account: typeof baseAccount, mint: Address) => {
+        if (
+          !account ||
+          account.owner !== TOKEN_PROGRAM_ADDRESS ||
+          account.executable
+        )
+          throw new Error("Invalid venue token vault owner");
+        const bytes = Uint8Array.from(base64.encode(account.data[0]));
+        if (
+          bytes.length !== 165 ||
+          bytes[108] !== 1 ||
+          getAddressDecoder().decode(bytes, 0) !== mint ||
+          getAddressDecoder().decode(bytes, 32) !== derived.address
+        )
+          throw new Error("Invalid venue token vault");
+        return new DataView(
+          bytes.buffer,
+          bytes.byteOffset + 64,
+          8,
+        ).getBigUint64(0, true);
+      };
+      const baseAvailable = tokenBalance(baseAccount, baseMint);
+      tokenBalance(quoteAccount, quoteMint);
+      return { address: derived.address, data, baseAvailable };
+    },
     async getPlan(planPda) {
       const data = await fetchOwned(address(planPda));
       return data ? decodePlan(data) : null;

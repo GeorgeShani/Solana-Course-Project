@@ -12,8 +12,8 @@ import { useMounted } from "../../lib/mounted";
 const EASE = [0.16, 1, 0.3, 1] as const;
 const DRAPE_EASE = [0.33, 1, 0.68, 1] as const;
 /** Cue's acknowledgement plays first; the drapes start gathering under it. */
-const DRAPES_DELAY = 0.3;
-const DRAPES_S = 0.9;
+const DRAPES_DELAY = 0.1;
+const DRAPES_S = 0.6;
 
 /**
  * The first scene of Relay: closed curtains, the lit RELAY sign and Cue in front of the drapes
@@ -212,8 +212,12 @@ export function Welcome() {
           </motion.div>
         </div>
 
+        <p className="welcome__headline">
+          See the original idea. Follow what changed.
+        </p>
         <p className="welcome__line">
-          See the original idea. Follow what changed. Check the evidence.
+          Traders&rsquo; public ideas, with their sources and every update in
+          one timeline.
         </p>
         <div className="welcome__actions">
           <button
@@ -228,13 +232,13 @@ export function Welcome() {
           </button>
           <Link
             to="/about"
-            className="btn btn--glass"
+            className="btn btn--ghost"
             onClick={() => {
               markWelcomeSeen();
               leaveWelcome();
             }}
           >
-            See how Relay works
+            How it works
           </Link>
         </div>
       </motion.div>

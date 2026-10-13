@@ -85,11 +85,10 @@ test.describe("discover → idea → source → watch", () => {
     await page.locator("[data-index]").nth(1).waitFor();
     await page
       .locator('article[aria-label^="AI-driven credit deflation"]')
-      .getByRole("link", { name: "See the timeline" })
+      .getByRole("link", { name: "Open story" })
       .click();
     await expect(page).toHaveURL(new RegExp(HAYES));
-    await expect(page.getByText("Update to this idea").first()).toBeVisible();
-    await expect(page.getByText("Linked by the author").first()).toBeVisible();
+    await expect(page.getByText("Author update").first()).toBeVisible();
 
     const links = page.locator(
       'a[target="_blank"][href*="cryptohayes.substack.com"]',
@@ -103,11 +102,7 @@ test.describe("discover → idea → source → watch", () => {
       await expect(l).toHaveAttribute("rel", /noopener/);
       await expect(l).toHaveAttribute("rel", /noreferrer/);
     }
-    await expect(
-      page.getByRole("heading", {
-        name: "What Relay can and cannot establish",
-      }),
-    ).toBeVisible();
+    await page.getByText("What Relay can and cannot establish").click();
     await expect(page.getByText(/Whether anyone traded/)).toBeVisible();
   });
 
@@ -115,11 +110,8 @@ test.describe("discover → idea → source → watch", () => {
     page,
   }) => {
     await page.goto(BRANDT);
-    await expect(
-      page.getByText("Later item · link not established").first(),
-    ).toBeVisible();
-    await expect(page.getByText("Update to this idea")).toHaveCount(0);
-    await expect(page.getByText("Link uncertain").first()).toBeVisible();
+    await expect(page.getByText("Link not established").first()).toBeVisible();
+    await expect(page.getByText("Author update")).toHaveCount(0);
   });
 
   test("watching needs no wallet, survives a reload, and Updates is caught up", async ({
@@ -174,14 +166,13 @@ test.describe("discover → idea → source → watch", () => {
     );
 
     await page.goto("/updates");
-    await expect(
-      page.getByText(/Since your last visit: 1 new entry/),
-    ).toBeVisible();
+    await expect(page.getByText(/1 new entry/)).toBeVisible();
     // Showing the list must not mark anything read.
     expect((await savedWatch(page))[0]?.after).toBe(originSeq);
 
     await page
-      .getByRole("link", { name: "Open this entry in the timeline" })
+      .locator(".chg__actions")
+      .getByRole("link", { name: "Open" })
       .click();
     await expect(page).toHaveURL(/#event-hayes-no-trade-zone-update$/);
     await expect(
@@ -221,22 +212,57 @@ test.describe("the Discover stream", () => {
     await expect(
       page.locator('[role="feed"] [data-index]').nth(5),
     ).toBeAttached();
-    const recorded = page.locator('article[data-kind="idea"]');
+    const recorded = page.locator('.card[data-kind="idea"]');
     await expect(recorded).toHaveCount(4);
-    const detected = page.locator('article[data-kind="detected"]');
+    const detected = page.locator('.card[data-kind="detected"]');
     expect(await detected.count()).toBeGreaterThan(0);
-    await expect(detected.first()).toContainText("Unreviewed");
+    await expect(detected.first()).toContainText("not reviewed");
     await expect(
-      detected.first().getByRole("link", { name: /Open the original/ }),
+      detected.first().getByRole("link", { name: /Open source/ }),
     ).toHaveAttribute("href", /^https:\/\//);
     // Anything already recorded by hand is not repeated as "detected".
     const links = await detected
-      .getByRole("link", { name: /Open the original/ })
+      .getByRole("link", { name: /Open source/ })
       .evaluateAll((a) => a.map((x) => x.getAttribute("href")));
     expect(links).not.toContain("https://www.youtube.com/watch?v=aEd5onhPxUs");
   });
 
-  test("J and K move one screen at a time, and the profile chips filter the stream", async ({
+  test("the previous and next buttons move one idea at a time and show where you are", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    const count = page.locator(".pager__count");
+    await expect(count).toHaveText(/^1 of \d+$/);
+    await expect(
+      page.getByRole("button", { name: "Previous idea" }),
+    ).toBeDisabled();
+    await page.getByRole("button", { name: "Next idea" }).click();
+    await expect(count).toHaveText(/^2 of \d+$/);
+    await expect(page.locator('[data-index="1"]')).toHaveAttribute(
+      "data-active",
+      "true",
+    );
+    await page.getByRole("button", { name: "Previous idea" }).click();
+    await expect(count).toHaveText(/^1 of \d+$/);
+  });
+
+  test("a card names the author, source, date and what is recorded since, with Open story first", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    const card = page.locator('.scr[data-active="true"] .card');
+    await expect(card.getByRole("heading", { level: 2 })).toBeVisible();
+    for (const label of ["Source", "Published", "Coverage", "Updates"])
+      await expect(card.getByText(label, { exact: true })).toBeVisible();
+    await expect(card.getByRole("link", { name: "Open story" })).toBeVisible();
+    await expect(
+      card.getByRole("link", { name: /Open source/ }),
+    ).toHaveAttribute("href", /^https:\/\//);
+    await card.getByRole("link", { name: "Open story" }).click();
+    await expect(page).toHaveURL(/\/ideas\//);
+  });
+
+  test("J and K move one screen at a time, and the author pills filter the stream", async ({
     page,
   }) => {
     await page.goto("/");
@@ -252,20 +278,25 @@ test.describe("the Discover stream", () => {
     await expect(page.locator('[data-index="1"]')).toBeFocused();
     await page
       .getByRole("navigation", { name: "Show ideas by" })
-      .getByRole("link", { name: "Arthur Hayes" })
+      .getByRole("link", { name: /Arthur Hayes/ })
       .click();
     await expect(page).toHaveURL(/trader=arthur-hayes/);
     await expect(
-      page.locator('article[data-kind="detected"]').first(),
+      page.locator('.card[data-kind="detected"]').first(),
     ).toContainText("Arthur Hayes");
-    await expect(page.locator('article[data-kind="idea"]')).toHaveCount(1);
+    await expect(page.locator('.card[data-kind="idea"]')).toHaveCount(1);
+    // Exactly one pill is marked as the current choice, and the stream starts again from its first card.
+    await expect(
+      page.locator('.authors__pill[aria-current="page"]'),
+    ).toHaveCount(1);
+    await expect(page.locator(".pager__count")).toHaveText(/^1 of \d+$/);
   });
 });
 
 test.describe("the game layer", () => {
   test.beforeEach(async ({ page }) => returning(page));
 
-  test("pulling the cord closes the curtains on the whole journey, and the arrow opens them", async ({
+  test("How it works closes the curtains on the whole journey, and Back to the show opens them", async ({
     page,
   }) => {
     await page.goto("/");
@@ -273,13 +304,12 @@ test.describe("the game layer", () => {
       "data-active",
       "true",
     );
-    await page.waitForTimeout(3500); // the cord settles after its first sway
-    await page.getByRole("button", { name: /Pull the cord/ }).click();
+    await page.getByRole("button", { name: "How it works" }).click();
     const show = page.getByRole("dialog", { name: "How Relay works" });
     await expect(show).toBeVisible();
     for (const step of ["Pick", "Source", "Watch", "Update"])
       await expect(show.getByText(step, { exact: true })).toBeVisible();
-    await show.getByRole("button", { name: /Open the curtains/ }).click();
+    await show.getByRole("button", { name: /Back to the show/ }).click();
     await expect(show).toBeHidden();
   });
 
@@ -303,47 +333,36 @@ test.describe("the game layer", () => {
     await expect(story).toBeHidden();
   });
 
-  test("every screen fits its window: nothing scrolls, and it is centred", async ({
+  test("every card fits between the toolbar and the audience, centred, with nothing scrolling sideways", async ({
     page,
   }) => {
     await page.goto("/");
     await expect(page.locator('[data-index="3"]')).toBeAttached();
-    const stage = await page.evaluate(() => {
-      const f = document.querySelector(".stream");
-      return f ? { h: f.clientHeight, w: f.clientWidth } : null;
-    });
-    expect(stage).not.toBeNull();
-    for (const i of [0, 1, 2, 4, 8]) {
+    for (const i of [0, 1, 2, 3]) {
+      await page.getByRole("button", { name: "Next idea" }).isEnabled();
       const m = await page.evaluate((i) => {
         const el = document.querySelector(`[data-index="${i}"]`);
         if (!(el instanceof HTMLElement)) return null;
-        const who = el
-          .querySelector(".scr__who, .scr__cue")
-          ?.getBoundingClientRect();
-        const rail = el
-          .querySelector(".rail, .scr__row")
+        el.scrollIntoView({ block: "start" });
+        const card = el.querySelector(".card")?.getBoundingClientRect();
+        const house = document.querySelector(".aud")?.getBoundingClientRect();
+        const bar = document
+          .querySelector(".stream__toolbar")
           ?.getBoundingClientRect();
         const box = el.getBoundingClientRect();
+        if (!card || !house || !bar) return null;
         return {
-          over: el.scrollHeight - el.clientHeight,
-          overX: el.scrollWidth - el.clientWidth,
-          mid:
-            who && rail
-              ? (who.left + who.right) / 2 - (box.left + box.right) / 2
-              : 0,
-          railBottom: rail ? rail.bottom : 0,
-          bottom: box.bottom,
-          overflowY: getComputedStyle(el).overflowY,
+          overX: document.documentElement.scrollWidth - innerWidth,
+          mid: (card.left + card.right) / 2 - (box.left + box.right) / 2,
+          clearOfBar: card.top - bar.bottom,
+          clearOfHouse: house.top - card.bottom,
         };
       }, i);
-      expect(m, `screen ${i}`).not.toBeNull();
-      expect(m?.overflowY).toBe("hidden");
-      expect(m?.over ?? 99).toBeLessThanOrEqual(8);
+      expect(m, `card ${i}`).not.toBeNull();
+      expect(m?.overX ?? 99).toBeLessThanOrEqual(0);
       expect(Math.abs(m?.mid ?? 99)).toBeLessThanOrEqual(2);
-      // The actions end above the stage line (a fifth of the window).
-      expect(m?.railBottom ?? 0).toBeLessThanOrEqual(
-        (m?.bottom ?? 0) - 0.15 * (stage?.h ?? 0),
-      );
+      expect(m?.clearOfBar ?? -99).toBeGreaterThanOrEqual(0);
+      expect(m?.clearOfHouse ?? -99).toBeGreaterThanOrEqual(0);
     }
   });
 
@@ -370,7 +389,11 @@ test.describe("the game layer", () => {
       page.getByRole("heading", { name: "Feed member" }),
     ).toBeVisible();
     await expect(page.getByText("No wallet")).toBeVisible();
-    await expect(page.getByText("Recorded", { exact: true })).toBeVisible();
+    await expect(
+      page
+        .getByRole("list", { name: "What each badge means" })
+        .getByText("Recorded", { exact: true }),
+    ).toBeVisible();
     await expect(page.getByText("Unreviewed", { exact: true })).toBeVisible();
     await expect(page.getByText("Fictional", { exact: true })).toBeVisible();
     await page.goto("/how-it-works");
@@ -384,7 +407,7 @@ test.describe("the game layer", () => {
     const strip = page.getByRole("region", { name: "What you can do now" });
     await expect(strip.locator('[data-on="true"]')).toHaveCount(2);
     await expect(strip.locator('[data-on="false"]')).toHaveCount(1);
-    await expect(strip.getByText("Sign in: needed")).toBeAttached();
+    await expect(strip.getByText("Google sign-in: needed")).toBeAttached();
     await expect(strip.getByText("Wallet: needed")).toBeAttached();
   });
 

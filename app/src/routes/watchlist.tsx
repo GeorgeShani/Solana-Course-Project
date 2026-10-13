@@ -176,9 +176,15 @@ function Watchlist() {
       data-cursor-zone
     >
       <header className="page__head">
-        <h1 id="watchlist-title" className="page__title">
-          Watchlist
-        </h1>
+        <div>
+          <h1 id="watchlist-title" className="page__title">
+            Watchlist
+          </h1>
+          <p className="page__lede">
+            Saved ideas, profiles and plans. Stored in this browser only — not
+            synced to your account.
+          </p>
+        </div>
         <StorageNotice />
       </header>
 
@@ -599,10 +605,20 @@ function Followed() {
             </button>
           </div>
         ) : q.data.length === 0 ? (
-          <p className="page__text">
-            No follows recorded for{" "}
-            <span className="num">{shortAddress(saved)}</span> yet.
-          </p>
+          <div className="wl-empty">
+            <Cue pose="saved" className="wl-empty__cue" />
+            <p className="wl-empty__line">
+              No receipts for <span className="num">{shortAddress(saved)}</span>{" "}
+              yet.
+            </p>
+            <p className="page__text page__text--quiet">
+              A receipt appears after a verified follow on Solana. Failed
+              attempts stay failed and are listed separately when present.
+            </p>
+            <Link to="/plans" className="btn btn--glass btn--small">
+              Browse plans
+            </Link>
+          </div>
         ) : (
           <>
             <h2 className="page__subsection">Verified entries</h2>

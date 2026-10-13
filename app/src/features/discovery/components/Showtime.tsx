@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useMemo } from "react";
+import { Curtain } from "../../../components/theatre/Curtain";
 import { Icon } from "../../../components/ui/Icon";
 import { isCaughtUp, totalNew } from "../changes";
 import { useChanges } from "../queries";
@@ -111,7 +112,6 @@ export function Showtime({
   open: boolean;
   onClose: () => void;
 }) {
-  const go = useRef<HTMLButtonElement>(null);
   const watched = useDiscoveryWatch();
   const targets = useMemo(() => toTargets(watched), [watched]);
   const changes = useChanges(targets);
@@ -133,105 +133,78 @@ export function Showtime({
           ? `${updates} new update${updates === 1 ? "" : "s"}`
           : `Watching ${watching}`;
 
-  useEffect(() => {
-    if (!open) return;
-    // The curtains take a moment to close; focus the way out once they have.
-    const t = window.setTimeout(() => go.current?.focus(), 1100);
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => {
-      window.clearTimeout(t);
-      window.removeEventListener("keydown", onKey);
-    };
-  }, [open, onClose]);
-
   return (
-    <div
-      className="showtime"
-      data-open={open}
-      role="dialog"
-      aria-modal="true"
-      aria-label="How Relay works"
-      aria-hidden={!open}
-      inert={!open}
-    >
-      <div className="showtime__drape showtime__drape--l" />
-      <div className="showtime__drape showtime__drape--r" />
+    <Curtain open={open} onClose={onClose} label="How Relay works">
+      <p className="interval">
+        <Icon name="star-filled" size={16} /> Interval
+      </p>
 
-      <div className="showtime__stage">
-        <p className="interval">
-          <Icon name="star-filled" size={16} /> Interval
-        </p>
+      <ol className="scenes">
+        {SCENES.map((s, i) => (
+          <li key={s.label} className="scene">
+            <span className="scene__frame">
+              <span className="scene__n">{i + 1}</span>
+              {s.art}
+            </span>
+            <span className="scene__label">{s.label}</span>
+          </li>
+        ))}
+      </ol>
 
-        <ol className="scenes">
-          {SCENES.map((s, i) => (
-            <li key={s.label} className="scene">
-              <span className="scene__frame">
-                <span className="scene__n">{i + 1}</span>
-                {s.art}
-              </span>
-              <span className="scene__label">{s.label}</span>
-            </li>
-          ))}
-        </ol>
-
-        <div
-          className="book"
-          aria-label={`${statusLabel}. Ideas ${ideas}, profiles ${profiles}${
-            updates === null ? "" : `, updates ${updates}`
-          }. Stored in this browser only.`}
-        >
-          <span className="book__level">
-            <Icon name="star-filled" size={14} />
-            {watching === 0 ? "Not watching" : "Watching"}
-            <b>{watching}</b>
-          </span>
-          <ul className="book__counts">
-            <li title="Ideas saved in this browser">
-              <Icon name="post" size={16} /> {ideas}
-            </li>
-            <li title="Profiles saved in this browser">
-              <Icon name="traders" size={16} /> {profiles}
-            </li>
-            <li
-              title={
-                watching === 0
-                  ? "Watch something to follow later updates"
-                  : updatesUnavailable
-                    ? "Couldn't check for updates"
-                    : updatesPending
-                      ? "Checking for updates"
-                      : caughtUp
-                        ? "No new updates"
-                        : "New timeline entries since you last looked"
-              }
-            >
-              <Icon name="updated" size={16} />{" "}
-              {watching === 0 || updatesUnavailable
-                ? "—"
-                : updatesPending
-                  ? "…"
-                  : caughtUp
-                    ? "0"
-                    : (updates ?? "—")}
-            </li>
-          </ul>
-        </div>
-
-        <div className="showtime__actions">
-          <button
-            ref={go}
-            type="button"
-            className="btn btn--primary btn--large"
-            onClick={onClose}
+      <div
+        className="book"
+        aria-label={`${statusLabel}. Ideas ${ideas}, profiles ${profiles}${
+          updates === null ? "" : `, updates ${updates}`
+        }. Stored in this browser only.`}
+      >
+        <span className="book__level">
+          <Icon name="star-filled" size={14} />
+          {watching === 0 ? "Not watching" : "Watching"}
+          <b>{watching}</b>
+        </span>
+        <ul className="book__counts">
+          <li title="Ideas saved in this browser">
+            <Icon name="post" size={16} /> {ideas}
+          </li>
+          <li title="Profiles saved in this browser">
+            <Icon name="traders" size={16} /> {profiles}
+          </li>
+          <li
+            title={
+              watching === 0
+                ? "Watch something to follow later updates"
+                : updatesUnavailable
+                  ? "Couldn't check for updates"
+                  : updatesPending
+                    ? "Checking for updates"
+                    : caughtUp
+                      ? "No new updates"
+                      : "New timeline entries since you last looked"
+            }
           >
-            <Icon name="arrow-down" size={20} />
-            Back to the show
-          </button>
-        </div>
+            <Icon name="updated" size={16} />{" "}
+            {watching === 0 || updatesUnavailable
+              ? "—"
+              : updatesPending
+                ? "…"
+                : caughtUp
+                  ? "0"
+                  : (updates ?? "—")}
+          </li>
+        </ul>
       </div>
-    </div>
+
+      <div className="showtime__actions">
+        <button
+          data-curtain-exit
+          type="button"
+          className="btn btn--primary btn--large"
+          onClick={onClose}
+        >
+          <Icon name="arrow-down" size={20} />
+          Back to the show
+        </button>
+      </div>
+    </Curtain>
   );
 }

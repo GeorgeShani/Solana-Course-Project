@@ -494,7 +494,7 @@
 }
 
 .unlock__item[data-on="false"] .unlock__orb {
-  border-style: dashed;
+  border-style: solid;
 }
 
 .unlock__state {
@@ -531,7 +531,7 @@
   place-items: center;
   width: 28px;
   height: 28px;
-  border: 1px dashed var(--hairline-strong);
+  border: 1px solid var(--hairline-strong);
   border-radius: 50%;
   color: var(--haze);
 }

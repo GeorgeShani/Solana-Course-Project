@@ -22,12 +22,6 @@ export interface NetworkInfo {
   walletChain: string;
   /** Where a follow's swap runs: Jupiter (the test fork copies its programs) or the simulated venue. */
   swapVenue: "jupiter" | "simulated_venue";
-  /**
-   * True when following works end to end on this network. For the simulated venue this stays false
-   * until the owner has deployed the venue, funded its pool and run a verified follow (see
-   * docs/runbooks/DEVNET_RELEASE.md); the code path exists before that.
-   */
-  swapsAvailable: boolean;
   /** One plain sentence shown next to the network name. */
   note: string;
 }
@@ -41,8 +35,7 @@ export const NETWORKS: Readonly<Record<Network, NetworkInfo>> = {
     explorerQuery: "?cluster=devnet",
     walletChain: "solana:devnet",
     swapVenue: "simulated_venue",
-    swapsAvailable: false,
-    note: "Devnet: Solana's test network. Test tokens with no value. Swaps are not available here yet, so plans can be read but not followed.",
+    note: "Devnet: Solana's test network. Test tokens with no value. Swap availability is checked against the configured onchain test pool.",
   },
   localnet: {
     id: "localnet",
@@ -52,7 +45,6 @@ export const NETWORKS: Readonly<Record<Network, NetworkInfo>> = {
     explorerQuery: "",
     walletChain: "solana:localnet",
     swapVenue: "jupiter",
-    swapsAvailable: true,
     note: "Local test network on this machine. Test funds only. Your wallet may warn that it can't preview this network.",
   },
 };

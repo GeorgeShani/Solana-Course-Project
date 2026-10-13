@@ -3,10 +3,11 @@ import { Icon } from "../../../components/ui/Icon";
 import { SourceCard } from "./SourceCard";
 import { CLUSTER } from "../../../lib/config";
 import {
-  RELATIONSHIP_LABEL,
   eventKind,
   formatWhen,
+  relationshipTone,
   safeHref,
+  shortDate,
   type EventView,
   type PublicEvidenceRequest,
 } from "../model";
@@ -51,7 +52,7 @@ function Evidence({ event }: { event: EventView }) {
         <Icon name="external" size={14} />
         {href ? (
           <a href={href} target="_blank" rel="noopener noreferrer nofollow">
-            Open the reference
+            Open source
           </a>
         ) : (
           <span>No safe link to the reference.</span>
@@ -93,9 +94,9 @@ function Evidence({ event }: { event: EventView }) {
 }
 
 /**
- * The idea's timeline, oldest first. Each entry says what it is (a statement, evidence a curator
- * linked, a reviewer's response), how it relates to the idea, and when it happened versus when
- * Relay recorded it. Nothing here says a claim is true.
+ * The idea's timeline, oldest first. Each entry shows its date, a short summary, how it relates to
+ * the original (author update, related commentary, or link not established), and a source link.
+ * Nothing here says a claim is true.
  */
 export function Timeline({
   events,
@@ -114,38 +115,43 @@ export function Timeline({
       {events.map((e) => {
         const kind = eventKind(e);
         const isOrigin = e.relationship.basis === "original";
+        const tone = relationshipTone(e.relationship.basis);
         const asked = requests.filter((r) => r.aboutEventId === e.id).length;
         const fresh = highlight?.(e) ?? false;
+        const when = shortDate(e.occurredAt) ?? shortDate(e.recordedAt);
         return (
           <li
             key={e.id}
             id={`event-${e.id}`}
             className="tl__item"
             data-type={e.type}
+            data-basis={e.relationship.basis}
+            data-tone={tone}
             data-new={fresh}
           >
             <div className="tl__marker" aria-hidden="true" />
             <div className="tl__body">
               <p className="tl__head">
-                <span className="tl__label">{kind.label}</span>
-                {fresh && <span className="badge">New</span>}
-                {!isOrigin && e.type !== "evidence_requested" && (
-                  <span className="badge badge--quiet">
-                    {RELATIONSHIP_LABEL[e.relationship.basis]}
-                  </span>
-                )}
-                {e.reviewState === "reviewed" && (
-                  <span className="badge badge--quiet">Reviewed by Relay</span>
-                )}
-              </p>
-              <p className="tl__when">
-                <span>
-                  Happened{" "}
-                  <time dateTime={e.occurredAt ?? undefined}>
-                    {formatWhen(e.occurredAt)}
-                  </time>
+                <span className="tl__label" data-tone={tone}>
+                  {kind.label}
                 </span>
-                <span>Recorded {formatWhen(e.recordedAt)}</span>
+                {when && (
+                  <time
+                    className="tl__date"
+                    dateTime={e.occurredAt ?? e.recordedAt}
+                    title={
+                      e.occurredAt
+                        ? `Happened ${formatWhen(e.occurredAt)} · Recorded ${formatWhen(e.recordedAt)}`
+                        : `Recorded ${formatWhen(e.recordedAt)} (event time unknown)`
+                    }
+                  >
+                    {when}
+                  </time>
+                )}
+                {fresh && <span className="badge">New</span>}
+                {e.reviewState === "reviewed" && (
+                  <span className="badge badge--quiet">Reviewed</span>
+                )}
               </p>
               <p className="tl__summary">{e.summary}</p>
               {e.relationship.note && (
@@ -162,7 +168,7 @@ export function Timeline({
                   className="btn btn--ghost btn--small"
                   onClick={() => onAsk(e.id)}
                 >
-                  Ask for evidence about this
+                  Ask for evidence
                 </button>
                 {asked > 0 && (
                   <span className="tl__host">
@@ -171,8 +177,14 @@ export function Timeline({
                 )}
               </p>
               <details className="tl__more">
-                <summary>{kind.label}: what this means</summary>
+                <summary>What this means</summary>
                 <p>{kind.meaning}</p>
+                {!e.occurredAt && (
+                  <p className="tl__note">
+                    The source gives no event time. Relay recorded it{" "}
+                    {formatWhen(e.recordedAt)}.
+                  </p>
+                )}
                 <p className="source__hash num">{e.hash}</p>
               </details>
             </div>

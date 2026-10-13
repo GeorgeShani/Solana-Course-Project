@@ -186,7 +186,13 @@ export interface ChangeEvent {
 }
 
 export interface ChangeGroup {
-  idea: { id: string; title: string; assets: string[]; traderId: string };
+  idea: {
+    id: string;
+    title: string;
+    assets: string[];
+    traderId: string;
+    traderDisplayName: string;
+  };
   events: ChangeEvent[];
 }
 
@@ -750,8 +756,11 @@ export function createDiscoveryService({ env, db }: DiscoveryServiceDeps) {
       )[0];
       const found = rows(
         await db`
-          select e.*, i.title, i.assets, i.trader_id, i.source_record_id as idea_source
-          from timeline_events e join ideas i on i.id = e.idea_id
+          select e.*, i.title, i.assets, i.trader_id, i.source_record_id as idea_source,
+                 t.display_name as trader_name
+          from timeline_events e
+          join ideas i on i.id = e.idea_id
+          join traders t on t.id = i.trader_id
           where ${scope} and i.is_demo = ${demo} and e.seq > ${target.after}::bigint
             and (
               e.event_type in ('update_published', 'evidence_added', 'discrepancy_flagged',
@@ -782,6 +791,7 @@ export function createDiscoveryService({ env, db }: DiscoveryServiceDeps) {
               title: text(r, "title"),
               assets: list(r, "assets"),
               traderId: text(r, "trader_id"),
+              traderDisplayName: text(r, "trader_name"),
             },
             events: [],
           };

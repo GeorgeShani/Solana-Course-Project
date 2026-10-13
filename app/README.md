@@ -16,6 +16,8 @@ When the API is unreachable the app says so ("Can't reach Relay's service") inst
 
 ## Routes
 
+The fictional `/demo` offers three selectable entry scenarios: an entry passing, a price entering the range, and a return to the range. Time moves only on a button press.
+
 | Route                       | What it is                                                                                            |
 | --------------------------- | ----------------------------------------------------------------------------------------------------- |
 | `/`                         | Discover: public-source profiles and ideas. Shows the welcome once to a new visitor.                  |
@@ -103,3 +105,4 @@ Routes render on the server by default. Chain reads belong in route loaders or s
 ## Notes
 
 - **Cluster.** `NETWORK` and `VITE_RPC_URL` are inlined at build time, so changing them needs a rebuild.
+- **Feed theatre.** Discover and Plans share `components/theatre/Audience`, `Curtain`, `useTheatreHouse` and `useFeedEnding`. Endings close over the last card without an empty scroll screen; Watch causes applause, and closing causes cheering. Plans scroll above the audience on short screens. Browser regressions: `bun run --cwd app e2e e2e/theatre.spec.ts` (set `E2E_BROWSER_CHANNEL=msedge` to use installed Edge).

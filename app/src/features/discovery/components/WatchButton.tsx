@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Icon } from "../../../components/ui/Icon";
-import { SlotFace } from "./Slot";
 import { cueReact } from "../../../lib/cue-cursor";
 import {
   isWatched,
@@ -33,8 +32,8 @@ export function WatchButton({
   id: string;
   label: string;
   seenSeq: string | null;
-  /** "rail" is the icon-only round button on the stream's action rail. */
-  variant?: "pill" | "rail" | "slot";
+  /** "card" is the full-size button on a Discover card; "pill" the small one on pages. */
+  variant?: "pill" | "card";
   /** Called after something new is watched (not when it is un-watched). */
   onWatched?: () => void;
 }) {
@@ -42,17 +41,16 @@ export function WatchButton({
   const watching = isWatched(list, type, id);
   const [problem, setProblem] = useState<string | null>(null);
   const noun = type === "idea" ? "this idea" : label;
+  // On a Discover card a trader is watched as "the author", so the button says who it follows.
+  const text = type === "trader" && variant === "card" ? "author" : "";
+  const words = watching ? `Watching ${text}` : `Watch ${text}`;
 
   return (
     <div className="watchbtn" data-variant={variant}>
       <button
         type="button"
         className={
-          variant === "slot"
-            ? "slot"
-            : variant === "rail"
-              ? "rail__btn"
-              : "btn btn--glass btn--small"
+          variant === "card" ? "btn btn--glass" : "btn btn--glass btn--small"
         }
         aria-pressed={watching}
         data-on={watching}
@@ -70,29 +68,11 @@ export function WatchButton({
           }
         }}
       >
-        {variant === "slot" ? (
-          <SlotFace
-            icon={watching ? "star-filled" : "star"}
-            label={watching ? "Watching" : "Watch"}
-            stamped={watching}
-          />
-        ) : (
-          <>
-            <Icon
-              name={watching ? "star-filled" : "star"}
-              size={variant === "rail" ? 26 : 16}
-            />
-            {variant === "rail" ? (
-              <span className="rail__label">
-                {watching ? "Saved" : "Watch"}
-              </span>
-            ) : watching ? (
-              "Watching"
-            ) : (
-              "Watch"
-            )}
-          </>
-        )}
+        <Icon
+          name={watching ? "star-filled" : "star"}
+          size={variant === "card" ? 18 : 16}
+        />
+        {words.trim()}
       </button>
       {problem && (
         <p className="field__error" role="alert">

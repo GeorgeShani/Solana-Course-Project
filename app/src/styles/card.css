@@ -1,0 +1,233 @@
+/*
+ * The Discover card: who said it, what it is, where it came from, when, what is recorded since, and
+ * the three things a reader can do. A calm plaque, not a poster: the title is set in the reading
+ * face, the summary is short, and the only strong colour is the primary action.
+ */
+
+.card {
+  --card-gap: var(--s4);
+  display: grid;
+  /* One column that can shrink: without minmax(0, ...) a nowrap name and badge widen the card's content. */
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--card-gap);
+  width: min(100%, 680px);
+  padding: var(--s6);
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--r-lg);
+  background: linear-gradient(
+    180deg,
+    rgba(40, 25, 76, 0.94),
+    rgba(24, 14, 46, 0.97)
+  );
+  box-shadow: 0 24px 60px -32px rgba(0, 0, 0, 0.85);
+  text-align: left;
+}
+
+.card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s3);
+}
+
+.card__who {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  min-width: 0;
+  color: var(--chalk);
+  text-decoration: none;
+}
+
+.avatar--card {
+  flex: none;
+  width: 44px;
+  border: 2px solid var(--velvet-deep);
+  box-shadow: 0 0 0 2px var(--accent);
+  font-size: 1.125rem;
+}
+
+.card__name {
+  overflow: hidden;
+  font-size: var(--t-callout);
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.card__who:hover .card__name {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.card__title {
+  margin: 0;
+  font-family: var(--font-title);
+  font-size: clamp(1.5rem, 2.6vw, 2rem);
+  font-weight: var(--title-weight);
+  line-height: var(--title-lead);
+  letter-spacing: var(--title-track);
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.card__summary {
+  margin: 0;
+  color: var(--haze);
+  font-size: var(--t-body);
+  line-height: 1.5;
+  text-wrap: pretty;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.card__facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
+  gap: var(--s3) var(--s5);
+  margin: 0;
+  padding-top: var(--s4);
+  border-top: 1px solid var(--hairline);
+}
+
+.card__facts dt {
+  color: var(--mute);
+  font-size: var(--t-caption);
+  font-weight: 600;
+}
+
+.card__facts dd {
+  margin: 2px 0 0;
+  color: var(--chalk);
+  font-size: var(--t-subhead);
+  overflow-wrap: anywhere;
+}
+
+/* What the record says about later items: a state, so it earns a colour, and the words carry it too. */
+.card__facts dd[data-tone="new"] {
+  color: var(--chalk);
+}
+
+.card__facts dd[data-tone="none"] {
+  color: var(--haze);
+}
+
+.card__facts dd[data-tone="linked"] {
+  color: var(--sol-green);
+}
+
+.card__facts dd[data-tone="related"] {
+  color: var(--sol-purple-light);
+}
+
+.card__facts dd[data-tone="unsure"] {
+  color: var(--st-above);
+}
+
+.card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s3);
+}
+
+.card__actions .watchbtn {
+  display: contents;
+}
+
+.card__actions .btn {
+  min-height: var(--ctl-sm);
+}
+
+.card__actions .watchbtn .field__error {
+  flex-basis: 100%;
+}
+
+/* Seen is a quiet record of having looked, not something to press. */
+.card__seen {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  color: var(--mute);
+  font-size: var(--t-footnote);
+}
+
+/* ------------------------------------------------------------------ motion: only the arriving card moves */
+
+@media (prefers-reduced-motion: no-preference) {
+  .scr[data-active="true"] .card {
+    animation: card-in 0.4s var(--ease-out);
+  }
+}
+
+@keyframes card-in {
+  from {
+    opacity: 0.4;
+    transform: translateY(12px);
+  }
+}
+
+/* ------------------------------------------------------------------ narrow and short windows */
+
+@media (max-width: 700px) {
+  .card {
+    --card-gap: var(--s3);
+    padding: var(--s4);
+  }
+
+  /* No room for a third row on a phone, and it only repeats what the card already shows. */
+  .card__seen {
+    display: none;
+  }
+
+  .card__title {
+    font-size: 1.375rem;
+  }
+
+  .card__summary {
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    font-size: var(--t-callout);
+  }
+
+  .card__facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--s2) var(--s4);
+    padding-top: var(--s3);
+  }
+
+  /* The main action takes the full width; the others share the row under it. */
+  .card__actions > .btn--primary {
+    flex: 1 1 100%;
+  }
+
+  .card__actions > .btn--glass,
+  .card__actions .watchbtn > .btn {
+    flex: 1 1 0;
+  }
+
+  .card__actions .watchbtn {
+    display: block;
+    flex: 1 1 0;
+  }
+
+  .card__actions .watchbtn > .btn {
+    width: 100%;
+  }
+}
+
+@media (max-height: 760px) {
+  .card__summary {
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+}

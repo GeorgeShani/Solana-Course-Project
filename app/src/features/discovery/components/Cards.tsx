@@ -95,7 +95,7 @@ export function IdeaCard({
           className="btn btn--glass btn--small"
           aria-label={`Open ${idea.title}`}
         >
-          Open
+          Open story
         </Link>
       </div>
     </li>

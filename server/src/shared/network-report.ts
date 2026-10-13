@@ -3,11 +3,13 @@ import {
   RELAY_PROGRAM_ADDRESS,
   SIMULATED_VENUE_PROGRAM_ADDRESS,
   TOKEN_PROGRAM_ADDRESS,
+  venueSwapOut,
 } from "@relay/domain/solana";
 import type { Env } from "./env";
 import { safeMessage } from "./logger";
 import type { FetchLike } from "./network-check";
 import { isRecord } from "./util";
+import { createChain } from "../modules/plans/chain";
 
 export type CheckStatus = "pass" | "warn" | "fail";
 
@@ -226,13 +228,39 @@ export async function runNetworkReport(
       add("simulated venue program", "fail", safeMessage(e));
     }
   }
-  add(
-    "swap venue",
-    network.swapsAvailable ? "pass" : "warn",
-    network.swapsAvailable
-      ? "available on this network"
-      : `none on ${network.label} yet: plans can be read but not followed`,
-  );
+  if (env.cluster === "localnet")
+    add("swap venue", "pass", "Jupiter routes on the local test fork");
+  else if (!env.simulatedVenueAdmin)
+    add(
+      "swap venue",
+      "warn",
+      "devnet pool admin not configured: plans can be read but not followed",
+    );
+  else {
+    try {
+      const pair = pairs[0];
+      const pool = pair
+        ? await createChain(env.solanaRpcUrl, env.cluster).getVenuePool(
+            env.simulatedVenueAdmin,
+            pair,
+          )
+        : null;
+      const minimumOut = pool
+        ? venueSwapOut(1_000_000n, pool.data.price, pool.data.baseDecimals)
+        : 0n;
+      const ready =
+        pool !== null && minimumOut > 0n && pool.baseAvailable >= minimumOut;
+      add(
+        "swap venue",
+        ready ? "pass" : "warn",
+        ready
+          ? "configured onchain devnet pool has test SOL for a minimum follow"
+          : "configured devnet pool is missing or needs test SOL",
+      );
+    } catch (error) {
+      add("swap venue", "fail", safeMessage(error));
+    }
+  }
   try {
     const headers: Record<string, string> = {};
     if (env.jupiterApiKey) headers["x-api-key"] = env.jupiterApiKey;

@@ -154,7 +154,13 @@ export interface ChangeEvent {
 }
 
 export interface ChangeGroup {
-  idea: { id: string; title: string; assets: string[]; traderId: string };
+  idea: {
+    id: string;
+    title: string;
+    assets: string[];
+    traderId: string;
+    traderDisplayName: string;
+  };
   events: ChangeEvent[];
 }
 
@@ -518,6 +524,10 @@ export function parseChanges(v: unknown): ChangesResponse {
                 title: str(idea.title, "idea.title"),
                 assets: strings(idea.assets, "idea.assets"),
                 traderId: str(idea.traderId, "idea.traderId"),
+                traderDisplayName: str(
+                  idea.traderDisplayName,
+                  "idea.traderDisplayName",
+                ),
               },
               events: list(
                 gr.events,
@@ -888,9 +898,41 @@ export function eventLabel(type: string): { label: string; meaning: string } {
 }
 
 /**
- * The label for one timeline entry. A later statement is called an update to the idea only when
- * the author links it to the original; anything else is later analysis on the same topic, which
- * says nothing about whether the author changed position.
+ * Visual tone for a relationship basis: author-linked updates, related commentary, and
+ * unconfirmed links must read as three different things at a glance.
+ */
+export function relationshipTone(
+  basis: RelationshipBasis,
+): "original" | "linked" | "related" | "unsure" {
+  if (basis === "original") return "original";
+  if (basis === "creator_confirmed") return "linked";
+  if (basis === "editorially_associated") return "related";
+  return "unsure";
+}
+
+/**
+ * Whether an Updates entry is a new publication or a historical item Relay recently recorded.
+ * Within a week of publish → newly published; longer gap → newly recorded by Relay.
+ */
+export function updateFreshness(
+  occurredAt: string | null,
+  recordedAt: string,
+): "Newly published" | "Newly recorded by Relay" {
+  if (occurredAt === null) return "Newly recorded by Relay";
+  const published = Date.parse(occurredAt);
+  const recorded = Date.parse(recordedAt);
+  if (Number.isNaN(published) || Number.isNaN(recorded))
+    return "Newly recorded by Relay";
+  const weekMs = 7 * 24 * 60 * 60 * 1000;
+  return recorded - published <= weekMs
+    ? "Newly published"
+    : "Newly recorded by Relay";
+}
+
+/**
+ * The label for one timeline entry. A later statement is an author update only when the author
+ * links it to the original; related commentary and unconfirmed links stay visibly distinct and
+ * never imply a change of position.
  */
 export function eventKind(event: {
   type: string;
@@ -900,25 +942,25 @@ export function eventKind(event: {
     const basis = event.relationship.basis;
     if (basis === "creator_confirmed")
       return {
-        label: "Update to this idea",
+        label: "Author update",
         meaning:
           "A later statement the author links to this idea. A statement is not proof that a trade happened.",
       };
     if (basis === "uncertain")
       return {
-        label: "Later item · link not established",
+        label: "Link not established",
         meaning:
           "A later item by the same author that Relay cannot confirm is about this idea. It is shown for context only and does not mean the author changed or withdrew the idea.",
       };
     return {
-      label: "Later analysis on the same topic",
+      label: "Related commentary",
       meaning:
         "A later item on the same subject that the author has not linked to this idea. It does not mean the author changed or withdrew the idea.",
     };
   }
   if (event.type === "source_added" && event.relationship.basis === "original")
     return {
-      label: "Original source",
+      label: "Original",
       meaning:
         "The public statement this idea comes from. The link opens the exact item.",
     };
@@ -1013,10 +1055,18 @@ export function latestCapture(
   return best;
 }
 
+/** How a later idea entry relates to the original. Same words as `eventKind` for updates. */
 export const RELATIONSHIP_LABEL: Record<RelationshipBasis, string> = {
-  original: "Original statement",
-  creator_confirmed: "Linked by the author",
-  editorially_associated: "Linked by Relay's curator",
+  original: "Original",
+  creator_confirmed: "Author update",
+  editorially_associated: "Related commentary",
+  uncertain: "Link not established",
+};
+
+/** Why a public account is shown on a profile. Separate from idea-timeline relationships. */
+export const IDENTITY_LABEL: Record<IdentityBasis, string> = {
+  creator_confirmed: "Confirmed by the author",
+  editorially_associated: "Linked by Relay",
   uncertain: "Link uncertain",
 };
 
@@ -1048,6 +1098,19 @@ export function formatWhen(iso: string | null): string {
     minute: "2-digit",
     timeZone: "UTC",
   })} UTC`;
+}
+
+/** "7 Oct 2026" in UTC, or null when the source gives no date. The exact time goes in a tooltip. */
+export function shortDate(iso: string | null): string | null {
+  if (iso === null) return null;
+  const t = Date.parse(iso);
+  if (Number.isNaN(t)) return null;
+  return new Date(t).toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+  });
 }
 
 /** Shown wherever curated records appear: the coverage is manual and nothing updates on its own. */

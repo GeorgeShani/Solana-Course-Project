@@ -26,6 +26,7 @@ type AuthState =
 let state: AuthState = { status: "loading" };
 const listeners = new Set<() => void>();
 let fetched = false;
+let requestVersion = 0;
 
 function emit() {
   for (const l of listeners) l();
@@ -40,11 +41,18 @@ function isRecord(v: unknown): v is Record<string, unknown> {
   return typeof v === "object" && v !== null;
 }
 
-async function fetchMe(): Promise<void> {
+async function fetchMe(version: number): Promise<void> {
+  const update = (next: AuthState) => {
+    if (version === requestVersion) setState(next);
+  };
   try {
-    const res = await fetch(`${API_URL}/auth/me`, { credentials: "include" });
+    const res = await fetch(`${API_URL}/auth/me`, {
+      credentials: "include",
+      cache: "no-store",
+      signal: AbortSignal.timeout(10_000),
+    });
     if (!res.ok) {
-      setState({ status: "signed_out" });
+      update({ status: "signed_out" });
       return;
     }
     const json: unknown = await res.json();
@@ -55,7 +63,7 @@ async function fetchMe(): Promise<void> {
         typeof u.email === "string" &&
         typeof u.name === "string"
       ) {
-        setState({
+        update({
           status: "signed_in",
           user: {
             sub: u.sub,
@@ -67,9 +75,9 @@ async function fetchMe(): Promise<void> {
         return;
       }
     }
-    setState({ status: "signed_out" });
+    update({ status: "signed_out" });
   } catch {
-    setState({ status: "signed_out" });
+    update({ status: "signed_out" });
   }
 }
 
@@ -77,7 +85,7 @@ function subscribe(cb: () => void) {
   listeners.add(cb);
   if (!fetched) {
     fetched = true;
-    void fetchMe();
+    void fetchMe(++requestVersion);
   }
   return () => listeners.delete(cb);
 }
@@ -100,22 +108,28 @@ export function signInWithGoogle(): void {
 /** Signs out server-side and clears local state. */
 export async function signOut(): Promise<void> {
   try {
-    await fetch(`${API_URL}/auth/logout`, {
+    const res = await fetch(`${API_URL}/auth/logout`, {
       method: "POST",
       credentials: "include",
       headers: { "content-type": "application/json" },
+      signal: AbortSignal.timeout(10_000),
     });
+    if (!res.ok) throw new Error("Sign-out failed");
+    const result: unknown = await res.json();
+    if (!isRecord(result) || result.ok !== true)
+      throw new Error("Sign-out failed");
   } catch {
-    // best effort
+    throw new Error("Sign-out failed. Please try again.");
   }
-  // Reset module state so next subscription re-fetches.
-  fetched = false;
+  // Ignore a pending profile response from before the completed logout.
+  requestVersion++;
+  fetched = true;
   setState({ status: "signed_out" });
 }
 
 /** Refresh auth state (e.g. after a redirect back from Google). */
 export function refreshAuth(): void {
-  fetched = false;
+  fetched = true;
   setState({ status: "loading" });
-  void fetchMe();
+  void fetchMe(++requestVersion);
 }

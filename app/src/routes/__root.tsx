@@ -26,7 +26,7 @@ import theatreCss from "../styles/theatre.css?url";
 import intervalCss from "../styles/interval.css?url";
 import showtimeCss from "../styles/showtime.css?url";
 import streamCss from "../styles/stream.css?url";
-import ticketCss from "../styles/ticket.css?url";
+import cardCss from "../styles/card.css?url";
 import tokensCss from "../styles/tokens.css?url";
 
 const SITE_TITLE = "Relay — traders' public ideas and the evidence behind them";
@@ -84,7 +84,7 @@ export const Route = createRootRoute({
       { rel: "stylesheet", href: intervalCss },
       { rel: "stylesheet", href: aboutCss },
       { rel: "stylesheet", href: audienceCss },
-      { rel: "stylesheet", href: ticketCss },
+      { rel: "stylesheet", href: cardCss },
     ],
   }),
   shellComponent: RootDocument,

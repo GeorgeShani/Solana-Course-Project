@@ -4,111 +4,56 @@ import { Icon } from "../../../components/ui/Icon";
 import {
   formatWhen,
   latestUpdateLabel,
+  relationshipTone,
   safeHref,
+  shortDate,
   sourceHost,
   type FeedItemView,
   type IdeaSummary,
-  type RelationshipBasis,
 } from "../model";
 import type { Stamp } from "../stamps";
 import { Avatar } from "./Avatar";
-import { SlotFace } from "./Slot";
 import { WatchButton } from "./WatchButton";
 
 export type TicketScreen =
   | { kind: "idea"; idea: IdeaSummary }
   | { kind: "detected"; item: FeedItemView };
 
-/** "5m", "3h", "2d", "9 Oct": short enough for a chip; the exact time is in the tooltip. */
-export function ago(iso: string | null, now: number): string {
-  if (iso === null) return "date unknown";
-  const t = Date.parse(iso);
-  if (Number.isNaN(t)) return "date unknown";
-  const s = Math.max(0, Math.round((now - t) / 1000));
-  if (s < 3600) return `${Math.max(1, Math.round(s / 60))}m`;
-  if (s < 86_400) return `${Math.round(s / 3600)}h`;
-  if (s < 14 * 86_400) return `${Math.round(s / 86_400)}d`;
-  return new Date(t).toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "short",
-    timeZone: "UTC",
-  });
-}
-
-const TRACK: Record<
-  RelationshipBasis | "none",
-  { caption: string; line: "solid" | "dashed" | "dotted" | "none" }
-> = {
-  creator_confirmed: { caption: "Author-linked update", line: "solid" },
-  editorially_associated: { caption: "Same topic", line: "dashed" },
-  uncertain: { caption: "Link unconfirmed", line: "dotted" },
-  original: { caption: "Original", line: "none" },
-  none: { caption: "No update yet", line: "none" },
-};
-
-/**
- * The relationship between an original and its later item, drawn instead of explained: two nodes,
- * joined by a solid line when the author linked them, dashed for the same topic, dotted when
- * Relay could not confirm it, and a lone node when nothing later is recorded.
- */
-function Track({ basis }: { basis: RelationshipBasis | null }) {
-  const t = TRACK[basis ?? "none"];
-  const tip =
-    latestUpdateLabel({
-      latestUpdate: basis ? { basis, occurredAt: null } : null,
-    }) ?? "No later item recorded yet";
-  return (
-    <div className="track" data-line={t.line} title={tip}>
-      <svg viewBox="0 0 240 24" role="img" aria-label={t.caption}>
-        <circle className="track__node" cx="14" cy="12" r="7" />
-        {t.line !== "none" ? (
-          <>
-            <line
-              className="track__line"
-              x1="22"
-              y1="12"
-              x2="218"
-              y2="12"
-              pathLength={1}
-            />
-            <circle
-              className="track__node track__node--later"
-              cx="226"
-              cy="12"
-              r="7"
-            />
-          </>
-        ) : (
-          <line className="track__stub" x1="26" y1="12" x2="120" y2="12" />
-        )}
-      </svg>
-      <span className="track__caption">{t.caption}</span>
-    </div>
-  );
+/** What the recorded history says, in words: never a verdict, never an invented link. */
+function updateStatus(idea: IdeaSummary): {
+  text: string;
+  tone: "none" | "linked" | "related" | "unsure";
+} {
+  const u = idea.latestUpdate;
+  if (u === null) return { text: "No later update recorded", tone: "none" };
+  const when = shortDate(u.occurredAt);
+  const label = latestUpdateLabel(idea);
+  const tone = relationshipTone(u.basis);
+  return {
+    text: when && label ? `${label} · ${when}` : (label ?? "Later item"),
+    tone: tone === "original" ? "none" : tone,
+  };
 }
 
 /**
- * One idea (or one freshly detected post) as a theatre ticket. The top is the playbill: who, what,
- * how it is tied to what came after. The bottom is the stub with three stamp slots that fill as the
- * reader really does each thing: looked at it, opened its source, watched it. Nothing on it
- * claims a trade, a result or a recommendation.
+ * One idea (or one freshly detected post) as a card: who said it, what it is, where it came from,
+ * when, and what is recorded since, then the three things a reader can do. Nothing on it claims a
+ * trade, a result or a recommendation.
  */
 export function Ticket({
   screen,
   active,
-  now,
   stamps,
   latestSeq,
   onStamp,
 }: {
   screen: TicketScreen;
   active: boolean;
-  now: number;
   stamps: readonly Stamp[];
   latestSeq: string | null;
   onStamp: (stamp: Stamp) => void;
 }) {
-  // Looking at a ticket for a moment stamps "seen"; flicking past it does not.
+  // Looking at a card for a moment marks it seen; flicking past it does not.
   useEffect(() => {
     if (!active || stamps.includes("seen")) return;
     const t = window.setTimeout(() => onStamp("seen"), 900);
@@ -124,104 +69,95 @@ export function Ticket({
     : screen.item.publishedAt;
   const href = safeHref(url);
   const host = sourceHost(url);
-  const peek =
-    isIdea && !screen.idea.original.contentRemoved
-      ? screen.idea.original.displayedContent
-      : null;
+  const date = shortDate(when);
+  const summary = isIdea
+    ? screen.idea.original.contentRemoved
+      ? null
+      : screen.idea.original.displayedContent
+    : "Found automatically in the author’s own feed. Relay has not reviewed it.";
+  const status = isIdea ? updateStatus(screen.idea) : null;
+  const assets = isIdea ? screen.idea.assets.slice(0, 3) : [];
 
   return (
     <div
-      className="ticket"
+      className="card"
       data-author={person.id}
       data-kind={screen.kind}
       data-active={active}
     >
-      <div className="ticket__poster">
+      <header className="card__head">
         <Link
           to="/profiles/$traderId"
           params={{ traderId: person.id }}
-          className="ticket__who"
-          title={`${person.displayName} · public-source profile, not claimed by the author`}
+          className="card__who"
+          title="Public-source profile, not claimed by the author"
         >
           <Avatar
             id={person.id}
             name={person.displayName}
-            className="avatar--hero"
+            className="avatar--card"
           />
-          <span className="ticket__name">{person.displayName}</span>
+          <span className="card__name">{person.displayName}</span>
         </Link>
-
-        {!isIdea && (
-          <p className="chips">
-            <span className="chip chip--new">
-              <i aria-hidden="true" /> New
-            </span>
-            <span
-              className="chip chip--quiet"
-              title="Found automatically in the author's own feed. Relay has not read it or checked that it is a trading idea."
-            >
-              Unreviewed
-            </span>
-          </p>
-        )}
-
-        <h2 className="ticket__title">{title}</h2>
-
-        {isIdea && <Track basis={screen.idea.latestUpdate?.basis ?? null} />}
-
-        <div className="chips chips--meta">
-          {isIdea && screen.idea.assets.length > 0 && (
-            <span className="chip">
-              {screen.idea.assets.slice(0, 3).join(" · ")}
-            </span>
-          )}
-          {host && <span className="chip chip--quiet">{host}</span>}
-          <span className="chip chip--quiet" title={formatWhen(when)}>
-            <Icon name="clock" size={12} /> {ago(when, now)}
+        {assets.length > 0 && (
+          <span className="chip" title="What the idea is about">
+            {assets.join(" · ")}
           </span>
-        </div>
-
-        {peek && (
-          <details className="ticket__peek">
-            <summary aria-label="What it says">
-              <Icon name="details" size={16} />
-            </summary>
-            <p>{peek}</p>
-          </details>
         )}
-      </div>
+      </header>
 
-      <div className="ticket__perf" aria-hidden="true" />
+      <h2 className="card__title">{title}</h2>
+      {summary && <p className="card__summary">{summary}</p>}
 
-      <div className="ticket__stub" role="group" aria-label="Stamps">
-        <span
-          className="slot slot--auto"
-          data-stamped={stamps.includes("seen")}
-        >
-          <SlotFace
-            icon="post"
-            label="Seen"
-            stamped={stamps.includes("seen")}
-          />
-        </span>
+      <dl className="card__facts">
+        {host && (
+          <div>
+            <dt>Source</dt>
+            <dd>{host}</dd>
+          </div>
+        )}
+        <div>
+          <dt>Published</dt>
+          <dd title={formatWhen(when)}>{date ?? "Date unknown"}</dd>
+        </div>
+        <div>
+          <dt>Coverage</dt>
+          <dd data-tone={isIdea ? "none" : "new"}>
+            {isIdea ? "Recorded by hand" : "New · not reviewed"}
+          </dd>
+        </div>
+        {status && (
+          <div>
+            <dt>Updates</dt>
+            <dd data-tone={status.tone}>{status.text}</dd>
+          </div>
+        )}
+      </dl>
+
+      <div className="card__actions">
+        {isIdea && (
+          <Link
+            to="/ideas/$ideaId"
+            params={{ ideaId: screen.idea.id }}
+            className="btn btn--primary"
+          >
+            Open story
+          </Link>
+        )}
         {href && (
           <a
-            className="slot"
+            className={isIdea ? "btn btn--glass" : "btn btn--primary"}
             href={href}
             target="_blank"
             rel="noopener noreferrer nofollow"
-            aria-label="Open the original"
             onClick={() => onStamp("sourced")}
           >
-            <SlotFace
-              icon="external"
-              label="Source"
-              stamped={stamps.includes("sourced")}
-            />
+            Open source
+            <Icon name="external" size={16} />
           </a>
         )}
         <WatchButton
-          variant="slot"
+          variant="card"
           onWatched={() => onStamp("watched")}
           type={isIdea ? "idea" : "trader"}
           id={isIdea ? screen.idea.id : screen.item.trader.id}
@@ -232,15 +168,11 @@ export function Ticket({
           }
           seenSeq={isIdea ? screen.idea.latestSeq : latestSeq}
         />
-        {isIdea && (
-          <Link
-            to="/ideas/$ideaId"
-            params={{ ideaId: screen.idea.id }}
-            className="slot"
-            aria-label="See the timeline"
-          >
-            <SlotFace icon="chain" label="Story" stamped={false} />
-          </Link>
+        {stamps.includes("seen") && (
+          <span className="card__seen">
+            <Icon name="in-range" size={14} />
+            Seen
+          </span>
         )}
       </div>
     </div>

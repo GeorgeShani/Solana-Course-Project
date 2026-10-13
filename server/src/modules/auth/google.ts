@@ -13,7 +13,13 @@
  */
 
 import type { Hono } from "hono";
-import { getCookie, setCookie, deleteCookie } from "hono/cookie";
+import {
+  getCookie,
+  getSignedCookie,
+  setCookie,
+  setSignedCookie,
+  deleteCookie,
+} from "hono/cookie";
 import type { Db } from "../../shared/db";
 import type { Env } from "../../shared/env";
 import type { AppEnv } from "../../shared/middleware";
@@ -24,6 +30,9 @@ const GOOGLE_USERINFO_URL = "https://www.googleapis.com/oauth2/v3/userinfo";
 
 const SESSION_COOKIE = "relay_session";
 const SESSION_DAYS = 30;
+const STATE_COOKIE = "relay_google_state";
+const STATE_SECONDS = 300;
+const PROVIDER_TIMEOUT_MS = 10_000;
 
 function isRecord(v: unknown): v is Record<string, unknown> {
   return typeof v === "object" && v !== null;
@@ -78,6 +87,7 @@ async function exchangeCode(
     method: "POST",
     headers: { "content-type": "application/x-www-form-urlencoded" },
     body: body.toString(),
+    signal: AbortSignal.timeout(PROVIDER_TIMEOUT_MS),
   });
   const json: unknown = await res.json();
   if (!res.ok || !isRecord(json))
@@ -91,6 +101,7 @@ async function exchangeCode(
 async function fetchProfile(accessToken: string): Promise<GoogleProfile> {
   const res = await fetch(GOOGLE_USERINFO_URL, {
     headers: { authorization: `Bearer ${accessToken}` },
+    signal: AbortSignal.timeout(PROVIDER_TIMEOUT_MS),
   });
   const json: unknown = await res.json();
   if (!res.ok || !isRecord(json))
@@ -143,9 +154,18 @@ async function deleteSession(db: Db, token: string): Promise<void> {
 }
 
 export function mountGoogleAuth(app: Hono<AppEnv>, env: Env, db: Db): void {
+  app.use("/auth/*", async (c, next) => {
+    c.header("Cache-Control", "no-store");
+    c.header("Pragma", "no-cache");
+    await next();
+  });
   // ── Redirect to Google ────────────────────────────────────────────────────
-  app.get("/auth/google", (c) => {
-    if (!env.googleClientId || !env.googleRedirectUri) {
+  app.get("/auth/google", async (c) => {
+    if (
+      !env.googleClientId ||
+      !env.googleClientSecret ||
+      !env.googleRedirectUri
+    ) {
       return c.json(
         {
           error: {
@@ -156,6 +176,20 @@ export function mountGoogleAuth(app: Hono<AppEnv>, env: Env, db: Db): void {
         503,
       );
     }
+    const state = randomHex();
+    await setSignedCookie(
+      c,
+      STATE_COOKIE,
+      `${state}.${Date.now()}`,
+      env.googleClientSecret,
+      {
+        httpOnly: true,
+        secure: env.production,
+        sameSite: "Lax",
+        path: "/",
+        maxAge: STATE_SECONDS,
+      },
+    );
     const params = new URLSearchParams({
       client_id: env.googleClientId,
       redirect_uri: env.googleRedirectUri,
@@ -163,12 +197,40 @@ export function mountGoogleAuth(app: Hono<AppEnv>, env: Env, db: Db): void {
       scope: "openid email profile",
       access_type: "online",
       prompt: "select_account",
+      state,
     });
     return c.redirect(`${GOOGLE_AUTH_URL}?${params.toString()}`);
   });
 
   // ── Handle callback ───────────────────────────────────────────────────────
   app.get("/auth/google/callback", async (c) => {
+    const cookie = env.googleClientSecret
+      ? await getSignedCookie(c, env.googleClientSecret, STATE_COOKIE)
+      : undefined;
+    // Consume every attempt, including cancellation and provider failure. The signed
+    // timestamp also rejects expired attempts supplied outside a normal browser.
+    deleteCookie(c, STATE_COOKIE, {
+      path: "/",
+      secure: env.production,
+      httpOnly: true,
+      sameSite: "Lax",
+    });
+    const [expectedState, issuedAt] =
+      typeof cookie === "string" ? cookie.split(".") : [];
+    const suppliedState = c.req.query("state");
+    const age = Date.now() - Number(issuedAt);
+    if (
+      !expectedState ||
+      !/^[a-f0-9]{64}$/.test(expectedState) ||
+      suppliedState !== expectedState ||
+      !issuedAt ||
+      !/^\d+$/.test(issuedAt) ||
+      !Number.isFinite(age) ||
+      age < 0 ||
+      age > STATE_SECONDS * 1000
+    ) {
+      return c.redirect(`${env.appOrigin}/account?auth_error=failed`);
+    }
     const code = c.req.query("code");
     const error = c.req.query("error");
 

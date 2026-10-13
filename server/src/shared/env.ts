@@ -50,6 +50,8 @@ export interface Env {
    * that is open to the internet should set this.
    */
   creatorAllowlist: readonly string[];
+  /** Public wallet that owns the devnet simulated venue pool. Never a keypair. */
+  simulatedVenueAdmin: string | undefined;
   /** Google OAuth 2.0 client ID (from Google Cloud Console). */
   googleClientId: string | undefined;
   /** Google OAuth 2.0 client secret (server-side only). */
@@ -113,6 +115,17 @@ function parseAllowlist(value: string | undefined): readonly string[] {
   return out;
 }
 
+function parseVenueAdmin(value: string | undefined): string | undefined {
+  if (!value?.trim()) return undefined;
+  const admin = value.trim();
+  try {
+    decodeAddress(admin);
+  } catch {
+    throw new Error("SIMULATED_VENUE_ADMIN must be one public wallet address");
+  }
+  return admin;
+}
+
 /** Throws with every missing or unsafe production setting at once, so a deploy fails in one go. */
 function assertProduction(
   source: Record<string, string | undefined>,
@@ -161,6 +174,7 @@ export function loadEnv(
       cluster === "localnet" ? source.JUPITER_DEXES || undefined : undefined,
     demoMode: source.DEMO_MODE === "true",
     creatorAllowlist: parseAllowlist(source.CREATOR_ALLOWLIST),
+    simulatedVenueAdmin: parseVenueAdmin(source.SIMULATED_VENUE_ADMIN),
     googleClientId: source.GOOGLE_CLIENT_ID || undefined,
     googleClientSecret: source.GOOGLE_CLIENT_SECRET || undefined,
     googleRedirectUri: source.GOOGLE_REDIRECT_URI || undefined,
