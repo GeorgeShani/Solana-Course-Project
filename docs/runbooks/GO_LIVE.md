@@ -21,13 +21,14 @@ DNS is what turns `relay.example.com` into your server's address. Do this **firs
    - **Route 53:** Hosted zones → your domain → _Create record_ → Record type `A`, leave the name blank for the bare domain or type the subdomain, value = the IP, TTL 300.
    - **Cloudflare:** set the record's proxy to **DNS only** (grey cloud) for now. The orange proxy changes how certificates are issued and hides problems.
    - Use an `A` record, not a `CNAME`: a CNAME points at another _name_, never at an IP. Do not add an `AAAA` record unless the server really has IPv6.
-   - To also serve `www.example.com`, add a `CNAME` with name `www` and value `example.com`, and open the site on one address only (the app's `DOMAIN` is a single name).
+   - **`www`:** add a second record, a `CNAME` with name `www` and value `example.com` (your bare domain). Relay serves one address (the one in `DOMAIN`, which the server's allowed origin and Google sign-in are set up for), so Caddy answers `www.example.com` with a permanent redirect to it, keeping the path and query. Caddy needs its own certificate for the `www` name, so the record has to exist and resolve, and port 80 has to be open. Without it, `https://www.example.com` shows a certificate error while the main address works.
 
 4. **Check that it resolves** (from your own computer; it can take from a minute to a few hours to spread, usually minutes with TTL 300):
 
    ```bash
    nslookup relay.example.com
    # or: dig +short relay.example.com        -> must print your server's IP
+   dig +short www.relay.example.com          # -> prints relay.example.com and then the same IP
    ```
 
    If it prints an old or no address, wait and try again; do not start Caddy against a name that does not resolve yet.
@@ -89,7 +90,7 @@ curl -s https://relay.example.com/api/health       # {"ok":true}
 curl -s https://relay.example.com/api/health/ready # database and rpc both "ok"
 ```
 
-Then open `https://relay.example.com/` in a browser. A new database is empty, so load the public-source records once (name the database host: `postgres` for the bundled one, or your Neon host):
+`curl -sI https://www.relay.example.com/` should answer `301` with `location: https://relay.example.com/`. Then open `https://relay.example.com/` in a browser. A new database is empty, so load the public-source records once (name the database host: `postgres` for the bundled one, or your Neon host):
 
 ```bash
 docker compose exec server bun run scripts/curate.ts --confirm-db-host=postgres
@@ -108,11 +109,12 @@ To have the server follow GitHub by itself instead of updating by hand, install 
 
 ## If something does not work
 
-| Symptom                                               | Likely cause and fix                                                                                                                                                |
-| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Browser says "connection refused"                     | A service is unhealthy so Caddy never started: `docker compose ps -a`, then `docker compose logs --tail=50`.                                                        |
-| Browser warns about the certificate                   | The name does not resolve to this server yet, or port 80/443 is closed. Re-check step 1 (`dig +short`) and the security group, then `docker compose restart caddy`. |
-| Site loads but nothing can be saved (403)             | `DOMAIN` has a scheme or a typo, so the server's allowed origin is wrong. Fix `.env`, then `docker compose up -d --build`.                                          |
-| "Sign in with Google" does nothing or errors          | `GOOGLE_*` unset, or the redirect URI differs from the one in Google Cloud Console by even a character.                                                             |
-| Server exits at start with "Production configuration" | It lists every problem at once: fix `.env`.                                                                                                                         |
-| Plans page says Relay can't read Solana               | The RPC is down or rate-limited: set `SOLANA_RPC_URL` to a devnet provider URL and rebuild.                                                                         |
+| Symptom                                               | Likely cause and fix                                                                                                                                                                                                                                                                                                                        |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Browser says "connection refused"                     | A service is unhealthy so Caddy never started: `docker compose ps -a`, then `docker compose logs --tail=50`.                                                                                                                                                                                                                                |
+| Browser warns about the certificate                   | The name does not resolve to this server yet, or port 80/443 is closed. Re-check step 1 (`dig +short`) and the security group, then `docker compose restart caddy`.                                                                                                                                                                         |
+| `www` shows a certificate error or does not load      | The `www` record is missing or has not spread yet (`dig +short www.<domain>`), or the server is still running an older Caddyfile. Once the record resolves: `git pull`, then `docker compose exec caddy caddy reload --config /etc/caddy/Caddyfile` (the auto-deploy does that reload by itself). Caddy retries the certificate on its own. |
+| Site loads but nothing can be saved (403)             | `DOMAIN` has a scheme or a typo, so the server's allowed origin is wrong. Fix `.env`, then `docker compose up -d --build`.                                                                                                                                                                                                                  |
+| "Sign in with Google" does nothing or errors          | `GOOGLE_*` unset, or the redirect URI differs from the one in Google Cloud Console by even a character.                                                                                                                                                                                                                                     |
+| Server exits at start with "Production configuration" | It lists every problem at once: fix `.env`.                                                                                                                                                                                                                                                                                                 |
+| Plans page says Relay can't read Solana               | The RPC is down or rate-limited: set `SOLANA_RPC_URL` to a devnet provider URL and rebuild.                                                                                                                                                                                                                                                 |

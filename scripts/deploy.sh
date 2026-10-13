@@ -97,6 +97,14 @@ db_host() {
   echo "$url" | sed -E 's#^[a-z]+://([^@/]*@)?([^/:?]+).*#\2#'
 }
 
+# The Caddyfile is a bind mount, so Compose does not see it change and keeps the old config running.
+# Reloading is cheap and does nothing when nothing changed. A failure is logged: the site stays up on the old config.
+reload_caddy() {
+  if ! "${COMPOSE[@]}" exec -T caddy caddy reload --config /etc/caddy/Caddyfile >/tmp/relay-caddy-reload.log 2>&1; then
+    log "Caddy did not reload its config (the site keeps running on the old one): $(tail -n 2 /tmp/relay-caddy-reload.log | tr '\n' ' ')"
+  fi
+}
+
 # Loads curated.json. A failure is logged, never a reason to roll back: the app itself is up and healthy.
 load_curation() {
   local host
@@ -104,8 +112,7 @@ load_curation() {
   if "${COMPOSE[@]}" exec -T server bun run scripts/curate.ts "--confirm-db-host=$host" >/tmp/relay-curate.log 2>&1; then
     log "public-source records are up to date"
   else
-    log "public-source records were NOT loaded (the app is unaffected): $(tail -n 3 /tmp/relay-curate.log | tr '
-' ' ')"
+    log "public-source records were NOT loaded (the app is unaffected): $(tail -n 3 /tmp/relay-curate.log | tr '\n' ' ')"
   fi
 }
 
@@ -132,6 +139,7 @@ if launch && wait_until_healthy; then
   rm -f "$STATE_FILE"
   docker image prune -f >/dev/null 2>&1 || true
   log "deployed ${target:0:7}; $HEALTH_URL answers"
+  reload_caddy
   load_curation
   exit 0
 fi

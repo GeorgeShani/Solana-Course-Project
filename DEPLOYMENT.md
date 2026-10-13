@@ -62,7 +62,7 @@ Both images are built with the **repo root** as the build context, because the B
 
 1. **Launch an instance.** Ubuntu 24.04 LTS, `t3.small` (2 GB RAM) or larger, 20 GB disk. Building the images needs memory: on a `t3.small`, add 2 GB of swap (`sudo fallocate -l 2G /swapfile && sudo chmod 600 /swapfile && sudo mkswap /swapfile && sudo swapon /swapfile`). A small instance costs roughly 15 to 20 USD a month; check the AWS pricing page for your region.
 2. **Network.** Allocate an **Elastic IP** and attach it, so the address survives restarts. In the security group allow inbound **TCP 80, TCP 443 and UDP 443** from anywhere. Do not open 3000, 3001 or 5432. For SSH, either allow port 22 only from your own IP, or use AWS Systems Manager Session Manager and open no SSH port at all.
-3. **DNS.** Create an `A` record for your domain pointing at the Elastic IP.
+3. **DNS.** Create an `A` record for your domain pointing at the Elastic IP, and a `CNAME` for `www` pointing at the bare domain: Caddy redirects `www` to the one address the app uses (see [GO_LIVE.md](docs/runbooks/GO_LIVE.md)).
 4. **Install Docker.** Follow Docker's Ubuntu instructions for Docker Engine and the Compose plugin, then `sudo usermod -aG docker $USER` and log in again.
 5. **Get the code and settings.**
    ```bash

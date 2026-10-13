@@ -18,7 +18,8 @@ check() { if [ "$2" = "$3" ]; then pass=$((pass+1)); echo "  ok   $1"; else fail
 cat > "$BIN/docker" <<EOF
 #!/usr/bin/env bash
 echo "\$*" >> "$CALLS"
-case "\$*" in *"exec "*) [ -n "\${FAIL_CURATE:-}" ] && { echo "boom: contradicts history" >&2; exit 1; };; esac
+case "\$*" in *"curate.ts"*) [ -n "\${FAIL_CURATE:-}" ] && { echo "boom: contradicts history" >&2; exit 1; };; esac
+case "\$*" in *"caddy reload"*) [ -n "\${FAIL_RELOAD:-}" ] && { echo "boom: bad config" >&2; exit 1; };; esac
 exit 0
 EOF
 # Fake curl: the app is "healthy" unless the working copy's VERSION says bad.
@@ -54,6 +55,7 @@ check "health asked at https://DOMAIN/api/health" "$(grep -c 'https://relay.exam
 check "no -k for a real domain" "$(grep -c -- ' -k' "$T/curl.calls")" 0
 check "logged 'deployed'" "$(echo "$out" | grep -c 'deployed')" 1
 check "curation loaded inside the server container, host named" "$(grep -c 'compose exec -T server bun run scripts/curate.ts --confirm-db-host=x$' "$CALLS")" 1
+check "Caddy reloaded so a changed Caddyfile takes effect" "$(grep -c 'compose exec -T caddy caddy reload --config /etc/caddy/Caddyfile$' "$CALLS")" 1
 check "says records are up to date" "$(echo "$out" | grep -c 'public-source records are up to date')" 1
 check "no failure marker" "$(test -e "$SRV/.deploy-last-failed" && echo yes || echo no)" no
 
@@ -68,6 +70,7 @@ check "rebuilt twice (new, then rollback)" "$(grep -c 'compose up -d --build' "$
 check "logs were printed" "$(grep -c 'compose logs' "$CALLS")" 1
 check "says rolled back" "$(echo "$out" | grep -c 'rolled back')" 1
 
+check "no Caddy reload after a bad deploy" "$(grep -c 'caddy reload' "$CALLS")" 0
 check "no curation after a bad deploy" "$(grep -c 'curate.ts' "$CALLS")" 0
 
 echo "4. same bad commit again: skipped silently, nothing rebuilt"
@@ -86,6 +89,12 @@ check "exit 0" "$rc" 0
 check "HEAD follows origin" "$(git -C "$SRV" rev-parse HEAD)" "$(git -C "$ORIGIN" rev-parse main)"
 check "warns, names the reason" "$(echo "$out" | grep -c 'NOT loaded')" 1
 check "only one build (no rollback)" "$(grep -c 'compose up -d --build' "$CALLS")" 1
+
+echo "5c. a failing Caddy reload is logged and does not undo a healthy deploy"
+push good f; : > "$CALLS"; out="$(FAIL_RELOAD=1 run)"; rc=$?
+check "exit 0" "$rc" 0
+check "warns, keeps running on the old config" "$(echo "$out" | grep -c 'did not reload')" 1
+check "curation still loaded" "$(grep -c 'curate.ts' "$CALLS")" 1
 
 echo "6. --force with nothing new rebuilds the current commit"
 : > "$CALLS"; out="$(run --force)"; rc=$?
