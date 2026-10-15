@@ -233,9 +233,11 @@ export function Welcome() {
           <Link
             to="/about"
             className="btn btn--ghost"
-            onClick={() => {
+            onClick={(event) => {
+              event.preventDefault();
               markWelcomeSeen();
               leaveWelcome();
+              void router.navigate({ to: "/about" });
             }}
           >
             How it works

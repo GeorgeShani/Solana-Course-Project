@@ -6,9 +6,11 @@
 
 .card {
   --card-gap: var(--s4);
-  display: grid;
-  /* One column that can shrink: without minmax(0, ...) a nowrap name and badge widen the card's content. */
-  grid-template-columns: minmax(0, 1fr);
+  display: flex;
+  flex-direction: column;
+  /* Children can shrink horizontally: a nowrap name must not widen the plaque. */
+  min-width: 0;
+  min-height: 0;
   gap: var(--card-gap);
   width: min(100%, 680px);
   padding: var(--s6);
@@ -21,6 +23,28 @@
   );
   box-shadow: 0 24px 60px -32px rgba(0, 0, 0, 0.85);
   text-align: left;
+}
+
+.card > * {
+  min-width: 0;
+}
+
+.card > .card__head,
+.card > .card__title,
+.card > .card__actions {
+  flex-shrink: 0;
+}
+
+.card > .card__summary {
+  flex-shrink: 100;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.card > .card__facts {
+  flex-shrink: 1;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .card__head {
@@ -213,6 +237,7 @@
   .card__actions > .btn--glass,
   .card__actions .watchbtn > .btn {
     flex: 1 1 0;
+    min-width: 0;
   }
 
   .card__actions .watchbtn {
@@ -229,5 +254,44 @@
   .card__summary {
     -webkit-line-clamp: 2;
     line-clamp: 2;
+  }
+}
+
+/* The screen is the container. Tighten the plaque before it can meet the audience. */
+@container scr (max-height: 520px) {
+  .card {
+    --card-gap: var(--s2);
+    padding: var(--s2) var(--s3);
+  }
+
+  .card__title {
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    font-size: 1.25rem;
+  }
+
+  .card__summary {
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+  }
+
+  .card__facts {
+    padding-top: var(--s2);
+  }
+
+  .card__actions {
+    gap: var(--s2);
+  }
+
+  .card__actions .btn {
+    min-height: var(--ctl-xs);
+  }
+}
+
+/* The smallest screens drop the summary and the fact grid so the actions stay whole. */
+@container scr (max-height: 300px) {
+  .card__summary,
+  .card__facts {
+    display: none;
   }
 }

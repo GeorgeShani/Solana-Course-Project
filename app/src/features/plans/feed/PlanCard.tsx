@@ -155,6 +155,16 @@ export function PlanCard({
           </p>
         </header>
 
+        {v.text ? (
+          <p className="act__rationale">“{v.text.rationale}”</p>
+        ) : (
+          <p className="act__rationale act__rationale--missing">
+            {card.fictionalPreview
+              ? "Plan text unavailable"
+              : `Version ${v.version} committed onchain · text unavailable`}
+          </p>
+        )}
+
         <div id={`${id}-status`} className="act__status">
           <StatusBlock
             status={live.status}
@@ -207,16 +217,6 @@ export function PlanCard({
             }
           />
         </div>
-
-        {v.text ? (
-          <p className="act__rationale">“{v.text.rationale}”</p>
-        ) : (
-          <p className="act__rationale act__rationale--missing">
-            {card.fictionalPreview
-              ? "Plan text unavailable"
-              : `Version ${v.version} committed onchain · text unavailable`}
-          </p>
-        )}
 
         <EvidenceLine
           version={v.version}

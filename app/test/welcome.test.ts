@@ -52,30 +52,25 @@ function boot(v: Visit = {}) {
 }
 
 describe("welcome boot script", () => {
-  test("a new visitor on / gets the full welcome and no curtain", () => {
+  test("a load of / gets the full welcome, even when this browser has already seen it", () => {
     expect(boot()).toMatchObject({ welcome: "on", curtain: "off" });
-  });
-
-  test("a returning visitor enters Discover and gets the short curtain once per session", () => {
-    const seen = { [WELCOME_KEY]: WELCOME_SEEN };
-    const first = boot({ local: seen });
-    expect(first).toMatchObject({ welcome: "off", curtain: "on" });
-    expect(first.session[CURTAIN_SESSION_KEY]).toBe("1");
-    expect(boot({ local: seen, session: first.session })).toMatchObject({
-      welcome: "off",
+    expect(boot({ local: { [WELCOME_KEY]: WELCOME_SEEN } })).toMatchObject({
+      welcome: "on",
       curtain: "off",
     });
-  });
-
-  test("reduced motion drops the curtain but never the welcome", () => {
     expect(
-      boot({ local: { [WELCOME_KEY]: WELCOME_SEEN }, reducedMotion: true }),
-    ).toMatchObject({ welcome: "off", curtain: "off" });
-    expect(boot({ reducedMotion: true })).toMatchObject({ welcome: "on" });
+      boot({
+        local: { [WELCOME_KEY]: WELCOME_SEEN, [LEGACY_ENTERED_KEY]: "1" },
+        session: { [CURTAIN_SESSION_KEY]: "1" },
+      }),
+    ).toMatchObject({ welcome: "on", curtain: "off" });
   });
 
-  test("the earlier flag still counts, so existing users are not shown the welcome again", () => {
-    expect(boot({ local: { [LEGACY_ENTERED_KEY]: "1" } }).welcome).toBe("off");
+  test("reduced motion still gets the welcome", () => {
+    expect(boot({ reducedMotion: true })).toMatchObject({
+      welcome: "on",
+      curtain: "off",
+    });
   });
 
   test("an unknown or older preference value shows the welcome", () => {
@@ -99,17 +94,14 @@ describe("welcome boot script", () => {
     expect(boot({ search: "?preview=fictional" }).welcome).toBe("off");
   });
 
-  test("the old ?welcome link still opens the welcome, even for a returning visitor", () => {
-    expect(
-      boot({ search: "?welcome=true", local: { [WELCOME_KEY]: WELCOME_SEEN } })
-        .welcome,
-    ).toBe("on");
+  test("the old ?welcome link still opens the welcome", () => {
+    expect(boot({ search: "?welcome=true" }).welcome).toBe("on");
     expect(boot({ path: "/updates", search: "?welcome=true" }).welcome).toBe(
       "off",
     );
   });
 
-  test("blocked storage never blocks the page", () => {
-    expect(boot({ storageThrows: true }).welcome).toBe("off");
+  test("blocked storage still shows the welcome", () => {
+    expect(boot({ storageThrows: true }).welcome).toBe("on");
   });
 });

@@ -95,11 +95,9 @@ test("Discover can finish with the wheel and Interval returns to the current car
     "data-index",
     "1",
   );
-  await page.getByRole("button", { name: "How it works" }).click();
-  await expect(
-    page.getByRole("button", { name: "Back to the show" }),
-  ).toBeFocused();
-  await page.keyboard.press("Escape");
+  await page.getByRole("link", { name: "How it works" }).click();
+  await expect(page).toHaveURL(/\/about$/);
+  await page.goBack();
   await expect(page.locator(".scr[data-active=true]")).toHaveAttribute(
     "data-index",
     "1",
@@ -179,12 +177,11 @@ for (const viewport of [
     await page.setViewportSize(viewport);
     await page.goto("/");
     await expect(page.locator(".scr .card").first()).toBeVisible();
-    await page.getByRole("button", { name: "How it works" }).click();
+    await page.getByRole("link", { name: "How it works" }).click();
+    await expect(page).toHaveURL(/\/about$/);
     await expect(
-      page.getByRole("button", { name: "Back to the show" }),
-    ).toBeFocused();
-    await fitsAboveAudience(page, ".showtime__actions");
-    await page.getByRole("button", { name: "Back to the show" }).click();
+      page.getByRole("link", { name: "Start watching" }),
+    ).toBeVisible();
     await page.goto("/plans");
     await expect(page.locator(".act").first()).toBeVisible();
     const act = page.locator(".act").first();
@@ -306,12 +303,10 @@ test("reduced motion closes instantly and keeps both endings usable", async ({
       Number.parseFloat(getComputedStyle(el).transitionDuration),
     );
   expect(transition).toBeLessThan(0.01);
-  const reveal = await page
-    .locator(".showtime__stage")
-    .evaluate((el) => ({
-      delay: getComputedStyle(el).transitionDelay,
-      opacity: getComputedStyle(el).opacity,
-    }));
+  const reveal = await page.locator(".showtime__stage").evaluate((el) => ({
+    delay: getComputedStyle(el).transitionDelay,
+    opacity: getComputedStyle(el).opacity,
+  }));
   expect(reveal).toEqual({ delay: "0s", opacity: "1" });
   await page.keyboard.press("Escape");
   await page.goto("/plans");
