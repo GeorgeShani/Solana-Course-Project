@@ -15,14 +15,15 @@
 .feed {
   position: relative;
   z-index: 10;
+  container: planfeed / size;
   flex: 1;
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
   scroll-snap-type: y mandatory;
   scrollbar-width: none;
-  /* The house is outside the scrolling viewport, so it can never cover a plan's controls. */
-  margin-bottom: var(--house-h);
+  /* The house is outside the scrolling viewport, with a gap so a line cannot sit under the heads. */
+  margin-bottom: calc(var(--house-h) + var(--s2));
 }
 
 .feed::-webkit-scrollbar {
@@ -97,19 +98,22 @@
 
 .plans-pager {
   position: absolute;
-  z-index: 20;
+  z-index: 30;
   top: var(--s3);
   right: calc(var(--wing) + var(--s4));
+}
+
+.feed-wrap .act,
+.feed-wrap .finale {
+  box-sizing: border-box;
+  height: 100%;
+  min-height: 0;
+  max-height: 100%;
 }
 
 .feed-wrap .act {
   padding-top: calc(var(--ctl-sm) + var(--s5));
   padding-bottom: var(--s4);
-}
-
-.feed-wrap:has(.banner) .plans-pager {
-  top: auto;
-  bottom: calc(var(--house-h) + var(--s2));
 }
 
 /* A plan is longer than an idea. Short stages scroll its content, keeping every action reachable. */
@@ -255,10 +259,11 @@
     0 0 40px -12px rgba(255, 217, 138, 0.45);
 }
 
-/* On phones a warning banner takes the room the portrait would use; the plan's terms keep theirs. */
+/* On phones the portrait stays a small plate, including when a warning is showing. */
 @media (max-width: 899px) {
+  .feed-wrap .portrait,
   .feed-wrap:has(.banner) .portrait {
-    width: clamp(84px, 12dvh, 176px);
+    width: 64px;
   }
 }
 
@@ -633,6 +638,73 @@
 .actions__reason {
   font-size: var(--t-caption);
   color: var(--haze);
+}
+
+/*
+ * The feed is a short read: who, the pair, the creator's words, whether the
+ * price still matches, and what you can do. The window, the range chart, the
+ * hash and the longer explanation stay in View plan.
+ */
+.feed .kind,
+.feed .badge--quiet,
+.feed .status__hint,
+.feed .status__head .chip,
+.feed .range,
+.feed .evidence:not([data-kind="fictional"]),
+.feed .actions__reason {
+  display: none;
+}
+
+.feed .status {
+  gap: var(--s2);
+  padding: var(--s2) var(--s3);
+}
+
+.feed .act__rationale {
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
+}
+
+/*
+ * A phone stage with the house and the safe area keeps the buttons on one
+ * line, above the crowd. The pager keeps its top padding so it does not
+ * cover the creator.
+ */
+@media (max-width: 899px) {
+  @container planfeed (max-height: 640px) {
+    .feed-wrap .act {
+      padding-bottom: var(--s2);
+      gap: var(--s1);
+    }
+
+    .act__programme {
+      gap: var(--s1);
+    }
+
+    .act__pair {
+      font-size: 1.75rem;
+    }
+
+    .feed .act__rationale {
+      -webkit-line-clamp: 3;
+      line-clamp: 3;
+    }
+
+    .actions {
+      gap: var(--s1);
+    }
+
+    .feed .actions__row {
+      flex-wrap: nowrap;
+    }
+
+    .feed .actions .btn:not(.btn--watch) {
+      flex: 1 1 auto;
+      min-width: 0;
+      padding: 0 8px;
+      font-size: var(--t-footnote);
+    }
+  }
 }
 
 /* Offline: statuses may be stale, so the plaque reads quieter. */

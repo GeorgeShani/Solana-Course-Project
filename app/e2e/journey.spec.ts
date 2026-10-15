@@ -5,7 +5,7 @@ const HAYES = "/ideas/hayes-ai-credit-deflation";
 const BRANDT = "/ideas/brandt-btc-bottom-oct-4";
 
 test.describe("welcome", () => {
-  test("a new visitor sees the welcome once, then Discover", async ({
+  test("a load of Discover shows the welcome, and Explore enters", async ({
     page,
   }) => {
     await page.goto("/");
@@ -23,11 +23,8 @@ test.describe("welcome", () => {
 
     await page.reload();
     await expect(
-      page.getByRole("heading", { name: "Discover", level: 1 }),
-    ).toBeVisible();
-    await expect(
       page.getByRole("button", { name: "Explore ideas" }),
-    ).toBeHidden();
+    ).toBeVisible();
   });
 
   test("deep links open directly, never behind the welcome", async ({
@@ -296,21 +293,20 @@ test.describe("the Discover stream", () => {
 test.describe("the game layer", () => {
   test.beforeEach(async ({ page }) => returning(page));
 
-  test("How it works closes the curtains on the whole journey, and Back to the show opens them", async ({
-    page,
-  }) => {
+  test("How it works opens the guide", async ({ page }) => {
     await page.goto("/");
     await expect(page.locator('[data-index="0"]')).toHaveAttribute(
       "data-active",
       "true",
     );
-    await page.getByRole("button", { name: "How it works" }).click();
-    const show = page.getByRole("dialog", { name: "How Relay works" });
-    await expect(show).toBeVisible();
-    for (const step of ["Pick", "Source", "Watch", "Update"])
-      await expect(show.getByText(step, { exact: true })).toBeVisible();
-    await show.getByRole("button", { name: /Back to the show/ }).click();
-    await expect(show).toBeHidden();
+    await page.getByRole("link", { name: "How it works" }).click();
+    await expect(page).toHaveURL(/\/about$/);
+    await expect(
+      page.getByRole("heading", { name: "How Relay works", level: 1 }),
+    ).toBeAttached();
+    await expect(
+      page.getByRole("link", { name: "Start watching" }),
+    ).toBeVisible();
   });
 
   test("the first Watch shows what happens next, with the real Hayes example", async ({

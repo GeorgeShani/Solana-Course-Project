@@ -32,13 +32,13 @@
 
 /* ------------------------------------------------------------------ browsing controls */
 
-/* Who to show, and where you are. Only its controls take clicks; the card below stays reachable. */
+/* Who to show, and where you are. In the flow, so every screen height clears it
+   instead of guessing a padding. Only its controls take clicks. */
 .stream__toolbar {
-  position: absolute;
+  position: relative;
   z-index: 20;
-  top: var(--s3);
-  left: calc(var(--wing) + var(--s4));
-  right: calc(var(--wing) + var(--s4));
+  flex: none;
+  margin: var(--s3) calc(var(--wing) + var(--s4)) 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -124,6 +124,7 @@
   color: var(--haze);
   font-size: var(--t-subhead);
   font-weight: 600;
+  white-space: nowrap;
   cursor: pointer;
 }
 
@@ -221,26 +222,36 @@
 
 .scr {
   --accent: var(--limelight);
+  container: scr / size;
   position: relative;
   isolation: isolate;
   height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  /* "safe": a screen taller than the window starts at its top instead of losing it. */
-  justify-content: safe center;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr);
+  align-items: safe center;
+  justify-items: center;
   width: 100%;
   margin: 0 auto;
-  /* Free area: below the toolbar, above the audience strip. */
-  padding: 76px calc(var(--wing) + var(--s4)) calc(var(--house-h) + var(--s3));
+  /* The toolbar is in the flow above the stream. The bottom padding is the audience. */
+  padding: var(--s4) calc(var(--wing) + var(--s4))
+    calc(var(--house-h) + var(--s4));
   scroll-snap-align: start;
   scroll-snap-stop: always;
-  /* A screen never scrolls: the card is sized to fit its free area. */
   overflow: hidden;
+  /* Nothing in the screen may paint over the crowd, even when a card is too tall. */
+  clip-path: inset(0 0 var(--house-h) 0);
 }
 
 .scr > * {
-  flex-shrink: 0;
+  min-height: 0;
+  max-height: 100%;
+}
+
+/* Stay content-sized when there is room. 100cqh is the free area above the crowd,
+   so a tall ticket cannot slide under the audience. */
+.scr > .card {
+  max-height: 100cqh;
+  overflow: hidden;
 }
 
 /* Arrow keys focus the screen for assistive tech; the card already shows where you are. */
@@ -344,17 +355,6 @@
   .authors {
     order: 2;
     flex: 1 1 100%;
-  }
-
-  .scr {
-    padding-top: 116px;
-  }
-}
-
-@media (max-height: 640px) {
-  .scr {
-    justify-content: flex-start;
-    padding-bottom: var(--s5);
   }
 }
 

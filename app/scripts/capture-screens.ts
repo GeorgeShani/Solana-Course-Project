@@ -43,9 +43,15 @@ function text(r: Record<string, unknown>, key: string): string {
 
 async function asReturning(page: Page) {
   await page.addInitScript(() => {
-    localStorage.setItem("relay:welcome:v2", "seen");
-    sessionStorage.setItem("relay:curtain-seen", "1");
-    sessionStorage.setItem("relay:showtime", "1");
+    const root = document.documentElement;
+    const hide = () => {
+      if (root.dataset.welcome === "on") root.dataset.welcome = "off";
+    };
+    hide();
+    new MutationObserver(hide).observe(root, {
+      attributes: true,
+      attributeFilter: ["data-welcome"],
+    });
   });
 }
 

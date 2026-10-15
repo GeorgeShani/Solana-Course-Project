@@ -28,7 +28,7 @@ const MAX_EXAMPLES = 6;
  * J / K. Recorded ideas first, then the newest posts detected automatically in the authors' own
  * feeds (marked "not reviewed"). A card is marked seen once it has been looked at for a moment; the
  * audience below the stage line applauds when a source is opened or something is watched. The
- * curtains close only when the reader asks ("How it works"). No auto-advance, no ranking by
+ * curtains close when the reader swipes past the last card. No auto-advance, no ranking by
  * anything but time.
  */
 export function IdeaStream({
@@ -168,8 +168,7 @@ export function IdeaStream({
     feedRef.current?.scrollTo({ top: 0, behavior: "auto" });
   }, [trader]);
 
-  // After the end of the show the curtains open back at the first card; opened from "How it works"
-  // they leave the reader on the card they were looking at.
+  // After the end of the show the curtains open back at the first card.
   const closeShowtime = useCallback(() => {
     if (endedShow.current) {
       endedShow.current = false;
@@ -259,14 +258,10 @@ export function IdeaStream({
           </nav>
         )}
         <div className="stream__tools">
-          <button
-            type="button"
-            className="howto"
-            onClick={() => setShowtime(true)}
-          >
+          <Link to="/about" className="howto">
             <Icon name="star" size={16} />
             How it works
-          </button>
+          </Link>
           <div className="pager" role="group" aria-label="Browse ideas">
             <button
               type="button"

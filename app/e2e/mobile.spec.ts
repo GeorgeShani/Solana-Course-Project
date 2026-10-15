@@ -9,7 +9,7 @@ test.describe("phone layout", () => {
     test.skip(!isMobile, "phone only");
     await page.goto("/");
     const explore = page.getByRole("button", { name: "Explore ideas" });
-    const how = page.getByRole("link", { name: "See how Relay works" });
+    const how = page.getByRole("link", { name: "How it works" });
     await expect(explore).toBeVisible();
     await expect(how).toBeVisible();
     const vp = page.viewportSize();

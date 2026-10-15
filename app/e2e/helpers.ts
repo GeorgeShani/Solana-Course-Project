@@ -1,10 +1,22 @@
 import type { Page } from "@playwright/test";
 
-/** A returning visitor: the welcome was seen and this session already had its curtain. */
+/** Skip the opening welcome so a test can use the app. A real visit still shows it. */
 export async function returning(page: Page): Promise<void> {
   await page.addInitScript(() => {
-    localStorage.setItem("relay:welcome:v2", "seen");
-    sessionStorage.setItem("relay:curtain-seen", "1");
+    const root = document.documentElement;
+    let opened = false;
+    window.addEventListener("relay:welcome", () => {
+      opened = true;
+    });
+    const hide = () => {
+      if (opened) return;
+      if (root.dataset.welcome === "on") root.dataset.welcome = "off";
+    };
+    hide();
+    new MutationObserver(hide).observe(root, {
+      attributes: true,
+      attributeFilter: ["data-welcome"],
+    });
   });
 }
 

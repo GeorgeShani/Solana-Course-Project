@@ -153,6 +153,8 @@ export function Feed({
   const nodes = useRef(new Map<string, HTMLElement>());
   const observer = useRef<IntersectionObserver | null>(null);
   const feedRef = useRef<HTMLDivElement>(null);
+  const activeIdRef = useRef(activeId);
+  activeIdRef.current = activeId;
   useFeedEnding(
     feedRef,
     cards.length > 0 && !query.hasNextPage && !closed,
@@ -189,6 +191,54 @@ export function Feed({
   useEffect(() => {
     if (activeId && activeId !== FINALE_ID) onActiveChange(activeId);
   }, [activeId, onActiveChange]);
+
+  // Safari hides its bars while the feed scrolls, then the stage grows and the snap point
+  // stays at the old height. The next plan starts too low and its last line sits in the crowd.
+  useEffect(() => {
+    const feed = feedRef.current;
+    if (!feed) return;
+    let touching = false;
+    let scrolling = false;
+    const realign = () => {
+      if (touching || scrolling) return;
+      const id = activeIdRef.current;
+      const el = id ? nodes.current.get(id) : undefined;
+      if (!el) return;
+      const delta = Math.abs(feed.scrollTop - el.offsetTop);
+      if (delta <= 1 || delta >= feed.clientHeight) return;
+      feed.scrollTo({ top: el.offsetTop, behavior: "auto" });
+    };
+    const onStart = () => {
+      touching = true;
+    };
+    const onEnd = () => {
+      touching = false;
+    };
+    const onScroll = () => {
+      scrolling = true;
+    };
+    const onScrollEnd = () => {
+      scrolling = false;
+      realign();
+    };
+    feed.addEventListener("pointerdown", onStart);
+    feed.addEventListener("pointerup", onEnd);
+    feed.addEventListener("pointercancel", onEnd);
+    feed.addEventListener("scroll", onScroll);
+    feed.addEventListener("scrollend", onScrollEnd);
+    const viewport = window.visualViewport;
+    viewport?.addEventListener("resize", realign);
+    window.addEventListener("resize", realign);
+    return () => {
+      feed.removeEventListener("pointerdown", onStart);
+      feed.removeEventListener("pointerup", onEnd);
+      feed.removeEventListener("pointercancel", onEnd);
+      feed.removeEventListener("scroll", onScroll);
+      feed.removeEventListener("scrollend", onScrollEnd);
+      viewport?.removeEventListener("resize", realign);
+      window.removeEventListener("resize", realign);
+    };
+  }, [cards.length]);
 
   // Restore the reader's place from ?plan= once the cards exist.
   // Instant, before paint: a smooth scroll here gets cancelled when snap points settle.
@@ -450,19 +500,6 @@ export function Feed({
               Math.max(0, (wall ?? query.dataUpdatedAt) - query.dataUpdatedAt),
             )}
             ; statuses may be out of date.
-          </Banner>
-        )}
-        {chainUnreadable && (
-          <Banner tone="warn">
-            <strong>Can't reach Solana right now.</strong> Statuses may be out
-            of date
-            {lastSyncedAtMs !== null && wall !== null && (
-              <>
-                ; plans were last read from the chain{" "}
-                {formatAge(Math.max(0, wall - lastSyncedAtMs))}
-              </>
-            )}
-            .
           </Banner>
         )}
         {pending.length > 0 && (

@@ -1,6 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { useGoogleAuth } from "../../features/account/google-auth";
+import { requestWelcome } from "../../features/onboarding/welcome-state";
 import { HEADER_NAV } from "../../lib/nav";
 import { Icon } from "../ui/Icon";
 import { WalletButton } from "../wallet/WalletButton";
@@ -50,7 +51,12 @@ export function Valance({ clusterLabel }: { clusterLabel: string | null }) {
   const showNetwork = path.startsWith("/plans") || path === "/account";
   return (
     <header className="valance">
-      <Link to="/" className="valance__sign" aria-label="Relay, go to Discover">
+      <Link
+        to="/"
+        className="valance__sign"
+        aria-label="Relay, open the welcome"
+        onClick={() => requestWelcome()}
+      >
         <Bulbs count={7} />
         <span className="valance__word">RELAY</span>
         <Bulbs count={7} />

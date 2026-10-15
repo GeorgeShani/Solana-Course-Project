@@ -96,7 +96,9 @@ test.describe("keyboard", () => {
 test.describe("reduced motion", () => {
   test.use({ reducedMotion: "reduce" });
 
-  test("no curtain transition for a returning visitor", async ({ page }) => {
+  test("a load of Discover shows the welcome, not the short curtain", async ({
+    page,
+  }) => {
     await page.addInitScript(() =>
       localStorage.setItem("relay:welcome:v2", "seen"),
     );
@@ -105,7 +107,7 @@ test.describe("reduced motion", () => {
       await page.evaluate(() => document.documentElement.dataset.curtain),
     ).toBe("off");
     await expect(
-      page.getByRole("heading", { name: "Discover", level: 1 }),
+      page.getByRole("button", { name: "Explore ideas" }),
     ).toBeVisible();
   });
 

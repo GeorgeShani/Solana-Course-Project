@@ -380,12 +380,6 @@ html[data-showtime="opening"] .aud {
   }
 }
 
-@media (max-width: 600px) {
-  .scr {
-    padding-bottom: calc(var(--house-h) + var(--s3));
-  }
-}
-
 /* Tickets slide away at the stage line; they never pass behind or through the house. */
 html[data-house="on"] .stream {
   clip-path: inset(0 0 var(--house-h) 0);
