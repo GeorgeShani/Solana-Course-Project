@@ -70,3 +70,8 @@ Docker Compose behind Caddy on one host: see [DEPLOYMENT.md](DEPLOYMENT.md). The
 ## Rules that always apply
 
 Devnet only. No `@solana/web3.js`, no Anchor TypeScript client, no type assertions in TypeScript, money is integers, a failed transaction stays failed, nothing from the client is trusted for amounts or outcomes, and no traders, posts or identities are invented. The full list is in [AGENTS.md](AGENTS.md).
+
+## Contributors
+
+- [Mariam (Manjo) Manjavidze](https://github.com/MariamManjo)
+- [Luka Vacheishvili](https://github.com/lukavache)
